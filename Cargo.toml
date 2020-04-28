@@ -1,0 +1,16 @@
+[package]
+name = "iced_audio_widgets"
+version = "0.0.0"
+authors = ["Billy Messenger https://github.com/BillyDM"]
+license = "MIT"
+edition = "2018"
+keywords = ["iced", "gui", "audio"]
+categories = ["gui", "visualization"]
+description = "Audio based widgets for use in the Rust iced GUI library. (currently just a placeholder)"
+homepage = "https://github.com/BillyDM/iced_audio_widgets"
+repository = "https://github.com/BillyDM/iced_audio_widgets"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
