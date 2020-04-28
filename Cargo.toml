@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Billy Messenger https://github.com/BillyDM"]
 license = "MIT"
 edition = "2018"
@@ -11,6 +11,15 @@ homepage = "https://github.com/BillyDM/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
 readme = "README.md"
 
+[badges]
+maintenance = { status = "actively-developed" }
+
+[[example]]
+name = "all_widgets"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iced = "0.1.1"
+iced_native = "0.2.2"
+iced_wgpu = "0.2.2"
