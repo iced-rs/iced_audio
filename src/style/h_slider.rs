@@ -29,6 +29,10 @@ pub trait StyleSheet {
 
     /// Produces the style of an HSlider that is being dragged.
     fn dragging(&self) -> Style;
+
+    /// The height of the active selection
+    /// (usually the same as handle.height)
+    fn height(&self) -> u16;
 }
 
 struct Default;
@@ -70,6 +74,10 @@ impl StyleSheet for Default {
             },
             ..active
         }
+    }
+
+    fn height(&self) -> u16 {
+        14
     }
 }
 

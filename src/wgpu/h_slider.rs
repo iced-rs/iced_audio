@@ -1,4 +1,5 @@
 use crate::{
+    Normal,
     native::h_slider,
     style::h_slider::StyleSheet,
 };
@@ -10,15 +11,15 @@ use iced_wgpu::{Primitive, Renderer};
 impl h_slider::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
 
-    fn height(&self) -> u32 {
-        30
+    fn height(&self, style_sheet: &Self::Style) -> u16 {
+        style_sheet.height()
     }
 
     fn draw(
         &mut self,
         bounds: Rectangle,
         cursor_position: Point,
-        value: f32,
+        normal: Normal,
         is_dragging: bool,
         style_sheet: &Self::Style,
     ) -> Self::Output {
@@ -66,7 +67,7 @@ impl h_slider::Renderer for Renderer {
             f32::from(style.handle.height),
             style.handle.border_radius);
         
-        let handle_offset = (bounds.width - handle_width) * value;
+        let handle_offset = (bounds.width - handle_width) * normal.value();
         
         let handle = Primitive::Quad {
             bounds: Rectangle {

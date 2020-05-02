@@ -1,51 +1,67 @@
-//! Display an interactive horizontal slider
+//! Display an interactive horizontal slider that controls a `Param`
 
 use iced_native::{
-    input::{mouse, ButtonState},
+    input::{mouse, ButtonState, keyboard},
     layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
     Rectangle, Size, Widget,
 };
-use iced_wgpu::{Defaults, Primitive};
 
-use std::{hash::Hash};
+use std::hash::Hash;
 
-/// A horizontal slider
+use crate::{Normal, Param};
+
+static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
+
+/// A horizontal slider GUI widget that controls a [`Param`]
 ///
 /// An [`HSlider`] will try to fill the horizontal space of its container.
 ///
+/// [`Param`]: trait.Param.html
 /// [`HSlider`]: struct.HSlider.html
 #[allow(missing_debug_implementations)]
 pub struct HSlider<'a, Message, Renderer: self::Renderer> {
     state: &'a mut State,
-    value: f32,
-    on_change: Box<dyn Fn(f32) -> Message>,
+    normal: Normal,
+    default_normal: Normal,
+    on_change: Box<dyn Fn((u32, Normal)) -> Message>,
+    modifier_scalar: f32,
+    modifier_keys: keyboard::ModifiersState,
     width: Length,
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer> HSlider<'a, Message, Renderer> {
+impl<'a, Message, Renderer: self::Renderer>HSlider<'a, Message, Renderer> {
     /// Creates a new [`HSlider`].
     ///
     /// It expects:
     ///   * the local [`State`] of the [`HSlider`]
-    ///   * the current value between 0 and 1
+    ///   * a [`Param`] with the current and default values
     ///   * a function that will be called when the [`HSlider`] is dragged.
-    ///   It receives the new value of the [`HSlider`] and must produce a
-    ///   `Message`.
+    ///   It receives the parameter's ID and the new [`Normal`] of the
+    /// [`HSlider`].
     ///
+    /// [`State`]: struct.Normal.State.html
+    /// [`Param`]: trait.Param.html
+    /// [`Normal`]: struct.Normal.html
     /// [`HSlider`]: struct.HSlider.html
     pub fn new<F>(
         state: &'a mut State,
-        value: f32,
+        param: &impl Param,
         on_change: F,
     ) -> Self
     where
-        F: 'static + Fn(f32) -> Message,
-    {
+        F: 'static + Fn((u32, Normal)) -> Message,
+    {  
         HSlider {
             state,
-            value,
+            normal: param.normal(),
+            default_normal: param.default_normal(),
             on_change: Box::new(on_change),
+            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
+            modifier_keys: keyboard::ModifiersState {
+                control: true,
+                ..Default::default()
+            },
             width: Length::Fill,
             style: Renderer::Style::default(),
         }
@@ -66,23 +82,65 @@ impl<'a, Message, Renderer: self::Renderer> HSlider<'a, Message, Renderer> {
         self.style = style.into();
         self
     }
+
+    /// Sets the modifier keys of the [`HSlider`].
+    ///
+    /// The default modifier key is `Ctrl`.
+    ///
+    /// [`HSlider`]: struct.HSlider.html
+    pub fn modifier_keys(
+        mut self,
+        modifier_keys: keyboard::ModifiersState,
+    ) -> Self {
+        self.modifier_keys = modifier_keys;
+        self
+    }
+
+    /// Sets the scalar to use when the user drags the slider while holding down
+    /// the modifier key.
+    ///
+    /// For example, a scalar of `0.5` will cause the slider to move half a
+    /// pixel for every pixel the mouse moves.
+    ///
+    /// The default scalar is `0.02`, and the default modifier key is `Ctrl`.
+    ///
+    /// [`HSlider`]: struct.HSlider.html
+    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
+        self.modifier_scalar = scalar;
+        self
+    }
 }
 
 /// The local state of an [`HSlider`].
 ///
 /// [`HSlider`]: struct.HSlider.html
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy)]
 pub struct State {
+    id: u32,
     is_dragging: bool,
-    drag_offset_x: f32,
+    prev_drag_x: f32,
+    continuous_normal: f32,
+    pressed_modifiers: keyboard::ModifiersState,
+    last_click: Option<mouse::Click>,
 }
 
 impl State {
     /// Creates a new [`HSlider`] state.
     ///
+    /// It expects:
+    /// * a [`Param`] with the ID of the parameter to control
+    ///
+    /// [`Param`]: trait.Param.html
     /// [`HSlider`]: struct.HSlider.html
-    pub fn new() -> State {
-        State::default()
+    pub fn new(param: &impl Param) -> Self {
+        Self {
+            id: param.id(),
+            is_dragging: false,
+            prev_drag_x: 0.0,
+            continuous_normal: param.normal().value(),
+            pressed_modifiers: Default::default(),
+            last_click: None,
+        }
     }
 }
 
@@ -104,9 +162,11 @@ where
         renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let limits = limits
+            let limits = limits
             .width(self.width)
-            .height(Length::Units(renderer.height() as u16));
+            .height(Length::from(Length::Units(
+                renderer.height(&self.style)
+                )));
         
             let size = limits.resolve(Size::ZERO);
 
@@ -122,22 +182,6 @@ where
         _renderer: &Renderer,
         _clipboard: Option<&dyn Clipboard>,
     ) {
-        let mut change = || {
-            let bounds = layout.bounds();
-
-            if self.state.is_dragging {
-                let mut value = (
-                                    (cursor_position.x - bounds.x)
-                                    - self.state.drag_offset_x
-                                    ) / bounds.width;
-                
-                if value < 0.0 { value = 0.0; }
-                else if value > 1.0 { value = 1.0; }
-                
-                messages.push((self.on_change)(value));
-            }
-        };
-
         match event {
             Event::Mouse(mouse::Event::Input {
                 button: mouse::Button::Left,
@@ -145,26 +189,64 @@ where
             }) => match state {
                 ButtonState::Pressed => {
                     if layout.bounds().contains(cursor_position) {
-                        change();
+                        let click = mouse::Click::new(
+                            cursor_position,
+                            self.state.last_click,
+                        );
 
-                        let bounds = layout.bounds();
+                        match click.kind() {
+                            mouse::click::Kind::Single => {
+                                self.state.is_dragging = true;
+                                self.state.prev_drag_x = cursor_position.x;
+                            }
+                            _ => {
+                                self.state.is_dragging = false;
 
-                        self.state.is_dragging = true;
-                        self.state.drag_offset_x =
-                            cursor_position.x - 
-                            ((self.value * bounds.width) + bounds.x);
+                                messages.push((self.on_change)(
+                                    (self.state.id, self.default_normal)
+                                ));
+                            }
+                        }
+
+                        self.state.last_click = Some(click);
                     }
                 }
                 ButtonState::Released => {
                     self.state.is_dragging = false;
-                    self.state.drag_offset_x = 0.0;
+                    self.state.continuous_normal = self.normal.value();
                 }
             },
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
                 if self.state.is_dragging {
-                    change();
+                    let bounds_width = layout.bounds().width;
+                    if bounds_width != 0.0 {
+                        let mut movement_x =
+                            (cursor_position.x - self.state.prev_drag_x)
+                                / bounds_width;
+
+                        if self.state.pressed_modifiers.matches(
+                            self.modifier_keys) {
+                            movement_x *= self.modifier_scalar;
+                        }
+
+                        let normal =
+                            self.state.continuous_normal + movement_x;
+
+                        self.state.continuous_normal = normal;
+                        self.state.prev_drag_x = cursor_position.x;
+
+                        messages.push((self.on_change)(
+                            (self.state.id, normal.into())
+                        ));
+                    }
                 }
-            }
+            },
+            Event::Keyboard(keyboard::Event::Input {
+                modifiers,
+                ..
+            }) => {
+                self.state.pressed_modifiers = modifiers;
+            },
             _ => {}
         }
     }
@@ -179,7 +261,7 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.value,
+            self.normal,
             self.state.is_dragging,
             &self.style,
         )
@@ -196,39 +278,39 @@ where
 
 /// The renderer of an [`HSlider`].
 ///
-/// Your [renderer] will need to implement this trait before being
+/// Your renderer will need to implement this trait before being
 /// able to use an [`HSlider`] in your user interface.
 ///
 /// [`HSlider`]: struct.HSlider.html
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
-    
-    /// Returns the height of the [`HSlider`].
-    ///
-    /// [`HSlider`]: struct.HSlider.html
-    fn height(&self) -> u32;
+
+    /// returns the height of the HSlider
+    fn height(&self, style_sheet: &Self::Style) -> u16;
 
     /// Draws an [`HSlider`].
     ///
     /// It receives:
     ///   * the bounds of the [`HSlider`]
     ///   * the current cursor position
-    ///   * the current value of the [`HSlider`]
+    ///   * the current normal of the [`HSlider`]
     ///   * the local state of the [`HSlider`]
+    ///   * the style of the ['HSlider']
     ///
     /// [`HSlider`]: struct.HSlider.html
     fn draw(
         &mut self,
         bounds: Rectangle,
         cursor_position: Point,
-        value: f32,
+        normal: Normal,
         is_dragging: bool,
         style: &Self::Style,
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer> From<HSlider<'a, Message, Renderer>>
+impl<'a, Message, Renderer>
+    From<HSlider<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,

@@ -1,15 +1,14 @@
 extern crate iced;
 
+mod core;
 mod native;
 mod style;
 mod wgpu;
 
-pub use native::*;
+pub use crate::core::*;
+pub use crate::core::param::*;
+pub use crate::native::*;
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }

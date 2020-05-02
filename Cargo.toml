@@ -1,15 +1,16 @@
 [package]
 name = "iced_audio"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Billy Messenger https://github.com/BillyDM"]
 license = "MIT"
 edition = "2018"
 keywords = ["iced", "gui", "audio"]
 categories = ["gui", "visualization"]
-description = "Audio based widgets for use in the Rust iced GUI library. (currently just a placeholder)"
+description = "Audio based widgets for use in the Rust iced GUI library"
 homepage = "https://github.com/BillyDM/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
 readme = "README.md"
+publish = false
 
 [badges]
 maintenance = { status = "actively-developed" }
@@ -17,9 +18,10 @@ maintenance = { status = "actively-developed" }
 [[example]]
 name = "all_widgets"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# See more keys and their definitions at
+# https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = "0.1.1"
-iced_native = "0.2.2"
-iced_wgpu = "0.2.2"
+iced = "0.1"
+iced_native = "0.2"
+iced_wgpu = "0.2"
