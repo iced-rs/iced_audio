@@ -10,7 +10,6 @@ description = "Audio based widgets for use in the Rust iced GUI library"
 homepage = "https://github.com/BillyDM/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
 readme = "README.md"
-publish = false
 
 [badges]
 maintenance = { status = "actively-developed" }
