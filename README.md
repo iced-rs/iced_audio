@@ -1,7 +1,7 @@
 # iced_audio
 Audio based widgets for the iced GUI library for Rust
 
-## This crate is currently very alpha and incomplete.
+## This crate is currently experimental and incomplete.
 
 ## Run example with
 
@@ -16,26 +16,24 @@ cargo run --example all_widgets --release
 ```
 
 ## Widgets partially implemented
-* HSlider - a horizontal slider
+* HSlider - a horizontal slider (just need to add texture style variant)
 
 ## Roadmap of planned widgets
 ### Inputs
 
-* VSlider - vertical slider with optional notches
-* HSlider - horizontal slider with optional notches
+* VSlider - vertical slider
+* HSlider - horizontal slider
+* HTickMarks - horizontal tick marks
+* VTickMark - vertical tick marks
 * HRangeSlider - a horizontal slider with two or more handles for controlling the automation range of a parameter.
-* VTextureSlider - same as VSlider but using a texture
-* HTextureSlider - same as HSlider but using a texture
-* Knob - a rotating knob with optional notches
-* TextureKnob - same as Knob but using a texture. May also have optional highlight and shadow layers.
+* Knob - a rotating knob with optional notches. Texture style may have optional highlight and shadow layers.
+* KnobTickMarks - tick marks around a knob
 * KnobAutoRange - an adjustable line around a Knob that represents the range of automation active on that parameter. Will have a unipolar and bipolar mode. May also have multiple of these widgets in a ring-like pattern like in the original Massive synthesizer.
 * EnvelopeEditor - adjustable points connected by lines that represent an envelope / lfo. Lines can be straight or curved, and extra points can be added or removed.
 * StepEditor - a row of vertical sliders for step automation
 * ParEqEditor - a row of points connected by lines used to control parametric equalizers. These points can also be controlled with the scroll wheel to adjust Q value.
 * Keys - piano keys that can be clicked with a mouse to play a synthesizer. Velocity is controlled by how low on the key the mouse was clicked at. It can be horizontal or vertical.
-* TextureKeys - same as Keys but with Textures
-* PitchWheel - like VSlider but the slider snaps back to the middle when the mouse is released.
-* TexturePitchWheel - same as PitchWheel but using a texture. May also use an optional highlight and shadow layer.
+* PitchWheel - like VSlider but the slider snaps back to the middle when the mouse is released. Texture style may have an optional highlight and shadow layer.
 * XYPad - a draggable point in a 2D square used to control 2 parameters at once
 
 ### Visualizers
@@ -52,7 +50,7 @@ cargo run --example all_widgets --release
 * WavetableView - same as oscilloscope but specifically for rendering single waveforms instead of an audio signal
 
 
-## Each continuous widget can accept one of four types of parameters:
+## Each input widget with a continuous output can accept one of four types of parameters
 * FloatParam - a linear range of f32 values
 * IntParam - a discrete range of i32 values. This will cause the widget to "step" when moved.
 * LogDBParam - a logarithmic range of decibel values. Values around 0 dB will increment slower than values farther away from 0 dB.

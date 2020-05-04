@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Billy Messenger https://github.com/BillyDM"]
 license = "MIT"
 edition = "2018"
@@ -8,6 +8,7 @@ keywords = ["iced", "gui", "audio"]
 categories = ["gui", "visualization"]
 description = "Audio based widgets for use in the Rust iced GUI library"
 homepage = "https://github.com/BillyDM/iced_audio"
+documentation = "https://docs.rs/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
 readme = "README.md"
 

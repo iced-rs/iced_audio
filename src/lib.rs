@@ -2,7 +2,7 @@ extern crate iced;
 
 mod core;
 mod native;
-mod style;
+pub mod style;
 mod wgpu;
 
 pub use crate::core::*;

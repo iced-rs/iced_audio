@@ -47,9 +47,9 @@ impl FloatParam {
     /// * `value` - the initial value of the parameter (if `value` falls outside
     /// the range given by `min` and `max`, then `min` or `max` will be used
     /// instead)
-    /// * `value` - the default value of the parameter (if `default_value` falls
-    /// outside the range given by `min` and `max`, then `min` or `max` will be
-    /// used instead)
+    /// * `default_value` - the default value of the parameter (if
+    /// `default_value` falls outside the range given by `min` and `max`, then
+    /// `min` or `max` will be used instead)
     ///
     /// # Panics
     ///
@@ -169,9 +169,9 @@ impl IntParam {
     /// * `value` - the initial value of the parameter (if `value` falls outside
     /// the range given by `min` and `max`, then `min` or `max` will be used
     /// instead)
-    /// * `value` - the default value of the parameter (if `default_value` falls
-    /// outside the range given by `min` and `max`, then `min` or `max` will be
-    /// used instead)
+    /// * `default_value` - the default value of the parameter (if
+    /// `default_value` falls outside the range given by `min` and `max`, then
+    /// `min` or `max` will be used instead)
     ///
     /// # Panics
     ///
@@ -307,9 +307,9 @@ impl LogDBParam {
     /// * `value` - the initial value of the parameter in dB (if `value` falls
     /// outside the range given by `min` and `max`, then `min` or `max` will be
     /// used instead)
-    /// * `value` - the default value of the parameter in dB (if `default_value`
-    /// falls outside the range given by `min` and `max`, then `min` or `max`
-    /// will be used instead)
+    /// * `default_value` - the default value of the parameter in dB (if
+    /// `default_value` falls outside the range given by `min` and `max`, then
+    /// `min` or `max` will be used instead)
     /// * `zero_normal` - a normal that defines where on the slider 0 decibels
     /// should be. For example, `Normal::new(0.5)` will have 0 dB at the center
     /// of the slider. Normals of `1.0` and `0.0` can be used for only negative
@@ -448,8 +448,6 @@ impl Param for LogDBParam {
 }
 
 
-
-
 /// A [`Param`] that defines a continuous logarithmic range of `f32` frequency
 /// values, with each octave in the 10 octave spectrum spaced evenly.
 ///
@@ -486,9 +484,9 @@ impl OctaveParam {
     /// * `value` - the initial value of the parameter in Hz (if `value` falls
     /// outside the range given by `min` and `max`, then `min` or `max` will be
     /// used instead)
-    /// * `value` - the default value of the parameter in Hz (if `default_value`
-    /// falls outside the range given by `min` and `max`, then `min` or `max`
-    /// will be used instead)
+    /// * `default_value` - the default value of the parameter in Hz (if
+    /// `default_value` falls outside the range given by `min` and `max`, then
+    /// `min` or `max` will be used instead)
     ///
     /// # Panics
     ///
