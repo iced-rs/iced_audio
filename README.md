@@ -1,5 +1,13 @@
 # iced_audio
-Audio based widgets for the iced GUI library for Rust
+[![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
+[![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
+[![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
+
+Audio based widgets for the [iced] GUI library for Rust
+
+[iced]: https://github.com/hecrj/iced
+
+![image](/screenshots/HSliders.png?raw=true)
 
 ## This crate is currently experimental and incomplete. Master branch may contain breaking changes!
 
