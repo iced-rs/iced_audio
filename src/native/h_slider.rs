@@ -8,7 +8,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::{Normal, Param};
+use crate::core::{Normal, Param};
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 

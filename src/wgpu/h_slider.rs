@@ -1,12 +1,19 @@
-use crate::{
-    Normal,
-    native::h_slider,
-    style::h_slider::{Style, StyleSheet}
-};
+use crate::core::Normal;
+use crate::native::h_slider;
 use iced_native::{
     Background, Color, MouseCursor, Point, Rectangle
 };
 use iced_wgpu::{Primitive, Renderer};
+
+
+pub use crate::native::h_slider::State;
+pub use crate::style::h_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
+    RectStyle, RectBipolarStyle
+};
+
+/// This is an alias of a `crate::native` HSlider with an `iced_wgpu::Renderer`.
+pub type HSlider<'a, Message> = h_slider::HSlider<'a, Message, Renderer>;
+
 
 impl h_slider::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;

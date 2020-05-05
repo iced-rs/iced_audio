@@ -4,9 +4,8 @@ use iced::{
     Column, Container, Element, Length, Sandbox, Text, Settings, Row, Color
 };
 
-use iced_audio::{h_slider, HSlider};
-use iced_audio::{Normal, Param, FloatParam, IntParam, LogDBParam,
-    OctaveParam, style
+use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
+    OctaveParam, h_slider, HSlider
 };
 
 pub fn main() {
@@ -19,32 +18,28 @@ struct AllWidgets {
     h_slider_float_param: FloatParam,
     h_slider_float_state: h_slider::State,
     h_slider_float_label: String,
-    h_slider_float_text: String,
 
     h_slider_int_param: IntParam,
     h_slider_int_state: h_slider::State,
     h_slider_int_label: String,
-    h_slider_int_text: String,
 
     h_slider_log_param: LogDBParam,
     h_slider_log_state: h_slider::State,
     h_slider_log_label: String,
-    h_slider_log_text: String,
 
     h_slider_oct_param: OctaveParam,
     h_slider_oct_state: h_slider::State,
     h_slider_oct_label: String,
-    h_slider_oct_text: String,
 
     h_slider_style_param: FloatParam,
     h_slider_style_state: h_slider::State,
     h_slider_style_label: String,
-    h_slider_style_text: String,
 
     h_slider_style_bp_param: FloatParam,
     h_slider_style_bp_state: h_slider::State,
     h_slider_style_bp_label: String,
-    h_slider_style_bp_text: String,
+
+    output_text: String,
 }
 
 impl Default for AllWidgets {
@@ -87,62 +82,44 @@ impl Default for AllWidgets {
                 &h_slider_float_param
             ),
             // initialize the label above the HSlider widget
-            h_slider_float_label: String::from("HSlider Float Range"),
-            // initialize the output text below the HSlider widget with the
-            // initial values of the parameter
-            h_slider_float_text: info_text_f32(
-                h_slider_float_param.id(),
-                h_slider_float_param.value()),
+            h_slider_float_label: String::from("Float Range"),
 
 
             h_slider_int_param,
             h_slider_int_state: h_slider::State::new(
                 &h_slider_int_param
             ),
-            h_slider_int_label: String::from("HSlider Int Range"),
-            h_slider_int_text: info_text_i32(
-                h_slider_int_param.id(),
-                h_slider_int_param.value()),
+            h_slider_int_label: String::from("Int Range"),
             
 
             h_slider_log_param,
             h_slider_log_state: h_slider::State::new(
                 &h_slider_log_param
             ),
-            h_slider_log_label: String::from("HSlider Log dB Range"),
-            h_slider_log_text: info_text_db(
-                h_slider_log_param.id(),
-                h_slider_log_param.value()),
+            h_slider_log_label: String::from("Log dB Range"),
             
 
             h_slider_oct_param,
             h_slider_oct_state: h_slider::State::new(
                 &h_slider_oct_param
             ),
-            h_slider_oct_label: String::from("HSlider Octave Freq Range"),
-            h_slider_oct_text: info_text_octave(
-                h_slider_oct_param.id(),
-                h_slider_oct_param.value()),
+            h_slider_oct_label: String::from("Octave Freq Range"),
 
 
             h_slider_style_param,
             h_slider_style_state: h_slider::State::new(
                 &h_slider_style_param
             ),
-            h_slider_style_label: String::from("HSlider Rect Style"),
-            h_slider_style_text: info_text_f32(
-                h_slider_style_param.id(),
-                h_slider_style_param.value()),
+            h_slider_style_label: String::from("Rect Style"),
             
 
             h_slider_style_bp_param,
             h_slider_style_bp_state: h_slider::State::new(
                 &h_slider_style_bp_param
             ),
-            h_slider_style_bp_label: String::from("HSlider Rect Bipolar Style"),
-            h_slider_style_bp_text: info_text_f32(
-                h_slider_style_bp_param.id(),
-                h_slider_style_bp_param.value()),
+            h_slider_style_bp_label: String::from("Rect Bipolar Style"),
+
+            output_text: String::from("Move a widget"),
         }
     }
 }
@@ -199,32 +176,32 @@ impl Sandbox for AllWidgets {
                 match id {
                     0 => {
                         self.h_slider_float_param.set_from_normal(normal);
-                        self.h_slider_float_text = info_text_f32(id,
+                        self.output_text = info_text_f32(id,
                             self.h_slider_float_param.value());
                     },
                     1 => {
                         self.h_slider_int_param.set_from_normal(normal);
-                        self.h_slider_int_text = info_text_i32(id,
+                        self.output_text = info_text_i32(id,
                             self.h_slider_int_param.value());
                     },
                     2 => {
                         self.h_slider_log_param.set_from_normal(normal);
-                        self.h_slider_log_text = info_text_db(id,
+                        self.output_text = info_text_db(id,
                             self.h_slider_log_param.value());
                     },
                     3 => {
                         self.h_slider_oct_param.set_from_normal(normal);
-                        self.h_slider_oct_text = info_text_octave(id,
+                        self.output_text = info_text_octave(id,
                             self.h_slider_oct_param.value());
                     },
                     4 => {
                         self.h_slider_style_param.set_from_normal(normal);
-                        self.h_slider_style_text = info_text_f32(id,
+                        self.output_text = info_text_f32(id,
                             self.h_slider_style_param.value());
                     },
                     5 => {
                         self.h_slider_style_bp_param.set_from_normal(normal);
-                        self.h_slider_style_bp_text = info_text_f32(id,
+                        self.output_text = info_text_f32(id,
                             self.h_slider_style_bp_param.value());
                     },
                     _ => (),
@@ -286,15 +263,12 @@ impl Sandbox for AllWidgets {
                 .spacing(10)
                 .push(Text::new(&self.h_slider_float_label))
                 .push(h_slider_float)
-                .push(Text::new(&self.h_slider_float_text).size(16))
 
                 .push(Text::new(&self.h_slider_log_label))
                 .push(h_slider_log)
-                .push(Text::new(&self.h_slider_log_text).size(16))
 
                 .push(Text::new(&self.h_slider_style_label))
                 .push(h_slider_style)
-                .push(Text::new(&self.h_slider_style_text).size(16))
             )
 
             .push(Column::new()
@@ -302,15 +276,12 @@ impl Sandbox for AllWidgets {
                 .spacing(10)
                 .push(Text::new(&self.h_slider_int_label))
                 .push(h_slider_int)
-                .push(Text::new(&self.h_slider_int_text).size(16))
 
                 .push(Text::new(&self.h_slider_oct_label))
                 .push(h_slider_oct)
-                .push(Text::new(&self.h_slider_oct_text).size(16))
 
                 .push(Text::new(&self.h_slider_style_bp_label))
                 .push(h_slider_style_bp)
-                .push(Text::new(&self.h_slider_style_bp_text).size(16))
             );
 
         let content = Column::new()
@@ -320,7 +291,8 @@ impl Sandbox for AllWidgets {
             .push(Text::new("Horizontal Sliders (HSlider)").size(42))
             .push(Text::new("Hold down Ctrl for fine adjustments. \
                 Double-click to reset to the default value.").size(16))
-            .push(h_slider_row);
+            .push(h_slider_row)
+            .push(Text::new(&self.output_text).size(16));
         
         Container::new(content)
             .width(Length::Fill)
@@ -349,10 +321,10 @@ const HANDLE_COLOR: Color = Color::from_rgb(0.46, 0.76, 1.0);
 // Custom style for the Rect HSlider
 
 struct HSliderCustomStyle;
-impl style::h_slider::StyleSheet for HSliderCustomStyle {
-    fn active(&self) -> style::h_slider::Style {
-        style::h_slider::Style::Rect(
-        style::h_slider::RectStyle {
+impl h_slider::StyleSheet for HSliderCustomStyle {
+    fn active(&self) -> h_slider::Style {
+        h_slider::Style::Rect(
+        h_slider::RectStyle {
             back_empty_color: EMPTY_COLOR,
             back_filled_color: FILLED_COLOR,
             border_color: BORDER_COLOR,
@@ -364,11 +336,11 @@ impl style::h_slider::StyleSheet for HSliderCustomStyle {
         })
     }
     
-    fn hovered(&self) -> style::h_slider::Style {
+    fn hovered(&self) -> h_slider::Style {
         let active = self.active();
-        if let style::h_slider::Style::Rect(active) = active {
-            style::h_slider::Style::Rect(
-            style::h_slider::RectStyle {
+        if let h_slider::Style::Rect(active) = active {
+            h_slider::Style::Rect(
+            h_slider::RectStyle {
                 back_filled_color: FILLED_HOVER_COLOR,
                 handle_width: 5,
                 ..active
@@ -376,7 +348,7 @@ impl style::h_slider::StyleSheet for HSliderCustomStyle {
         } else { active }
     }
     
-    fn dragging(&self) -> style::h_slider::Style {
+    fn dragging(&self) -> h_slider::Style {
         self.hovered()
     }
 
@@ -388,10 +360,10 @@ impl style::h_slider::StyleSheet for HSliderCustomStyle {
 // Custom style for the Rect Bipolar HSlider
 
 struct HSliderCustomStyleBipolar;
-impl style::h_slider::StyleSheet for HSliderCustomStyleBipolar {
-    fn active(&self) -> style::h_slider::Style {
-        style::h_slider::Style::RectBipolar(
-        style::h_slider::RectBipolarStyle {
+impl h_slider::StyleSheet for HSliderCustomStyleBipolar {
+    fn active(&self) -> h_slider::Style {
+        h_slider::Style::RectBipolar(
+        h_slider::RectBipolarStyle {
             back_left_empty_color: EMPTY_COLOR,
             back_left_filled_color: FILLED_COLOR,
             back_right_empty_color: EMPTY_COLOR,
@@ -407,11 +379,11 @@ impl style::h_slider::StyleSheet for HSliderCustomStyleBipolar {
         })
     }
     
-    fn hovered(&self) -> style::h_slider::Style {
+    fn hovered(&self) -> h_slider::Style {
         let active = self.active();
-        if let style::h_slider::Style::RectBipolar(active) = active {
-            style::h_slider::Style::RectBipolar(
-            style::h_slider::RectBipolarStyle {
+        if let h_slider::Style::RectBipolar(active) = active {
+            h_slider::Style::RectBipolar(
+            h_slider::RectBipolarStyle {
                 back_left_filled_color: FILLED_HOVER_COLOR,
                 back_right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
                 handle_width: 5,
@@ -420,7 +392,7 @@ impl style::h_slider::StyleSheet for HSliderCustomStyleBipolar {
         } else { active }
     }
     
-    fn dragging(&self) -> style::h_slider::Style {
+    fn dragging(&self) -> h_slider::Style {
         self.hovered()
     }
 

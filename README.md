@@ -1,7 +1,7 @@
 # iced_audio
 Audio based widgets for the iced GUI library for Rust
 
-## This crate is currently experimental and incomplete.
+## This crate is currently experimental and incomplete. Master branch may contain breaking changes!
 
 ## Run example with
 

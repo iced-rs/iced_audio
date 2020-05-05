@@ -1,5 +1,7 @@
 pub mod param;
 
+pub use param::*;
+
 /// An `f32` value that is gauranteed to be constrained to the range of
 ///
 /// `0.0 >= value >= 1.0`

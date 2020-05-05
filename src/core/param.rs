@@ -1,4 +1,4 @@
-use crate::Normal;
+use crate::core::Normal;
 
 use std::f32;
 
