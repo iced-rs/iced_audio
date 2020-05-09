@@ -9,6 +9,7 @@ use crate::TexturePadding;
 /// * `Rect` - a modern style with a line inside a filled rectangle
 /// * `RectBipolar` - same as `Rect` but can have different colors for left,
 /// right, and center positions
+/// * `Texture` - uses an image texture for the handle
 ///
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone)]
@@ -132,6 +133,19 @@ pub struct RectBipolarStyle {
     pub handle_filled_gap: u16,
 }
 
+/// A [`Style`] for an [`HSlider`] that uses an image texture for the handle
+///
+/// * `rail_colors` - colors of the top and bottom of the rail
+/// * `texture` - the [`Handle`] to the image texture
+/// * `handle_width` - the width of the handle, not including padding
+/// * `handle_height` - the height of the handle, not including padding
+/// * `texture_padding` - the texture padding around the handle bounding
+/// rectangle. This is useful when the texture is of a glowing handle or has
+/// a drop shadow, etc.
+///
+/// [`Style`]: enum.Style.html
+/// [`HSlider`]: struct.HSlider.html
+/// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
     pub rail_colors: (Color, Color),

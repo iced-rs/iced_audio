@@ -90,6 +90,9 @@ impl From<Normal> for f32 {
     }
 }
 
+/// The texture padding around a bounding rectangle. This is useful when the
+/// texture is larger than the intended bounds of the widget, such as a glowing
+/// button texture or a slider with a drop shadow, etc.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TexturePadding {
     pub top: u16,
@@ -110,6 +113,8 @@ impl Default for TexturePadding {
 }
 
 impl TexturePadding {
+    /// Creates a new `TexturePadding` with `top`, `bottom`, `left`, and `right`
+    /// all set to `padding`.
     pub fn from_single(padding: u16) -> Self {
         Self {
             top: padding,
@@ -119,6 +124,11 @@ impl TexturePadding {
         }
     }
 
+    /// Creates a new `TexturePadding`
+    ///
+    /// # Arguments
+    /// * `vertical_pad` - padding for `top` and `bottom`
+    /// * `horizontal_pad` - padding for `left` and `right`
     pub fn from_v_h(vertical_pad: u16, horizontal_pad: u16) -> Self {
         Self {
             top: vertical_pad,

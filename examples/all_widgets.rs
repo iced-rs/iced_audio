@@ -5,7 +5,7 @@ use iced::{
 };
 
 use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
-    OctaveParam, h_slider, HSlider, TexturePadding
+    OctaveParam, h_slider, HSlider
 };
 
 use iced_native::image;
@@ -287,6 +287,7 @@ impl Sandbox for AllWidgets {
             &self.h_slider_texture_param,
             Message::HSliderChanged,
         )
+        // clone the handle to the loaded texture
         .style(HSliderTextureStyle(self.h_slider_texture_handle.clone()));
 
 
@@ -452,6 +453,8 @@ impl h_slider::StyleSheet for HSliderCustomStyleBipolar {
         24
     }
 }
+
+// Custom style for the Texture HSlider
 
 struct HSliderTextureStyle(image::Handle);
 impl h_slider::StyleSheet for HSliderTextureStyle {
