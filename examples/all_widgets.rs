@@ -8,6 +8,8 @@ use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
     OctaveParam, h_slider, HSlider
 };
 
+use iced_native::image;
+
 pub fn main() {
     // run the application
     AllWidgets::run(Settings::default());
@@ -38,6 +40,12 @@ struct AllWidgets {
     h_slider_style_bp_param: FloatParam,
     h_slider_style_bp_state: h_slider::State,
     h_slider_style_bp_label: String,
+
+    h_slider_texture_param: FloatParam,
+    h_slider_texture_state: h_slider::State,
+    h_slider_texture_label: String,
+
+    h_slider_texture_handle: image::Handle,
 
     output_text: String,
 }
@@ -70,6 +78,10 @@ impl Default for AllWidgets {
 
         let h_slider_style_bp_param =
             FloatParam::new(5, -1.0, 1.0,
+                              0.0, 0.0);
+
+        let h_slider_texture_param =
+            FloatParam::new(6, 0.0, 1.0,
                               0.0, 0.0);
         
         // create application
@@ -118,6 +130,17 @@ impl Default for AllWidgets {
                 &h_slider_style_bp_param
             ),
             h_slider_style_bp_label: String::from("Rect Bipolar Style"),
+
+
+            h_slider_texture_param,
+            h_slider_texture_state: h_slider::State::new(
+                &h_slider_texture_param
+            ),
+            h_slider_texture_label: String::from("Texture Style"),
+
+
+            h_slider_texture_handle: "examples/images/iced_h_slider.png".into(),
+
 
             output_text: String::from("Move a widget"),
         }
@@ -204,6 +227,11 @@ impl Sandbox for AllWidgets {
                         self.output_text = info_text_f32(id,
                             self.h_slider_style_bp_param.value());
                     },
+                    6 => {
+                        self.h_slider_texture_param.set_from_normal(normal);
+                        self.output_text = info_text_f32(id,
+                            self.h_slider_texture_param.value());
+                    },
                     _ => (),
                 }
             }
@@ -252,6 +280,13 @@ impl Sandbox for AllWidgets {
         )
         .style(HSliderCustomStyleBipolar);
 
+        let h_slider_texture = HSlider::new(
+            &mut self.h_slider_texture_state,
+            &self.h_slider_texture_param,
+            Message::HSliderChanged,
+        )
+        .style(HSliderTextureStyle(self.h_slider_texture_handle.clone()));
+
 
         // push the sliders into rows
 
@@ -269,6 +304,9 @@ impl Sandbox for AllWidgets {
 
                 .push(Text::new(&self.h_slider_style_label))
                 .push(h_slider_style)
+
+                .push(Text::new(&self.h_slider_texture_label))
+                .push(h_slider_texture)
             )
 
             .push(Column::new()
@@ -394,6 +432,31 @@ impl h_slider::StyleSheet for HSliderCustomStyleBipolar {
     
     fn dragging(&self) -> h_slider::Style {
         self.hovered()
+    }
+
+    fn height(&self) -> u16 {
+        24
+    }
+}
+
+struct HSliderTextureStyle(image::Handle);
+impl h_slider::StyleSheet for HSliderTextureStyle {
+    fn active(&self) -> h_slider::Style {
+        h_slider::Style::Texture(
+        h_slider::TextureStyle {
+            rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
+            texture: self.0.clone(),
+            handle_width: 20,
+            handle_height: 10,
+        })
+    }
+    
+    fn hovered(&self) -> h_slider::Style {
+        self.active()
+    }
+    
+    fn dragging(&self) -> h_slider::Style {
+        self.active()
     }
 
     fn height(&self) -> u16 {

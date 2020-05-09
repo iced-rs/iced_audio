@@ -8,7 +8,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
-    RectStyle, RectBipolarStyle
+    RectStyle, RectBipolarStyle, TextureStyle
 };
 
 /// This is an alias of a `crate::native` HSlider with an `iced_wgpu::Renderer`.
@@ -342,6 +342,75 @@ impl h_slider::Renderer for Renderer {
                     MouseCursor::OutOfBounds,
                 )
             }
+            }
+
+
+
+            Style::Texture(style) => {
+
+            
+
+            let (rail_top, rail_bottom) = (
+                Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: rail_y,
+                        width: bounds.width,
+                        height: 2.0,
+                    },
+                    background: Background::Color(style.rail_colors.0),
+                    border_radius: 0,
+                    border_width: 0,
+                    border_color: Color::TRANSPARENT,
+                },
+                Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: rail_y + 2.0,
+                        width: bounds.width,
+                        height: 2.0,
+                    },
+                    background: Background::Color(style.rail_colors.1),
+                    border_radius: 0,
+                    border_width: 0,
+                    border_color: Color::TRANSPARENT,
+                }
+            );
+
+            let handle_width = style.handle_width as f32;
+            let handle_height = style.handle_height as f32;
+
+            let handle_offset = ( (bounds.width - handle_width)
+                                    * normal.value() ).round();
+            let handle_y_offset = (rail_y + (handle_height / 2.0)).round();
+            
+            let handle = Primitive::Image {
+                handle: style.texture,
+                bounds: Rectangle { x: handle_offset, y: handle_y_offset,
+                    width: handle_width, height: handle_height },
+            };
+
+            /*
+            let handle = Primitive::Quad {
+                bounds: Rectangle {
+                    x: bounds_x + handle_offset,
+                    y: rail_y - handle_height / 2.0,
+                    width: handle_width,
+                    height: handle_height,
+                },
+                background: Background::Color(style.handle.color),
+                border_radius: handle_border_radius,
+                border_width: style.handle.border_width,
+                border_color: style.handle.border_color,
+            };
+            */
+
+            (
+                Primitive::Group {
+                    primitives: vec![rail_top, rail_bottom, handle],
+                },
+                MouseCursor::OutOfBounds,
+            )
         }
         }
     }

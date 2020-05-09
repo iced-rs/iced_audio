@@ -1,4 +1,5 @@
 use iced::Color;
+use iced_native::image;
 
 /// The appearance of an [`HSlider`].
 ///
@@ -8,11 +9,12 @@ use iced::Color;
 /// right, and center positions
 ///
 /// [`HSlider`]: struct.HSlider.html
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Style {
     Classic(ClassicStyle),
     Rect(RectStyle),
     RectBipolar(RectBipolarStyle),
+    Texture(TextureStyle),
 }
 
 /// A classic [`Style`] for an [`HSlider`], modeled after hardware sliders 
@@ -23,7 +25,7 @@ pub enum Style {
 /// [`Style`]: enum.Style.html
 /// [`HSlider`]: struct.HSlider.html
 /// [`ClassicHandle`]: struct.ClassicHandle.html
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct ClassicStyle {
     pub rail_colors: (Color, Color),
     pub handle: ClassicHandle,
@@ -126,6 +128,14 @@ pub struct RectBipolarStyle {
     pub handle_center_color: Color,
     pub handle_width: u16,
     pub handle_filled_gap: u16,
+}
+
+#[derive(Debug, Clone)]
+pub struct TextureStyle {
+    pub rail_colors: (Color, Color),
+    pub texture: image::Handle,
+    pub handle_width: u16,
+    pub handle_height: u16,
 }
 
 /// A set of rules that dictate the style of an [`HSlider`].
