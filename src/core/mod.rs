@@ -89,3 +89,42 @@ impl From<Normal> for f32 {
         normal.value
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TexturePadding {
+    pub top: u16,
+    pub bottom: u16,
+    pub left: u16,
+    pub right: u16,
+}
+
+impl Default for TexturePadding {
+    fn default() -> Self {
+        Self {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+        }
+    }
+}
+
+impl TexturePadding {
+    pub fn from_single(padding: u16) -> Self {
+        Self {
+            top: padding,
+            bottom: padding,
+            left: padding,
+            right: padding,
+        }
+    }
+
+    pub fn from_v_h(vertical_pad: u16, horizontal_pad: u16) -> Self {
+        Self {
+            top: vertical_pad,
+            bottom: vertical_pad,
+            left: horizontal_pad,
+            right: horizontal_pad,
+        }
+    }
+}

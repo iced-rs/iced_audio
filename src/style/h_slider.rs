@@ -1,6 +1,8 @@
 use iced::Color;
 use iced_native::image;
 
+use crate::TexturePadding;
+
 /// The appearance of an [`HSlider`].
 ///
 /// * `Classic` - modeled after hardware sliders
@@ -136,6 +138,7 @@ pub struct TextureStyle {
     pub texture: image::Handle,
     pub handle_width: u16,
     pub handle_height: u16,
+    pub texture_padding: Option<TexturePadding>,
 }
 
 /// A set of rules that dictate the style of an [`HSlider`].

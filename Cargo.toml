@@ -22,6 +22,6 @@ name = "all_widgets"
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = "0.1"
+iced = { version = "0.1", features = ["image"] }
 iced_native = "0.2"
 iced_wgpu = "0.2"

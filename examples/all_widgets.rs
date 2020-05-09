@@ -5,7 +5,7 @@ use iced::{
 };
 
 use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
-    OctaveParam, h_slider, HSlider
+    OctaveParam, h_slider, HSlider, TexturePadding
 };
 
 use iced_native::image;
@@ -138,8 +138,10 @@ impl Default for AllWidgets {
             ),
             h_slider_texture_label: String::from("Texture Style"),
 
-
-            h_slider_texture_handle: "examples/images/iced_h_slider.png".into(),
+            h_slider_texture_handle: format!(
+                "{}/examples/images/iced_h_slider.png",
+                env!("CARGO_MANIFEST_DIR")
+            ).into(),
 
 
             output_text: String::from("Move a widget"),
@@ -347,13 +349,25 @@ const EMPTY_COLOR: Color = Color::from_rgb(
     0x4D as f32 / 255.0,
 );
 const BORDER_COLOR: Color = Color::from_rgb(
-    0x3c as f32 / 255.0,
-    0x3f as f32 / 255.0,
+    0x3C as f32 / 255.0,
+    0x3F as f32 / 255.0,
     0x48 as f32 / 255.0,
 );
-const FILLED_COLOR: Color = Color::from_rgb(0.16, 0.4, 0.64);
-const FILLED_HOVER_COLOR: Color = Color::from_rgb(0.20, 0.44, 0.68);
-const HANDLE_COLOR: Color = Color::from_rgb(0.46, 0.76, 1.0);
+const FILLED_COLOR: Color = Color::from_rgb(
+    0x29 as f32 / 255.0,
+    0x66 as f32 / 255.0,
+    0xA3 as f32 / 255.0,
+);
+const FILLED_HOVER_COLOR: Color = Color::from_rgb(
+    0x33 as f32 / 255.0,
+    0x70 as f32 / 255.0,
+    0xAD as f32 / 255.0,
+);
+const HANDLE_COLOR: Color = Color::from_rgb(
+    0x75 as f32 / 255.0,
+    0xC2 as f32 / 255.0,
+    0xFF as f32 / 255.0,
+);
 
 
 // Custom style for the Rect HSlider
@@ -446,8 +460,9 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
         h_slider::TextureStyle {
             rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
             texture: self.0.clone(),
-            handle_width: 20,
-            handle_height: 10,
+            handle_width: 38,
+            handle_height: 20,
+            texture_padding: None,
         })
     }
     

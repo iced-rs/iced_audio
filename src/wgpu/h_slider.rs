@@ -376,34 +376,39 @@ impl h_slider::Renderer for Renderer {
                     border_color: Color::TRANSPARENT,
                 }
             );
-
+            
             let handle_width = style.handle_width as f32;
             let handle_height = style.handle_height as f32;
 
             let handle_offset = ( (bounds.width - handle_width)
                                     * normal.value() ).round();
-            let handle_y_offset = (rail_y + (handle_height / 2.0)).round();
-            
-            let handle = Primitive::Image {
-                handle: style.texture,
-                bounds: Rectangle { x: handle_offset, y: handle_y_offset,
-                    width: handle_width, height: handle_height },
-            };
 
-            /*
-            let handle = Primitive::Quad {
-                bounds: Rectangle {
-                    x: bounds_x + handle_offset,
-                    y: rail_y - handle_height / 2.0,
-                    width: handle_width,
-                    height: handle_height,
-                },
-                background: Background::Color(style.handle.color),
-                border_radius: handle_border_radius,
-                border_width: style.handle.border_width,
-                border_color: style.handle.border_color,
+            let handle = {
+                if let Some(pad) = style.texture_padding {
+                    Primitive::Image {
+                        handle: style.texture,
+                        bounds: Rectangle {
+                            x: bounds.x + handle_offset - pad.left as f32,
+                            y: (rail_y - (handle_height / 2.0)).round()
+                                - pad.top as f32,
+                            width: handle_width +
+                                (pad.left + pad.right) as f32,
+                            height: handle_height +
+                                (pad.top + pad.bottom) as f32,
+                        },
+                    }
+                } else {
+                    Primitive::Image {
+                        handle: style.texture,
+                        bounds: Rectangle {
+                            x: bounds.x + handle_offset,
+                            y: (rail_y - (handle_height / 2.0)).round(),
+                            width: handle_width,
+                            height: handle_height,
+                        },
+                    }
+                }
             };
-            */
 
             (
                 Primitive::Group {
