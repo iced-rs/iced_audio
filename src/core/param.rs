@@ -1,15 +1,24 @@
 use crate::core::Normal;
 
 use std::f32;
+use std::fmt::Debug;
 
 /// A paramater that maps a range of values to a [`Normal`], which is used by
 /// GUI widgets.
 /// It also contains a [`Normal`] for the default value of the parameter.
 ///
+/// It stores a unique identifier of user supplied type `ID`. This can be an
+/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+///
 /// [`Normal`]: struct.Normal.html
 pub trait Param {
+    /// A unique identifier of user supplied type `ID`. This can be an
+    /// `enum`, `u32`, `i32`, etc. Each parameter must have a unique
+    /// `ID` value!
+    type ID;
+
     /// returns the unique identifier of the parameter
-    fn id(&self) -> u32;
+    fn id(&self) -> Self::ID;
     /// returns the value of the parameter represented as a [`Normal`]
     ///
     /// [`Normal`]: struct.Normal.html
@@ -22,10 +31,13 @@ pub trait Param {
 
 /// A [`Param`] that defines a continuous linear range of `f32` values
 ///
-/// [`Param`]: struct.Param.html
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct FloatParam {
-    id: u32,
+/// It stores a unique identifier of user supplied type `ID`. This can be an
+/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+///
+/// [`Param`]: trait.Param.html
+#[derive(Debug, Clone, Copy)]
+pub struct FloatParam<ID: Debug + Copy + Clone> {
+    id: ID,
     value: f32,
     default_value: f32,
     normal: Normal,
@@ -36,7 +48,7 @@ pub struct FloatParam {
     range_recip: f32,
 }
 
-impl FloatParam {
+impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// Creates a new `FloatParam`
     /// 
     /// # Arguments
@@ -54,7 +66,7 @@ impl FloatParam {
     /// # Panics
     ///
     /// This will panic if `max` <= `min`
-    pub fn new(id: u32, min: f32, max: f32, value: f32, default_value: f32)
+    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32)
     -> Self {
         assert!(max > min);
 
@@ -137,17 +149,24 @@ impl FloatParam {
     }
 }
 
-impl Param for FloatParam {
-    fn id(&self) -> u32 { self.id }
+impl<ID: Debug + Copy + Clone> Param for FloatParam<ID> {
+    type ID = ID;
+
+    fn id(&self) -> ID { self.id }
     fn normal(&self) -> Normal { self.normal }
     fn default_normal(&self) -> Normal { self.default_normal }
 }
 
 
-/// A parameter that defines a discrete linear range of i32 values
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct IntParam {
-    id: u32,
+/// A [`Param`] that defines a discrete linear range of i32 values
+///
+/// It stores a unique identifier of user supplied type `ID`. This can be an
+/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+///
+/// [`Param`]: trait.Param.html
+#[derive(Debug, Clone, Copy)]
+pub struct IntParam<ID: Debug + Copy + Clone> {
+    id: ID,
     value: i32,
     default_value: i32,
     normal: Normal,
@@ -158,7 +177,7 @@ pub struct IntParam {
     range_recip: f32,
 }
 
-impl IntParam {
+impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// Creates a new `IntParam`
     /// 
     /// # Arguments
@@ -176,7 +195,7 @@ impl IntParam {
     /// # Panics
     ///
     /// This will panic if `max` <= `min`
-    pub fn new(id: u32, min: i32, max: i32, value: i32, default_value: i32)
+    pub fn new(id: ID, min: i32, max: i32, value: i32, default_value: i32)
     -> Self {
         assert!(max > min);
 
@@ -268,8 +287,10 @@ impl IntParam {
     }
 }
 
-impl Param for IntParam {
-    fn id(&self) -> u32 { self.id }
+impl<ID: Debug + Copy + Clone> Param for IntParam<ID> {
+    type ID = ID;
+
+    fn id(&self) -> ID { self.id }
     fn normal(&self) -> Normal { self.normal }
     fn default_normal(&self) -> Normal { self.default_normal }
 }
@@ -281,10 +302,13 @@ impl Param for IntParam {
 /// Values around 0 dB (positive and negative) will increment slower per
 /// slider movement than values farther away from 0 dB.
 ///
-/// [`Param`]: struct.Param.html
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct LogDBParam {
-    id: u32,
+/// It stores a unique identifier of user supplied type `ID`. This can be an
+/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+///
+/// [`Param`]: trait.Param.html
+#[derive(Debug, Clone, Copy)]
+pub struct LogDBParam<ID: Debug + Copy + Clone> {
+    id: ID,
     value: f32,
     default_value: f32,
     normal: Normal,
@@ -296,7 +320,7 @@ pub struct LogDBParam {
     range_recip: f32,
 }
 
-impl LogDBParam {
+impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// Creates a new `LogDBParam`
     /// 
     /// # Arguments
@@ -322,7 +346,7 @@ impl LogDBParam {
     /// * `min` > `0.0`
     /// * `max` < `0.0`
     ///
-    pub fn new(id: u32, min: f32, max: f32, value: f32, default_value: f32,
+    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32,
     zero_normal: Normal)
     -> Self {
         assert!(max > min, "max must be greater than min");
@@ -441,8 +465,10 @@ impl LogDBParam {
     }
 }
 
-impl Param for LogDBParam {
-    fn id(&self) -> u32 { self.id }
+impl<ID: Debug + Copy + Clone> Param for LogDBParam<ID> {
+    type ID = ID;
+
+    fn id(&self) -> ID { self.id }
     fn normal(&self) -> Normal { self.normal }
     fn default_normal(&self) -> Normal { self.default_normal }
 }
@@ -454,10 +480,13 @@ impl Param for LogDBParam {
 /// Smaller frequencies will increment slower per slider movement than larger
 /// ones.
 ///
-/// [`Param`]: struct.Param.html
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct OctaveParam {
-    id: u32,
+/// It stores a unique identifier of user supplied type `ID`. This can be an
+/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+///
+/// [`Param`]: trait.Param.html
+#[derive(Debug, Clone, Copy)]
+pub struct OctaveParam<ID: Debug + Copy + Clone> {
+    id: ID,
     value: f32,
     default_value: f32,
     normal: Normal,
@@ -471,7 +500,7 @@ pub struct OctaveParam {
 
 }
 
-impl OctaveParam {
+impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// Creates a new `OctaveParam`
     /// 
     /// # Arguments
@@ -493,7 +522,7 @@ impl OctaveParam {
     /// This will panic if
     /// * `max` <= `min`
     ///
-    pub fn new(id: u32, min: f32, max: f32, value: f32, default_value: f32)
+    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32)
     -> Self {
         assert!(max > min, "max must be greater than min");
 
@@ -506,8 +535,8 @@ impl OctaveParam {
         let range = max - min;
         let range_recip = range.recip();
 
-        let min_spectrum_normal = OctaveParam::spectrum_to_normal(min);
-        let max_spectrum_normal = OctaveParam::spectrum_to_normal(max);
+        let min_spectrum_normal = octave_spectrum_to_normal(min);
+        let max_spectrum_normal = octave_spectrum_to_normal(max);
 
         let spectrum_normal_range = max_spectrum_normal.value() -
                                         min_spectrum_normal.value();
@@ -578,7 +607,7 @@ impl OctaveParam {
     }
 
     fn value_to_normal(&self, value: f32) -> Normal {
-        let spectrum_normal = OctaveParam::spectrum_to_normal(value);
+        let spectrum_normal = octave_spectrum_to_normal(value);
         ( (spectrum_normal.value() - self.min_spectrum_normal.value())
              / self.spectrum_normal_range ).into()
     }
@@ -589,26 +618,30 @@ impl OctaveParam {
                                 + self.min_spectrum_normal.value()
         );
 
-        OctaveParam::normal_to_spectrum(spectrum_normal)
+        octave_normal_to_spectrum(spectrum_normal)
     }
 
-    /// Returns the corresponding frequency for the whole 10 octave spectrum
-    /// (between 20 Hz and 20480 Hz)
-    fn normal_to_spectrum(normal: Normal) -> f32 {
-        40.0 * 2.0_f32.powf((10.0 * normal.value()) - 1.0)
-    }
-
-    /// Returns the corresponding [`Normal`] for a frequency in the whole
-    /// 10 octave spectrum (between 20 Hz and 20480 Hz)
-    ///
-    /// [`Normal`]: struct.Normal.html
-    fn spectrum_to_normal(freq: f32) -> Normal {
-        (((freq / 40.0).log2() + 1.0) * 0.1).into()
-    }
+    
 }
 
-impl Param for OctaveParam {
-    fn id(&self) -> u32 { self.id }
+/// Returns the corresponding frequency for the whole 10 octave spectrum
+/// (between 20 Hz and 20480 Hz)
+fn octave_normal_to_spectrum(normal: Normal) -> f32 {
+    40.0 * 2.0_f32.powf((10.0 * normal.value()) - 1.0)
+}
+
+/// Returns the corresponding [`Normal`] for a frequency in the whole
+/// 10 octave spectrum (between 20 Hz and 20480 Hz)
+///
+/// [`Normal`]: struct.Normal.html
+fn octave_spectrum_to_normal(freq: f32) -> Normal {
+    (((freq / 40.0).log2() + 1.0) * 0.1).into()
+}
+
+impl<ID: Debug + Copy + Clone> Param for OctaveParam<ID> {
+    type ID = ID;
+
+    fn id(&self) -> ID { self.id }
     fn normal(&self) -> Normal { self.normal }
     fn default_normal(&self) -> Normal { self.default_normal }
 }

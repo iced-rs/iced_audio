@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["Billy Messenger https://github.com/BillyDM"]
 license = "MIT"
 edition = "2018"
@@ -16,7 +16,7 @@ readme = "README.md"
 maintenance = { status = "actively-developed" }
 
 [[example]]
-name = "all_widgets"
+name = "tour"
 
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -1,26 +1,26 @@
 use crate::core::Normal;
-use crate::native::h_slider;
+use crate::native::v_slider;
 use iced_native::{
     Background, Color, MouseCursor, Point, Rectangle
 };
 use iced_wgpu::{Primitive, Renderer};
 
 
-pub use crate::native::h_slider::State;
-pub use crate::style::h_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
+pub use crate::native::v_slider::State;
+pub use crate::style::v_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
     RectStyle, RectBipolarStyle, TextureStyle
 };
 
 /// This is an alias of a `crate::native` HSlider with an `iced_wgpu::Renderer`.
-pub type HSlider<'a, Message, ID> =
-    h_slider::HSlider<'a, Message, Renderer, ID>;
+pub type VSlider<'a, Message, ID> =
+    v_slider::VSlider<'a, Message, Renderer, ID>;
 
 
-impl h_slider::Renderer for Renderer {
+impl v_slider::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
 
-    fn height(&self, style_sheet: &Self::Style) -> u16 {
-        style_sheet.height()
+    fn width(&self, style_sheet: &Self::Style) -> u16 {
+        style_sheet.width()
     }
 
     fn draw(
@@ -47,7 +47,7 @@ impl h_slider::Renderer for Renderer {
         let bounds_width = bounds.width.floor();
         let bounds_height = bounds.height.floor();
 
-        let rail_y = (bounds_y + (bounds_height / 2.0)).round();
+        let rail_x = (bounds_x + (bounds_width / 2.0)).round();
 
         match style {
 
@@ -60,10 +60,10 @@ impl h_slider::Renderer for Renderer {
             let (rail_top, rail_bottom) = (
                 Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y,
-                        width: bounds_width,
-                        height: 2.0,
+                        x: rail_x,
+                        y: bounds_y,
+                        width: 2.0,
+                        height: bounds_height,
                     },
                     background: Background::Color(style.rail_colors.0),
                     border_radius: 0,
@@ -72,10 +72,10 @@ impl h_slider::Renderer for Renderer {
                 },
                 Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y + 2.0,
-                        width: bounds_width,
-                        height: 2.0,
+                        x: rail_x + 2.0,
+                        y: bounds_y,
+                        width: 2.0,
+                        height: bounds_height,
                     },
                     background: Background::Color(style.rail_colors.1),
                     border_radius: 0,
@@ -89,16 +89,17 @@ impl h_slider::Renderer for Renderer {
                 f32::from(style.handle.height),
                 style.handle.border_radius);
             
-            let handle_offset = ( (bounds_width - handle_width)
-                                    * normal.value() ).round();
+            let handle_offset = ( (bounds_height - handle_height)
+                                    * (1.0 - normal.value())
+                                ).round();
             
             let notch_width = style.handle.notch_width as f32;
             let notch_height = style.handle.notch_height as f32;
             
             let handle = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x + handle_offset,
-                    y: (rail_y - (handle_height / 2.0)).round(),
+                    x: (rail_x - (handle_width / 2.0) + 1.0).round(),
+                    y: bounds_y + handle_offset,
                     width: handle_width,
                     height: handle_height,
                 },
@@ -111,9 +112,9 @@ impl h_slider::Renderer for Renderer {
             if style.handle.notch_width != 0 {
                 let handle_notch = Primitive::Quad {
                     bounds: Rectangle {
-                        x: (bounds_x + handle_offset + (handle_width / 2.0)
-                            - (notch_width / 2.0)).round(),
-                        y: (rail_y - (notch_height / 2.0)).round(),
+                        x: (rail_x - (notch_width / 2.0) + 1.0).round(),
+                        y: (bounds_y + handle_offset + (handle_height / 2.0)
+                            - (notch_height / 2.0)).round(),
                         width: notch_width,
                         height: notch_height,
                     },
@@ -143,14 +144,15 @@ impl h_slider::Renderer for Renderer {
 
         
         Style::Rect(style) => {
-
-
+            
+            let rect_width = style_sheet.width() as f32;
+            let rect_x = rail_x - (rect_width / 2.0).round();
 
             let empty_rect = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x,
+                    x: rect_x,
                     y: bounds_y,
-                    width: bounds_width,
+                    width: rect_width,
                     height: bounds_height,
                 },
                 background: Background::Color(style.back_empty_color),
@@ -159,22 +161,24 @@ impl h_slider::Renderer for Renderer {
                 border_color: style.border_color,
             };
 
-            let handle_width = style.handle_width as f32;
+            let handle_height = style.handle_height as f32;
             let border_width = style.border_width as f32;
             
             let handle_offset = ( (
-                                    (bounds_width - (border_width * 2.0))
-                                    - handle_width
-                                  ) * normal.value() + border_width
+                                    ( (bounds_height - (border_width * 2.0))
+                                    - handle_height
+                                  ) * (1.0 - normal.value()) )
                                 ).round();
+            
+            let filled_rect_offset = handle_offset + handle_height
+                + style.handle_filled_gap as f32;
 
             let filled_rect = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x,
-                    y: bounds_y,
-                    width: handle_offset + border_width
-                        - style.handle_filled_gap as f32,
-                    height: bounds_height,
+                    x: rect_x,
+                    y: bounds_y + filled_rect_offset,
+                    width: rect_width,
+                    height: bounds_height - filled_rect_offset + border_width,
                 },
                 background: Background::Color(style.back_filled_color),
                 border_radius: style.border_radius,
@@ -184,10 +188,10 @@ impl h_slider::Renderer for Renderer {
             
             let handle = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x + handle_offset - border_width,
-                    y: bounds_y,
-                    width: handle_width + (border_width * 2.0),
-                    height: bounds_height,
+                    x: rect_x,
+                    y: bounds_y + handle_offset,
+                    width: rect_width,
+                    height: handle_height + (border_width * 2.0),
                 },
                 background: Background::Color(style.handle_color),
                 border_radius: style.border_radius,
@@ -208,51 +212,53 @@ impl h_slider::Renderer for Renderer {
         Style::RectBipolar(style) => {
 
 
+            let rect_width = style_sheet.width() as f32;
+            let rect_x = rail_x - (rect_width / 2.0).round();
 
-            let handle_width = style.handle_width as f32;
+            let handle_height = style.handle_height as f32;
             let border_width = style.border_width as f32;
 
-            let left_empty_rect = Primitive::Quad {
+            let bottom_empty_rect = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x,
+                    x: rect_x,
                     y: bounds_y,
-                    width: bounds_width,
+                    width: rect_width,
                     height: bounds_height,
                 },
-                background: Background::Color(style.back_left_empty_color),
+                background: Background::Color(style.back_bottom_empty_color),
                 border_radius: style.border_radius,
                 border_width: style.border_width,
                 border_color: style.border_color,
             };
 
-            let half_bounds_width = (bounds_width / 2.0).round();
+            let half_bounds_height = (bounds_height / 2.0).round();
 
-            let right_empty_rect = Primitive::Quad {
+            let top_empty_rect = Primitive::Quad {
                 bounds: Rectangle {
-                    x: bounds_x + half_bounds_width - border_width,
+                    x: rect_x,
                     y: bounds_y,
-                    width: half_bounds_width + border_width,
-                    height: bounds_height,
+                    width: rect_width,
+                    height: half_bounds_height,
                 },
-                background: Background::Color(style.back_right_empty_color),
+                background: Background::Color(style.back_top_empty_color),
                 border_radius: style.border_radius,
                 border_width: style.border_width,
                 border_color: Color::TRANSPARENT,
             };
             
             let handle_offset = ( (
-                                    ((bounds_width - (border_width * 2.0))
-                                    - handle_width
-                                  ) * normal.value()) + border_width
+                                    ( (bounds_height - (border_width * 2.0))
+                                    - handle_height
+                                  ) * (1.0 - normal.value()) ) + border_width
                                 ).round();
             
             if normal.value() > 0.499 && normal.value() < 0.501 {
                 let handle = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x + handle_offset - border_width,
-                        y: bounds_y,
-                        width: handle_width + (border_width * 2.0),
-                        height: bounds_height,
+                        x: rect_x,
+                        y: bounds_y + handle_offset - border_width,
+                        width: rect_width,
+                        height: handle_height + (border_width * 2.0),
                     },
                     background: Background::Color(style.handle_center_color),
                     border_radius: style.border_radius,
@@ -262,26 +268,25 @@ impl h_slider::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![left_empty_rect, right_empty_rect,
+                        primitives: vec![bottom_empty_rect, top_empty_rect,
                             handle]
                     },
                     MouseCursor::OutOfBounds,
                 )
-            } else if normal.value() < 0.5 {
+            } else if normal.value() > 0.5 {
                 let filled_rect_offset = handle_offset
-                            + handle_width
+                            + handle_height
                             + style.handle_filled_gap as f32
                             - border_width;
                 
                 let filled_rect = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x + filled_rect_offset,
-                        y: bounds_y,
-                        width: half_bounds_width - filled_rect_offset
-                            + border_width,
-                        height: bounds_height,
+                        x: rect_x,
+                        y: bounds_y + filled_rect_offset,
+                        width: rect_width,
+                        height: half_bounds_height - filled_rect_offset,
                     },
-                    background: Background::Color(style.back_left_filled_color),
+                    background: Background::Color(style.back_top_filled_color),
                     border_radius: style.border_radius,
                     border_width: style.border_width,
                     border_color: Color::TRANSPARENT,
@@ -289,12 +294,12 @@ impl h_slider::Renderer for Renderer {
 
                 let handle = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x + handle_offset - border_width,
-                        y: bounds_y,
-                        width: handle_width + (border_width * 2.0),
-                        height: bounds_height,
+                        x: rect_x,
+                        y: bounds_y + handle_offset - border_width,
+                        width: rect_width,
+                        height: handle_height + (border_width * 2.0),
                     },
-                    background: Background::Color(style.handle_left_color),
+                    background: Background::Color(style.handle_top_color),
                     border_radius: style.border_radius,
                     border_width: style.border_width,
                     border_color: Color::TRANSPARENT,
@@ -302,24 +307,24 @@ impl h_slider::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![left_empty_rect, right_empty_rect,
+                        primitives: vec![bottom_empty_rect, top_empty_rect,
                             filled_rect, handle]
                     },
                     MouseCursor::OutOfBounds,
                 )
             } else {
-                let filled_rect_offset = half_bounds_width;
+                let filled_rect_offset = half_bounds_height;
                 let filled_rect = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x + filled_rect_offset - border_width,
-                        y: bounds_y,
-                        width: handle_offset - filled_rect_offset
-                                + (border_width * 2.0)
+                        x: rect_x,
+                        y: bounds_y + filled_rect_offset - (border_width * 2.0),
+                        width: rect_width,
+                        height: handle_offset - filled_rect_offset
+                                + (border_width * 3.0)
                                 - style.handle_filled_gap as f32,
-                        height: bounds_height,
                     },
                     background: Background::Color(
-                        style.back_right_filled_color),
+                        style.back_bottom_filled_color),
                     border_radius: style.border_radius,
                     border_width: style.border_width,
                     border_color: Color::TRANSPARENT,
@@ -327,12 +332,12 @@ impl h_slider::Renderer for Renderer {
 
                 let handle = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x + handle_offset - border_width,
-                        y: bounds_y,
-                        width: handle_width + (border_width * 2.0),
-                        height: bounds_height,
+                        x: rect_x,
+                        y: bounds_y + handle_offset - border_width,
+                        width: rect_width,
+                        height: handle_height + (border_width * 2.0),
                     },
-                    background: Background::Color(style.handle_right_color),
+                    background: Background::Color(style.handle_bottom_color),
                     border_radius: style.border_radius,
                     border_width: style.border_width,
                     border_color: Color::TRANSPARENT,
@@ -340,7 +345,7 @@ impl h_slider::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![left_empty_rect, right_empty_rect,
+                        primitives: vec![bottom_empty_rect, top_empty_rect,
                             filled_rect, handle]
                     },
                     MouseCursor::OutOfBounds,
@@ -357,10 +362,10 @@ impl h_slider::Renderer for Renderer {
             let (rail_top, rail_bottom) = (
                 Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y,
-                        width: bounds_width,
-                        height: 2.0,
+                        x: rail_x,
+                        y: bounds_y,
+                        width: 2.0,
+                        height: bounds_height,
                     },
                     background: Background::Color(style.rail_colors.0),
                     border_radius: 0,
@@ -369,10 +374,10 @@ impl h_slider::Renderer for Renderer {
                 },
                 Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y + 2.0,
-                        width: bounds_width,
-                        height: 2.0,
+                        x: rail_x + 2.0,
+                        y: bounds.y,
+                        width: 2.0,
+                        height: bounds_height,
                     },
                     background: Background::Color(style.rail_colors.1),
                     border_radius: 0,
@@ -384,19 +389,19 @@ impl h_slider::Renderer for Renderer {
             let handle_width = style.handle_width as f32;
             let handle_height = style.handle_height as f32;
 
-            let handle_offset = ( (bounds_width - handle_width)
-                                    * normal.value() ).round();
+            let handle_offset = ( (bounds_height - handle_height)
+                                    * (1.0 - normal.value()) ).round();
 
             let handle = {
                 if let Some(pad) = style.texture_padding {
                     Primitive::Image {
                         handle: style.texture,
                         bounds: Rectangle {
-                            x: bounds.x + handle_offset - pad.left as f32,
-                            y: (rail_y - (handle_height / 2.0)).round()
-                                - pad.top as f32,
+                            x: (rail_x - (handle_width / 2.0)).round()
+                                - pad.bottom as f32,
+                            y: bounds.y + handle_offset - pad.top as f32,
                             width: handle_width +
-                                (pad.left + pad.right) as f32,
+                                (pad.bottom + pad.top) as f32,
                             height: handle_height +
                                 (pad.top + pad.bottom) as f32,
                         },
@@ -405,8 +410,8 @@ impl h_slider::Renderer for Renderer {
                     Primitive::Image {
                         handle: style.texture,
                         bounds: Rectangle {
-                            x: bounds.x + handle_offset,
-                            y: (rail_y - (handle_height / 2.0)).round(),
+                            x: (rail_x - (handle_width / 2.0) + 1.0).round(),
+                            y: bounds.y + handle_offset,
                             width: handle_width,
                             height: handle_height,
                         },

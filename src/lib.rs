@@ -11,11 +11,13 @@ pub use crate::core::*;
 mod platform {
     pub use crate::wgpu::{
         h_slider,
+        v_slider,
     };
 
     #[doc(no_inline)]
     pub use {
         h_slider::HSlider,
+        v_slider::VSlider,
     };
 }
 

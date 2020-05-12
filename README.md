@@ -15,25 +15,26 @@ Audio based widgets for the [iced] GUI library for Rust
 ## Run example with
 
 ```
-cargo run --example all_widgets
+cargo run --example tour
 ```
 
 or
 
 ```
-cargo run --example all_widgets --release
+cargo run --example tour --release
 ```
 
 ## Widgets implemented
 * [x] HSlider
+* [x] VSlider
 
 ## Widgets partially implemented
 
 ## Roadmap of planned widgets
 ### Inputs
 
-* [ ] VSlider - vertical slider
-* [x] HSlider  - horizontal slider
+* [x] HSlider - horizontal slider
+* [x] VSlider - vertical slider
 * [ ] HTickMarks - horizontal tick marks
 * [ ] VTickMark - vertical tick marks
 * [ ] HRangeSlider - a horizontal slider with two or more handles for controlling the automation range of a parameter.
