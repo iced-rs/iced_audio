@@ -66,11 +66,11 @@ cargo run --example simple --release
 
 ## Simple Usage Example
 ```rust
-// import iced crate
+// Import iced crate.
 use iced::{
     Column, Container, Element, Length, Sandbox, Settings, Align
 };
-// import iced_audio crate
+// Import iced_audio crate.
 use iced_audio::{
     Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
     v_slider, VSlider, knob, Knob
@@ -141,13 +141,13 @@ impl Sandbox for App {
             ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
 
         App {
-            // add the parameters
+            // Add the parameters.
             h_slider_float_param,
             v_slider_db_param,
             knob_octave_param,
 
-            // initialize the state of the widgets with the initial value
-            // of the corresponding parameter
+            // Initialize the state of the widgets with the initial value
+            // of the corresponding parameter.
             h_slider_state: h_slider::State::new(&h_slider_float_param),
             v_slider_state: v_slider::State::new(&v_slider_db_param),
             knob_state: knob::State::new(&knob_octave_param),
@@ -186,6 +186,7 @@ impl Sandbox for App {
     }
 
     fn view(&mut self) -> Element<Message> {
+        
         // Create each parameter widget, passing in the current value of the
         // corresponding parameter.
         let h_slider_widget = HSlider::new(
