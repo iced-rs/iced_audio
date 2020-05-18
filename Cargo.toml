@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
