@@ -14,10 +14,10 @@ use crate::TexturePadding;
 /// [`VSlider`]: struct.VSlider.html
 #[derive(Debug, Clone)]
 pub enum Style {
+    Texture(TextureStyle),
     Classic(ClassicStyle),
     Rect(RectStyle),
     RectBipolar(RectBipolarStyle),
-    Texture(TextureStyle),
 }
 
 /// A classic [`Style`] for an [`VSlider`], modeled after hardware sliders 

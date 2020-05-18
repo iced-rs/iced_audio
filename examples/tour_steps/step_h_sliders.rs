@@ -29,31 +29,31 @@ pub enum Message {
 
 pub struct HSliderStep {
     h_slider_float_param: FloatParam<HSlidersID>,
-    h_slider_float_state: h_slider::State<HSlidersID>,
+    h_slider_float_state: h_slider::State,
     h_slider_float_label: String,
 
     h_slider_int_param: IntParam<HSlidersID>,
-    h_slider_int_state: h_slider::State<HSlidersID>,
+    h_slider_int_state: h_slider::State,
     h_slider_int_label: String,
 
     h_slider_log_param: LogDBParam<HSlidersID>,
-    h_slider_log_state: h_slider::State<HSlidersID>,
+    h_slider_log_state: h_slider::State,
     h_slider_log_label: String,
 
     h_slider_oct_param: OctaveParam<HSlidersID>,
-    h_slider_oct_state: h_slider::State<HSlidersID>,
+    h_slider_oct_state: h_slider::State,
     h_slider_oct_label: String,
 
     h_slider_rect_param: FloatParam<HSlidersID>,
-    h_slider_rect_state: h_slider::State<HSlidersID>,
+    h_slider_rect_state: h_slider::State,
     h_slider_rect_label: String,
 
     h_slider_rect_bp_param: FloatParam<HSlidersID>,
-    h_slider_rect_bp_state: h_slider::State<HSlidersID>,
+    h_slider_rect_bp_state: h_slider::State,
     h_slider_rect_bp_label: String,
 
     h_slider_texture_param: FloatParam<HSlidersID>,
-    h_slider_texture_state: h_slider::State<HSlidersID>,
+    h_slider_texture_state: h_slider::State,
     h_slider_texture_label: String,
 
     h_slider_texture_handle: image::Handle,
@@ -124,21 +124,21 @@ impl Default for HSliderStep {
             h_slider_rect_state: h_slider::State::new(
                 &h_slider_rect_param
             ),
-            h_slider_rect_label: String::from("Rect Style"),
+            h_slider_rect_label: String::from("Custom Rect Style"),
             
 
             h_slider_rect_bp_param,
             h_slider_rect_bp_state: h_slider::State::new(
                 &h_slider_rect_bp_param
             ),
-            h_slider_rect_bp_label: String::from("Rect Bipolar Style"),
+            h_slider_rect_bp_label: String::from("Custom Rect Bipolar Style"),
 
 
             h_slider_texture_param,
             h_slider_texture_state: h_slider::State::new(
                 &h_slider_texture_param
             ),
-            h_slider_texture_label: String::from("Texture Style"),
+            h_slider_texture_label: String::from("Custom Texture Style"),
 
 
             h_slider_texture_handle: format!(

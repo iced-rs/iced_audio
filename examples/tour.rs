@@ -123,6 +123,7 @@ impl Default for Steps {
                 Step::Welcome,
                 Step::HSliders(Default::default()),
                 Step::VSliders(Default::default()),
+                Step::Knobs(Default::default()),
             ],
             current: 0,
         }
@@ -167,12 +168,14 @@ pub enum Step {
     Welcome,
     HSliders(step_h_sliders::HSliderStep),
     VSliders(step_v_sliders::VSliderStep),
+    Knobs(step_knobs::KnobsStep),
 }
 
 #[derive(Debug, Clone)]
 pub enum StepMessage {
     HSlidersMsg(step_h_sliders::Message),
     VSlidersMsg(step_v_sliders::Message),
+    KnobsMsg(step_knobs::Message),
 }
 
 impl<'a> Step {
@@ -184,6 +187,9 @@ impl<'a> Step {
             StepMessage::VSlidersMsg(msg) => {
                 if let Step::VSliders(step) = self { step.update(msg); };
             },
+            StepMessage::KnobsMsg(msg) => {
+                if let Step::Knobs(step) = self { step.update(msg); };
+            },
         }
     }
 
@@ -192,6 +198,7 @@ impl<'a> Step {
             Step::Welcome => "Welcome",
             Step::HSliders(step) => step.title(),
             Step::VSliders(step) => step.title(),
+            Step::Knobs(step) => step.title(),
         }
     }
 
@@ -203,6 +210,9 @@ impl<'a> Step {
             },
             Step::VSliders(step) => {
                 step.view(debug).map(StepMessage::VSlidersMsg)
+            },
+            Step::Knobs(step) => {
+                step.view(debug).map(StepMessage::KnobsMsg)
             },
         }
         .into()
@@ -270,7 +280,7 @@ pub fn info_text_octave<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
 pub mod style {
     use iced::{button, Background, Color, Vector, image};
     use iced_audio::{
-        h_slider, v_slider,
+        h_slider, v_slider
     };
 
     pub enum Button {
@@ -336,6 +346,11 @@ pub mod style {
     pub const HANDLE_COLOR: Color = Color::from_rgb(
         0x75 as f32 / 255.0,
         0xC2 as f32 / 255.0,
+        0xFF as f32 / 255.0,
+    );
+    pub const HANDLE_HOVER_COLOR: Color = Color::from_rgb(
+        0x7A as f32 / 255.0,
+        0xC7 as f32 / 255.0,
         0xFF as f32 / 255.0,
     );
 
@@ -560,4 +575,57 @@ pub mod style {
             24
         }
     }
+
+    // Custom style for the Vector Style Knob
+
+    /*
+    pub struct KnobVectorStyle;
+    impl knob::StyleSheet for KnobVectorStyle {
+        fn active(&self) -> knob::Style {
+            knob::Style::Vector(
+            knob::VectorStyle {
+                knob_color: EMPTY_COLOR,
+                knob_border_width: 1,
+                knob_border_color: BORDER_COLOR,
+                notch_color: HANDLE_COLOR,
+                notch_width: 5,
+                notch_height: 10,
+                notch_offset: 1,
+                inner_circle: Some(knob::InnerCircle {
+                    scale: 0.5,
+                    color: HANDLE_COLOR,
+                    border_width: 1,
+                    border_color: Color::BLACK,
+                })
+            })
+        }
+
+        fn hovered(&self) -> knob::Style {
+            let active = self.active();
+            if let knob::Style::Vector(active) = self.active() {
+
+            knob::Style::Vector(
+            knob::VectorStyle {
+                notch_width: 3,
+                inner_circle: Some(knob::InnerCircle {
+                    scale: 0.47,
+                    color: HANDLE_COLOR,
+                    border_width: 1,
+                    border_color: Color::BLACK,
+                }),
+                ..active
+            })
+
+            } else { active }
+        }
+
+        fn dragging(&self) -> knob::Style {
+            self.hovered()
+        }
+
+        fn diameter(&self) -> u16 {
+            33
+        }
+    }
+    */
 }

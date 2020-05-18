@@ -29,31 +29,31 @@ pub enum Message {
 
 pub struct VSliderStep {
     v_slider_float_param: FloatParam<VSlidersID>,
-    v_slider_float_state: v_slider::State<VSlidersID>,
+    v_slider_float_state: v_slider::State,
     v_slider_float_label: String,
 
     v_slider_int_param: IntParam<VSlidersID>,
-    v_slider_int_state: v_slider::State<VSlidersID>,
+    v_slider_int_state: v_slider::State,
     v_slider_int_label: String,
 
     v_slider_log_param: LogDBParam<VSlidersID>,
-    v_slider_log_state: v_slider::State<VSlidersID>,
+    v_slider_log_state: v_slider::State,
     v_slider_log_label: String,
 
     v_slider_oct_param: OctaveParam<VSlidersID>,
-    v_slider_oct_state: v_slider::State<VSlidersID>,
+    v_slider_oct_state: v_slider::State,
     v_slider_oct_label: String,
 
     v_slider_rect_param: FloatParam<VSlidersID>,
-    v_slider_rect_state: v_slider::State<VSlidersID>,
+    v_slider_rect_state: v_slider::State,
     v_slider_rect_label: String,
 
     v_slider_rect_bp_param: FloatParam<VSlidersID>,
-    v_slider_rect_bp_state: v_slider::State<VSlidersID>,
+    v_slider_rect_bp_state: v_slider::State,
     v_slider_rect_bp_label: String,
 
     v_slider_texture_param: FloatParam<VSlidersID>,
-    v_slider_texture_state: v_slider::State<VSlidersID>,
+    v_slider_texture_state: v_slider::State,
     v_slider_texture_label: String,
 
     v_slider_texture_handle: image::Handle,
@@ -124,21 +124,21 @@ impl Default for VSliderStep {
             v_slider_rect_state: v_slider::State::new(
                 &v_slider_rect_param
             ),
-            v_slider_rect_label: String::from("Rect Style"),
+            v_slider_rect_label: String::from("Custom Rect Style"),
             
 
             v_slider_rect_bp_param,
             v_slider_rect_bp_state: v_slider::State::new(
                 &v_slider_rect_bp_param
             ),
-            v_slider_rect_bp_label: String::from("Rect Bipolar Style"),
+            v_slider_rect_bp_label: String::from("Custom Rect Bipolar Style"),
 
 
             v_slider_texture_param,
             v_slider_texture_state: v_slider::State::new(
                 &v_slider_texture_param
             ),
-            v_slider_texture_label: String::from("Texture Style"),
+            v_slider_texture_label: String::from("Custom Texture Style"),
 
 
             v_slider_texture_handle: format!(

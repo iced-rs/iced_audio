@@ -1,7 +1,7 @@
 [package]
 name = "iced_audio"
-version = "0.0.7"
-authors = ["Billy Messenger https://github.com/BillyDM"]
+version = "0.0.8"
+authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
 keywords = ["iced", "gui", "audio", "vst", "lv2"]
@@ -17,11 +17,13 @@ maintenance = { status = "actively-developed" }
 
 [[example]]
 name = "tour"
+[[example]]
+name = "simple"
 
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.1", features = ["image"] }
+iced = { version = "0.1", features = ["canvas", "image"] }
 iced_native = "0.2"
 iced_wgpu = "0.2"

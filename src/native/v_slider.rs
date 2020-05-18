@@ -25,7 +25,8 @@ pub struct VSlider<'a, Message, Renderer: self::Renderer, ID>
 where
     ID: Debug + Copy + Clone
 {
-    state: &'a mut State<ID>,
+    state: &'a mut State,
+    id: ID,
     normal: Normal,
     default_normal: Normal,
     on_change: Box<dyn Fn((ID, Normal)) -> Message>,
@@ -46,15 +47,17 @@ where
     ///   * the local [`State`] of the [`VSlider`]
     ///   * a [`Param`] with the current and default values
     ///   * a function that will be called when the [`VSlider`] is dragged.
-    ///   It receives the parameter's ID and the new [`Normal`] of the
+    ///   It receives the parameter's `ID` and the new [`Normal`] of the
     /// [`VSlider`].
+    /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
+    /// `String`, etc. Each parameter/widget pair must have a unique `ID` value!
     ///
     /// [`State`]: struct.Normal.State.html
     /// [`Param`]: trait.Param.html
     /// [`Normal`]: struct.Normal.html
     /// [`VSlider`]: struct.VSlider.html
     pub fn new<F>(
-        state: &'a mut State<ID>,
+        state: &'a mut State,
         param: &impl Param<ID=ID>,
         on_change: F,
     ) -> Self
@@ -63,6 +66,7 @@ where
     {  
         VSlider {
             state,
+            id: param.id(),
             normal: param.normal(),
             default_normal: param.default_normal(),
             on_change: Box::new(on_change),
@@ -122,13 +126,9 @@ where
 
 /// The local state of a [`VSlider`].
 ///
-/// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
-///
 /// [`VSlider`]: struct.VSlider.html
 #[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    id: ID,
+pub struct State {
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -136,17 +136,16 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`VSlider`] state.
     ///
     /// It expects:
-    /// * a [`Param`] with the ID of the parameter to control
+    /// * a [`Param`] with the initial value
     ///
     /// [`Param`]: trait.Param.html
     /// [`VSlider`]: struct.VSlider.html
-    pub fn new(param: &impl Param<ID=ID>) -> Self {
+    pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
         Self {
-            id: param.id(),
             is_dragging: false,
             prev_drag_y: 0.0,
             continuous_normal: param.normal().value(),
@@ -216,7 +215,7 @@ where
                                 self.state.is_dragging = false;
 
                                 messages.push((self.on_change)(
-                                    (self.state.id, self.default_normal)
+                                    (self.id, self.default_normal)
                                 ));
                             }
                         }
@@ -249,7 +248,7 @@ where
                         self.state.prev_drag_y = cursor_position.y;
 
                         messages.push((self.on_change)(
-                            (self.state.id, normal.into())
+                            (self.id, normal.into())
                         ));
                     }
                 }
@@ -280,7 +279,6 @@ where
         )
     }
 
-/// test
     fn hash_layout(&self, state: &mut Hasher) {
         struct Marker;
         std::any::TypeId::of::<Marker>().hash(state);
@@ -328,7 +326,7 @@ impl<'a, Message, Renderer, ID>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: Debug + Copy + Clone,
+    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
         v_slider: VSlider<'a, Message, Renderer, ID>,

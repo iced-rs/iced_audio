@@ -8,12 +8,13 @@ use std::fmt::Debug;
 /// It also contains a [`Normal`] for the default value of the parameter.
 ///
 /// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+/// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
+/// value!
 ///
 /// [`Normal`]: struct.Normal.html
 pub trait Param {
     /// A unique identifier of user supplied type `ID`. This can be an
-    /// `enum`, `u32`, `i32`, etc. Each parameter must have a unique
+    /// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique
     /// `ID` value!
     type ID;
 
@@ -32,7 +33,8 @@ pub trait Param {
 /// A [`Param`] that defines a continuous linear range of `f32` values
 ///
 /// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+/// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
+/// value!
 ///
 /// [`Param`]: trait.Param.html
 #[derive(Debug, Clone, Copy)]
@@ -161,7 +163,8 @@ impl<ID: Debug + Copy + Clone> Param for FloatParam<ID> {
 /// A [`Param`] that defines a discrete linear range of i32 values
 ///
 /// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+/// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
+/// value!
 ///
 /// [`Param`]: trait.Param.html
 #[derive(Debug, Clone, Copy)]
@@ -303,7 +306,8 @@ impl<ID: Debug + Copy + Clone> Param for IntParam<ID> {
 /// slider movement than values farther away from 0 dB.
 ///
 /// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+/// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
+/// value!
 ///
 /// [`Param`]: trait.Param.html
 #[derive(Debug, Clone, Copy)]
@@ -481,7 +485,8 @@ impl<ID: Debug + Copy + Clone> Param for LogDBParam<ID> {
 /// ones.
 ///
 /// It stores a unique identifier of user supplied type `ID`. This can be an
-/// `enum`, `u32`, `i32`, etc. Each parameter must have a unique `ID` value!
+/// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
+/// value!
 ///
 /// [`Param`]: trait.Param.html
 #[derive(Debug, Clone, Copy)]

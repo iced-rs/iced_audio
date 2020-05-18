@@ -53,6 +53,80 @@ impl h_slider::Renderer for Renderer {
 
 
 
+            Style::Texture(style) => {
+
+            
+
+            let (rail_top, rail_bottom) = (
+                Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: rail_y,
+                        width: bounds_width,
+                        height: 2.0,
+                    },
+                    background: Background::Color(style.rail_colors.0),
+                    border_radius: 0,
+                    border_width: 0,
+                    border_color: Color::TRANSPARENT,
+                },
+                Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: rail_y + 2.0,
+                        width: bounds_width,
+                        height: 2.0,
+                    },
+                    background: Background::Color(style.rail_colors.1),
+                    border_radius: 0,
+                    border_width: 0,
+                    border_color: Color::TRANSPARENT,
+                }
+            );
+            
+            let handle_width = style.handle_width as f32;
+            let handle_height = style.handle_height as f32;
+
+            let handle_offset = ( (bounds_width - handle_width)
+                                    * normal.value() ).round();
+
+            let handle = {
+                if let Some(pad) = style.texture_padding {
+                    Primitive::Image {
+                        handle: style.texture,
+                        bounds: Rectangle {
+                            x: bounds.x + handle_offset - pad.left as f32,
+                            y: (rail_y - (handle_height / 2.0)).round()
+                                - pad.top as f32,
+                            width: handle_width +
+                                (pad.left + pad.right) as f32,
+                            height: handle_height +
+                                (pad.top + pad.bottom) as f32,
+                        },
+                    }
+                } else {
+                    Primitive::Image {
+                        handle: style.texture,
+                        bounds: Rectangle {
+                            x: bounds.x + handle_offset,
+                            y: (rail_y - (handle_height / 2.0)).round(),
+                            width: handle_width,
+                            height: handle_height,
+                        },
+                    }
+                }
+            };
+
+            (
+                Primitive::Group {
+                    primitives: vec![rail_top, rail_bottom, handle],
+                },
+                MouseCursor::OutOfBounds,
+            )
+        }
+
+
+
             Style::Classic(style) => {
 
 
@@ -347,80 +421,6 @@ impl h_slider::Renderer for Renderer {
                 )
             }
             }
-
-
-
-            Style::Texture(style) => {
-
-            
-
-            let (rail_top, rail_bottom) = (
-                Primitive::Quad {
-                    bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y,
-                        width: bounds_width,
-                        height: 2.0,
-                    },
-                    background: Background::Color(style.rail_colors.0),
-                    border_radius: 0,
-                    border_width: 0,
-                    border_color: Color::TRANSPARENT,
-                },
-                Primitive::Quad {
-                    bounds: Rectangle {
-                        x: bounds_x,
-                        y: rail_y + 2.0,
-                        width: bounds_width,
-                        height: 2.0,
-                    },
-                    background: Background::Color(style.rail_colors.1),
-                    border_radius: 0,
-                    border_width: 0,
-                    border_color: Color::TRANSPARENT,
-                }
-            );
-            
-            let handle_width = style.handle_width as f32;
-            let handle_height = style.handle_height as f32;
-
-            let handle_offset = ( (bounds_width - handle_width)
-                                    * normal.value() ).round();
-
-            let handle = {
-                if let Some(pad) = style.texture_padding {
-                    Primitive::Image {
-                        handle: style.texture,
-                        bounds: Rectangle {
-                            x: bounds.x + handle_offset - pad.left as f32,
-                            y: (rail_y - (handle_height / 2.0)).round()
-                                - pad.top as f32,
-                            width: handle_width +
-                                (pad.left + pad.right) as f32,
-                            height: handle_height +
-                                (pad.top + pad.bottom) as f32,
-                        },
-                    }
-                } else {
-                    Primitive::Image {
-                        handle: style.texture,
-                        bounds: Rectangle {
-                            x: bounds.x + handle_offset,
-                            y: (rail_y - (handle_height / 2.0)).round(),
-                            width: handle_width,
-                            height: handle_height,
-                        },
-                    }
-                }
-            };
-
-            (
-                Primitive::Group {
-                    primitives: vec![rail_top, rail_bottom, handle],
-                },
-                MouseCursor::OutOfBounds,
-            )
-        }
         }
     }
 }
