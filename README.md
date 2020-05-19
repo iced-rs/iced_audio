@@ -4,9 +4,9 @@
 [![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
 
-An extension to the [`Iced`] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
+An extension to the [Iced] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
 
-[`Iced`]: https://github.com/hecrj/iced
+[Iced]: https://github.com/hecrj/iced
 
 ![image](/screenshots/HSliders.png?raw=true)
 
