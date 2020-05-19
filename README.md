@@ -6,7 +6,7 @@
 
 An extension to the [`Iced`] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
 
-[Iced]: https://github.com/hecrj/iced
+[`Iced`]: https://github.com/hecrj/iced
 
 ![image](/screenshots/HSliders.png?raw=true)
 
