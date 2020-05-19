@@ -1,4 +1,6 @@
-//! Display an interactive horizontal slider that controls a `Param`
+//! Display an interactive horizontal slider that controls a [`Param`]
+//!
+//! [`Param`]: trait.Param.html
 
 use std::fmt::Debug;
 
@@ -307,7 +309,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the current cursor position
     ///   * the current normal of the [`HSlider`]
     ///   * the local state of the [`HSlider`]
-    ///   * the style of the ['HSlider']
+    ///   * the style of the [`HSlider`]
     ///
     /// [`HSlider`]: struct.HSlider.html
     fn draw(

@@ -1,5 +1,5 @@
 # iced_audio
-[![Documentation](https://docs.rs/iced/badge.svg)][documentation]
+[![Documentation](https://docs.rs/iced_audio/badge.svg)][documentation]
 [![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
 [![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
@@ -64,6 +64,13 @@ cargo run --example simple --release
 * LogDBParam - a logarithmic range of decibel values. Values around 0 dB will increment slower than values farther away from 0 dB.
 * OctaveParam - a logarithmic range of frequency values. Each octave in the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
 
+## Installation
+Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
+```
+iced = { version = "0.1", features = ["canvas", "image"] }
+iced_audio = "0.0"
+```
+
 ## Simple Usage Example
 ```rust
 // Import iced crate.
@@ -76,8 +83,8 @@ use iced_audio::{
     v_slider, VSlider, knob, Knob
 };
 
-/// Create a unique identifier for each parameter. Note you may also use u32,
-/// i32, or Strings if you wish.
+/// Create a unique identifier for each parameter. Note you may also use any
+/// type you want such as u32, i32, Strings, etc.
 #[derive(Debug, Copy, Clone)]
 pub enum ParamID {
     HSliderFloat,

@@ -1,3 +1,5 @@
+//! A renderer-agnostic native GUI runtime for Iced Audio.
+
 pub mod h_slider;
 pub mod v_slider;
 pub mod knob;

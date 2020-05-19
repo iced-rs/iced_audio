@@ -1,3 +1,7 @@
+//! wgpu renderer for the [`Knob`] widget
+//!
+//! [`Knob`]: struct.Knob.html
+
 use crate::core::{Normal};
 use crate::native::knob;
 use iced_native::{
@@ -40,7 +44,10 @@ impl knob::Renderer for Renderer {
             style_sheet.active()
         };
 
-        let bounds_size = bounds.width;
+        let bounds_x = bounds.x.floor();
+        let bounds_y = bounds.y.floor();
+
+        let bounds_size = bounds.width.floor();
 
         match style {
 
@@ -66,8 +73,8 @@ impl knob::Renderer for Renderer {
 
                 let knob_back = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds.x,
-                        y: bounds.y,
+                        x: bounds_x,
+                        y: bounds_y,
                         width: bounds_size,
                         height: bounds_size,
                     },
@@ -102,8 +109,8 @@ impl knob::Renderer for Renderer {
 
                     let mut frame = Frame::new(bounds_size, bounds_size);
                     frame.translate(Vector::new(
-                        bounds.x + radius,
-                        bounds.y + radius,
+                        bounds_x + radius,
+                        bounds_y + radius,
                     ));
 
                     if angle < -0.001 || angle > 0.001 {
@@ -122,8 +129,8 @@ impl knob::Renderer for Renderer {
 
                     let inner_circle = Primitive::Quad {
                         bounds: Rectangle {
-                            x: bounds.x + offset,
-                            y: bounds.y + offset,
+                            x: bounds_x + offset,
+                            y: bounds_y + offset,
                             width: diameter,
                             height: diameter,
                         },
@@ -159,8 +166,8 @@ impl knob::Renderer for Renderer {
 
                 let knob_back = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds.x,
-                        y: bounds.y,
+                        x: bounds_x,
+                        y: bounds_y,
                         width: bounds_size,
                         height: bounds_size,
                     },
@@ -184,9 +191,9 @@ impl knob::Renderer for Renderer {
 
                 let notch = Primitive::Quad {
                     bounds: Rectangle {
-                        x: bounds.x + radius + (dx * offset_radius)
+                        x: bounds_x + radius + (dx * offset_radius)
                             - notch_radius,
-                        y: bounds.y + radius - (dy * offset_radius)
+                        y: bounds_y + radius - (dy * offset_radius)
                             - notch_radius,
                         width: style.notch_diameter as f32,
                         height: style.notch_diameter as f32,

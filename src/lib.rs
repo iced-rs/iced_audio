@@ -1,10 +1,18 @@
 //! Iced Audio is an extension for the [`Iced`] gui library. It contains widgets
 //! useful for audio applications such as VST / LV2 plugins.
+//! 
+//! # Installation
+//!
+//! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
+//!
+//! ```
+//! iced = { version = "0.1", features = ["canvas", "image"] }
+//! iced_audio = "0.0"
+//! ```
 //!
 //! # Simple Usage Example
 //!
 //! ```
-//!
 //! // Import iced crate.
 //! use iced::{
 //!     Column, Container, Element, Length, Sandbox, Settings, Align
@@ -15,8 +23,8 @@
 //!     v_slider, VSlider, knob, Knob
 //! };
 //! 
-//! /// Create a unique identifier for each parameter. Note you may also use u32,
-//! /// i32, or Strings if you wish.
+//! /// Create a unique identifier for each parameter. Note you may also use any
+//! /// type you want such as u32, i32, Strings, etc.
 //! #[derive(Debug, Copy, Clone)]
 //! pub enum ParamID {
 //!     HSliderFloat,
@@ -167,14 +175,12 @@
 //! ```
 //! [`Iced`]: https://github.com/hecrj/iced
 
-/*
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
-*/
 #![deny(unused_results)]
 #![forbid(unsafe_code)]
 #![forbid(rust_2018_idioms)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod core;
 pub mod native;

@@ -1,3 +1,8 @@
+//! The core module of `Iced Audio`.
+//!
+//! This module holds basic types that can be reused and re-exported in
+//! different runtime implementations.
+
 pub mod param;
 
 pub use param::*;
@@ -95,9 +100,13 @@ impl From<Normal> for f32 {
 /// button texture or a slider with a drop shadow, etc.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TexturePadding {
+    /// Padding above the bounding rectangle in pixels
     pub top: u16,
+    /// Padding below the bounding rectangle in pixels
     pub bottom: u16,
+    /// Padding to the left of the bounding rectangle in pixels
     pub left: u16,
+    /// Padding to the right of the bounding rectangle in pixels
     pub right: u16,
 }
 
@@ -141,8 +150,13 @@ impl TexturePadding {
 
 
 static PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
+
+/// 2.0 * pi
 pub static TAU: f32 = std::f32::consts::PI * 2.0;
+
+/// The default minimum angle of a rotating widget such as a Knob
 pub static DEFAULT_ANGLE_MIN: f32 = 30.0 * PI_OVER_180;
+/// The default maximum angle of a rotating widget such as a Knob
 pub static DEFAULT_ANGLE_MAX: f32 = (360.0 - 30.0) * PI_OVER_180;
 
 /// The range between the minimum and maximum angle (in radians) the knob

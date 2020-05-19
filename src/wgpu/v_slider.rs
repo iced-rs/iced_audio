@@ -1,3 +1,7 @@
+//! wgpu renderer for the [`VSlider`] widget
+//!
+//! [`VSlider`]: struct.VSlider.html
+
 use crate::core::Normal;
 use crate::native::v_slider;
 use iced_native::{

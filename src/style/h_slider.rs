@@ -1,3 +1,7 @@
+//! Various styles for the [`HSlider`] widget
+//! 
+//! [`HSlider`]: struct.HSlider.html
+
 use iced::Color;
 use iced_native::image;
 
@@ -5,18 +9,23 @@ use crate::TexturePadding;
 
 /// The appearance of an [`HSlider`].
 ///
+/// * `Texture` - uses an image texture for the handle
 /// * `Classic` - modeled after hardware sliders
 /// * `Rect` - a modern style with a line inside a filled rectangle
 /// * `RectBipolar` - same as `Rect` but can have different colors for left,
 /// right, and center positions
-/// * `Texture` - uses an image texture for the handle
 ///
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone)]
 pub enum Style {
+    /// uses an image texture for the handle
     Texture(TextureStyle),
+    /// modeled after hardware sliders
     Classic(ClassicStyle),
+    /// a modern style with a line inside a filled rectangle
     Rect(RectStyle),
+    /// same as `Rect` but can have different colors for left,
+    /// right, and center positions
     RectBipolar(RectBipolarStyle),
 }
 
@@ -30,7 +39,9 @@ pub enum Style {
 /// [`ClassicHandle`]: struct.ClassicHandle.html
 #[derive(Debug, Clone)]
 pub struct ClassicStyle {
+    /// colors of the top and bottom of the rail
     pub rail_colors: (Color, Color),
+    /// a `ClassicHandle` defining the style of the handle
     pub handle: ClassicHandle,
 }
 
@@ -50,14 +61,23 @@ pub struct ClassicStyle {
 /// [`ClassicStyle`]: struct.ClassicStyle.html
 #[derive(Debug, Clone, Copy)]
 pub struct ClassicHandle {
+    /// background color
     pub color: Color,
+    /// width of the handle
     pub width: u16,
+    /// height of the handle
     pub height: u16,
+    /// width of the middle notch
     pub notch_width: u16,
+    /// background color
     pub notch_height: u16,
+    /// color of the middle notch
     pub notch_color: Color,
+    /// radius of the background rectangle
     pub border_radius: u16,
+    /// width of the background rectangle
     pub border_width: u16,
+    /// color of the background rectangle border
     pub border_color: Color,
 }
 
@@ -80,13 +100,22 @@ pub struct ClassicHandle {
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectStyle {
+    /// color of an unfilled portion in the background rectangle
     pub back_empty_color: Color,
+    /// color of a filled portion in the background rectangle
     pub back_filled_color: Color,
+    /// color of the background rectangle border
     pub border_color: Color,
+    /// radius of the background rectangle
     pub border_radius: u16,
+    /// width of the background rectangle border
     pub border_width: u16,
+    /// color of the handle rectangle
     pub handle_color: Color,
+    /// width of the handle rectangle
     pub handle_width: u16,
+    /// width of the gap between the handle and the filled
+    /// portion of the background rectangle
     pub handle_filled_gap: u16,
 }
 
@@ -119,17 +148,36 @@ pub struct RectStyle {
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectBipolarStyle {
+    /// color of an unfilled portion in the background
+    /// rectangle on the left side of the center
     pub back_left_empty_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the left side of the center
     pub back_left_filled_color: Color,
+    /// color of an unfilled portion in the background
+    /// rectangle on the right side of the center
     pub back_right_empty_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the right side of the center
     pub back_right_filled_color: Color,
+    /// color of the background rectangle border
     pub border_color: Color,
+    /// radius of the background rectangle
     pub border_radius: u16,
+    /// width of the background rectangle border
     pub border_width: u16,
+    /// color of the handle rectangle when it is on the
+    /// left side of the center
     pub handle_left_color: Color,
+    /// color of the handle rectangle when it is on the
+    /// right side of the center
     pub handle_right_color: Color,
+    /// color of the handle rectangle when it is in the center
     pub handle_center_color: Color,
+    /// width of the handle rectangle
     pub handle_width: u16,
+    /// width of the gap between the handle and the filled
+    /// portion of the background rectangle
     pub handle_filled_gap: u16,
 }
 
@@ -148,10 +196,17 @@ pub struct RectBipolarStyle {
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
+    /// colors of the top and bottom of the rail
     pub rail_colors: (Color, Color),
+    /// the [`Handle`] to the image texture
     pub texture: image::Handle,
+    /// the width of the handle, not including padding
     pub handle_width: u16,
+    /// the height of the handle, not including padding
     pub handle_height: u16,
+    /// the texture padding around the handle bounding
+    /// rectangle. This is useful when the texture is of a glowing handle or has
+    /// a drop shadow, etc.
     pub texture_padding: Option<TexturePadding>,
 }
 

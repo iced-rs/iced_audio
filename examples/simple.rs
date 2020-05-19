@@ -8,8 +8,8 @@ use iced_audio::{
     v_slider, VSlider, knob, Knob
 };
 
-/// Create a unique identifier for each parameter. Note you may also use u32,
-/// i32, or Strings if you wish.
+/// Create a unique identifier for each parameter. Note you may also use any
+/// type you want such as u32, i32, Strings, etc.
 #[derive(Debug, Copy, Clone)]
 pub enum ParamID {
     HSliderFloat,

@@ -1,3 +1,7 @@
+//! Module for the [`Param`] trait
+//!
+//! [`Param`]: trait.Param.html
+
 use crate::core::Normal;
 
 use std::f32;

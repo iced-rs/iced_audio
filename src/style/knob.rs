@@ -1,3 +1,7 @@
+//! Various styles for the [`Knob`] widget
+//! 
+//! [`Knob`]: struct.Knob.html
+
 use iced::Color;
 //use iced_native::image;
 
@@ -5,14 +9,16 @@ use crate::{KnobAngleRange};
 
 /// The appearance of a [`Knob`],
 ///
-/// Note, `Texture` style is not implemented yet, and is just a placeholder
-/// for now.
+/// * `Texture` - (Not implemented yet. This just a placeholder for now.)
+/// * `VectorCircle` - a simple modern vector style with a circle as the notch
 ///
 /// [`Knob`]: struct.Knob.html
 #[derive(Debug, Clone)]
 pub enum Style {
+    /// (Not implemented yet. This just a placeholder for now.)
     Texture,
     //Vector(VectorStyle),
+    /// a simple modern vector style with a circle as the notch
     VectorCircle(VectorCircleStyle),
 }
 
@@ -21,7 +27,7 @@ pub enum Style {
 /// * `knob_color` - the color of the knob
 /// * `knob_border_width` - the width of the border around the knob
 /// * `knob_border_color` - the color of the border around the knob
-/// * `notch` - the color of the notch line
+/// * `notch_color` - the color of the notch line
 /// * `notch_width` - the width of the notch line
 /// * `notch_height` - the height of the notch line
 /// * `notch_offset` - the offset of the notch line from the edge of the knob
@@ -32,35 +38,50 @@ pub enum Style {
 /// [`InnerCircle`]: struct.InnerCircle.html
 #[derive(Debug, Clone)]
 pub struct VectorStyle {
+    /// the color of the knob
     pub knob_color: Color,
+    /// the width of the border around the knob
     pub knob_border_width: u16,
+    /// the color of the border around the knob
     pub knob_border_color: Color,
+    /// the color of the notch line
     pub notch_color: Color,
+    /// the width of the notch line
     pub notch_width: u16,
+    /// the height of the notch line
     pub notch_height: u16,
+    /// the offset of the notch line from the edge of the knob
     pub notch_offset: u16,
+    /// an optional [`InnerCircle`] to draw
+    ///
+    /// [`InnerCircle`]: struct.InnerCircle.html
     pub inner_circle: Option<InnerCircle>,
 }
 
-/// A vector [`Style`] of a [`Knob`] witch a circle as the notch
+/// A simple vector [`Style`] of a [`Knob`] witch a circle as the notch
 ///
 /// * `knob_color` - the color of the knob
 /// * `knob_border_width` - the width of the border around the knob
 /// * `knob_border_color` - the color of the border around the knob
-/// * `notch` - the color of the notch line
+/// * `notch_color` - the color of the notch line
 /// * `notch_diameter - the diameter of the notch
 /// * `notch_offset` - the offset of the notch from the edge of the knob
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: struct.Knob.html
-/// [`InnerCircle`]: struct.InnerCircle.html
 #[derive(Debug, Clone)]
 pub struct VectorCircleStyle {
+    /// the color of the knob
     pub knob_color: Color,
+    /// the width of the border around the knob
     pub knob_border_width: u16,
+    /// the color of the border around the knob
     pub knob_border_color: Color,
+    /// the color of the notch line
     pub notch_color: Color,
+    /// the diameter of the notch
     pub notch_diameter: u16,
+    /// the offset of the notch from the edge of the knob
     pub notch_offset: u16,
 }
 
@@ -76,9 +97,15 @@ pub struct VectorCircleStyle {
 /// [`VectorStyle`]: enum.Style.html
 #[derive(Debug, Clone)]
 pub struct InnerCircle {
+    /// the scale of the circle relative to the size of the knob. For
+    /// example, a `scale` of `0.5` will draw the inner circle with half the
+    /// radius of the knob.
     pub scale: f32,
+    /// the color of the inner circle
     pub color: Color,
+    /// the width of the border around the inner circle
     pub border_width: u16,
+    /// the color of the border around the inner circle
     pub border_color: Color,
 }
 

@@ -1,4 +1,6 @@
-//! Display an interactive knob that controls a `Param`
+//! Display an interactive rotating knob that controls a [`Param`]
+//!
+//! [`Param`]: trait.Param.html
 
 use std::fmt::Debug;
 
@@ -15,10 +17,9 @@ use crate::core::{Normal, Param};
 static DEFAULT_SCALAR: f32 = 0.008;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// A vertical slider GUI widget that controls a [`Param`]
+/// A rotating knob GUI widget that controls a [`Param`]
 ///
 /// [`Param`]: trait.Param.html
-/// [`Knob`]: struct.Knob.html
 #[allow(missing_debug_implementations)]
 pub struct Knob<'a, Message, Renderer: self::Renderer, ID>
 where
@@ -312,7 +313,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the current cursor position
     ///   * the current normal of the [`Knob`]
     ///   * the local state of the [`Knob`]
-    ///   * the style of the ['Knob']
+    ///   * the style of the [`Knob`]
     ///
     /// [`Knob`]: struct.Knob.html
     fn draw(

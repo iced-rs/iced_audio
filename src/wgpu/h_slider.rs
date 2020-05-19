@@ -1,3 +1,7 @@
+//! wgpu renderer for the [`HSlider`] widget
+//!
+//! [`HSlider`]: struct.HSlider.html
+
 use crate::core::Normal;
 use crate::native::h_slider;
 use iced_native::{
