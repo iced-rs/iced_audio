@@ -5,22 +5,48 @@
 use iced::Color;
 //use iced_native::image;
 
-use crate::{KnobAngleRange};
+use crate::KnobAngleRange;
 
 /// The appearance of a [`Knob`],
 ///
-/// * `Texture` - (Not implemented yet. This just a placeholder for now.)
 /// * `VectorCircle` - a simple modern vector style with a circle as the notch
 ///
 /// [`Knob`]: struct.Knob.html
 #[derive(Debug, Clone)]
 pub enum Style {
-    /// (Not implemented yet. This just a placeholder for now.)
-    Texture,
+    //Texture(TextureStyle),
     //Vector(VectorStyle),
     /// a simple modern vector style with a circle as the notch
     VectorCircle(VectorCircleStyle),
 }
+
+/*
+/// A [`Style`] for a [`Knob`] that uses an image texture for the knob
+///
+/// * `texture` - the [`Handle`] to the image texture
+/// * `knob_width` - the width of the knob, not including padding
+/// * `knob_height` - the height of the knob, not including padding
+/// * `texture_padding` - the texture padding around the bounding
+/// rectangle. This is useful when the texture is of a glowing knob or has
+/// a drop shadow, etc.
+///
+/// [`Style`]: enum.Style.html
+/// [`Knob`]: struct.Knob.html
+/// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
+#[derive(Debug, Clone)]
+pub struct TextureStyle {
+    /// the [`Handle`] to the image texture
+    pub texture: image::Handle,
+    /// the width of the knob, not including padding
+    pub knob_width: u16,
+    /// the height of the knob, not including padding
+    pub knob_height: u16,
+    /// the texture padding around the knob bounding
+    /// rectangle. This is useful when the texture is of a glowing handle or has
+    /// a drop shadow, etc.
+    pub texture_padding: Option<TexturePadding>,
+}
+*/
 
 /// A vector [`Style`] of a [`Knob`] (not working yet)
 ///
@@ -153,6 +179,7 @@ impl StyleSheet for Default {
         })
     }
 
+    #[allow(irrefutable_let_patterns)]
     fn hovered(&self) -> Style {
         let active = self.active();
         if let Style::VectorCircle(active) = self.active() {

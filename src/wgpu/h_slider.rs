@@ -125,7 +125,7 @@ impl h_slider::Renderer for Renderer {
                 Primitive::Group {
                     primitives: vec![rail_top, rail_bottom, handle],
                 },
-                MouseCursor::OutOfBounds,
+                MouseCursor::default(),
             )
         }
 
@@ -206,14 +206,14 @@ impl h_slider::Renderer for Renderer {
                         primitives: vec![rail_top, rail_bottom, handle,
                             handle_notch],
                     },
-                    MouseCursor::OutOfBounds,
+                    MouseCursor::default(),
                 )
             } else {
                 (
                     Primitive::Group {
                         primitives: vec![rail_top, rail_bottom, handle],
                     },
-                    MouseCursor::OutOfBounds,
+                    MouseCursor::default(),
                 )
             }
         }
@@ -277,7 +277,7 @@ impl h_slider::Renderer for Renderer {
                 Primitive::Group {
                     primitives: vec![empty_rect, filled_rect, handle]
                 },
-                MouseCursor::OutOfBounds,
+                MouseCursor::default(),
             )
         }
 
@@ -343,7 +343,7 @@ impl h_slider::Renderer for Renderer {
                         primitives: vec![left_empty_rect, right_empty_rect,
                             handle]
                     },
-                    MouseCursor::OutOfBounds,
+                    MouseCursor::default(),
                 )
             } else if normal.value() < 0.5 {
                 let filled_rect_offset = handle_offset
@@ -383,7 +383,7 @@ impl h_slider::Renderer for Renderer {
                         primitives: vec![left_empty_rect, right_empty_rect,
                             filled_rect, handle]
                     },
-                    MouseCursor::OutOfBounds,
+                    MouseCursor::default(),
                 )
             } else {
                 let filled_rect_offset = half_bounds_width;
@@ -421,7 +421,7 @@ impl h_slider::Renderer for Renderer {
                         primitives: vec![left_empty_rect, right_empty_rect,
                             filled_rect, handle]
                     },
-                    MouseCursor::OutOfBounds,
+                    MouseCursor::default(),
                 )
             }
             }

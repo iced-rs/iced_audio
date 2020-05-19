@@ -1,12 +1,12 @@
-# iced_audio
+# Iced Audio
 [![Documentation](https://docs.rs/iced_audio/badge.svg)][documentation]
 [![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
 [![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
 
-Audio based widgets for the [iced] GUI library for Rust
+An extension to the [`Iced`] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
 
-[iced]: https://github.com/hecrj/iced
+[Iced]: https://github.com/hecrj/iced
 
 ![image](/screenshots/HSliders.png?raw=true)
 
@@ -67,7 +67,7 @@ cargo run --example simple --release
 ## Installation
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```
-iced = { version = "0.1", features = ["canvas", "image"] }
+iced = { version = "0.1", features = ["image"] }
 iced_audio = "0.0"
 ```
 
@@ -83,8 +83,8 @@ use iced_audio::{
     v_slider, VSlider, knob, Knob
 };
 
-/// Create a unique identifier for each parameter. Note you may also use any
-/// type you want such as u32, i32, Strings, etc.
+// Create a unique identifier for each parameter. Note you may also use any
+// type you want such as u32, i32, Strings, etc.
 #[derive(Debug, Copy, Clone)]
 pub enum ParamID {
     HSliderFloat,
@@ -92,7 +92,7 @@ pub enum ParamID {
     KnobOctave,
 }
 
-/// The message when a parameter widget is changed by the user
+// The message when a parameter widget is changed by the user
 #[derive(Debug, Clone)]
 pub enum Message {
     ParamChanged((ParamID, Normal)),

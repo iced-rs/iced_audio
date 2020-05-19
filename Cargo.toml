@@ -1,12 +1,12 @@
 [package]
 name = "iced_audio"
-version = "0.0.9"
+version = "0.0.10"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
 keywords = ["iced", "gui", "audio", "vst", "lv2"]
 categories = ["gui", "visualization"]
-description = "Audio based widgets for use in the Rust iced GUI library"
+description = "An extension to the Iced GUI library with useful widgets for audio applications"
 homepage = "https://github.com/BillyDM/iced_audio"
 documentation = "https://docs.rs/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
@@ -14,6 +14,11 @@ readme = "README.md"
 
 [badges]
 maintenance = { status = "actively-developed" }
+
+[features]
+default = ["image"]
+image = ["iced/image"]
+svg = ["iced/svg"]
 
 [[example]]
 name = "tour"
@@ -24,6 +29,6 @@ name = "simple"
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.1", features = ["canvas", "image"] }
+iced = { version = "0.1", features = ["canvas"] }
 iced_native = "0.2"
 iced_wgpu = "0.2"

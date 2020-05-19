@@ -1,12 +1,12 @@
-//! Iced Audio is an extension for the [`Iced`] gui library. It contains widgets
-//! useful for audio applications such as VST / LV2 plugins.
-//! 
+//! Iced Audio is an extension to the [`Iced`] GUI library with useful widgets
+//! for audio applications such as VST / LV2 plugins.
+//!
 //! # Installation
 //!
 //! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 //!
 //! ```
-//! iced = { version = "0.1", features = ["canvas", "image"] }
+//! iced = { version = "0.1", features = ["image"] }
 //! iced_audio = "0.0"
 //! ```
 //!
@@ -23,8 +23,8 @@
 //!     v_slider, VSlider, knob, Knob
 //! };
 //! 
-//! /// Create a unique identifier for each parameter. Note you may also use any
-//! /// type you want such as u32, i32, Strings, etc.
+//! // Create a unique identifier for each parameter. Note you may also use any
+//! // type you want such as u32, i32, Strings, etc.
 //! #[derive(Debug, Copy, Clone)]
 //! pub enum ParamID {
 //!     HSliderFloat,
@@ -32,7 +32,7 @@
 //!     KnobOctave,
 //! }
 //! 
-//! /// The message when a parameter widget is changed by the user
+//! // The message when a parameter widget is changed by the user
 //! #[derive(Debug, Clone)]
 //! pub enum Message {
 //!     ParamChanged((ParamID, Normal)),

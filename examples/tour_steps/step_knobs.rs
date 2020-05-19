@@ -7,7 +7,7 @@ use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
     OctaveParam, knob, Knob
 };
 
-use crate::{Step};
+use crate::Step;
 
 /// Unique identifier for each parameter. Note you may also use u32, i32, or
 /// Strings if you wish.
@@ -18,6 +18,7 @@ pub enum KnobsID {
     DB,
     Octave,
     Vector,
+    Texture,
 }
 
 #[derive(Debug, Clone)]
@@ -48,6 +49,14 @@ pub struct KnobsStep {
     knob_vector_label: String,
     */
 
+    /*
+    knob_texture_param: FloatParam<KnobsID>,
+    knob_texture_state: knob::State,
+    knob_texture_label: String,
+
+    knob_texture_handle: image::Handle,
+    */
+
     output_text: String,
 }
 
@@ -70,6 +79,10 @@ impl Default for KnobsStep {
         /*
         let knob_vector_param = FloatParam::<KnobsID>::new(
             KnobsID::Vector, -1.0, 1.0, 0.0, 0.0);
+        */
+        /*
+        let knob_texture_param = FloatParam::<KnobsID>::new(
+            KnobsID::Texture, -1.0, 1.0, 0.0, 0.0);
         */
         
         // create application
@@ -111,7 +124,20 @@ impl Default for KnobsStep {
             ),
             knob_vector_label: String::from("Custom Vector Style"),
             */
+            
+            /*
+            knob_texture_param,
+            knob_texture_state: knob::State::new(
+                &knob_texture_param
+            ),
+            knob_texture_label: String::from("Custom Texture Style"),
 
+
+            knob_texture_handle: format!(
+                "{}/examples/images/iced_knob.png",
+                env!("CARGO_MANIFEST_DIR")
+            ).into(),
+            */
 
             output_text: String::from("Move a widget"),
         }
@@ -160,6 +186,13 @@ impl KnobsStep {
                             self.knob_vector_param.value());
                         */
                     },
+                    KnobsID::Texture => {
+                        /*
+                        self.knob_texture_param.set_from_normal(normal);
+                        self.output_text = crate::info_text_f32(id,
+                            self.knob_texture_param.value());
+                        */
+                    }
                 }
             }
         }
@@ -192,6 +225,18 @@ impl KnobsStep {
             &self.knob_oct_param,
             Message::KnobsChanged,
         );
+
+        /*
+        let knob_texture = Knob::new(
+            &mut self.knob_texture_state,
+            &self.knob_texture_param,
+            Message::KnobsChanged,
+        )
+        // clone the handle to the loaded texture
+        .style(style::KnobTextureStyle(
+            self.knob_texture_handle.clone()
+        ));
+        */
 
         /*
         let knob_vector = Knob::new(
@@ -235,11 +280,11 @@ impl KnobsStep {
                 .max_height(400)
                 .width(Length::Fill)
                 .spacing(10)
-                .push(Text::new(&self.knob_vector_label))
-                .push(knob_vector)
+                //.push(Text::new(&self.knob_vector_label))
+                //.push(knob_vector)
 
-                .push(Text::new(&self.knob_texture_label))
-                .push(knob_texture)
+                //.push(Text::new(&self.knob_texture_label))
+                //.push(knob_texture)
             );
             */
 

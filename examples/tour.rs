@@ -8,6 +8,8 @@ use iced::{
     HorizontalAlignment, Length, Space, Color, Sandbox, Settings, Text
 };
 
+static STARTING_STEP: usize = 3;
+
 pub fn main() {
     Tour::run(Settings::default())
 }
@@ -125,7 +127,7 @@ impl Default for Steps {
                 Step::VSliders(Default::default()),
                 Step::Knobs(Default::default()),
             ],
-            current: 0,
+            current: STARTING_STEP,
         }
     }
 }
@@ -621,6 +623,35 @@ pub mod style {
 
         fn dragging(&self) -> knob::Style {
             self.hovered()
+        }
+
+        fn diameter(&self) -> u16 {
+            33
+        }
+    }
+    */
+
+    /*
+    // Custom style for the Texture Knob
+
+    pub struct KnobTextureStyle(pub image::Handle);
+    impl knob::StyleSheet for KnobTextureStyle {
+        fn active(&self) -> knob::Style {
+            knob::Style::Texture(
+            knob::TextureStyle {
+                texture: self.0.clone(),
+                knob_width: 32,
+                knob_height: 33,
+                texture_padding: None,
+            })
+        }
+        
+        fn hovered(&self) -> knob::Style {
+            self.active()
+        }
+        
+        fn dragging(&self) -> knob::Style {
+            self.active()
         }
 
         fn diameter(&self) -> u16 {

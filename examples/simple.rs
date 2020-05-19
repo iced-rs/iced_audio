@@ -8,8 +8,8 @@ use iced_audio::{
     v_slider, VSlider, knob, Knob
 };
 
-/// Create a unique identifier for each parameter. Note you may also use any
-/// type you want such as u32, i32, Strings, etc.
+// Create a unique identifier for each parameter. Note you may also use any
+// type you want such as u32, i32, Strings, etc.
 #[derive(Debug, Copy, Clone)]
 pub enum ParamID {
     HSliderFloat,
@@ -17,7 +17,7 @@ pub enum ParamID {
     KnobOctave,
 }
 
-/// The message when a parameter widget is changed by the user
+// The message when a parameter widget is changed by the user
 #[derive(Debug, Clone)]
 pub enum Message {
     ParamChanged((ParamID, Normal)),
