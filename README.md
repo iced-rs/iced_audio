@@ -25,6 +25,7 @@ cargo run --example simple --release
 ## Widgets implemented
 * [x] HSlider
 * [x] VSlider
+* [x] XYPad
 
 ## Widgets partially implemented
 * [x] Knob - Due to current limitations of iced, only a simple flat circle style is implemented for now. There is also a known bug where input will stop when the mouse leaves the window in some conditions.
@@ -45,7 +46,7 @@ cargo run --example simple --release
 * [ ] ParEqEditor - a row of points connected by lines used to control parametric equalizers. These points can also be controlled with the scroll wheel to adjust Q value.
 * [ ] Keys - piano keys that can be clicked with a mouse to play a synthesizer. Velocity is controlled by how low on the key the mouse was clicked at. It can be horizontal or vertical.
 * [ ] PitchWheel - like VSlider but the slider snaps back to the middle when the mouse is released. Texture style may have an optional highlight and shadow layer.
-* [ ] XYPad - a draggable point in a 2D square used to control 2 parameters at once
+* [x] XYPad - a draggable point in a 2D square used to control 2 parameters at once
 
 ### Visualizers
 
