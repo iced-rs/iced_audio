@@ -5,7 +5,7 @@ use iced::{
 // Import iced_audio crate.
 use iced_audio::{
     Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-    v_slider, VSlider, knob, Knob
+    v_slider, VSlider, knob, Knob, xy_pad, XYPad
 };
 
 // Create a unique identifier for each parameter. Note you may also use any
@@ -15,6 +15,8 @@ pub enum ParamID {
     HSliderFloat,
     VSliderDB,
     KnobOctave,
+    XYPadFloatX,
+    XYPadFloatY,
 }
 
 // The message when a parameter widget is changed by the user
@@ -45,11 +47,14 @@ pub struct App {
     h_slider_float_param: FloatParam<ParamID>,
     v_slider_db_param: LogDBParam<ParamID>,
     knob_octave_param: OctaveParam<ParamID>,
+    xy_pad_float_x_param: FloatParam<ParamID>,
+    xy_pad_float_y_param: FloatParam<ParamID>,
 
     // The states of the parameter widgets that will control the parameters.
     h_slider_state: h_slider::State,
     v_slider_state: v_slider::State,
     knob_state: knob::State,
+    xy_pad_state: xy_pad::State,
 }
 
 impl Sandbox for App {
@@ -72,17 +77,26 @@ impl Sandbox for App {
         let knob_octave_param = OctaveParam::<ParamID>::new(
             ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
 
+        let xy_pad_float_x_param = FloatParam::<ParamID>::new(
+            ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
+        let xy_pad_float_y_param = FloatParam::<ParamID>::new(
+            ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
+
         App {
             // Add the parameters.
             h_slider_float_param,
             v_slider_db_param,
             knob_octave_param,
+            xy_pad_float_x_param,
+            xy_pad_float_y_param,
 
             // Initialize the state of the widgets with the initial value
             // of the corresponding parameter.
             h_slider_state: h_slider::State::new(&h_slider_float_param),
             v_slider_state: v_slider::State::new(&v_slider_db_param),
             knob_state: knob::State::new(&knob_octave_param),
+            xy_pad_state: xy_pad::State::new(
+                &xy_pad_float_x_param, &xy_pad_float_y_param),
         }
     }
 
@@ -112,6 +126,14 @@ impl Sandbox for App {
                         self.knob_octave_param.set_from_normal(normal);
                         // println!("{}", self.knob_octave_param.value());
                     },
+                    ParamID::XYPadFloatX => {
+                        self.xy_pad_float_x_param.set_from_normal(normal);
+                        // println!("{}", self.xy_pad_float_x_param.value());
+                    },
+                    ParamID::XYPadFloatY => {
+                        self.xy_pad_float_y_param.set_from_normal(normal);
+                        // println!("{}", self.xy_pad_float_y_param.value());
+                    },
                 }
             }
         }
@@ -136,17 +158,24 @@ impl Sandbox for App {
             &self.knob_octave_param,
             Message::ParamChanged,
         );
+        let xy_pad_widget = XYPad::new(
+            &mut self.xy_pad_state,
+            &self.xy_pad_float_x_param,
+            &self.xy_pad_float_y_param,
+            Message::ParamChanged,
+        );
 
         // Push the widgets into the iced DOM
         let content: Element<_> = Column::new()
             .max_width(250)
-            .max_height(350)
+            .max_height(400)
             .spacing(20)
             .padding(20)
             .align_items(Align::Center)
             .push(h_slider_widget)
             .push(v_slider_widget)
             .push(knob_widget)
+            .push(xy_pad_widget)
             .into();
 
         Container::new(content)

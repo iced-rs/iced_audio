@@ -248,7 +248,7 @@ impl KnobsStep {
         */
 
 
-        // push the sliders into columns
+        // push the knobs into columns
 
         let knob_row = Row::new()
             .spacing(20)

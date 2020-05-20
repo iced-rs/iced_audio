@@ -1,6 +1,6 @@
 //! Display an interactive vertical slider that controls a [`Param`]
 //!
-//! [`Param`]: trait.Param.html
+//! [`Param`]: ../core/param/trait.Param.html
 
 use std::fmt::Debug;
 
@@ -20,7 +20,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 ///
 /// a [`VSlider`] will try to fill the vertical space of its container.
 ///
-/// [`Param`]: trait.Param.html
+/// [`Param`]: ../../core/param/trait.Param.html
 /// [`VSlider`]: struct.VSlider.html
 #[allow(missing_debug_implementations)]
 pub struct VSlider<'a, Message, Renderer: self::Renderer, ID>
@@ -52,11 +52,11 @@ where
     ///   It receives the parameter's `ID` and the new [`Normal`] of the
     /// [`VSlider`].
     /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
-    /// `String`, etc. Each parameter/widget pair must have a unique `ID` value!
+    /// `String`, etc. Each parameter must have a unique `ID` value!
     ///
-    /// [`State`]: struct.Normal.State.html
-    /// [`Param`]: trait.Param.html
-    /// [`Normal`]: struct.Normal.html
+    /// [`State`]: struct.State.html
+    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`Normal`]: ../../core/struct.Normal.html
     /// [`VSlider`]: struct.VSlider.html
     pub fn new<F>(
         state: &'a mut State,
@@ -144,7 +144,7 @@ impl State {
     /// It expects:
     /// * a [`Param`] with the initial value
     ///
-    /// [`Param`]: trait.Param.html
+    /// [`Param`]: ../../core/param/trait.Param.html
     /// [`VSlider`]: struct.VSlider.html
     pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
         Self {
@@ -177,12 +177,11 @@ where
         limits: &layout::Limits,
     ) -> layout::Node {
             let limits = limits
-            .width(Length::from(Length::Units(
-                renderer.width(&self.style)
-            )))
+            .width(Length::Shrink)
             .height(self.height);
         
-            let size = limits.resolve(Size::ZERO);
+            let mut size = limits.resolve(Size::ZERO);
+            size.width = renderer.width(&self.style) as f32;
 
             layout::Node::new(size)
     }

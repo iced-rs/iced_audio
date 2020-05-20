@@ -307,10 +307,10 @@ impl VSliderStep {
             );
 
             let content = Column::new()
-            .spacing(20)
-            .padding(20)
-            .push(v_slider_row)
-            .push(Text::new(&self.output_text).size(16));
+                .spacing(20)
+                .padding(20)
+                .push(v_slider_row)
+                .push(Text::new(&self.output_text).size(16));
 
 
         Step::container("Vertical Sliders (VSlider)").push(content).into()

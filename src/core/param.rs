@@ -15,7 +15,7 @@ use std::fmt::Debug;
 /// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique `ID`
 /// value!
 ///
-/// [`Normal`]: struct.Normal.html
+/// [`Normal`]: ../struct.Normal.html
 pub trait Param {
     /// A unique identifier of user supplied type `ID`. This can be an
     /// `enum`, `u32`, `i32`, `String`, etc. Each parameter must have a unique
@@ -26,11 +26,11 @@ pub trait Param {
     fn id(&self) -> Self::ID;
     /// returns the value of the parameter represented as a [`Normal`]
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     fn normal(&self) -> Normal;
     /// returns the default value of the parameter represented as a [`Normal`]
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     fn default_normal(&self) -> Normal;
 }
 
@@ -110,7 +110,7 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_value(&mut self, value: f32) {
         if self.value != value {
             self.value = self.constrain(value);
@@ -123,7 +123,7 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_normal(&mut self, normal: Normal) {
         if self.normal != normal {
             self.value = self.normal_to_value(normal);
@@ -240,7 +240,7 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_value(&mut self, value: i32) {
         if self.value != value {
             self.value = self.constrain(value);
@@ -266,7 +266,7 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// assert_eq!(param.normal().value(), 1.0);
     /// ```
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_normal(&mut self, normal: Normal) {
         if self.normal != normal {
             self.value = self.constrain(self.normal_to_value(normal));
@@ -396,7 +396,7 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_value(&mut self, value: f32) {
         if self.value != value {
             self.value = self.constrain(value);
@@ -409,7 +409,7 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_normal(&mut self, normal: Normal) {
         if self.normal != normal {
             self.value = self.normal_to_value(normal);
@@ -583,7 +583,7 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_value(&mut self, value: f32) {
         if self.value != value {
             self.value = self.constrain(value);
@@ -596,7 +596,7 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../struct.Normal.html
     pub fn set_from_normal(&mut self, normal: Normal) {
         if self.normal != normal {
             self.value = self.normal_to_value(normal);
@@ -642,7 +642,7 @@ fn octave_normal_to_spectrum(normal: Normal) -> f32 {
 /// Returns the corresponding [`Normal`] for a frequency in the whole
 /// 10 octave spectrum (between 20 Hz and 20480 Hz)
 ///
-/// [`Normal`]: struct.Normal.html
+/// [`Normal`]: ../struct.Normal.html
 fn octave_spectrum_to_normal(freq: f32) -> Normal {
     (((freq / 40.0).log2() + 1.0) * 0.1).into()
 }

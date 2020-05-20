@@ -1,6 +1,6 @@
 //! wgpu renderer for the [`HSlider`] widget
 //!
-//! [`HSlider`]: struct.HSlider.html
+//! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
 use crate::core::Normal;
 use crate::native::h_slider;
@@ -15,7 +15,10 @@ pub use crate::style::h_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
     RectStyle, RectBipolarStyle, TextureStyle
 };
 
-/// This is an alias of a `crate::native` HSlider with an `iced_wgpu::Renderer`.
+/// This is an alias of a `crate::native` [`HSlider`] with an
+/// `iced_wgpu::Renderer`.
+///
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 pub type HSlider<'a, Message, ID> =
     h_slider::HSlider<'a, Message, Renderer, ID>;
 

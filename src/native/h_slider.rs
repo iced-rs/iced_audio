@@ -1,6 +1,6 @@
 //! Display an interactive horizontal slider that controls a [`Param`]
 //!
-//! [`Param`]: trait.Param.html
+//! [`Param`]: ../core/param/trait.Param.html
 
 use std::fmt::Debug;
 
@@ -20,7 +20,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 ///
 /// An [`HSlider`] will try to fill the horizontal space of its container.
 ///
-/// [`Param`]: trait.Param.html
+/// [`Param`]: ../../core/param/trait.Param.html
 /// [`HSlider`]: struct.HSlider.html
 #[allow(missing_debug_implementations)]
 pub struct HSlider<'a, Message, Renderer: self::Renderer, ID>
@@ -52,11 +52,11 @@ where
     ///   It receives the parameter's `ID` and the new [`Normal`] of the
     /// [`HSlider`].
     /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
-    /// `String`, etc. Each parameter/widget pair must have a unique `ID` value!
+    /// `String`, etc. Each parameter must have a unique `ID` value!
     ///
-    /// [`State`]: struct.Normal.State.html
-    /// [`Param`]: trait.Param.html
-    /// [`Normal`]: struct.Normal.html
+    /// [`State`]: struct.State.html
+    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`Normal`]: ../../core/struct.Normal.html
     /// [`HSlider`]: struct.HSlider.html
     pub fn new<F>(
         state: &'a mut State,
@@ -144,7 +144,7 @@ impl State {
     /// It expects:
     /// * a [`Param`] with the initial value
     ///
-    /// [`Param`]: trait.Param.html
+    /// [`Param`]: ../../core/param/trait.Param.html
     /// [`HSlider`]: struct.HSlider.html
     pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
         Self {
@@ -178,11 +178,10 @@ where
     ) -> layout::Node {
             let limits = limits
             .width(self.width)
-            .height(Length::from(Length::Units(
-                renderer.height(&self.style)
-                )));
+            .height(Length::Shrink);
         
-            let size = limits.resolve(Size::ZERO);
+            let mut size = limits.resolve(Size::ZERO);
+            size.height = renderer.height(&self.style) as f32;
 
             layout::Node::new(size)
     }

@@ -1,6 +1,6 @@
 //! Various styles for the [`Knob`] widget
 //! 
-//! [`Knob`]: struct.Knob.html
+//! [`Knob`]: ../native/knob/struct.Knob.html
 
 use iced::Color;
 //use iced_native::image;
@@ -11,7 +11,7 @@ use crate::KnobAngleRange;
 ///
 /// * `VectorCircle` - a simple modern vector style with a circle as the notch
 ///
-/// [`Knob`]: struct.Knob.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub enum Style {
     //Texture(TextureStyle),
@@ -31,7 +31,7 @@ pub enum Style {
 /// a drop shadow, etc.
 ///
 /// [`Style`]: enum.Style.html
-/// [`Knob`]: struct.Knob.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
@@ -60,7 +60,7 @@ pub struct TextureStyle {
 /// * `inner_circle` - an optional [`InnerCircle`] to draw
 ///
 /// [`Style`]: enum.Style.html
-/// [`Knob`]: struct.Knob.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 /// [`InnerCircle`]: struct.InnerCircle.html
 #[derive(Debug, Clone)]
 pub struct VectorStyle {
@@ -94,7 +94,7 @@ pub struct VectorStyle {
 /// * `notch_offset` - the offset of the notch from the edge of the knob
 ///
 /// [`Style`]: enum.Style.html
-/// [`Knob`]: struct.Knob.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub struct VectorCircleStyle {
     /// the color of the knob
@@ -137,21 +137,21 @@ pub struct InnerCircle {
 
 /// A set of rules that dictate the style of a [`Knob`].
 ///
-/// [`Knob`]: struct.Knob.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 pub trait StyleSheet {
     /// Produces the style of an active [`Knob`].
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
     fn active(&self) -> Style;
 
     /// Produces the style of a hovered [`Knob`].
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
     fn hovered(&self) -> Style;
 
     /// Produces the style of a [`Knob`] that is being dragged.
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
     fn dragging(&self) -> Style;
 
     /// The diameter of the knob
@@ -170,10 +170,10 @@ impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style::VectorCircle(
         VectorCircleStyle {
-            knob_color: Color::from_rgb(0.36, 0.36, 0.36),
-            knob_border_width: 2,
-            knob_border_color: Color::from_rgb(0.41, 0.41, 0.41),
-            notch_color: Color::WHITE,
+            knob_color: Color::from_rgb(0.97, 0.97, 0.97),
+            knob_border_width: 1,
+            knob_border_color: Color::from_rgb(0.51, 0.51, 0.51),
+            notch_color: Color::from_rgb(0.475, 0.475, 0.475),
             notch_diameter: 5,
             notch_offset: 4,
         })
@@ -186,7 +186,7 @@ impl StyleSheet for Default {
 
         Style::VectorCircle(
         VectorCircleStyle {
-            notch_color: Color::from_rgb(0.9, 0.9, 0.9),
+            knob_color: Color::from_rgb(0.96, 0.96, 0.96),
             ..active
         })
 

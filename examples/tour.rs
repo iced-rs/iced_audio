@@ -8,7 +8,7 @@ use iced::{
     HorizontalAlignment, Length, Space, Color, Sandbox, Settings, Text
 };
 
-static STARTING_STEP: usize = 3;
+static STARTING_STEP: usize = 0;
 
 pub fn main() {
     Tour::run(Settings::default())
@@ -126,6 +126,7 @@ impl Default for Steps {
                 Step::HSliders(Default::default()),
                 Step::VSliders(Default::default()),
                 Step::Knobs(Default::default()),
+                Step::XYPads(Default::default()),
             ],
             current: STARTING_STEP,
         }
@@ -171,6 +172,7 @@ pub enum Step {
     HSliders(step_h_sliders::HSliderStep),
     VSliders(step_v_sliders::VSliderStep),
     Knobs(step_knobs::KnobsStep),
+    XYPads(step_xy_pads::XYPadStep),
 }
 
 #[derive(Debug, Clone)]
@@ -178,6 +180,7 @@ pub enum StepMessage {
     HSlidersMsg(step_h_sliders::Message),
     VSlidersMsg(step_v_sliders::Message),
     KnobsMsg(step_knobs::Message),
+    XYPadsMsg(step_xy_pads::Message),
 }
 
 impl<'a> Step {
@@ -192,6 +195,9 @@ impl<'a> Step {
             StepMessage::KnobsMsg(msg) => {
                 if let Step::Knobs(step) = self { step.update(msg); };
             },
+            StepMessage::XYPadsMsg(msg) => {
+                if let Step::XYPads(step) = self { step.update(msg); };
+            },
         }
     }
 
@@ -201,6 +207,7 @@ impl<'a> Step {
             Step::HSliders(step) => step.title(),
             Step::VSliders(step) => step.title(),
             Step::Knobs(step) => step.title(),
+            Step::XYPads(step) => step.title(),
         }
     }
 
@@ -215,6 +222,9 @@ impl<'a> Step {
             },
             Step::Knobs(step) => {
                 step.view(debug).map(StepMessage::KnobsMsg)
+            },
+            Step::XYPads(step) => {
+                step.view(debug).map(StepMessage::XYPadsMsg)
             },
         }
         .into()
@@ -282,7 +292,7 @@ pub fn info_text_octave<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
 pub mod style {
     use iced::{button, Background, Color, Vector, image};
     use iced_audio::{
-        h_slider, v_slider
+        h_slider, v_slider, xy_pad
     };
 
     pub enum Button {
@@ -659,4 +669,60 @@ pub mod style {
         }
     }
     */
+
+
+    // Custom style for the Texture VSlider
+
+    pub struct XYPadCustomStyle;
+    impl xy_pad::StyleSheet for XYPadCustomStyle {
+        fn active(&self) -> xy_pad::Style {
+            xy_pad::Style {
+                rail_width: 1,
+                h_rail_color: HANDLE_COLOR,
+                v_rail_color: HANDLE_COLOR,
+                handle: xy_pad::HandleShape::Square(xy_pad::HandleSquare {
+                    color: FILLED_COLOR,
+                    size: 10,
+                    border_width: 1,
+                    border_radius: 2,
+                    border_color: HANDLE_COLOR,
+                }),
+                back_color: EMPTY_COLOR,
+                border_width: 1,
+                border_color: Color::BLACK,
+                center_line_width: 1,
+                center_line_color: [0.0, 0.0, 0.0, 0.4].into(),
+            }
+        }
+
+        fn hovered(&self) -> xy_pad::Style {
+            let active = self.active();
+
+            xy_pad::Style {
+                handle: xy_pad::HandleShape::Square(xy_pad::HandleSquare {
+                    color: FILLED_HOVER_COLOR,
+                    size: 12,
+                    border_width: 1,
+                    border_radius: 2,
+                    border_color: HANDLE_COLOR,
+                }),
+                ..active
+            }
+        }
+
+        fn dragging(&self) -> xy_pad::Style {
+            let active = self.active();
+
+            xy_pad::Style {
+                handle: xy_pad::HandleShape::Square(xy_pad::HandleSquare {
+                    color: FILLED_HOVER_COLOR,
+                    size: 10,
+                    border_width: 1,
+                    border_radius: 2,
+                    border_color: HANDLE_COLOR,
+                }),
+                ..active
+            }
+        }
+    }
 }

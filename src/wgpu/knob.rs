@@ -1,6 +1,6 @@
 //! wgpu renderer for the [`Knob`] widget
 //!
-//! [`Knob`]: struct.Knob.html
+//! [`Knob`]: ../native/knob/struct.Knob.html
 
 use crate::core::{Normal};
 use crate::native::knob;
@@ -15,7 +15,10 @@ pub use crate::style::knob::{
     Style, StyleSheet, VectorStyle, InnerCircle
 };
 
-/// This is an alias of a `crate::native` HSlider with an `iced_wgpu::Renderer`.
+/// This is an alias of a `crate::native` [`Knob`] with an
+/// `iced_wgpu::Renderer`.
+///
+/// [`Knob`]: ../../native/knob/struct.Knob.html
 pub type Knob<'a, Message, ID> =
     knob::Knob<'a, Message, Renderer, ID>;
 

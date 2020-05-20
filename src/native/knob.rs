@@ -1,6 +1,6 @@
 //! Display an interactive rotating knob that controls a [`Param`]
 //!
-//! [`Param`]: trait.Param.html
+//! [`Param`]: ../core/param/trait.Param.html
 
 use std::fmt::Debug;
 
@@ -19,7 +19,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A rotating knob GUI widget that controls a [`Param`]
 ///
-/// [`Param`]: trait.Param.html
+/// [`Param`]: ../../core/param/trait.Param.html
 #[allow(missing_debug_implementations)]
 pub struct Knob<'a, Message, Renderer: self::Renderer, ID>
 where
@@ -50,11 +50,11 @@ where
     ///   It receives the parameter's `ID` and the new [`Normal`] of the
     /// [`Knob`].
     /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
-    /// `String`, etc. Each parameter/widget pair must have a unique `ID` value!
+    /// `String`, etc. Each parameter must have a unique `ID` value!
     ///
-    /// [`State`]: struct.Normal.State.html
-    /// [`Param`]: trait.Param.html
-    /// [`Normal`]: struct.Normal.html
+    /// [`State`]: struct.State.html
+    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`Normal`]: ../../core/struct.Normal.html
     /// [`Knob`]: struct.Knob.html
     pub fn new<F>(
         state: &'a mut State,
@@ -94,7 +94,7 @@ where
     /// The default value is `0.008`
     ///
     /// [`Knob`]: struct.Knob.html
-    /// [`Normal`]: struct.Normal.html
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn scalar(mut self, scalar: f32) -> Self {
         self.scalar = scalar;
         self
@@ -148,7 +148,7 @@ impl State {
     /// It expects:
     /// * a [`Param`] with the initial value
     ///
-    /// [`Param`]: trait.Param.html
+    /// [`Param`]: ../../core/param/trait.Param.html
     /// [`Knob`]: struct.Knob.html
     pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
         Self {

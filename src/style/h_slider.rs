@@ -1,6 +1,6 @@
 //! Various styles for the [`HSlider`] widget
 //! 
-//! [`HSlider`]: struct.HSlider.html
+//! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
 use iced::Color;
 use iced_native::image;
@@ -15,7 +15,7 @@ use crate::TexturePadding;
 /// * `RectBipolar` - same as `Rect` but can have different colors for left,
 /// right, and center positions
 ///
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone)]
 pub enum Style {
     /// uses an image texture for the handle
@@ -35,7 +35,7 @@ pub enum Style {
 /// * `handle` - a [`ClassicHandle`] defining the style of the handle
 ///
 /// [`Style`]: enum.Style.html
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 /// [`ClassicHandle`]: struct.ClassicHandle.html
 #[derive(Debug, Clone)]
 pub struct ClassicStyle {
@@ -57,9 +57,9 @@ pub struct ClassicStyle {
 /// * `border_width` - width of the background rectangle
 /// * `border_color` - color of the background rectangle border
 ///
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 /// [`ClassicStyle`]: struct.ClassicStyle.html
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct ClassicHandle {
     /// background color
     pub color: Color,
@@ -97,7 +97,7 @@ pub struct ClassicHandle {
 /// portion of the background rectangle
 ///
 /// [`Style`]: enum.Style.html
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectStyle {
     /// color of an unfilled portion in the background rectangle
@@ -145,7 +145,7 @@ pub struct RectStyle {
 /// portion of the background rectangle
 ///
 /// [`Style`]: enum.Style.html
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectBipolarStyle {
     /// color of an unfilled portion in the background
@@ -192,7 +192,7 @@ pub struct RectBipolarStyle {
 /// a drop shadow, etc.
 ///
 /// [`Style`]: enum.Style.html
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
@@ -212,21 +212,21 @@ pub struct TextureStyle {
 
 /// A set of rules that dictate the style of an [`HSlider`].
 ///
-/// [`HSlider`]: struct.HSlider.html
+/// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 pub trait StyleSheet {
     /// Produces the style of an active [`HSlider`].
     ///
-    /// [`HSlider`]: struct.HSlider.html
+    /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
     fn active(&self) -> Style;
 
     /// Produces the style of a hovered [`HSlider`].
     ///
-    /// [`HSlider`]: struct.HSlider.html
+    /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
     fn hovered(&self) -> Style;
 
     /// Produces the style of an [`HSlider`] that is being dragged.
     ///
-    /// [`HSlider`]: struct.HSlider.html
+    /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
     fn dragging(&self) -> Style;
 
     /// The height of the active selection area / background rectangle.

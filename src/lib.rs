@@ -10,6 +10,9 @@
 //! iced_audio = "0.0"
 //! ```
 //!
+//! This crate is currently experimental and incomplete. Master branch moves
+//! fast and may contain breaking changes!
+//!
 //! # Simple Usage Example
 //!
 //! ```
@@ -187,14 +190,17 @@ pub mod native;
 pub mod style;
 pub mod wgpu;
 
+#[doc(no_inline)]
 pub use crate::core::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod platform {
+    #[doc(no_inline)]
     pub use crate::wgpu::{
         h_slider,
         v_slider,
         knob,
+        xy_pad,
     };
 
     #[doc(no_inline)]
@@ -202,7 +208,9 @@ mod platform {
         h_slider::HSlider,
         v_slider::VSlider,
         knob::Knob,
+        xy_pad::XYPad,
     };
 }
 
+#[doc(no_inline)]
 pub use platform::*;
