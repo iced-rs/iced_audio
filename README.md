@@ -8,9 +8,10 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 
 [Iced]: https://github.com/hecrj/iced
 
-![image](/screenshots/HSliders.png?raw=true)
-![image](/screenshots/XYPads.png?raw=true)
-![image](/screenshots/Simple_Example.png?raw=true)
+<div align="center">
+    <img src="/screenshots/HSliders.png" height="450px">
+    <img src="/screenshots/Simple_Example.png" height="450px">
+</div>
 
 ### This crate is currently experimental and incomplete. Master branch moves fast and may contain breaking changes!
 
