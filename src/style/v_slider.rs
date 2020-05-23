@@ -29,6 +29,32 @@ pub enum Style {
     RectBipolar(RectBipolarStyle),
 }
 
+/// A [`Style`] for an [`VSlider`] that uses an image texture for the handle
+///
+/// * `rail_colors` - colors of the left and right side of the rail
+/// * `texture` - the [`Handle`] to the image texture
+/// * `handle_height` - the height of the handle, not including padding
+/// * `texture_padding` - the texture padding around the handle bounding
+/// rectangle. This is useful when the texture is of a glowing handle or has
+/// a drop shadow, etc.
+///
+/// [`Style`]: enum.Style.html
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+/// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
+#[derive(Debug, Clone)]
+pub struct TextureStyle {
+    /// colors of the left and right side of the rail
+    pub rail_colors: (Color, Color),
+    /// the [`Handle`] to the image texture
+    pub texture: image::Handle,
+    /// the height of the handle, not including padding
+    pub handle_height: u16,
+    /// the texture padding around the handle bounding
+    /// rectangle. This is useful when the texture is of a glowing handle or has
+    /// a drop shadow, etc.
+    pub texture_padding: Option<TexturePadding>,
+}
+
 /// A classic [`Style`] for an [`VSlider`], modeled after hardware sliders 
 ///
 /// * `rail_colors` - colors of the left and right side of the rail
@@ -48,9 +74,7 @@ pub struct ClassicStyle {
 /// The [`ClassicStyle`] appearance of the handle of an [`VSlider`]
 ///
 /// * `color` - background color
-/// * `width` - width of the handle
 /// * `height` - height of the handle
-/// * `notch_width` - width of the middle notch
 /// * `notch_height` - height of the middle notch
 /// * `notch_color` - color of the middle notch
 /// * `border_radius` - radius of the background rectangle
@@ -63,12 +87,8 @@ pub struct ClassicStyle {
 pub struct ClassicHandle {
     /// background color
     pub color: Color,
-    /// width of the handle
-    pub width: u16,
     /// height of the handle
     pub height: u16,
-    /// width of the middle notch
-    pub notch_width: u16,
     /// height of the middle notch
     pub notch_height: u16,
     /// color of the middle notch
@@ -181,35 +201,6 @@ pub struct RectBipolarStyle {
     pub handle_filled_gap: u16,
 }
 
-/// A [`Style`] for an [`VSlider`] that uses an image texture for the handle
-///
-/// * `rail_colors` - colors of the left and right side of the rail
-/// * `texture` - the [`Handle`] to the image texture
-/// * `handle_width` - the width of the handle, not including padding
-/// * `handle_height` - the height of the handle, not including padding
-/// * `texture_padding` - the texture padding around the handle bounding
-/// rectangle. This is useful when the texture is of a glowing handle or has
-/// a drop shadow, etc.
-///
-/// [`Style`]: enum.Style.html
-/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-/// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
-#[derive(Debug, Clone)]
-pub struct TextureStyle {
-    /// colors of the left and right side of the rail
-    pub rail_colors: (Color, Color),
-    /// the [`Handle`] to the image texture
-    pub texture: image::Handle,
-    /// the width of the handle, not including padding
-    pub handle_width: u16,
-    /// the height of the handle, not including padding
-    pub handle_height: u16,
-    /// the texture padding around the handle bounding
-    /// rectangle. This is useful when the texture is of a glowing handle or has
-    /// a drop shadow, etc.
-    pub texture_padding: Option<TexturePadding>,
-}
-
 /// A set of rules that dictate the style of an [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
@@ -228,12 +219,6 @@ pub trait StyleSheet {
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
     fn dragging(&self) -> Style;
-
-    /// The width of the active selection area / background rectangle.
-    /// With [`ClassicStyle`], this is usually the same as `handle.width`
-    ///
-    /// [`ClassicStyle`]: struct.ClassicStyle.html
-    fn width(&self) -> u16;
 }
 
 struct Default;
@@ -245,9 +230,7 @@ impl StyleSheet for Default {
             rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
             handle: ClassicHandle {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
-                width: 16,
                 height: 33,
-                notch_width: 16,
                 notch_height: 4,
                 notch_color: Color::from_rgb(0.475, 0.475, 0.475),
                 border_radius: 2,
@@ -288,10 +271,6 @@ impl StyleSheet for Default {
         })
 
         } else { active }
-    }
-
-    fn width(&self) -> u16 {
-        16
     }
 }
 

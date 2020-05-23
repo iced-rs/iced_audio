@@ -5,7 +5,7 @@
 use iced::Color;
 //use iced_native::image;
 
-use crate::KnobAngleRange;
+use crate::{KnobAngleRange, Normal};
 
 /// The appearance of a [`Knob`],
 ///
@@ -48,6 +48,7 @@ pub struct TextureStyle {
 }
 */
 
+/*
 /// A vector [`Style`] of a [`Knob`] (not working yet)
 ///
 /// * `knob_color` - the color of the knob
@@ -83,34 +84,9 @@ pub struct VectorStyle {
     /// [`InnerCircle`]: struct.InnerCircle.html
     pub inner_circle: Option<InnerCircle>,
 }
+*/
 
-/// A simple vector [`Style`] of a [`Knob`] witch a circle as the notch
-///
-/// * `knob_color` - the color of the knob
-/// * `knob_border_width` - the width of the border around the knob
-/// * `knob_border_color` - the color of the border around the knob
-/// * `notch_color` - the color of the notch line
-/// * `notch_diameter - the diameter of the notch
-/// * `notch_offset` - the offset of the notch from the edge of the knob
-///
-/// [`Style`]: enum.Style.html
-/// [`Knob`]: ../../native/knob/struct.Knob.html
-#[derive(Debug, Clone)]
-pub struct VectorCircleStyle {
-    /// the color of the knob
-    pub knob_color: Color,
-    /// the width of the border around the knob
-    pub knob_border_width: u16,
-    /// the color of the border around the knob
-    pub knob_border_color: Color,
-    /// the color of the notch line
-    pub notch_color: Color,
-    /// the diameter of the notch
-    pub notch_diameter: u16,
-    /// the offset of the notch from the edge of the knob
-    pub notch_offset: u16,
-}
-
+/*
 /// An additional circle drawn inside of the main circle in [`VectorStyle`],
 ///
 /// * `scale` - the scale of the circle relative to the size of the knob. For
@@ -134,6 +110,44 @@ pub struct InnerCircle {
     /// the color of the border around the inner circle
     pub border_color: Color,
 }
+*/
+
+/// A simple vector [`Style`] of a [`Knob`] witch a circle as the notch
+///
+/// * `knob_color` - the color of the knob
+/// * `knob_border_width` - the width of the border around the knob
+/// * `knob_border_color` - the color of the border around the knob
+/// * `notch_color` - the color of the notch line
+/// * `notch_scale` - the scale of the notch from the size of the knob. For
+/// example, a scale of `0.5.into()` will have the notch's diameter be half of
+/// the knob's diameter.
+/// * `notch_offset` - the offset of the notch from the edge of the knob to its
+/// center. For example, `0.0.into()` will have the notch touching the edge of
+/// the knob, and `0.5.into()` will have the notch halfway between the edge and
+/// the center of the knob.
+///
+/// [`Style`]: enum.Style.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Clone)]
+pub struct VectorCircleStyle {
+    /// the color of the knob
+    pub knob_color: Color,
+    /// the width of the border around the knob
+    pub knob_border_width: u16,
+    /// the color of the border around the knob
+    pub knob_border_color: Color,
+    /// the color of the notch line
+    pub notch_color: Color,
+    /// the scale of the notch from the size of the knob. For example, a scale
+    /// of `0.5.into()` will have the notch's diameter be half of the knob's
+    /// diameter.
+    pub notch_scale: Normal,
+    /// he offset of the notch from the edge of the knob to it's center. For
+    /// example, `0.0.into()` will have the notch touching the edge of the knob,
+    /// and `0.5.into()` will have the notch halfway between the edge and the
+    /// center of the knob.
+    pub notch_offset: Normal,
+}
 
 /// A set of rules that dictate the style of a [`Knob`].
 ///
@@ -154,9 +168,6 @@ pub trait StyleSheet {
     /// [`Knob`]: ../../native/knob/struct.Knob.html
     fn dragging(&self) -> Style;
 
-    /// The diameter of the knob
-    fn diameter(&self) -> u16;
-
     /// a [`KnobAngleRange`] that defines the minimum and maximum angle that the
     /// knob rotates
     ///
@@ -174,8 +185,8 @@ impl StyleSheet for Default {
             knob_border_width: 1,
             knob_border_color: Color::from_rgb(0.51, 0.51, 0.51),
             notch_color: Color::from_rgb(0.475, 0.475, 0.475),
-            notch_diameter: 5,
-            notch_offset: 4,
+            notch_scale: 0.17.into(),
+            notch_offset: 0.15.into(),
         })
     }
 
@@ -195,10 +206,6 @@ impl StyleSheet for Default {
 
     fn dragging(&self) -> Style {
         self.hovered()
-    }
-
-    fn diameter(&self) -> u16 {
-        31
     }
 }
 

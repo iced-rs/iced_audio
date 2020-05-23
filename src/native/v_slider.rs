@@ -14,6 +14,7 @@ use std::hash::Hash;
 
 use crate::core::{Normal, Param};
 
+static DEFAULT_WIDTH: u16 = 16;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A vertical slider GUI widget that controls a [`Param`]
@@ -34,6 +35,7 @@ where
     on_change: Box<dyn Fn((ID, Normal)) -> Message>,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
+    width: Length,
     height: Length,
     style: Renderer::Style,
 }
@@ -77,12 +79,23 @@ where
                 control: true,
                 ..Default::default()
             },
+            width: Length::from(Length::Units(DEFAULT_WIDTH)),
             height: Length::Fill,
             style: Renderer::Style::default(),
         }
     }
 
+    /// Sets the width of the [`VSlider`].
+    /// The default width is `Length::from(Length::Units(16))`.
+    ///
+    /// [`VSlider`]: struct.VSlider.html
+    pub fn width(mut self, width: Length) -> Self {
+        self.width = width;
+        self
+    }
+
     /// Sets the height of the [`VSlider`].
+    /// The default height is `Length::Fill`.
     ///
     /// [`VSlider`]: struct.VSlider.html
     pub fn height(mut self, height: Length) -> Self {
@@ -173,15 +186,14 @@ where
 
     fn layout(
         &self,
-        renderer: &Renderer,
+        _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
             let limits = limits
-            .width(Length::Shrink)
+            .width(self.width)
             .height(self.height);
         
-            let mut size = limits.resolve(Size::ZERO);
-            size.width = renderer.width(&self.style) as f32;
+            let size = limits.resolve(Size::ZERO);
 
             layout::Node::new(size)
     }
@@ -284,6 +296,7 @@ where
         struct Marker;
         std::any::TypeId::of::<Marker>().hash(state);
 
+        self.width.hash(state);
         self.height.hash(state);
     }
 }
@@ -297,9 +310,6 @@ where
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
-
-    /// returns the width of the VSlider
-    fn width(&self, style_sheet: &Self::Style) -> u16;
 
     /// Draws a [`VSlider`].
     ///

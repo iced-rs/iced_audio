@@ -240,6 +240,7 @@ impl VSliderStep {
             &self.v_slider_rect_param,
             Message::VSlidersChanged,
         )
+        .width(Length::from(Length::Units(28)))
         .style(style::VSliderRectStyle);
 
         let v_slider_rect_bp = VSlider::new(
@@ -247,6 +248,7 @@ impl VSliderStep {
             &self.v_slider_rect_bp_param,
             Message::VSlidersChanged,
         )
+        .width(Length::from(Length::Units(28)))
         .style(style::VSliderRectBipolarStyle);
 
         let v_slider_texture = VSlider::new(
@@ -254,6 +256,8 @@ impl VSliderStep {
             &self.v_slider_texture_param,
             Message::VSlidersChanged,
         )
+        // the width of the handle texture
+        .width(Length::from(Length::Units(20)))
         // clone the handle to the loaded texture
         .style(style::VSliderTextureStyle(
             self.v_slider_texture_handle.clone()
@@ -267,7 +271,9 @@ impl VSliderStep {
 
             .push(Column::new()
                 .max_height(400)
-                .width(Length::Fill)
+                // * Note: `.width(Length::Fill)` is broken for `VSlider`
+                // for the time being.
+                .max_width(120)
                 .spacing(10)
                 .push(Text::new(&self.v_slider_float_label))
                 .push(v_slider_float)
@@ -278,7 +284,7 @@ impl VSliderStep {
 
             .push(Column::new()
                 .max_height(400)
-                .width(Length::Fill)
+                .max_width(120)
                 .spacing(10)
                 .push(Text::new(&self.v_slider_log_label))
                 .push(v_slider_log)
@@ -289,7 +295,7 @@ impl VSliderStep {
 
             .push(Column::new()
                 .max_height(400)
-                .width(Length::Fill)
+                .max_width(120)
                 .spacing(10)
                 .push(Text::new(&self.v_slider_rect_label))
                 .push(v_slider_style)
@@ -300,7 +306,7 @@ impl VSliderStep {
 
             .push(Column::new()
                 .max_height(400)
-                .width(Length::Fill)
+                .max_width(120)
                 .spacing(10)
                 .push(Text::new(&self.v_slider_rect_bp_label))
                 .push(v_slider_rect_bp)

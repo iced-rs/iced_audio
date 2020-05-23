@@ -240,6 +240,7 @@ impl HSliderStep {
             &self.h_slider_rect_param,
             Message::HSlidersChanged,
         )
+        .height(Length::from(Length::Units(24)))
         .style(style::HSliderRectStyle);
 
         let h_slider_rect_bp = HSlider::new(
@@ -247,6 +248,7 @@ impl HSliderStep {
             &self.h_slider_rect_bp_param,
             Message::HSlidersChanged,
         )
+        .height(Length::from(Length::Units(24)))
         .style(style::HSliderRectBipolarStyle);
 
         let h_slider_texture = HSlider::new(
@@ -254,8 +256,10 @@ impl HSliderStep {
             &self.h_slider_texture_param,
             Message::HSlidersChanged,
         )
-        // clone the handle to the loaded texture
+        // the height of the texture (width is defined in `style`)
+        .height(Length::from(Length::Units(20)))
         .style(style::HSliderTextureStyle(
+            // clone the handle to the loaded texture
             self.h_slider_texture_handle.clone()
         ));
 
@@ -266,7 +270,7 @@ impl HSliderStep {
             .spacing(20)
 
             .push(Column::new()
-                .width(Length::FillPortion(1))
+                .width(Length::Fill)
                 .spacing(10)
                 .push(Text::new(&self.h_slider_float_label))
                 .push(h_slider_float)
@@ -282,7 +286,7 @@ impl HSliderStep {
             )
 
             .push(Column::new()
-                .width(Length::FillPortion(1))
+                .width(Length::Fill)
                 .spacing(10)
                 .push(Text::new(&self.h_slider_int_label))
                 .push(h_slider_int)

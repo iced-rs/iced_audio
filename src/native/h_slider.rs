@@ -14,6 +14,7 @@ use std::hash::Hash;
 
 use crate::core::{Normal, Param};
 
+static DEFAULT_HEIGHT: u16 = 16;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A horizontal slider GUI widget that controls a [`Param`]
@@ -35,6 +36,7 @@ where
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     width: Length,
+    height: Length,
     style: Renderer::Style,
 }
 
@@ -78,15 +80,26 @@ where
                 ..Default::default()
             },
             width: Length::Fill,
+            height: Length::from(Length::Units(DEFAULT_HEIGHT)),
             style: Renderer::Style::default(),
         }
     }
 
     /// Sets the width of the [`HSlider`].
+    /// The default width is `Length::Fill`.
     ///
     /// [`HSlider`]: struct.HSlider.html
     pub fn width(mut self, width: Length) -> Self {
         self.width = width;
+        self
+    }
+
+    /// Sets the height of the [`HSlider`].
+    /// The default height is `Length::from(Length::Units(16))`.
+    ///
+    /// [`HSlider`]: struct.HSlider.html
+    pub fn height(mut self, height: Length) -> Self {
+        self.height = height;
         self
     }
 
@@ -168,20 +181,19 @@ where
     }
 
     fn height(&self) -> Length {
-        Length::Shrink
+        self.height
     }
 
     fn layout(
         &self,
-        renderer: &Renderer,
+        _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
             let limits = limits
             .width(self.width)
-            .height(Length::Shrink);
+            .height(self.height);
         
-            let mut size = limits.resolve(Size::ZERO);
-            size.height = renderer.height(&self.style) as f32;
+            let size = limits.resolve(Size::ZERO);
 
             layout::Node::new(size)
     }
@@ -285,6 +297,7 @@ where
         std::any::TypeId::of::<Marker>().hash(state);
 
         self.width.hash(state);
+        self.height.hash(state);
     }
 }
 
@@ -297,9 +310,6 @@ where
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
-
-    /// returns the height of the HSlider
-    fn height(&self, style_sheet: &Self::Style) -> u16;
 
     /// Draws an [`HSlider`].
     ///

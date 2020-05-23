@@ -4,8 +4,10 @@
 //! different runtime implementations.
 
 pub mod param;
+pub mod tick_marks;
 
 pub use param::*;
+pub use tick_marks::*;
 
 /// An `f32` value that is gauranteed to be constrained to the range of
 ///

@@ -2,7 +2,7 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use crate::core::{Normal};
+use crate::core::Normal;
 use crate::native::knob;
 use iced_native::{
     Background, MouseCursor, Point, Rectangle, Color
@@ -12,7 +12,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    Style, StyleSheet, VectorStyle, InnerCircle
+    Style, StyleSheet
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
@@ -24,10 +24,6 @@ pub type Knob<'a, Message, ID> =
 
 impl knob::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
-
-    fn diameter(&self, style_sheet: &Self::Style) -> u16 {
-        style_sheet.diameter()
-    }
 
     fn draw(
         &mut self,
@@ -198,6 +194,7 @@ impl knob::Renderer for Renderer {
             Style::VectorCircle(style) => {
 
 
+
                 let radius = bounds_size / 2.0;
 
                 let knob_back = Primitive::Quad {
@@ -222,8 +219,10 @@ impl knob::Renderer for Renderer {
                     else { (0.0, -1.0) }
                 };
 
-                let notch_radius = style.notch_diameter as f32 / 2.0;
-                let offset_radius = radius - style.notch_offset as f32;
+                let notch_radius = radius * style.notch_scale.value();
+
+                let offset_radius = (radius - (notch_radius * 2.0)) *
+                    (1.0 - style.notch_offset.value()) + notch_radius;
 
                 let notch = Primitive::Quad {
                     bounds: Rectangle {
@@ -231,8 +230,8 @@ impl knob::Renderer for Renderer {
                             - notch_radius,
                         y: bounds_y + radius - (dy * offset_radius)
                             - notch_radius,
-                        width: style.notch_diameter as f32,
-                        height: style.notch_diameter as f32,
+                        width: notch_radius * 2.0,
+                        height: notch_radius * 2.0,
                     },
                     background: Background::Color(style.notch_color),
                     border_radius: notch_radius as u16,

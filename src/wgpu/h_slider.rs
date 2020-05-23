@@ -26,10 +26,6 @@ pub type HSlider<'a, Message, ID> =
 impl h_slider::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
 
-    fn height(&self, style_sheet: &Self::Style) -> u16 {
-        style_sheet.height()
-    }
-
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -92,7 +88,6 @@ impl h_slider::Renderer for Renderer {
             );
             
             let handle_width = style.handle_width as f32;
-            let handle_height = style.handle_height as f32;
 
             let handle_offset = ( (bounds_width - handle_width)
                                     * normal.value() ).round();
@@ -103,11 +98,11 @@ impl h_slider::Renderer for Renderer {
                         handle: style.texture,
                         bounds: Rectangle {
                             x: bounds.x + handle_offset - pad.left as f32,
-                            y: (rail_y - (handle_height / 2.0)).round()
+                            y: (rail_y - (bounds_height / 2.0)).round()
                                 - pad.top as f32,
                             width: handle_width +
                                 (pad.left + pad.right) as f32,
-                            height: handle_height +
+                            height: bounds_height +
                                 (pad.top + pad.bottom) as f32,
                         },
                     }
@@ -116,9 +111,9 @@ impl h_slider::Renderer for Renderer {
                         handle: style.texture,
                         bounds: Rectangle {
                             x: bounds.x + handle_offset,
-                            y: (rail_y - (handle_height / 2.0)).round(),
+                            y: (rail_y - (bounds_height / 2.0)).round(),
                             width: handle_width,
-                            height: handle_height,
+                            height: bounds_height,
                         },
                     }
                 }
@@ -165,23 +160,21 @@ impl h_slider::Renderer for Renderer {
                 }
             );
 
-            let (handle_width, handle_height, handle_border_radius) =
+            let (handle_width, handle_border_radius) =
                 (f32::from(style.handle.width),
-                f32::from(style.handle.height),
                 style.handle.border_radius);
             
             let handle_offset = ( (bounds_width - handle_width)
                                     * normal.value() ).round();
             
             let notch_width = style.handle.notch_width as f32;
-            let notch_height = style.handle.notch_height as f32;
             
             let handle = Primitive::Quad {
                 bounds: Rectangle {
                     x: bounds_x + handle_offset,
-                    y: (rail_y - (handle_height / 2.0)).round(),
+                    y: (rail_y - (bounds_height / 2.0)).round(),
                     width: handle_width,
-                    height: handle_height,
+                    height: bounds_height,
                 },
                 background: Background::Color(style.handle.color),
                 border_radius: handle_border_radius,
@@ -194,9 +187,9 @@ impl h_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: (bounds_x + handle_offset + (handle_width / 2.0)
                             - (notch_width / 2.0)).round(),
-                        y: (rail_y - (notch_height / 2.0)).round(),
+                        y: (rail_y - (bounds_height / 2.0)).round(),
                         width: notch_width,
-                        height: notch_height,
+                        height: bounds_height,
                     },
                     background: Background::Color(style.handle.notch_color),
                     border_radius: 0,

@@ -26,10 +26,6 @@ pub type VSlider<'a, Message, ID> =
 impl v_slider::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
 
-    fn width(&self, style_sheet: &Self::Style) -> u16 {
-        style_sheet.width()
-    }
-
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -91,7 +87,6 @@ impl v_slider::Renderer for Renderer {
                 }
             );
             
-            let handle_width = style.handle_width as f32;
             let handle_height = style.handle_height as f32;
 
             let handle_offset = ( (bounds_height - handle_height)
@@ -102,10 +97,10 @@ impl v_slider::Renderer for Renderer {
                     Primitive::Image {
                         handle: style.texture,
                         bounds: Rectangle {
-                            x: (rail_x - (handle_width / 2.0)).round()
+                            x: (rail_x - (bounds_width / 2.0)).round()
                                 - pad.bottom as f32,
                             y: bounds.y + handle_offset - pad.top as f32,
-                            width: handle_width +
+                            width: bounds_width +
                                 (pad.bottom + pad.top) as f32,
                             height: handle_height +
                                 (pad.top + pad.bottom) as f32,
@@ -115,9 +110,9 @@ impl v_slider::Renderer for Renderer {
                     Primitive::Image {
                         handle: style.texture,
                         bounds: Rectangle {
-                            x: (rail_x - (handle_width / 2.0) + 1.0).round(),
+                            x: (rail_x - (bounds_width / 2.0) + 1.0).round(),
                             y: bounds.y + handle_offset,
-                            width: handle_width,
+                            width: bounds_width,
                             height: handle_height,
                         },
                     }
@@ -165,23 +160,21 @@ impl v_slider::Renderer for Renderer {
                 }
             );
 
-            let (handle_width, handle_height, handle_border_radius) =
-                (f32::from(style.handle.width),
-                f32::from(style.handle.height),
+            let (handle_height, handle_border_radius) =
+                (f32::from(style.handle.height),
                 style.handle.border_radius);
             
             let handle_offset = ( (bounds_height - handle_height)
                                     * (1.0 - normal.value())
                                 ).round();
             
-            let notch_width = style.handle.notch_width as f32;
             let notch_height = style.handle.notch_height as f32;
             
             let handle = Primitive::Quad {
                 bounds: Rectangle {
-                    x: (rail_x - (handle_width / 2.0) + 1.0).round(),
+                    x: (rail_x - (bounds_width / 2.0) + 1.0).round(),
                     y: bounds_y + handle_offset,
-                    width: handle_width,
+                    width: bounds_width,
                     height: handle_height,
                 },
                 background: Background::Color(style.handle.color),
@@ -190,36 +183,27 @@ impl v_slider::Renderer for Renderer {
                 border_color: style.handle.border_color,
             };
 
-            if style.handle.notch_width != 0 {
-                let handle_notch = Primitive::Quad {
-                    bounds: Rectangle {
-                        x: (rail_x - (notch_width / 2.0) + 1.0).round(),
-                        y: (bounds_y + handle_offset + (handle_height / 2.0)
-                            - (notch_height / 2.0)).round(),
-                        width: notch_width,
-                        height: notch_height,
-                    },
-                    background: Background::Color(style.handle.notch_color),
-                    border_radius: 0,
-                    border_width: 0,
-                    border_color: Color::TRANSPARENT,
-                };
+            let handle_notch = Primitive::Quad {
+                bounds: Rectangle {
+                    x: (rail_x - (bounds_width / 2.0) + 1.0).round(),
+                    y: (bounds_y + handle_offset + (handle_height / 2.0)
+                        - (notch_height / 2.0)).round(),
+                    width: bounds_width,
+                    height: notch_height,
+                },
+                background: Background::Color(style.handle.notch_color),
+                border_radius: 0,
+                border_width: 0,
+                border_color: Color::TRANSPARENT,
+            };
 
-                (
-                    Primitive::Group {
-                        primitives: vec![rail_top, rail_bottom, handle,
-                            handle_notch],
-                    },
-                    MouseCursor::default(),
-                )
-            } else {
-                (
-                    Primitive::Group {
-                        primitives: vec![rail_top, rail_bottom, handle],
-                    },
-                    MouseCursor::default(),
-                )
-            }
+            (
+                Primitive::Group {
+                    primitives: vec![rail_top, rail_bottom, handle,
+                        handle_notch],
+                },
+                MouseCursor::default(),
+            )
         }
 
 
@@ -228,14 +212,13 @@ impl v_slider::Renderer for Renderer {
             
 
 
-            let rect_width = style_sheet.width() as f32;
-            let rect_x = rail_x - (rect_width / 2.0).round();
+            let rect_x = rail_x - (bounds_width / 2.0).round();
 
             let empty_rect = Primitive::Quad {
                 bounds: Rectangle {
                     x: rect_x,
                     y: bounds_y,
-                    width: rect_width,
+                    width: bounds_width,
                     height: bounds_height,
                 },
                 background: Background::Color(style.back_empty_color),
@@ -260,7 +243,7 @@ impl v_slider::Renderer for Renderer {
                 bounds: Rectangle {
                     x: rect_x,
                     y: bounds_y + filled_rect_offset,
-                    width: rect_width,
+                    width: bounds_width,
                     height: bounds_height - filled_rect_offset + border_width,
                 },
                 background: Background::Color(style.back_filled_color),
@@ -273,7 +256,7 @@ impl v_slider::Renderer for Renderer {
                 bounds: Rectangle {
                     x: rect_x,
                     y: bounds_y + handle_offset,
-                    width: rect_width,
+                    width: bounds_width,
                     height: handle_height + (border_width * 2.0),
                 },
                 background: Background::Color(style.handle_color),
@@ -295,8 +278,9 @@ impl v_slider::Renderer for Renderer {
         Style::RectBipolar(style) => {
 
 
-            let rect_width = style_sheet.width() as f32;
-            let rect_x = rail_x - (rect_width / 2.0).round();
+
+
+            let rect_x = rail_x - (bounds_width / 2.0).round();
 
             let handle_height = style.handle_height as f32;
             let border_width = style.border_width as f32;
@@ -305,7 +289,7 @@ impl v_slider::Renderer for Renderer {
                 bounds: Rectangle {
                     x: rect_x,
                     y: bounds_y,
-                    width: rect_width,
+                    width: bounds_width,
                     height: bounds_height,
                 },
                 background: Background::Color(style.back_bottom_empty_color),
@@ -320,7 +304,7 @@ impl v_slider::Renderer for Renderer {
                 bounds: Rectangle {
                     x: rect_x,
                     y: bounds_y,
-                    width: rect_width,
+                    width: bounds_width,
                     height: half_bounds_height,
                 },
                 background: Background::Color(style.back_top_empty_color),
@@ -340,7 +324,7 @@ impl v_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: rect_x,
                         y: bounds_y + handle_offset - border_width,
-                        width: rect_width,
+                        width: bounds_width,
                         height: handle_height + (border_width * 2.0),
                     },
                     background: Background::Color(style.handle_center_color),
@@ -366,7 +350,7 @@ impl v_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: rect_x,
                         y: bounds_y + filled_rect_offset,
-                        width: rect_width,
+                        width: bounds_width,
                         height: half_bounds_height - filled_rect_offset,
                     },
                     background: Background::Color(style.back_top_filled_color),
@@ -379,7 +363,7 @@ impl v_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: rect_x,
                         y: bounds_y + handle_offset - border_width,
-                        width: rect_width,
+                        width: bounds_width,
                         height: handle_height + (border_width * 2.0),
                     },
                     background: Background::Color(style.handle_top_color),
@@ -401,7 +385,7 @@ impl v_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: rect_x,
                         y: bounds_y + filled_rect_offset - (border_width * 2.0),
-                        width: rect_width,
+                        width: bounds_width,
                         height: handle_offset - filled_rect_offset
                                 + (border_width * 3.0)
                                 - style.handle_filled_gap as f32,
@@ -417,7 +401,7 @@ impl v_slider::Renderer for Renderer {
                     bounds: Rectangle {
                         x: rect_x,
                         y: bounds_y + handle_offset - border_width,
-                        width: rect_width,
+                        width: bounds_width,
                         height: handle_height + (border_width * 2.0),
                     },
                     background: Background::Color(style.handle_bottom_color),

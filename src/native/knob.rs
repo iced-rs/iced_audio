@@ -14,6 +14,7 @@ use std::hash::Hash;
 
 use crate::core::{Normal, Param};
 
+static DEFAULT_SIZE: u16 = 31;
 static DEFAULT_SCALAR: f32 = 0.008;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
@@ -26,6 +27,7 @@ where
     ID: Debug + Copy + Clone
 {
     state: &'a mut State,
+    size: Length,
     id: ID,
     normal: Normal,
     default_normal: Normal,
@@ -66,6 +68,7 @@ where
     {  
         Knob {
             state,
+            size: Length::from(Length::Units(DEFAULT_SIZE)),
             id: param.id(),
             normal: param.normal(),
             default_normal: param.default_normal(),
@@ -78,6 +81,15 @@ where
             },
             style: Renderer::Style::default(),
         }
+    }
+
+    /// Sets the diameter of the [`Knob`]. The default size is
+    /// `Length::from(Length::Units(31))`.
+    ///
+    /// [`Knob`]: struct.Knob.html
+    pub fn size(mut self, size: Length) -> Self {
+        self.size = size;
+        self
     }
 
     /// Sets the style of the [`Knob`].
@@ -169,24 +181,21 @@ where
     ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
-        Length::Shrink
+        self.size
     }
 
     fn height(&self) -> Length {
-        Length::Shrink
+        self.size
     }
 
     fn layout(
         &self,
-        renderer: &Renderer,
+        _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-            let diameter = Length::from(Length::Units(
-                renderer.diameter(&self.style)
-            ));
             let limits = limits
-            .width(diameter)
-            .height(diameter);
+            .width(self.size)
+            .height(self.size);
         
             let size = limits.resolve(Size::ZERO);
 
@@ -290,6 +299,8 @@ where
     fn hash_layout(&self, state: &mut Hasher) {
         struct Marker;
         std::any::TypeId::of::<Marker>().hash(state);
+
+        self.size.hash(state);
     }
 }
 
@@ -302,9 +313,6 @@ where
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
-
-    /// returns the diameter of the Knob
-    fn diameter(&self, style_sheet: &Self::Style) -> u16;
 
     /// Draws a [`Knob`].
     ///

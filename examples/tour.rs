@@ -399,10 +399,6 @@ pub mod style {
         fn dragging(&self) -> h_slider::Style {
             self.hovered()
         }
-
-        fn height(&self) -> u16 {
-            24
-        }
     }
 
     // Custom style for the Rect VSlider
@@ -437,10 +433,6 @@ pub mod style {
         
         fn dragging(&self) -> v_slider::Style {
             self.hovered()
-        }
-
-        fn width(&self) -> u16 {
-            26
         }
     }
 
@@ -482,10 +474,6 @@ pub mod style {
         fn dragging(&self) -> h_slider::Style {
             self.hovered()
         }
-
-        fn height(&self) -> u16 {
-            24
-        }
     }
 
     // Custom style for the Rect Bipolar VSlider
@@ -526,10 +514,6 @@ pub mod style {
         fn dragging(&self) -> v_slider::Style {
             self.hovered()
         }
-
-        fn width(&self) -> u16 {
-            26
-        }
     }
 
     // Custom style for the Texture HSlider
@@ -542,7 +526,6 @@ pub mod style {
                 rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
                 texture: self.0.clone(),
                 handle_width: 38,
-                handle_height: 20,
                 texture_padding: None,
             })
         }
@@ -553,10 +536,6 @@ pub mod style {
         
         fn dragging(&self) -> h_slider::Style {
             self.active()
-        }
-
-        fn height(&self) -> u16 {
-            24
         }
     }
 
@@ -569,7 +548,6 @@ pub mod style {
             v_slider::TextureStyle {
                 rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
                 texture: self.0.clone(),
-                handle_width: 20,
                 handle_height: 38,
                 texture_padding: None,
             })
@@ -581,10 +559,6 @@ pub mod style {
         
         fn dragging(&self) -> v_slider::Style {
             self.active()
-        }
-
-        fn width(&self) -> u16 {
-            24
         }
     }
 
