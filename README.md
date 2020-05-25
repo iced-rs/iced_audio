@@ -67,7 +67,7 @@ cargo run --example simple --release
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```
 iced = { version = "0.1", features = ["image"] }
-iced_audio = "0.0"
+iced_audio = "0.1"
 ```
 
 ## Simple Usage Example
