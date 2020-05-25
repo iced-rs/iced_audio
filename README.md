@@ -6,8 +6,6 @@
 
 An extension to the [Iced] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
 
-[Iced]: https://github.com/hecrj/iced
-
 <div align="center">
     <img src="/screenshots/HSliders.png" height="450px">
     <img src="/screenshots/Simple_Example.png" height="450px">
@@ -28,18 +26,15 @@ cargo run --example simple --release
 * [x] XYPad
 
 ## Widgets partially implemented
-* [x] Knob - Due to current limitations of iced, only a simple flat circle style is implemented for now. There is also a known bug where input will stop when the mouse leaves the window in some conditions.
+* [x] Knob - Due to current limitations of iced, only a simple flat circle style is implemented for now. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
 
 ## Roadmap of planned widgets
 ### Inputs
 
-* [x] HSlider - horizontal slider
-* [x] VSlider - vertical slider
-* [ ] HTickMarks - horizontal tick marks
-* [ ] VTickMark - vertical tick marks
+* [x] HSlider - horizontal slider with optional tick marks
+* [x] VSlider - vertical slider with optional tick marks
 * [ ] HRangeSlider - a horizontal slider with two or more handles for controlling the automation range of a parameter.
-* [x] Knob - a rotating knob with optional notches. Texture style may have optional highlight and shadow layers.
-* [ ] KnobTickMarks - tick marks around a knob
+* [x] Knob - a rotating knob with optional tick marks. Texture style may have optional highlight and shadow layers.
 * [ ] KnobAutoRange - an adjustable line around a Knob that represents the range of automation active on that parameter. Will have a unipolar and bipolar mode. May also have multiple of these widgets in a ring-like pattern like in the original Massive synthesizer.
 * [ ] EnvelopeEditor - adjustable points connected by lines that represent an envelope / lfo. Lines can be straight or curved, and extra points can be added or removed.
 * [ ] StepEditor - a row of vertical sliders for step automation
@@ -76,15 +71,17 @@ iced_audio = "0.0"
 ```
 
 ## Simple Usage Example
+This crate assumes you know the basics of how to use [Iced]. If you haven't alreay, please check it out [here].
 ```rust
-// Import iced crate.
+// Import iced modules.
 use iced::{
     Column, Container, Element, Length, Sandbox, Settings, Align
 };
-// Import iced_audio crate.
+// Import iced_audio modules.
 use iced_audio::{
     Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-    v_slider, VSlider, knob, Knob
+    v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
+    TickMarkTier
 };
 
 // Create a unique identifier for each parameter. Note you may also use any
@@ -94,6 +91,8 @@ pub enum ParamID {
     HSliderFloat,
     VSliderDB,
     KnobOctave,
+    XYPadFloatX,
+    XYPadFloatY,
 }
 
 // The message when a parameter widget is changed by the user
@@ -124,11 +123,17 @@ pub struct App {
     h_slider_float_param: FloatParam<ParamID>,
     v_slider_db_param: LogDBParam<ParamID>,
     knob_octave_param: OctaveParam<ParamID>,
+    xy_pad_float_x_param: FloatParam<ParamID>,
+    xy_pad_float_y_param: FloatParam<ParamID>,
 
     // The states of the parameter widgets that will control the parameters.
     h_slider_state: h_slider::State,
     v_slider_state: v_slider::State,
     knob_state: knob::State,
+    xy_pad_state: xy_pad::State,
+
+    // A group of tick marks with their size and position.
+    center_tick_mark: TickMarkGroup,
 }
 
 impl Sandbox for App {
@@ -151,17 +156,31 @@ impl Sandbox for App {
         let knob_octave_param = OctaveParam::<ParamID>::new(
             ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
 
+        let xy_pad_float_x_param = FloatParam::<ParamID>::new(
+            ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
+        let xy_pad_float_y_param = FloatParam::<ParamID>::new(
+            ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
+
         App {
             // Add the parameters.
             h_slider_float_param,
             v_slider_db_param,
             knob_octave_param,
+            xy_pad_float_x_param,
+            xy_pad_float_y_param,
 
             // Initialize the state of the widgets with the initial value
             // of the corresponding parameter.
             h_slider_state: h_slider::State::new(&h_slider_float_param),
             v_slider_state: v_slider::State::new(&v_slider_db_param),
             knob_state: knob::State::new(&knob_octave_param),
+            xy_pad_state: xy_pad::State::new(
+                &xy_pad_float_x_param, &xy_pad_float_y_param),
+            
+            // Add a tick mark at the center position with the tier 1 size
+            center_tick_mark: vec![
+                TickMark::center(TickMarkTier::One)
+            ].into(),
         }
     }
 
@@ -191,6 +210,14 @@ impl Sandbox for App {
                         self.knob_octave_param.set_from_normal(normal);
                         // println!("{}", self.knob_octave_param.value());
                     },
+                    ParamID::XYPadFloatX => {
+                        self.xy_pad_float_x_param.set_from_normal(normal);
+                        // println!("{}", self.xy_pad_float_x_param.value());
+                    },
+                    ParamID::XYPadFloatY => {
+                        self.xy_pad_float_y_param.set_from_normal(normal);
+                        // println!("{}", self.xy_pad_float_y_param.value());
+                    },
                 }
             }
         }
@@ -204,28 +231,41 @@ impl Sandbox for App {
             &mut self.h_slider_state,
             &self.h_slider_float_param,
             Message::ParamChanged,
-        );
+        )
+        // Add the tick mark group to this widget.
+        .tick_marks(&self.center_tick_mark);
+
         let v_slider_widget = VSlider::new(
             &mut self.v_slider_state,
             &self.v_slider_db_param,
             Message::ParamChanged,
-        );
+        )
+        .tick_marks(&self.center_tick_mark);
+
         let knob_widget = Knob::new(
             &mut self.knob_state,
             &self.knob_octave_param,
             Message::ParamChanged,
         );
 
+        let xy_pad_widget = XYPad::new(
+            &mut self.xy_pad_state,
+            &self.xy_pad_float_x_param,
+            &self.xy_pad_float_y_param,
+            Message::ParamChanged,
+        );
+
         // Push the widgets into the iced DOM
         let content: Element<_> = Column::new()
             .max_width(250)
-            .max_height(350)
+            .max_height(400)
             .spacing(20)
             .padding(20)
             .align_items(Align::Center)
             .push(h_slider_widget)
             .push(v_slider_widget)
             .push(knob_widget)
+            .push(xy_pad_widget)
             .into();
 
         Container::new(content)
@@ -238,4 +278,6 @@ impl Sandbox for App {
 }
 ```
 
+[Iced]: https://github.com/hecrj/iced
 [documentation]: https://docs.rs/iced_audio/
+[here]: https://github.com/hecrj/iced

@@ -142,11 +142,17 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
         else { value }
     }
 
-    fn value_to_normal(&self, value: f32) -> Normal {
+    /// Returns the corresponding [`Normal`] from the supplied value
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn value_to_normal(&self, value: f32) -> Normal {
         ((value - self.min) * self.range_recip).into()
     }
 
-    fn normal_to_value(&self, normal: Normal) -> f32 {
+    /// Returns the corresponding value from the supplied [`Normal`]
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn normal_to_value(&self, normal: Normal) -> f32 {
         let value = (normal.value() * self.range) + self.min;
         if value > self.default_value - 0.001 &&
             value < self.default_value + 0.001 {
@@ -285,11 +291,17 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
         else { value }
     }
 
-    fn value_to_normal(&self, value: i32) -> Normal {
+    /// Returns the corresponding [`Normal`] from the supplied value
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn value_to_normal(&self, value: i32) -> Normal {
         ((value - self.min) as f32 * self.range_recip).into()
     }
 
-    fn normal_to_value(&self, normal: Normal) -> i32 {
+    /// Returns the corresponding value from the supplied [`Normal`]
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn normal_to_value(&self, normal: Normal) -> i32 {
         (normal.value() * self.range).round() as i32 + self.min
     }
 }
@@ -422,19 +434,16 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// Returns the parameter's default value
     pub fn default_value(&self) -> f32 { self.default_value }
 
-    fn constrain(&self, value: f32) -> f32 {
-        if value <= self.min { self.min }
-        else if value >= self.max { self.max }
-        else { value }
-    }
-
-    fn value_to_normal(&self, value: f32) -> Normal {
+    /// Returns the corresponding [`Normal`] from the supplied `value`
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn value_to_normal(&self, value: f32) -> Normal {
         if value == 0.0 { self.zero_normal }
         else if value < 0.0 {
             if self.min >= 0.0 { return 0.0.into(); }
             let neg_normal = value / self.min;
 
-            let log_normal = 1.0 - (1.0 - neg_normal).sqrt();
+            let log_normal = 1.0 - neg_normal.sqrt();
 
             (log_normal * self.zero_normal.value()).into()
         }
@@ -449,7 +458,16 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
         }
     }
 
-    fn normal_to_value(&self, normal: Normal) -> f32 {
+    fn constrain(&self, value: f32) -> f32 {
+        if value <= self.min { self.min }
+        else if value >= self.max { self.max }
+        else { value }
+    }
+
+    /// Returns the corresponding dB value from the supplied [`Normal`]
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn normal_to_value(&self, normal: Normal) -> f32 {
         if normal == self.zero_normal { 0.0 }
         else if normal < self.zero_normal {
             if self.min >= 0.0 { return self.min; }
@@ -615,13 +633,19 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
         else { value }
     }
 
-    fn value_to_normal(&self, value: f32) -> Normal {
+    /// Returns the corresponding [`Normal`] from the supplied frequency value
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn value_to_normal(&self, value: f32) -> Normal {
         let spectrum_normal = octave_spectrum_to_normal(value);
         ( (spectrum_normal.value() - self.min_spectrum_normal.value())
              / self.spectrum_normal_range ).into()
     }
-
-    fn normal_to_value(&self, normal: Normal) -> f32 {
+    
+    /// Returns the corresponding frequency value from the supplied [`Normal`]
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    pub fn normal_to_value(&self, normal: Normal) -> f32 {
         let spectrum_normal = Normal::new(
                                 normal.value() * self.spectrum_normal_range
                                 + self.min_spectrum_normal.value()

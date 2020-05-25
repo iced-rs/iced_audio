@@ -4,7 +4,7 @@ use iced::{
 use iced_native::image;
 
 use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
-    OctaveParam, h_slider, HSlider
+    OctaveParam, h_slider, HSlider, TickMarkGroup, TickMark, TickMarkTier
 };
 
 use crate::{Step, style};
@@ -36,9 +36,9 @@ pub struct HSliderStep {
     h_slider_int_state: h_slider::State,
     h_slider_int_label: String,
 
-    h_slider_log_param: LogDBParam<HSlidersID>,
-    h_slider_log_state: h_slider::State,
-    h_slider_log_label: String,
+    h_slider_db_param: LogDBParam<HSlidersID>,
+    h_slider_db_state: h_slider::State,
+    h_slider_db_label: String,
 
     h_slider_oct_param: OctaveParam<HSlidersID>,
     h_slider_oct_state: h_slider::State,
@@ -58,6 +58,11 @@ pub struct HSliderStep {
 
     h_slider_texture_handle: image::Handle,
 
+    float_tick_marks: TickMarkGroup,
+    int_tick_marks: TickMarkGroup,
+    db_tick_marks: TickMarkGroup,
+    octave_tick_marks: TickMarkGroup,
+
     output_text: String,
 }
 
@@ -71,7 +76,7 @@ impl Default for HSliderStep {
         let h_slider_int_param = IntParam::<HSlidersID>::new(
             HSlidersID::Int, 0, 5, 0, 2);
 
-        let h_slider_log_param = LogDBParam::<HSlidersID>::new(
+        let h_slider_db_param = LogDBParam::<HSlidersID>::new(
             HSlidersID::DB, -12.0, 12.0, 0.0, 0.0, 0.5.into());
 
         let h_slider_oct_param = OctaveParam::<HSlidersID>::new(
@@ -84,7 +89,9 @@ impl Default for HSliderStep {
             HSlidersID::BipolarRectStyle, -1.0, 1.0, 0.0, 0.0);
 
         let h_slider_texture_param = FloatParam::<HSlidersID>::new(
-            HSlidersID::TextureStyle, 0.0, 1.0, 0.0, 0.0);
+            HSlidersID::TextureStyle, 0.0, 1.0, 1.0, 1.0);
+        
+        println!("-1: {}", h_slider_db_param.value_to_normal(-1.0).value());
         
         // create application
         
@@ -106,11 +113,11 @@ impl Default for HSliderStep {
             h_slider_int_label: String::from("Int Range"),
             
 
-            h_slider_log_param,
-            h_slider_log_state: h_slider::State::new(
-                &h_slider_log_param
+            h_slider_db_param,
+            h_slider_db_state: h_slider::State::new(
+                &h_slider_db_param
             ),
-            h_slider_log_label: String::from("Log dB Range"),
+            h_slider_db_label: String::from("Log dB Range"),
             
 
             h_slider_oct_param,
@@ -147,6 +154,58 @@ impl Default for HSliderStep {
             ).into(),
 
 
+            float_tick_marks: TickMarkGroup::subdivided(1, 1, 1, 
+                Some(TickMarkTier::Two)),
+            
+            int_tick_marks: TickMarkGroup::subdivided(0, 4, 0,
+                Some(TickMarkTier::Two)),
+            
+            db_tick_marks: vec![
+                TickMark { position: h_slider_db_param.value_to_normal(0.0),
+                    tier: TickMarkTier::One },
+
+                TickMark { position: h_slider_db_param.value_to_normal(1.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(3.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(6.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(12.0),
+                    tier: TickMarkTier::Two },
+
+                TickMark { position: h_slider_db_param.value_to_normal(-1.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(-3.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(-6.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_db_param.value_to_normal(-12.0),
+                    tier: TickMarkTier::Two },
+            ].into(),
+
+            octave_tick_marks: vec![
+                TickMark { position: h_slider_oct_param.value_to_normal(20.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(50.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(100.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: h_slider_oct_param.value_to_normal(200.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(400.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(1000.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: h_slider_oct_param.value_to_normal(2000.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(5000.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: h_slider_oct_param.value_to_normal(10000.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: h_slider_oct_param.value_to_normal(20000.0),
+                    tier: TickMarkTier::Two },
+            ].into(),
+
             output_text: String::from("Move a widget"),
         }
     }
@@ -178,9 +237,9 @@ impl HSliderStep {
                             self.h_slider_int_param.value());
                     },
                     HSlidersID::DB => {
-                        self.h_slider_log_param.set_from_normal(normal);
+                        self.h_slider_db_param.set_from_normal(normal);
                         self.output_text = crate::info_text_db(id,
-                            self.h_slider_log_param.value());
+                            self.h_slider_db_param.value());
                     },
                     HSlidersID::Octave => {
                         self.h_slider_oct_param.set_from_normal(normal);
@@ -215,27 +274,31 @@ impl HSliderStep {
             &mut self.h_slider_float_state,
             &self.h_slider_float_param,
             Message::HSlidersChanged,
-        );
+        )
+        .tick_marks(&self.float_tick_marks);
 
         let h_slider_int = HSlider::new(
             &mut self.h_slider_int_state,
             &self.h_slider_int_param,
             Message::HSlidersChanged,
-        );
+        )
+        .tick_marks(&self.int_tick_marks);
 
-        let h_slider_log = HSlider::new(
-            &mut self.h_slider_log_state,
-            &self.h_slider_log_param,
+        let h_slider_db = HSlider::new(
+            &mut self.h_slider_db_state,
+            &self.h_slider_db_param,
             Message::HSlidersChanged,
-        );
+        )
+        .tick_marks(&self.db_tick_marks);
 
         let h_slider_oct = HSlider::new(
             &mut self.h_slider_oct_state,
             &self.h_slider_oct_param,
             Message::HSlidersChanged,
-        );
+        )
+        .tick_marks(&self.octave_tick_marks);
 
-        let h_slider_style = HSlider::new(
+        let h_slider_rect = HSlider::new(
             &mut self.h_slider_rect_state,
             &self.h_slider_rect_param,
             Message::HSlidersChanged,
@@ -256,6 +319,7 @@ impl HSliderStep {
             &self.h_slider_texture_param,
             Message::HSlidersChanged,
         )
+        .tick_marks(&self.float_tick_marks)
         // the height of the texture (width is defined in `style`)
         .height(Length::from(Length::Units(20)))
         .style(style::HSliderTextureStyle(
@@ -272,14 +336,16 @@ impl HSliderStep {
             .push(Column::new()
                 .width(Length::Fill)
                 .spacing(10)
+
                 .push(Text::new(&self.h_slider_float_label))
+
                 .push(h_slider_float)
 
-                .push(Text::new(&self.h_slider_log_label))
-                .push(h_slider_log)
+                .push(Text::new(&self.h_slider_db_label))
+                .push(h_slider_db)
 
                 .push(Text::new(&self.h_slider_rect_label))
-                .push(h_slider_style)
+                .push(h_slider_rect)
 
                 .push(Text::new(&self.h_slider_texture_label))
                 .push(h_slider_texture)

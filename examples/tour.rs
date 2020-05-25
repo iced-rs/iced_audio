@@ -292,7 +292,7 @@ pub fn info_text_octave<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
 pub mod style {
     use iced::{button, Background, Color, Vector, image};
     use iced_audio::{
-        h_slider, v_slider, xy_pad
+        h_slider, v_slider, xy_pad,
     };
 
     pub enum Button {
@@ -523,7 +523,9 @@ pub mod style {
         fn active(&self) -> h_slider::Style {
             h_slider::Style::Texture(
             h_slider::TextureStyle {
-                rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
+                rail_colors: ([0.16, 0.16, 0.16, 0.75].into(),
+                              [0.56, 0.56, 0.56, 0.75].into()),
+                rail_heights: (1, 2),
                 texture: self.0.clone(),
                 handle_width: 38,
                 texture_padding: None,
@@ -537,6 +539,25 @@ pub mod style {
         fn dragging(&self) -> h_slider::Style {
             self.active()
         }
+
+        fn tick_mark_style(&self) -> Option<h_slider::TickMarkStyle> {
+            Some(h_slider::TickMarkStyle {
+                scale_tier_1: 0.85,
+                scale_tier_2: 0.8,
+                scale_tier_3: 0.75,
+
+                width_tier_1: 2,
+                width_tier_2: 1,
+                width_tier_3: 1,
+
+                color_tier_1: [0.56, 0.56, 0.56, 0.75].into(),
+                color_tier_2: [0.56, 0.56, 0.56, 0.75].into(),
+                color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
+
+                center_offset: 5,
+                handle_offset: 19,
+            })
+        }
     }
 
     // Custom style for the Texture VSlider
@@ -546,7 +567,9 @@ pub mod style {
         fn active(&self) -> v_slider::Style {
             v_slider::Style::Texture(
             v_slider::TextureStyle {
-                rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
+                rail_colors: ([0.16, 0.16, 0.16, 0.75].into(),
+                              [0.56, 0.56, 0.56, 0.75].into()),
+                rail_widths: (1, 2),
                 texture: self.0.clone(),
                 handle_height: 38,
                 texture_padding: None,
@@ -559,6 +582,25 @@ pub mod style {
         
         fn dragging(&self) -> v_slider::Style {
             self.active()
+        }
+
+        fn tick_mark_style(&self) -> Option<v_slider::TickMarkStyle> {
+            Some(v_slider::TickMarkStyle {
+                scale_tier_1: 0.85,
+                scale_tier_2: 0.8,
+                scale_tier_3: 0.75,
+
+                height_tier_1: 2,
+                height_tier_2: 1,
+                height_tier_3: 1,
+
+                color_tier_1: [0.56, 0.56, 0.56, 0.75].into(),
+                color_tier_2: [0.56, 0.56, 0.56, 0.75].into(),
+                color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
+
+                center_offset: 5,
+                handle_offset: 19,
+            })
         }
     }
 

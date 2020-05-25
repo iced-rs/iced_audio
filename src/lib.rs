@@ -15,15 +15,19 @@
 //!
 //! # Simple Usage Example
 //!
+//! This crate assumes you know the basics of how to use [`Iced`]. If you
+//! haven't alreay, please check it out [`here`].
+//!
 //! ```
-//! // Import iced crate.
+//! // Import iced modules.
 //! use iced::{
 //!     Column, Container, Element, Length, Sandbox, Settings, Align
 //! };
-//! // Import iced_audio crate.
+//! // Import iced_audio modules.
 //! use iced_audio::{
 //!     Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-//!     v_slider, VSlider, knob, Knob
+//!     v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
+//!     TickMarkTier
 //! };
 //! 
 //! // Create a unique identifier for each parameter. Note you may also use any
@@ -33,6 +37,8 @@
 //!     HSliderFloat,
 //!     VSliderDB,
 //!     KnobOctave,
+//!     XYPadFloatX,
+//!     XYPadFloatY,
 //! }
 //! 
 //! // The message when a parameter widget is changed by the user
@@ -63,11 +69,17 @@
 //!     h_slider_float_param: FloatParam<ParamID>,
 //!     v_slider_db_param: LogDBParam<ParamID>,
 //!     knob_octave_param: OctaveParam<ParamID>,
+//!     xy_pad_float_x_param: FloatParam<ParamID>,
+//!     xy_pad_float_y_param: FloatParam<ParamID>,
 //! 
 //!     // The states of the parameter widgets that will control the parameters.
 //!     h_slider_state: h_slider::State,
 //!     v_slider_state: v_slider::State,
 //!     knob_state: knob::State,
+//!     xy_pad_state: xy_pad::State,
+//! 
+//!     // A group of tick marks with their size and position.
+//!     center_tick_mark: TickMarkGroup,
 //! }
 //! 
 //! impl Sandbox for App {
@@ -90,17 +102,31 @@
 //!         let knob_octave_param = OctaveParam::<ParamID>::new(
 //!             ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
 //! 
+//!         let xy_pad_float_x_param = FloatParam::<ParamID>::new(
+//!             ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
+//!         let xy_pad_float_y_param = FloatParam::<ParamID>::new(
+//!             ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
+//! 
 //!         App {
 //!             // Add the parameters.
 //!             h_slider_float_param,
 //!             v_slider_db_param,
 //!             knob_octave_param,
+//!             xy_pad_float_x_param,
+//!             xy_pad_float_y_param,
 //! 
 //!             // Initialize the state of the widgets with the initial value
 //!             // of the corresponding parameter.
 //!             h_slider_state: h_slider::State::new(&h_slider_float_param),
 //!             v_slider_state: v_slider::State::new(&v_slider_db_param),
 //!             knob_state: knob::State::new(&knob_octave_param),
+//!             xy_pad_state: xy_pad::State::new(
+//!                 &xy_pad_float_x_param, &xy_pad_float_y_param),
+//!             
+//!             // Add a tick mark at the center position with the tier 1 size
+//!             center_tick_mark: vec![
+//!                 TickMark::center(TickMarkTier::One)
+//!             ].into(),
 //!         }
 //!     }
 //! 
@@ -130,41 +156,62 @@
 //!                         self.knob_octave_param.set_from_normal(normal);
 //!                         // println!("{}", self.knob_octave_param.value());
 //!                     },
+//!                     ParamID::XYPadFloatX => {
+//!                         self.xy_pad_float_x_param.set_from_normal(normal);
+//!                         // println!("{}", self.xy_pad_float_x_param.value());
+//!                     },
+//!                     ParamID::XYPadFloatY => {
+//!                         self.xy_pad_float_y_param.set_from_normal(normal);
+//!                         // println!("{}", self.xy_pad_float_y_param.value());
+//!                     },
 //!                 }
 //!             }
 //!         }
 //!     }
 //! 
 //!     fn view(&mut self) -> Element<Message> {
-//!
+//!         
 //!         // Create each parameter widget, passing in the current value of the
 //!         // corresponding parameter.
 //!         let h_slider_widget = HSlider::new(
 //!             &mut self.h_slider_state,
 //!             &self.h_slider_float_param,
 //!             Message::ParamChanged,
-//!         );
+//!         )
+//!         // Add the tick mark group to this widget.
+//!         .tick_marks(&self.center_tick_mark);
+//! 
 //!         let v_slider_widget = VSlider::new(
 //!             &mut self.v_slider_state,
 //!             &self.v_slider_db_param,
 //!             Message::ParamChanged,
-//!         );
+//!         )
+//!         .tick_marks(&self.center_tick_mark);
+//! 
 //!         let knob_widget = Knob::new(
 //!             &mut self.knob_state,
 //!             &self.knob_octave_param,
 //!             Message::ParamChanged,
 //!         );
 //! 
+//!         let xy_pad_widget = XYPad::new(
+//!             &mut self.xy_pad_state,
+//!             &self.xy_pad_float_x_param,
+//!             &self.xy_pad_float_y_param,
+//!             Message::ParamChanged,
+//!         );
+//! 
 //!         // Push the widgets into the iced DOM
 //!         let content: Element<_> = Column::new()
 //!             .max_width(250)
-//!             .max_height(350)
+//!             .max_height(400)
 //!             .spacing(20)
 //!             .padding(20)
 //!             .align_items(Align::Center)
 //!             .push(h_slider_widget)
 //!             .push(v_slider_widget)
 //!             .push(knob_widget)
+//!             .push(xy_pad_widget)
 //!             .into();
 //! 
 //!         Container::new(content)
@@ -177,6 +224,7 @@
 //! }
 //! ```
 //! [`Iced`]: https://github.com/hecrj/iced
+//! [`here`]: https://github.com/hecrj/iced
 
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]

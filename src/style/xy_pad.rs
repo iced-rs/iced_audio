@@ -6,16 +6,6 @@ use iced::Color;
 
 /// The appearance of an [`XYPad`].
 ///
-/// * `rail_width` - the width of the horizontal and vertical rail lines
-/// * `h_rail_color` - color of the horizontal rail line
-/// * `v_rail_color` - color of the vertical rail line
-/// * `handle` - the [`HandleShape`] of the handle
-/// * `back_color` - the color of the background square
-/// * `border_width` - the width of the border of the background square
-/// * `border_color` - the color of the border of the background square
-/// * `center_line_width` - the width of the center line markings
-/// * `center_line_color` - the color of the center line markings
-///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
 /// [`HandleShape`]: enum.HandleShape.html
 #[derive(Debug, Clone)]
@@ -56,11 +46,6 @@ pub enum HandleShape {
 
 /// a circular handle style for the [`Style`] of an [`XYPad`]
 ///
-/// * color - the color of the circle
-/// * diameter - the diameter of the circle
-/// * border_width - the width of the border of the circle
-/// * border_color - the color of the border of the circle
-///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
 /// [`Style`]: struct.Style.html
 #[derive(Debug, Clone)]
@@ -76,12 +61,6 @@ pub struct HandleCircle {
 }
 
 /// a square handle style for the [`Style`] of an [`XYPad`]
-///
-/// * color - the color of the square
-/// * size - the size of the square
-/// * border_width - the width of the border of the square
-/// * border_radius - the radius of the corners of the square
-/// * border_color - the color of the border of the square
 ///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
 /// [`Style`]: struct.Style.html

@@ -9,12 +9,6 @@ use crate::TexturePadding;
 
 /// The appearance of an [`VSlider`].
 ///
-/// * `Texture` - uses an image texture for the handle
-/// * `Classic` - modeled after hardware sliders
-/// * `Rect` - a modern style with a line inside a filled rectangle
-/// * `RectBipolar` - same as `Rect` but can have different colors for bottom,
-/// top, and center positions
-///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Clone)]
 pub enum Style {
@@ -31,20 +25,15 @@ pub enum Style {
 
 /// A [`Style`] for an [`VSlider`] that uses an image texture for the handle
 ///
-/// * `rail_colors` - colors of the left and right side of the rail
-/// * `texture` - the [`Handle`] to the image texture
-/// * `handle_height` - the height of the handle, not including padding
-/// * `texture_padding` - the texture padding around the handle bounding
-/// rectangle. This is useful when the texture is of a glowing handle or has
-/// a drop shadow, etc.
-///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
-    /// colors of the left and right side of the rail
+    /// colors of the left and right of the rail
     pub rail_colors: (Color, Color),
+    /// width (thickness) of the left and right of the rail
+    pub rail_widths: (u16, u16),
     /// the [`Handle`] to the image texture
     pub texture: image::Handle,
     /// the height of the handle, not including padding
@@ -57,29 +46,20 @@ pub struct TextureStyle {
 
 /// A classic [`Style`] for an [`VSlider`], modeled after hardware sliders 
 ///
-/// * `rail_colors` - colors of the left and right side of the rail
-/// * `handle` - a [`ClassicHandle`] defining the style of the handle
-///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`ClassicHandle`]: struct.ClassicHandle.html
 #[derive(Debug, Clone)]
 pub struct ClassicStyle {
-    /// colors of the left and right side of the rail
+    /// colors of the left and right of the rail
     pub rail_colors: (Color, Color),
+    /// width (thickness) of the left and right of the rail
+    pub rail_widths: (u16, u16),
     /// a `ClassicHandle` defining the style of the handle
     pub handle: ClassicHandle,
 }
 
 /// The [`ClassicStyle`] appearance of the handle of an [`VSlider`]
-///
-/// * `color` - background color
-/// * `height` - height of the handle
-/// * `notch_height` - height of the middle notch
-/// * `notch_color` - color of the middle notch
-/// * `border_radius` - radius of the background rectangle
-/// * `border_width` - width of the background rectangle
-/// * `border_color` - color of the background rectangle border
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`ClassicStyle`]: struct.ClassicStyle.html
@@ -103,18 +83,6 @@ pub struct ClassicHandle {
 
 /// A modern [`Style`] for an [`VSlider`]. It is composed of a background
 /// rectangle and a rectangular handle.
-///
-/// * `back_empty_color` - color of an unfilled portion in the background
-/// rectangle
-/// * `back_filled_color` - color of a filled portion in the background
-/// rectangle
-/// * `border_color` - color of the background rectangle border
-/// * `border_radius` - radius of the background rectangle
-/// * `border_width` - width of the background rectangle border
-/// * `handle_color` - color of the handle rectangle
-/// * `handle_height` - height of the handle rectangle
-/// * `handle_filled_gap` - width of the gap between the handle and the filled
-/// portion of the background rectangle
 ///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
@@ -142,27 +110,6 @@ pub struct RectStyle {
 /// A modern [`Style`] for an [`VSlider`]. It is composed of a background
 /// rectangle and a rectangular handle. It has different colors for bottom, top,
 /// and center values.
-///
-/// * `back_bottom_empty_color` - color of an unfilled portion in the background
-/// rectangle on the bottom side of the center
-/// * `back_bottom_filled_color` - color of a filled portion in the background
-/// rectangle on the bottom side of the center
-/// * `back_top_empty_color` - color of an unfilled portion in the background
-/// rectangle on the top side of the center
-/// * `back_top_filled_color` - color of a filled portion in the background
-/// rectangle on the top side of the center
-/// * `border_color` - color of the background rectangle border
-/// * `border_radius` - radius of the background rectangle
-/// * `border_width` - width of the background rectangle border
-/// * `handle_bottom_color` - color of the handle rectangle when it is on the
-/// bottom side of the center
-/// * `handle_top_color` - color of the handle rectangle when it is on the
-/// top side of the center
-/// * `handle_center_color` - color of the handle rectangle when it is in
-/// the center
-/// * `handle_height` - height of the handle rectangle
-/// * `handle_filled_gap` - height of the gap between the handle and the filled
-/// portion of the background rectangle
 ///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
@@ -201,6 +148,65 @@ pub struct RectBipolarStyle {
     pub handle_filled_gap: u16,
 }
 
+/// The style of a [`TickMarkGroup`] for a [`VSlider`]
+///
+/// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+#[derive(Debug, Copy, Clone)]
+pub struct TickMarkStyle {
+    /// The height of a tier 1 tick mark relative to the height of the `HSlider`
+    pub scale_tier_1: f32,
+    /// The height of a tier 2 tick mark relative to the height of the `HSlider`
+    pub scale_tier_2: f32,
+    /// The height of a tier 3 tick mark relative to the height of the `HSlider`
+    pub scale_tier_3: f32,
+
+    /// The height (thickness) of a tier 1 tick mark
+    pub height_tier_1: u16,
+    /// The height (thickness) of a tier 2 tick mark
+    pub height_tier_2: u16,
+    /// The height (thickness) of a tier 3 tick mark
+    pub height_tier_3: u16,
+
+    /// The color of a tier 1 tick mark
+    pub color_tier_1: Color,
+    /// The color of a tier 2 tick mark
+    pub color_tier_2: Color,
+    /// The color of a tier 3 tick mark
+    pub color_tier_3: Color,
+
+    /// The vertical distance from the center rail to a tick mark. Setting this
+    /// to `0` will cause each tick mark to be a single continous line going
+    /// through the the rail, as apposed to a line above and a line below the
+    /// rail.
+    pub center_offset: u16,
+
+    /// The horizontal offset from the edges of the `HSlider`. This is usually
+    /// half of the width of the handle.
+    pub handle_offset: u16,
+}
+
+impl std::default::Default for TickMarkStyle {
+    fn default() -> Self {
+        Self {
+            scale_tier_1: 1.5,
+            scale_tier_2: 1.3,
+            scale_tier_3: 1.05,
+
+            height_tier_1: 2,
+            height_tier_2: 2,
+            height_tier_3: 1,
+
+            color_tier_1: [0.56, 0.56, 0.56, 0.65].into(),
+            color_tier_2: [0.56, 0.56, 0.56, 0.43].into(),
+            color_tier_3: [0.56, 0.56, 0.56, 0.39].into(),
+
+            center_offset: 1,
+            handle_offset: 17,
+        }
+    }
+}
+
 /// A set of rules that dictate the style of an [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
@@ -219,6 +225,16 @@ pub trait StyleSheet {
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
     fn dragging(&self) -> Style;
+
+    /// The style of a [`TickMarkGroup`] for a [`VSlider`]
+    ///
+    /// For no tick marks, don't override this or set this to return `None`.
+    ///
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        None
+    }
 }
 
 struct Default;
@@ -227,10 +243,12 @@ impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style::Classic(
         ClassicStyle {
-            rail_colors: ([0.56, 0.56, 0.56, 0.75].into(), Color::WHITE),
+            rail_colors: ([0.26, 0.26, 0.26, 0.75].into(),
+                [0.56, 0.56, 0.56, 0.75].into()),
+            rail_widths: (1, 1),
             handle: ClassicHandle {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
-                height: 33,
+                height: 34,
                 notch_height: 4,
                 notch_color: Color::from_rgb(0.475, 0.475, 0.475),
                 border_radius: 2,
@@ -271,6 +289,10 @@ impl StyleSheet for Default {
         })
 
         } else { active }
+    }
+
+    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        Some(TickMarkStyle::default())
     }
 }
 

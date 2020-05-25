@@ -9,8 +9,6 @@ use crate::{KnobAngleRange, Normal};
 
 /// The appearance of a [`Knob`],
 ///
-/// * `VectorCircle` - a simple modern vector style with a circle as the notch
-///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub enum Style {
@@ -22,13 +20,6 @@ pub enum Style {
 
 /*
 /// A [`Style`] for a [`Knob`] that uses an image texture for the knob
-///
-/// * `texture` - the [`Handle`] to the image texture
-/// * `knob_width` - the width of the knob, not including padding
-/// * `knob_height` - the height of the knob, not including padding
-/// * `texture_padding` - the texture padding around the bounding
-/// rectangle. This is useful when the texture is of a glowing knob or has
-/// a drop shadow, etc.
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -50,15 +41,6 @@ pub struct TextureStyle {
 
 /*
 /// A vector [`Style`] of a [`Knob`] (not working yet)
-///
-/// * `knob_color` - the color of the knob
-/// * `knob_border_width` - the width of the border around the knob
-/// * `knob_border_color` - the color of the border around the knob
-/// * `notch_color` - the color of the notch line
-/// * `notch_width` - the width of the notch line
-/// * `notch_height` - the height of the notch line
-/// * `notch_offset` - the offset of the notch line from the edge of the knob
-/// * `inner_circle` - an optional [`InnerCircle`] to draw
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -89,13 +71,6 @@ pub struct VectorStyle {
 /*
 /// An additional circle drawn inside of the main circle in [`VectorStyle`],
 ///
-/// * `scale` - the scale of the circle relative to the size of the knob. For
-/// example, a `scale` of `0.5` will draw the inner circle with half the radius
-/// of the knob.
-/// * `color` - the color of the inner circle
-/// * `border_width` - the width of the border around the inner circle
-/// * `border_color` - the color of the border around the inner circle
-///
 /// [`VectorStyle`]: enum.Style.html
 #[derive(Debug, Clone)]
 pub struct InnerCircle {
@@ -113,18 +88,6 @@ pub struct InnerCircle {
 */
 
 /// A simple vector [`Style`] of a [`Knob`] witch a circle as the notch
-///
-/// * `knob_color` - the color of the knob
-/// * `knob_border_width` - the width of the border around the knob
-/// * `knob_border_color` - the color of the border around the knob
-/// * `notch_color` - the color of the notch line
-/// * `notch_scale` - the scale of the notch from the size of the knob. For
-/// example, a scale of `0.5.into()` will have the notch's diameter be half of
-/// the knob's diameter.
-/// * `notch_offset` - the offset of the notch from the edge of the knob to its
-/// center. For example, `0.0.into()` will have the notch touching the edge of
-/// the knob, and `0.5.into()` will have the notch halfway between the edge and
-/// the center of the knob.
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html

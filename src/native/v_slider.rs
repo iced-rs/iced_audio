@@ -12,9 +12,9 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param};
+use crate::core::{Normal, Param, TickMarkGroup};
 
-static DEFAULT_WIDTH: u16 = 16;
+static DEFAULT_WIDTH: u16 = 14;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A vertical slider GUI widget that controls a [`Param`]
@@ -38,6 +38,7 @@ where
     width: Length,
     height: Length,
     style: Renderer::Style,
+    tick_marks: Option<&'a TickMarkGroup>,
 }
 
 impl<'a, Message, Renderer: self::Renderer, ID>
@@ -82,6 +83,7 @@ where
             width: Length::from(Length::Units(DEFAULT_WIDTH)),
             height: Length::Fill,
             style: Renderer::Style::default(),
+            tick_marks: None,
         }
     }
 
@@ -124,17 +126,14 @@ where
         self
     }
 
-    /// Sets the scalar to use when the user drags the slider while holding down
-    /// the modifier key.
+    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
+    /// them to display (which the default style does).
     ///
-    /// For example, a scalar of `0.5` will cause the slider to move half a
-    /// pixel for every pixel the mouse moves.
-    ///
-    /// The default scalar is `0.02`, and the default modifier key is `Ctrl`.
-    ///
-    /// [`VSlider`]: struct.VSlider.html
-    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
-        self.modifier_scalar = scalar;
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
+    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
+        self.tick_marks = Some(tick_marks);
         self
     }
 }
@@ -288,6 +287,7 @@ where
             cursor_position,
             self.normal,
             self.state.is_dragging,
+            self.tick_marks,
             &self.style,
         )
     }
@@ -327,6 +327,7 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

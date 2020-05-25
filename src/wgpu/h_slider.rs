@@ -2,7 +2,7 @@
 //!
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
-use crate::core::Normal;
+use crate::core::{Normal, TickMarkGroup, TickMarkTier};
 use crate::native::h_slider;
 use iced_native::{
     Background, Color, MouseCursor, Point, Rectangle
@@ -12,7 +12,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{Style, StyleSheet, ClassicStyle, ClassicHandle,
-    RectStyle, RectBipolarStyle, TextureStyle
+    RectStyle, RectBipolarStyle, TextureStyle, TickMarkStyle,
 };
 
 /// This is an alias of a `crate::native` [`HSlider`] with an
@@ -32,6 +32,7 @@ impl h_slider::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
@@ -52,6 +53,102 @@ impl h_slider::Renderer for Renderer {
 
         let rail_y = (bounds_y + (bounds_height / 2.0)).round();
 
+
+        let tick_marks: Primitive = {
+            if let Some(tick_marks) = tick_marks {
+                if let Some(style) = style_sheet.tick_mark_style() {
+
+                    let center_offset = style.center_offset as f32;
+                    let handle_offset = style.handle_offset as f32;
+                    let notch_span =  bounds_width - (handle_offset * 2.0);
+
+                    let mut primitives: Vec<Primitive> = Vec::new();
+                    for tick_mark in tick_marks.group.iter() {
+
+                        let x_offset =
+                            ( (notch_span * tick_mark.position.value())
+                                + handle_offset ).round();
+                        
+                        let (scale, width, color) = match tick_mark.tier {
+                            TickMarkTier::One => {
+                                ( style.scale_tier_1, style.width_tier_1,
+                                    style.color_tier_1)
+                            },
+                            TickMarkTier::Two => {
+                                ( style.scale_tier_2, style.width_tier_2,
+                                    style.color_tier_2)
+                            },
+                            TickMarkTier::Three => {
+                                ( style.scale_tier_3, style.width_tier_3,
+                                    style.color_tier_3)
+                            },
+                        };
+                        
+                        let notch_height = (scale * bounds_height).round();
+                        let half_notch_height = (notch_height / 2.0).round();
+                        let half_width = (width as f32 / 2.0).round();
+
+                        if style.center_offset == 0 {
+
+                            let mark = Primitive::Quad {
+                                bounds: Rectangle {
+                                    x: bounds_x + x_offset - half_width,
+                                    y: rail_y - half_notch_height,
+                                    width: width as f32,
+                                    height: notch_height,
+                                },
+                                background: Background::Color(color),
+                                border_radius: 0,
+                                border_width: 0,
+                                border_color: Color::TRANSPARENT,
+                            };
+
+                            primitives.push(mark);
+
+                        } else {
+
+                            let top = Primitive::Quad {
+                                bounds: Rectangle {
+                                    x: bounds_x + x_offset - half_width,
+                                    y: rail_y - half_notch_height -
+                                        center_offset,
+                                    width: width as f32,
+                                    height: half_notch_height,
+                                },
+                                background: Background::Color(color),
+                                border_radius: 0,
+                                border_width: 0,
+                                border_color: Color::TRANSPARENT,
+                            };
+
+                            let bottom = Primitive::Quad {
+                                bounds: Rectangle {
+                                    x: bounds_x + x_offset - half_width,
+                                    y: rail_y + center_offset,
+                                    width: width as f32,
+                                    height: half_notch_height,
+                                },
+                                background: Background::Color(color),
+                                border_radius: 0,
+                                border_width: 0,
+                                border_color: Color::TRANSPARENT,
+                            };
+
+                            primitives.push(top);
+                            primitives.push(bottom);
+                        }
+                    }
+
+                    Primitive::Group {
+                        primitives,
+                    }
+
+                } else { Primitive::None }
+            } else { Primitive::None }
+            
+        };
+
+
         match style {
 
 
@@ -59,14 +156,19 @@ impl h_slider::Renderer for Renderer {
             Style::Texture(style) => {
 
             
+            let (top_rail_height, bottom_rail_height) = style.rail_heights;
+            let top_rail_height = top_rail_height as f32;
+            let bottom_rail_height = bottom_rail_height as f32;
+            let full_rail_height = top_rail_height + bottom_rail_height;
+            let half_full_rail_height = (full_rail_height / 2.0).floor();
 
             let (rail_top, rail_bottom) = (
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
-                        y: rail_y,
+                        y: rail_y - half_full_rail_height,
                         width: bounds_width,
-                        height: 2.0,
+                        height: top_rail_height,
                     },
                     background: Background::Color(style.rail_colors.0),
                     border_radius: 0,
@@ -76,9 +178,9 @@ impl h_slider::Renderer for Renderer {
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
-                        y: rail_y + 2.0,
+                        y: rail_y - half_full_rail_height + top_rail_height,
                         width: bounds_width,
-                        height: 2.0,
+                        height: bottom_rail_height,
                     },
                     background: Background::Color(style.rail_colors.1),
                     border_radius: 0,
@@ -121,7 +223,7 @@ impl h_slider::Renderer for Renderer {
 
             (
                 Primitive::Group {
-                    primitives: vec![rail_top, rail_bottom, handle],
+                    primitives: vec![tick_marks, rail_top, rail_bottom, handle],
                 },
                 MouseCursor::default(),
             )
@@ -129,17 +231,23 @@ impl h_slider::Renderer for Renderer {
 
 
 
-            Style::Classic(style) => {
+        Style::Classic(style) => {
 
 
-            
+
+            let (top_rail_height, bottom_rail_height) = style.rail_heights;
+            let top_rail_height = top_rail_height as f32;
+            let bottom_rail_height = bottom_rail_height as f32;
+            let full_rail_height = top_rail_height + bottom_rail_height;
+            let half_full_rail_height = (full_rail_height / 2.0).floor();
+
             let (rail_top, rail_bottom) = (
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
-                        y: rail_y,
+                        y: rail_y - half_full_rail_height,
                         width: bounds_width,
-                        height: 2.0,
+                        height: top_rail_height,
                     },
                     background: Background::Color(style.rail_colors.0),
                     border_radius: 0,
@@ -149,9 +257,9 @@ impl h_slider::Renderer for Renderer {
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
-                        y: rail_y + 2.0,
+                        y: rail_y - half_full_rail_height + top_rail_height,
                         width: bounds_width,
-                        height: 2.0,
+                        height: bottom_rail_height,
                     },
                     background: Background::Color(style.rail_colors.1),
                     border_radius: 0,
@@ -182,36 +290,31 @@ impl h_slider::Renderer for Renderer {
                 border_color: style.handle.border_color,
             };
 
-            if style.handle.notch_width != 0 {
-                let handle_notch = Primitive::Quad {
-                    bounds: Rectangle {
-                        x: (bounds_x + handle_offset + (handle_width / 2.0)
-                            - (notch_width / 2.0)).round(),
-                        y: (rail_y - (bounds_height / 2.0)).round(),
-                        width: notch_width,
-                        height: bounds_height,
-                    },
-                    background: Background::Color(style.handle.notch_color),
-                    border_radius: 0,
-                    border_width: 0,
-                    border_color: Color::TRANSPARENT,
-                };
+            let handle_notch: Primitive = {
+                if style.handle.notch_width != 0 {
+                    Primitive::Quad {
+                        bounds: Rectangle {
+                            x: (bounds_x + handle_offset + (handle_width / 2.0)
+                                - (notch_width / 2.0)).round(),
+                            y: (rail_y - (bounds_height / 2.0)).round(),
+                            width: notch_width,
+                            height: bounds_height,
+                        },
+                        background: Background::Color(style.handle.notch_color),
+                        border_radius: 0,
+                        border_width: 0,
+                        border_color: Color::TRANSPARENT,
+                    }
+                } else { Primitive::None }
+            };
 
-                (
-                    Primitive::Group {
-                        primitives: vec![rail_top, rail_bottom, handle,
-                            handle_notch],
-                    },
-                    MouseCursor::default(),
-                )
-            } else {
-                (
-                    Primitive::Group {
-                        primitives: vec![rail_top, rail_bottom, handle],
-                    },
-                    MouseCursor::default(),
-                )
-            }
+            (
+                Primitive::Group {
+                    primitives: vec![tick_marks, rail_top, rail_bottom, handle,
+                        handle_notch],
+                },
+                MouseCursor::default(),
+            )
         }
 
 
@@ -271,7 +374,8 @@ impl h_slider::Renderer for Renderer {
 
             (
                 Primitive::Group {
-                    primitives: vec![empty_rect, filled_rect, handle]
+                    primitives: vec![empty_rect, tick_marks, filled_rect,
+                        handle]
                 },
                 MouseCursor::default(),
             )
@@ -337,7 +441,7 @@ impl h_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![left_empty_rect, right_empty_rect,
-                            handle]
+                            tick_marks, handle]
                     },
                     MouseCursor::default(),
                 )
@@ -377,7 +481,7 @@ impl h_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![left_empty_rect, right_empty_rect,
-                            filled_rect, handle]
+                            tick_marks, filled_rect, handle]
                     },
                     MouseCursor::default(),
                 )
@@ -415,7 +519,7 @@ impl h_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![left_empty_rect, right_empty_rect,
-                            filled_rect, handle]
+                            tick_marks, filled_rect, handle]
                     },
                     MouseCursor::default(),
                 )

@@ -4,7 +4,7 @@ use iced::{
 use iced_native::image;
 
 use iced_audio::{Normal, FloatParam, IntParam, LogDBParam,
-    OctaveParam, v_slider, VSlider
+    OctaveParam, v_slider, VSlider, TickMarkGroup, TickMark, TickMarkTier
 };
 
 use crate::{Step, style};
@@ -36,9 +36,9 @@ pub struct VSliderStep {
     v_slider_int_state: v_slider::State,
     v_slider_int_label: String,
 
-    v_slider_log_param: LogDBParam<VSlidersID>,
-    v_slider_log_state: v_slider::State,
-    v_slider_log_label: String,
+    v_slider_db_param: LogDBParam<VSlidersID>,
+    v_slider_db_state: v_slider::State,
+    v_slider_db_label: String,
 
     v_slider_oct_param: OctaveParam<VSlidersID>,
     v_slider_oct_state: v_slider::State,
@@ -58,6 +58,11 @@ pub struct VSliderStep {
 
     v_slider_texture_handle: image::Handle,
 
+    float_tick_marks: TickMarkGroup,
+    int_tick_marks: TickMarkGroup,
+    db_tick_marks: TickMarkGroup,
+    octave_tick_marks: TickMarkGroup,
+
     output_text: String,
 }
 
@@ -71,7 +76,7 @@ impl Default for VSliderStep {
         let v_slider_int_param = IntParam::<VSlidersID>::new(
             VSlidersID::Int, 0, 5, 0, 2);
 
-        let v_slider_log_param = LogDBParam::<VSlidersID>::new(
+        let v_slider_db_param = LogDBParam::<VSlidersID>::new(
             VSlidersID::DB, -12.0, 12.0, 0.0, 0.0, 0.5.into());
 
         let v_slider_oct_param = OctaveParam::<VSlidersID>::new(
@@ -84,7 +89,7 @@ impl Default for VSliderStep {
             VSlidersID::BipolarRectStyle, -1.0, 1.0, 0.0, 0.0);
 
         let v_slider_texture_param = FloatParam::<VSlidersID>::new(
-            VSlidersID::TextureStyle, 0.0, 1.0, 0.0, 0.0);
+            VSlidersID::TextureStyle, 0.0, 1.0, 1.0, 1.0);
         
         // create application
         
@@ -106,11 +111,11 @@ impl Default for VSliderStep {
             v_slider_int_label: String::from("Int Range"),
             
 
-            v_slider_log_param,
-            v_slider_log_state: v_slider::State::new(
-                &v_slider_log_param
+            v_slider_db_param,
+            v_slider_db_state: v_slider::State::new(
+                &v_slider_db_param
             ),
-            v_slider_log_label: String::from("Log dB Range"),
+            v_slider_db_label: String::from("Log dB Range"),
             
 
             v_slider_oct_param,
@@ -147,6 +152,59 @@ impl Default for VSliderStep {
             ).into(),
 
 
+            float_tick_marks: TickMarkGroup::subdivided(1, 1, 1, 
+                Some(TickMarkTier::Two)),
+            
+            int_tick_marks: TickMarkGroup::subdivided(0, 4, 0,
+                Some(TickMarkTier::Two)),
+            
+            db_tick_marks: vec![
+                TickMark { position: v_slider_db_param.value_to_normal(0.0),
+                    tier: TickMarkTier::One },
+
+                TickMark { position: v_slider_db_param.value_to_normal(1.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(3.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(6.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(12.0),
+                    tier: TickMarkTier::Two },
+
+                TickMark { position: v_slider_db_param.value_to_normal(-1.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(-3.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(-6.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_db_param.value_to_normal(-12.0),
+                    tier: TickMarkTier::Two },
+            ].into(),
+
+            octave_tick_marks: vec![
+                TickMark { position: v_slider_oct_param.value_to_normal(20.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(50.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(100.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: v_slider_oct_param.value_to_normal(200.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(400.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(1000.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: v_slider_oct_param.value_to_normal(2000.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(5000.0),
+                    tier: TickMarkTier::Two },
+                TickMark { position: v_slider_oct_param.value_to_normal(10000.0),
+                    tier: TickMarkTier::One },
+                TickMark { position: v_slider_oct_param.value_to_normal(20000.0),
+                    tier: TickMarkTier::Two },
+            ].into(),
+
+
             output_text: String::from("Move a widget"),
         }
     }
@@ -178,9 +236,9 @@ impl VSliderStep {
                             self.v_slider_int_param.value());
                     },
                     VSlidersID::DB => {
-                        self.v_slider_log_param.set_from_normal(normal);
+                        self.v_slider_db_param.set_from_normal(normal);
                         self.output_text = crate::info_text_db(id,
-                            self.v_slider_log_param.value());
+                            self.v_slider_db_param.value());
                     },
                     VSlidersID::Octave => {
                         self.v_slider_oct_param.set_from_normal(normal);
@@ -215,25 +273,29 @@ impl VSliderStep {
             &mut self.v_slider_float_state,
             &self.v_slider_float_param,
             Message::VSlidersChanged,
-        );
+        )
+        .tick_marks(&self.float_tick_marks);
 
         let v_slider_int = VSlider::new(
             &mut self.v_slider_int_state,
             &self.v_slider_int_param,
             Message::VSlidersChanged,
-        );
+        )
+        .tick_marks(&self.int_tick_marks);
 
-        let v_slider_log = VSlider::new(
-            &mut self.v_slider_log_state,
-            &self.v_slider_log_param,
+        let v_slider_db = VSlider::new(
+            &mut self.v_slider_db_state,
+            &self.v_slider_db_param,
             Message::VSlidersChanged,
-        );
+        )
+        .tick_marks(&self.db_tick_marks);
 
         let v_slider_oct = VSlider::new(
             &mut self.v_slider_oct_state,
             &self.v_slider_oct_param,
             Message::VSlidersChanged,
-        );
+        )
+        .tick_marks(&self.octave_tick_marks);
 
         let v_slider_style = VSlider::new(
             &mut self.v_slider_rect_state,
@@ -256,6 +318,7 @@ impl VSliderStep {
             &self.v_slider_texture_param,
             Message::VSlidersChanged,
         )
+        .tick_marks(&self.float_tick_marks)
         // the width of the handle texture
         .width(Length::from(Length::Units(20)))
         // clone the handle to the loaded texture
@@ -286,8 +349,8 @@ impl VSliderStep {
                 .max_height(400)
                 .max_width(120)
                 .spacing(10)
-                .push(Text::new(&self.v_slider_log_label))
-                .push(v_slider_log)
+                .push(Text::new(&self.v_slider_db_label))
+                .push(v_slider_db)
 
                 .push(Text::new(&self.v_slider_oct_label))
                 .push(v_slider_oct)

@@ -1,11 +1,12 @@
-// Import iced crate.
+// Import iced modules.
 use iced::{
     Column, Container, Element, Length, Sandbox, Settings, Align
 };
-// Import iced_audio crate.
+// Import iced_audio modules.
 use iced_audio::{
     Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-    v_slider, VSlider, knob, Knob, xy_pad, XYPad
+    v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
+    TickMarkTier
 };
 
 // Create a unique identifier for each parameter. Note you may also use any
@@ -55,6 +56,9 @@ pub struct App {
     v_slider_state: v_slider::State,
     knob_state: knob::State,
     xy_pad_state: xy_pad::State,
+
+    // A group of tick marks with their size and position.
+    center_tick_mark: TickMarkGroup,
 }
 
 impl Sandbox for App {
@@ -97,6 +101,11 @@ impl Sandbox for App {
             knob_state: knob::State::new(&knob_octave_param),
             xy_pad_state: xy_pad::State::new(
                 &xy_pad_float_x_param, &xy_pad_float_y_param),
+            
+            // Add a tick mark at the center position with the tier 1 size
+            center_tick_mark: vec![
+                TickMark::center(TickMarkTier::One)
+            ].into(),
         }
     }
 
@@ -147,17 +156,23 @@ impl Sandbox for App {
             &mut self.h_slider_state,
             &self.h_slider_float_param,
             Message::ParamChanged,
-        );
+        )
+        // Add the tick mark group to this widget.
+        .tick_marks(&self.center_tick_mark);
+
         let v_slider_widget = VSlider::new(
             &mut self.v_slider_state,
             &self.v_slider_db_param,
             Message::ParamChanged,
-        );
+        )
+        .tick_marks(&self.center_tick_mark);
+
         let knob_widget = Knob::new(
             &mut self.knob_state,
             &self.knob_octave_param,
             Message::ParamChanged,
         );
+
         let xy_pad_widget = XYPad::new(
             &mut self.xy_pad_state,
             &self.xy_pad_float_x_param,
