@@ -7,7 +7,7 @@
 //!
 //! ```
 //! iced = { version = "0.1", features = ["image"] }
-//! iced_audio = "0.1"
+//! iced_audio = "0.0"
 //! ```
 //!
 //! This crate is currently experimental and incomplete. Master branch moves
