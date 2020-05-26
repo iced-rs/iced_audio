@@ -177,9 +177,9 @@ impl Sandbox for App {
             xy_pad_state: xy_pad::State::new(
                 &xy_pad_float_x_param, &xy_pad_float_y_param),
             
-            // Add a tick mark at the center position with the tier 1 size
+            // Add a tick mark at the center position with the tier 2 size
             center_tick_mark: vec![
-                TickMark::center(TickMarkTier::One)
+                TickMark::center(TickMarkTier::Two)
             ].into(),
         }
     }

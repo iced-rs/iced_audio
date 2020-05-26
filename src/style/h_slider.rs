@@ -190,14 +190,14 @@ impl std::default::Default for TickMarkStyle {
     fn default() -> Self {
         Self {
             scale_tier_1: 1.5,
-            scale_tier_2: 1.3,
+            scale_tier_2: 1.25,
             scale_tier_3: 1.05,
 
             width_tier_1: 2,
             width_tier_2: 2,
             width_tier_3: 1,
 
-            color_tier_1: [0.56, 0.56, 0.56, 0.65].into(),
+            color_tier_1: [0.56, 0.56, 0.56, 0.7].into(),
             color_tier_2: [0.56, 0.56, 0.56, 0.43].into(),
             color_tier_3: [0.56, 0.56, 0.56, 0.39].into(),
 
@@ -250,9 +250,9 @@ impl StyleSheet for Default {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
                 width: 34,
                 notch_width: 4,
-                notch_color: Color::from_rgb(0.475, 0.475, 0.475),
+                notch_color: Color::from_rgb(0.43, 0.43, 0.43),
                 border_radius: 2,
-                border_color: Color::from_rgb(0.51, 0.51, 0.51),
+                border_color: Color::from_rgb(0.43, 0.43, 0.43),
                 border_width: 1,
             },
         }

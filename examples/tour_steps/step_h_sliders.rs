@@ -91,8 +91,6 @@ impl Default for HSliderStep {
         let h_slider_texture_param = FloatParam::<HSlidersID>::new(
             HSlidersID::TextureStyle, 0.0, 1.0, 1.0, 1.0);
         
-        println!("-1: {}", h_slider_db_param.value_to_normal(-1.0).value());
-        
         // create application
         
         Self {

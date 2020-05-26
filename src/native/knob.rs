@@ -12,9 +12,9 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param};
+use crate::core::{Normal, Param, TickMarkGroup};
 
-static DEFAULT_SIZE: u16 = 31;
+static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.008;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
@@ -36,6 +36,7 @@ where
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     style: Renderer::Style,
+    tick_marks: Option<&'a TickMarkGroup>,
 }
 
 impl<'a, Message, Renderer: self::Renderer, ID>
@@ -80,6 +81,7 @@ where
                 ..Default::default()
             },
             style: Renderer::Style::default(),
+            tick_marks: None,
         }
     }
 
@@ -138,6 +140,17 @@ where
     /// [`Knob`]: struct.Knob.html
     pub fn modifier_scalar(mut self, scalar: f32) -> Self {
         self.modifier_scalar = scalar;
+        self
+    }
+
+    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
+    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
+        self.tick_marks = Some(tick_marks);
         self
     }
 }
@@ -292,6 +305,7 @@ where
             cursor_position,
             self.normal,
             self.state.is_dragging,
+            self.tick_marks,
             &self.style,
         )
     }
@@ -330,6 +344,7 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

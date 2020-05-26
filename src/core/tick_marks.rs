@@ -47,9 +47,22 @@ impl TickMarkGroup {
         self.group.push(tick_mark);
     }
 
-    /// 
+    /// Creates a group of tick marks by subdividing the range.
+    ///
+    /// * `one` - The number of tier 1 tick marks. For example, `1` will put
+    /// a single tier 1 tick mark at the `0.5` (center) position. `3` will put
+    /// three tick marks at `0.25`, `0.5`, `0.75`. For no tier 1 tick marks,
+    /// put `0`.
+    /// * `two` - The number of tier 2 tick marks in each range between tier 1
+    /// tick marks. If there are no tier 1 tick marks, then it will behave the
+    /// same as tier 1 tick marks.
+    /// * `three` - The number of tier 3 tick marks in each range between tier
+    /// 2 tick marks. If there are no tier 2 tick marks, then it will behave the
+    /// same as tier 2 tick marks.
+    /// * `sides` - The tier of tick marks to put on the two sides (`0.0` and
+    /// `1.0`). For no tick marks on the sides, put `None`.
     pub fn subdivided(one: u16, two: u16, three: u16,
-        edges: Option<TickMarkTier>) -> Self
+        sides: Option<TickMarkTier>) -> Self
     {
         let mut vec: Vec<TickMark> = Vec::new();
 
@@ -92,14 +105,14 @@ impl TickMarkGroup {
             }
         }
 
-        if let Some(edge_tier) = edges {
+        if let Some(side_tier) = sides {
             vec.push(TickMark {
                 position: 0.0.into(),
-                tier: edge_tier,
+                tier: side_tier,
             });
             vec.push(TickMark {
                 position: 1.0.into(),
-                tier: edge_tier,
+                tier: side_tier,
             });
         }
 

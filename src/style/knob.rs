@@ -101,6 +101,10 @@ pub struct VectorCircleStyle {
     pub knob_border_color: Color,
     /// the color of the notch line
     pub notch_color: Color,
+    /// the width of the border around the notch
+    pub notch_border_width: u16,
+    /// the color of the border around the notch
+    pub notch_border_color: Color,
     /// the scale of the notch from the size of the knob. For example, a scale
     /// of `0.5.into()` will have the notch's diameter be half of the knob's
     /// diameter.
@@ -111,6 +115,63 @@ pub struct VectorCircleStyle {
     /// center of the knob.
     pub notch_offset: Normal,
 }
+
+/// The style of a [`TickMarkGroup`] for a [`Knob`]
+///
+/// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub enum TickMarkStyle {
+    /// A style with circular tick marks.
+    Circle(CircleTickMarks),
+}
+
+impl std::default::Default for TickMarkStyle {
+    fn default() -> Self {
+        TickMarkStyle::Circle(CircleTickMarks::default())
+    }
+}
+
+/// A circular [`TickMarkStyle`] for a [`Knob`]
+///
+/// [`TickMarkStyle]: enum.TickMarkStyle.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub struct CircleTickMarks {
+    /// The diameter of a tier 1 tick mark
+    pub diameter_tier_1: u16,
+    /// The diameter of a tier 2 tick mark
+    pub diameter_tier_2: u16,
+    /// The diameter of a tier 3 tick mark
+    pub diameter_tier_3: u16,
+
+    /// The color of a tier 1 tick mark
+    pub color_tier_1: Color,
+    /// The color of a tier 2 tick mark
+    pub color_tier_2: Color,
+    /// The color of a tier 3 tick mark
+    pub color_tier_3: Color,
+
+    /// The distance from the tick mark to the outside edge of the knob
+    pub offset: f32,
+}
+
+impl std::default::Default for CircleTickMarks {
+    fn default() -> Self {
+        Self {
+            diameter_tier_1: 4,
+            diameter_tier_2: 2,
+            diameter_tier_3: 2,
+
+            color_tier_1: [0.56, 0.56, 0.56, 0.73].into(),
+            color_tier_2: [0.56, 0.56, 0.56, 0.75].into(),
+            color_tier_3: [0.56, 0.56, 0.56, 0.55].into(),
+
+            offset: 4.47,
+        }
+    }
+}
+   
 
 /// A set of rules that dictate the style of a [`Knob`].
 ///
@@ -136,6 +197,16 @@ pub trait StyleSheet {
     ///
     /// [`KnobAngleRange`]: struct.KnobAngleRange.html
     fn angle_range(&self) -> KnobAngleRange { KnobAngleRange::default() }
+
+    /// The style of a [`TickMarkGroup`] for a [`Knob`]
+    ///
+    /// For no tick marks, don't override this or set this to return `None`.
+    ///
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        None
+    }
 }
 
 struct Default;
@@ -146,8 +217,10 @@ impl StyleSheet for Default {
         VectorCircleStyle {
             knob_color: Color::from_rgb(0.97, 0.97, 0.97),
             knob_border_width: 1,
-            knob_border_color: Color::from_rgb(0.51, 0.51, 0.51),
-            notch_color: Color::from_rgb(0.475, 0.475, 0.475),
+            knob_border_color: Color::from_rgb(0.43, 0.43, 0.43),
+            notch_color: Color::from_rgb(0.43, 0.43, 0.43),
+            notch_border_width: 0,
+            notch_border_color: Color::TRANSPARENT,
             notch_scale: 0.17.into(),
             notch_offset: 0.15.into(),
         })
@@ -169,6 +242,10 @@ impl StyleSheet for Default {
 
     fn dragging(&self) -> Style {
         self.hovered()
+    }
+
+    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        Some(TickMarkStyle::default())
     }
 }
 

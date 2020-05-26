@@ -2,7 +2,7 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use crate::core::Normal;
+use crate::core::{Normal, TickMarkGroup, TickMarkTier};
 use crate::native::knob;
 use iced_native::{
     Background, MouseCursor, Point, Rectangle, Color
@@ -12,7 +12,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    Style, StyleSheet
+    Style, StyleSheet, VectorCircleStyle, TickMarkStyle, CircleTickMarks,
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
@@ -31,6 +31,7 @@ impl knob::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
@@ -49,6 +50,78 @@ impl knob::Renderer for Renderer {
         let bounds_y = bounds.y.floor();
 
         let bounds_size = bounds.width.floor();
+
+        let radius = bounds_size / 2.0;
+
+        let tick_marks: Primitive = {
+            if let Some(tick_marks) = tick_marks {
+                if let Some(style) = style_sheet.tick_mark_style() {
+
+                    let mut primitives: Vec<Primitive> = Vec::new();
+
+                    match style {
+                        TickMarkStyle::Circle(style) => {
+                            let tick_mark_radius = radius + style.offset;
+
+                            for tick_mark in tick_marks.group.iter() {
+
+                                let (diameter, color) = match tick_mark.tier {
+                                    TickMarkTier::One => {
+                                        (style.diameter_tier_1 as f32,
+                                            style.color_tier_1)
+                                    },
+                                    TickMarkTier::Two => {
+                                        (style.diameter_tier_2 as f32,
+                                            style.color_tier_2)
+                                    },
+                                    TickMarkTier::Three => {
+                                        (style.diameter_tier_3 as f32,
+                                            style.color_tier_3)
+                                    },
+                                };
+
+                                let tick_radius = diameter / 2.0;
+
+                                let angle = ( ( angle_range.max() -
+                                              angle_range.min()
+                                        ) * tick_mark.position.value()
+                                    ) + angle_range.min() +
+                                        std::f32::consts::PI;
+                
+                                let (dx, dy) = {
+                                    if angle < -0.001 || angle > 0.001 {
+                                        angle.sin_cos()
+                                    } else { (0.0, -1.0) }
+                                };
+
+                                primitives.push(Primitive::Quad {
+                                    bounds: Rectangle {
+                                        x: (bounds_x + radius +
+                                            (dx * tick_mark_radius) -
+                                            tick_radius).round(),
+                                        y: (bounds_y + radius -
+                                            (dy * tick_mark_radius) -
+                                            tick_radius).round(),
+                                        width: diameter,
+                                        height: diameter,
+                                    },
+                                    background: Background::Color(color),
+                                    border_radius: tick_radius as u16,
+                                    border_width: 0,
+                                    border_color: Color::TRANSPARENT,
+                                });
+                            }
+                        },
+                    }
+
+                    Primitive::Group {
+                        primitives,
+                    }
+
+                } else { Primitive::None }
+            } else { Primitive::None }
+            
+        };
 
         match style {
 
@@ -193,10 +266,6 @@ impl knob::Renderer for Renderer {
 
             Style::VectorCircle(style) => {
 
-
-
-                let radius = bounds_size / 2.0;
-
                 let knob_back = Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
@@ -235,13 +304,13 @@ impl knob::Renderer for Renderer {
                     },
                     background: Background::Color(style.notch_color),
                     border_radius: notch_radius as u16,
-                    border_width: 0,
-                    border_color: Color::TRANSPARENT,
+                    border_width: style.notch_border_width,
+                    border_color: style.notch_border_color,
                 };
 
                 (
                     Primitive::Group {
-                        primitives: vec![knob_back, notch],
+                        primitives: vec![tick_marks, knob_back, notch],
                     },
                     MouseCursor::default(),
                 )

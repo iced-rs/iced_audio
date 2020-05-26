@@ -292,7 +292,7 @@ pub fn info_text_octave<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
 pub mod style {
     use iced::{button, Background, Color, Vector, image};
     use iced_audio::{
-        h_slider, v_slider, xy_pad,
+        h_slider, v_slider, xy_pad, knob
     };
 
     pub enum Button {
@@ -341,9 +341,9 @@ pub mod style {
         0x4D as f32 / 255.0,
     );
     pub const BORDER_COLOR: Color = Color::from_rgb(
+        0x30 as f32 / 255.0,
+        0x33 as f32 / 255.0,
         0x3C as f32 / 255.0,
-        0x3F as f32 / 255.0,
-        0x48 as f32 / 255.0,
     );
     pub const FILLED_COLOR: Color = Color::from_rgb(
         0x29 as f32 / 255.0,
@@ -364,6 +364,16 @@ pub mod style {
         0x7A as f32 / 255.0,
         0xC7 as f32 / 255.0,
         0xFF as f32 / 255.0,
+    );
+    pub const KNOB_COLOR: Color = Color::from_rgb(
+        0x56 as f32 / 255.0,
+        0x59 as f32 / 255.0,
+        0x62 as f32 / 255.0,
+    );
+    pub const KNOB_BORDER_COLOR: Color = Color::from_rgb(
+        0x42 as f32 / 255.0,
+        0x46 as f32 / 255.0,
+        0x4D as f32 / 255.0,
     );
 
     // Custom style for the Rect HSlider
@@ -523,8 +533,8 @@ pub mod style {
         fn active(&self) -> h_slider::Style {
             h_slider::Style::Texture(
             h_slider::TextureStyle {
-                rail_colors: ([0.16, 0.16, 0.16, 0.75].into(),
-                              [0.56, 0.56, 0.56, 0.75].into()),
+                rail_colors: ([0.06, 0.06, 0.06, 0.75].into(),
+                              [0.46, 0.46, 0.46, 0.75].into()),
                 rail_heights: (1, 2),
                 texture: self.0.clone(),
                 handle_width: 38,
@@ -567,8 +577,8 @@ pub mod style {
         fn active(&self) -> v_slider::Style {
             v_slider::Style::Texture(
             v_slider::TextureStyle {
-                rail_colors: ([0.16, 0.16, 0.16, 0.75].into(),
-                              [0.56, 0.56, 0.56, 0.75].into()),
+                rail_colors: ([0.06, 0.06, 0.06, 0.75].into(),
+                              [0.46, 0.46, 0.46, 0.75].into()),
                 rail_widths: (1, 2),
                 texture: self.0.clone(),
                 handle_height: 38,
@@ -604,43 +614,33 @@ pub mod style {
         }
     }
 
-    // Custom style for the Vector Style Knob
+    // Custom style for the Knob
 
-    /*
-    pub struct KnobVectorStyle;
-    impl knob::StyleSheet for KnobVectorStyle {
+    pub struct KnobCustomStyle;
+    impl knob::StyleSheet for KnobCustomStyle {
         fn active(&self) -> knob::Style {
-            knob::Style::Vector(
-            knob::VectorStyle {
-                knob_color: EMPTY_COLOR,
-                knob_border_width: 1,
-                knob_border_color: BORDER_COLOR,
+            knob::Style::VectorCircle(
+            knob::VectorCircleStyle {
+                knob_color: KNOB_COLOR,
+                knob_border_width: 3,
+                knob_border_color: KNOB_BORDER_COLOR,
                 notch_color: HANDLE_COLOR,
-                notch_width: 5,
-                notch_height: 10,
-                notch_offset: 1,
-                inner_circle: Some(knob::InnerCircle {
-                    scale: 0.5,
-                    color: HANDLE_COLOR,
-                    border_width: 1,
-                    border_color: Color::BLACK,
-                })
+                notch_border_width: 1,
+                notch_border_color: FILLED_COLOR,
+                notch_scale: 0.21.into(),
+                notch_offset: 0.21.into(),
             })
         }
 
+        #[allow(irrefutable_let_patterns)]
         fn hovered(&self) -> knob::Style {
             let active = self.active();
-            if let knob::Style::Vector(active) = self.active() {
+            if let knob::Style::VectorCircle(active) = self.active() {
 
-            knob::Style::Vector(
-            knob::VectorStyle {
-                notch_width: 3,
-                inner_circle: Some(knob::InnerCircle {
-                    scale: 0.47,
-                    color: HANDLE_COLOR,
-                    border_width: 1,
-                    border_color: Color::BLACK,
-                }),
+            knob::Style::VectorCircle(
+            knob::VectorCircleStyle {
+                notch_color: HANDLE_HOVER_COLOR,
+                notch_border_color: FILLED_HOVER_COLOR,
                 ..active
             })
 
@@ -651,40 +651,20 @@ pub mod style {
             self.hovered()
         }
 
-        fn diameter(&self) -> u16 {
-            33
+        fn tick_mark_style(&self) -> Option<knob::TickMarkStyle> {
+            Some(knob::TickMarkStyle::Circle(knob::CircleTickMarks {
+                diameter_tier_1: 2,
+                diameter_tier_2: 2,
+                diameter_tier_3: 2,
+
+                color_tier_1: Color::from_rgb(0.45, 0.45, 0.45),
+                color_tier_2: Color::from_rgb(0.45, 0.45, 0.45),
+                color_tier_3: Color::from_rgb(0.45, 0.45, 0.45),
+
+                offset: 3.2,
+            }))
         }
     }
-    */
-
-    /*
-    // Custom style for the Texture Knob
-
-    pub struct KnobTextureStyle(pub image::Handle);
-    impl knob::StyleSheet for KnobTextureStyle {
-        fn active(&self) -> knob::Style {
-            knob::Style::Texture(
-            knob::TextureStyle {
-                texture: self.0.clone(),
-                knob_width: 32,
-                knob_height: 33,
-                texture_padding: None,
-            })
-        }
-        
-        fn hovered(&self) -> knob::Style {
-            self.active()
-        }
-        
-        fn dragging(&self) -> knob::Style {
-            self.active()
-        }
-
-        fn diameter(&self) -> u16 {
-            33
-        }
-    }
-    */
 
 
     // Custom style for the Texture VSlider
