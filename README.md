@@ -11,8 +11,6 @@ An extension to the [Iced] GUI library with useful widgets for audio application
     <img src="/screenshots/Simple_Example.png" height="450px">
 </div>
 
-### This crate is currently experimental and incomplete. Master branch moves fast and may contain breaking changes!
-
 ## Run examples with
 
 ```
@@ -56,7 +54,6 @@ cargo run --example simple --release
 * [ ] Goniometer - displays a polar graph representing the stereo phase of an audio signal
 * [ ] WavetableView - same as oscilloscope but specifically for rendering single waveforms instead of an audio signal
 
-
 ## Each input widget with a continuous output can accept one of four types of parameters
 * FloatParam - a linear range of f32 values
 * IntParam - a discrete range of i32 values. This will cause the widget to "step" when moved.
@@ -67,8 +64,10 @@ cargo run --example simple --release
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```
 iced = { version = "0.1", features = ["image"] }
-iced_audio = "0.0"
+iced_audio = "0.1"
 ```
+__Both Iced Audio and [Iced] move fast and the `master` branch can contain breaking changes!__ If
+you want to learn about a specific release, check out [the release list].
 
 ## Simple Usage Example
 This crate assumes you know the basics of how to use [Iced]. If you haven't alreay, please check it out [here].
@@ -278,6 +277,19 @@ impl Sandbox for App {
 }
 ```
 
+## Contributing / Feedback
+Contributions are greatly appreciated! If you want to contribute, please
+read the official [Iced] [contributing guidelines] for more details.
+
+Feedback is also welcome! You can open an issue or, if you want to talk,
+come chat to our [Zulip server]. Moreover, you can find me (and a bunch of
+awesome folks) over the `#gui-and-ui` channels in
+the [Rust Community Discord]. I go by `BillyDM#3892` there.
+
 [Iced]: https://github.com/hecrj/iced
 [documentation]: https://docs.rs/iced_audio/
 [here]: https://github.com/hecrj/iced
+[contributing guidelines]: https://github.com/hecrj/iced/blob/master/CONTRIBUTING.md
+[Zulip server]: https://iced.zulipchat.com/
+[Rust Community Discord]: https://bit.ly/rust-community
+[the release list]: https://github.com/BillyDM/iced_audio/releases
