@@ -533,8 +533,8 @@ pub mod style {
         fn active(&self) -> h_slider::Style {
             h_slider::Style::Texture(
             h_slider::TextureStyle {
-                rail_colors: ([0.06, 0.06, 0.06, 0.75].into(),
-                              [0.46, 0.46, 0.46, 0.75].into()),
+                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(),
+                              [0.36, 0.36, 0.36, 0.75].into()),
                 rail_heights: (1, 2),
                 texture: self.0.clone(),
                 handle_width: 38,
@@ -577,8 +577,8 @@ pub mod style {
         fn active(&self) -> v_slider::Style {
             v_slider::Style::Texture(
             v_slider::TextureStyle {
-                rail_colors: ([0.06, 0.06, 0.06, 0.75].into(),
-                              [0.46, 0.46, 0.46, 0.75].into()),
+                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(),
+                              [0.36, 0.36, 0.36, 0.75].into()),
                 rail_widths: (1, 2),
                 texture: self.0.clone(),
                 handle_height: 38,

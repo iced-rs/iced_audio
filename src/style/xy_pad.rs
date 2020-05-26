@@ -110,11 +110,11 @@ impl StyleSheet for Default {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
                 diameter: 11,
                 border_width: 2,
-                border_color: Color::from_rgb(0.43, 0.43, 0.43),
+                border_color: Color::from_rgb(0.4, 0.4, 0.4),
             }),
             back_color: Color::from_rgb(0.97, 0.97, 0.97),
             border_width: 1,
-            border_color: Color::from_rgb(0.43, 0.43, 0.43),
+            border_color: Color::from_rgb(0.4, 0.4, 0.4),
             center_line_width: 1,
             center_line_color: [0.56, 0.56, 0.56, 0.4].into(),
         }
@@ -128,7 +128,7 @@ impl StyleSheet for Default {
                 color: Color::from_rgb(0.93, 0.93, 0.93),
                 diameter: 11,
                 border_width: 2,
-                border_color: Color::from_rgb(0.43, 0.43, 0.43),
+                border_color: Color::from_rgb(0.4, 0.4, 0.4),
             }),
             ..active
         }
@@ -142,7 +142,7 @@ impl StyleSheet for Default {
                 color: Color::from_rgb(0.92, 0.92, 0.92),
                 diameter: 9,
                 border_width: 2,
-                border_color: Color::from_rgb(0.43, 0.43, 0.43),
+                border_color: Color::from_rgb(0.4, 0.4, 0.4),
             }),
             ..active
         }

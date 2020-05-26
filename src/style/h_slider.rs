@@ -250,9 +250,9 @@ impl StyleSheet for Default {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
                 width: 34,
                 notch_width: 4,
-                notch_color: Color::from_rgb(0.43, 0.43, 0.43),
+                notch_color: Color::from_rgb(0.4, 0.4, 0.4),
                 border_radius: 2,
-                border_color: Color::from_rgb(0.43, 0.43, 0.43),
+                border_color: Color::from_rgb(0.4, 0.4, 0.4),
                 border_width: 1,
             },
         }

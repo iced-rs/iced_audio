@@ -217,8 +217,8 @@ impl StyleSheet for Default {
         VectorCircleStyle {
             knob_color: Color::from_rgb(0.97, 0.97, 0.97),
             knob_border_width: 1,
-            knob_border_color: Color::from_rgb(0.43, 0.43, 0.43),
-            notch_color: Color::from_rgb(0.43, 0.43, 0.43),
+            knob_border_color: Color::from_rgb(0.4, 0.4, 0.4),
+            notch_color: Color::from_rgb(0.4, 0.4, 0.4),
             notch_border_width: 0,
             notch_border_color: Color::TRANSPARENT,
             notch_scale: 0.17.into(),
