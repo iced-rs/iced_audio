@@ -325,8 +325,8 @@ impl v_slider::StyleSheet for VSliderTextureStyle {
 
 // Custom style for the Knob
 
-pub struct KnobCustomStyle;
-impl knob::StyleSheet for KnobCustomStyle {
+pub struct KnobCustomStyleCircle;
+impl knob::StyleSheet for KnobCustomStyleCircle {
     fn active(&self) -> knob::Style {
         knob::Style::VectorCircle(
         knob::VectorCircleStyle {
@@ -371,6 +371,62 @@ impl knob::StyleSheet for KnobCustomStyle {
             color_tier_3: Color::from_rgb(0.45, 0.45, 0.45),
 
             offset: 3.2,
+        }))
+    }
+}
+
+// Custom style for the Knob
+
+pub struct KnobCustomStyleLine;
+impl knob::StyleSheet for KnobCustomStyleLine {
+    fn active(&self) -> knob::Style {
+        knob::Style::VectorLine(
+        knob::VectorLineStyle {
+            knob_color: KNOB_COLOR,
+            knob_border_width: 0,
+            knob_border_color: KNOB_BORDER_COLOR,
+            notch_color: Color::from_rgb(0.0, 0.8, 0.0),
+            notch_width: 4.0,
+            notch_scale: 0.35.into(),
+            notch_offset: 0.21.into(),
+        })
+    }
+
+    #[allow(irrefutable_let_patterns)]
+    fn hovered(&self) -> knob::Style {
+        let active = self.active();
+        if let knob::Style::VectorLine(active) = self.active() {
+
+        knob::Style::VectorLine(
+        knob::VectorLineStyle {
+            knob_border_width: 2,
+            notch_width: 3.0,
+            notch_color: Color::from_rgb(0.0, 0.85, 0.0),
+            ..active
+        })
+
+        } else { active }
+    }
+
+    fn dragging(&self) -> knob::Style {
+        self.hovered()
+    }
+
+    fn tick_mark_style(&self) -> Option<knob::TickMarkStyle> {
+        Some(knob::TickMarkStyle::Line(knob::LineTickMarks {
+            width_tier_1: 2.0,
+            width_tier_2: 1.0,
+            width_tier_3: 1.0,
+
+            length_tier_1: 4.0,
+            length_tier_2: 2.5,
+            length_tier_3: 2.5,
+
+            color_tier_1: Color::from_rgb(0.56, 0.56, 0.56),
+            color_tier_2: Color::from_rgb(0.45, 0.45, 0.45),
+            color_tier_3: Color::from_rgb(0.45, 0.45, 0.45),
+
+            offset: 2.1,
         }))
     }
 }

@@ -13,9 +13,10 @@ use crate::{KnobAngleRange, Normal};
 #[derive(Debug, Clone)]
 pub enum Style {
     //Texture(TextureStyle),
-    //Vector(VectorStyle),
     /// a simple modern vector style with a circle as the notch
     VectorCircle(VectorCircleStyle),
+    /// a simple modern vector style with a line as the notch
+    VectorLine(VectorLineStyle),
 }
 
 /*
@@ -36,54 +37,6 @@ pub struct TextureStyle {
     /// rectangle. This is useful when the texture is of a glowing handle or has
     /// a drop shadow, etc.
     pub texture_padding: Option<TexturePadding>,
-}
-*/
-
-/*
-/// A vector [`Style`] of a [`Knob`] (not working yet)
-///
-/// [`Style`]: enum.Style.html
-/// [`Knob`]: ../../native/knob/struct.Knob.html
-/// [`InnerCircle`]: struct.InnerCircle.html
-#[derive(Debug, Clone)]
-pub struct VectorStyle {
-    /// the color of the knob
-    pub knob_color: Color,
-    /// the width of the border around the knob
-    pub knob_border_width: u16,
-    /// the color of the border around the knob
-    pub knob_border_color: Color,
-    /// the color of the notch line
-    pub notch_color: Color,
-    /// the width of the notch line
-    pub notch_width: u16,
-    /// the height of the notch line
-    pub notch_height: u16,
-    /// the offset of the notch line from the edge of the knob
-    pub notch_offset: u16,
-    /// an optional [`InnerCircle`] to draw
-    ///
-    /// [`InnerCircle`]: struct.InnerCircle.html
-    pub inner_circle: Option<InnerCircle>,
-}
-*/
-
-/*
-/// An additional circle drawn inside of the main circle in [`VectorStyle`],
-///
-/// [`VectorStyle`]: enum.Style.html
-#[derive(Debug, Clone)]
-pub struct InnerCircle {
-    /// the scale of the circle relative to the size of the knob. For
-    /// example, a `scale` of `0.5` will draw the inner circle with half the
-    /// radius of the knob.
-    pub scale: f32,
-    /// the color of the inner circle
-    pub color: Color,
-    /// the width of the border around the inner circle
-    pub border_width: u16,
-    /// the color of the border around the inner circle
-    pub border_color: Color,
 }
 */
 
@@ -116,6 +69,29 @@ pub struct VectorCircleStyle {
     pub notch_offset: Normal,
 }
 
+/// A vector [`Style`] of a [`Knob`] with a line as the notch
+///
+/// [`Style`]: enum.Style.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+/// [`InnerCircle`]: struct.InnerCircle.html
+#[derive(Debug, Clone)]
+pub struct VectorLineStyle {
+    /// the color of the knob
+    pub knob_color: Color,
+    /// the width of the border around the knob
+    pub knob_border_width: u16,
+    /// the color of the border around the knob
+    pub knob_border_color: Color,
+    /// the color of the notch line
+    pub notch_color: Color,
+    /// the width of the notch line
+    pub notch_width: f32,
+    /// the height of the notch line
+    pub notch_scale: Normal,
+    /// the offset of the notch line from the edge of the knob
+    pub notch_offset: Normal,
+}
+
 /// The style of a [`TickMarkGroup`] for a [`Knob`]
 ///
 /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
@@ -124,6 +100,8 @@ pub struct VectorCircleStyle {
 pub enum TickMarkStyle {
     /// A style with circular tick marks.
     Circle(CircleTickMarks),
+    /// A style with line tick marks.
+    Line(LineTickMarks),
 }
 
 impl std::default::Default for TickMarkStyle {
@@ -171,7 +149,57 @@ impl std::default::Default for CircleTickMarks {
         }
     }
 }
-   
+
+/// A line [`TickMarkStyle`] for a [`Knob`]
+///
+/// [`TickMarkStyle]: enum.TickMarkStyle.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub struct LineTickMarks {
+    /// The width (thickness) of a tier 1 tick mark
+    pub width_tier_1: f32,
+    /// The width (thickness) of a tier 2 tick mark
+    pub width_tier_2: f32,
+    /// The width (thickness) of a tier 3 tick mark
+    pub width_tier_3: f32,
+
+    /// The length of a tier 1 tick mark
+    pub length_tier_1: f32,
+    /// The length of a tier 2 tick mark
+    pub length_tier_2: f32,
+    /// The length of a tier 3 tick mark
+    pub length_tier_3: f32,
+
+    /// The color of a tier 1 tick mark
+    pub color_tier_1: Color,
+    /// The color of a tier 2 tick mark
+    pub color_tier_2: Color,
+    /// The color of a tier 3 tick mark
+    pub color_tier_3: Color,
+
+    /// The distance from the tick mark to the outside edge of the knob
+    pub offset: f32,
+}
+
+impl std::default::Default for LineTickMarks {
+    fn default() -> Self {
+        Self {
+            width_tier_1: 2.0,
+            width_tier_2: 1.75,
+            width_tier_3: 1.75,
+
+            length_tier_1: 3.5,
+            length_tier_2: 2.5,
+            length_tier_3: 2.5,
+
+            color_tier_1: [0.56, 0.56, 0.56, 0.90].into(),
+            color_tier_2: [0.56, 0.56, 0.56, 0.85].into(),
+            color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
+
+            offset: 2.0,
+        }
+    }
+}
 
 /// A set of rules that dictate the style of a [`Knob`].
 ///
@@ -248,46 +276,6 @@ impl StyleSheet for Default {
         Some(TickMarkStyle::default())
     }
 }
-
-/*
-impl StyleSheet for Default {
-    fn active(&self) -> Style {
-        Style::Vector(
-        VectorStyle {
-            knob_color: Color::from_rgb(0.4, 0.4, 0.4),
-            knob_border_width: 2,
-            knob_border_color: Color::from_rgb(0.42, 0.42, 0.42),
-            notch_color: Color::WHITE,
-            notch_width: 3,
-            notch_height: 6,
-            notch_offset: 2,
-            inner_circle: None,
-        })
-    }
-
-    fn hovered(&self) -> Style {
-        let active = self.active();
-        if let Style::Vector(active) = self.active() {
-
-        Style::Vector(
-        VectorStyle {
-            notch_color: Color::from_rgb(0.9, 0.9, 0.9),
-            ..active
-        })
-
-        } else { active }
-    }
-
-    fn dragging(&self) -> Style {
-        self.hovered()
-    }
-
-    fn diameter(&self) -> u16 {
-        31
-    }
-}
-*/
-
 
 impl std::default::Default for Box<dyn StyleSheet> {
     fn default() -> Self {

@@ -24,7 +24,7 @@ cargo run --example simple --release
 * [x] XYPad
 
 ## Widgets partially implemented
-* [x] Knob - Due to current limitations of iced, only a simple flat circle style is implemented for now. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
+* [x] Knob - Due to current limitations of iced, the texture style is not implemented yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
 
 ## Roadmap of planned widgets
 ### Inputs

@@ -17,7 +17,8 @@ pub enum KnobsID {
     Int,
     DB,
     Octave,
-    Vector,
+    Circle,
+    Line,
     Texture,
 }
 
@@ -43,9 +44,13 @@ pub struct KnobsStep {
     knob_oct_state: knob::State,
     knob_oct_label: String,
 
-    knob_vector_param: FloatParam<KnobsID>,
-    knob_vector_state: knob::State,
-    knob_vector_label: String,
+    knob_circle_param: FloatParam<KnobsID>,
+    knob_circle_state: knob::State,
+    knob_circle_label: String,
+
+    knob_line_param: FloatParam<KnobsID>,
+    knob_line_state: knob::State,
+    knob_line_label: String,
 
     /*
     knob_texture_param: FloatParam<KnobsID>,
@@ -79,8 +84,11 @@ impl Default for KnobsStep {
         let knob_oct_param = OctaveParam::<KnobsID>::new(
             KnobsID::Octave, 20.0, 20_480.0, 1000.0, 1000.0);
 
-        let knob_vector_param = FloatParam::<KnobsID>::new(
-            KnobsID::Vector, -1.0, 1.0, 0.0, 0.0);
+        let knob_circle_param = FloatParam::<KnobsID>::new(
+            KnobsID::Circle, -1.0, 1.0, 0.0, 0.0);
+
+        let knob_line_param = FloatParam::<KnobsID>::new(
+            KnobsID::Line, -1.0, 1.0, 0.0, 0.0);
         
         /*
         let knob_texture_param = FloatParam::<KnobsID>::new(
@@ -119,11 +127,17 @@ impl Default for KnobsStep {
             ),
             knob_oct_label: String::from("Octave Freq Range"),
 
-            knob_vector_param,
-            knob_vector_state: knob::State::new(
-                &knob_vector_param
+            knob_circle_param,
+            knob_circle_state: knob::State::new(
+                &knob_circle_param
             ),
-            knob_vector_label: String::from("Custom Vector Style"),
+            knob_circle_label: String::from("Custom Vector Circle Style"),
+
+            knob_line_param,
+            knob_line_state: knob::State::new(
+                &knob_line_param
+            ),
+            knob_line_label: String::from("Custom Vector Line Style"),
             
             /*
             knob_texture_param,
@@ -231,10 +245,15 @@ impl KnobsStep {
                         self.output_text = crate::info_text_octave(id,
                             self.knob_oct_param.value());
                     },
-                    KnobsID::Vector => {
-                        self.knob_vector_param.set_from_normal(normal);
+                    KnobsID::Circle => {
+                        self.knob_circle_param.set_from_normal(normal);
                         self.output_text = crate::info_text_f32(id,
-                            self.knob_vector_param.value());
+                            self.knob_circle_param.value());
+                    },
+                    KnobsID::Line => {
+                        self.knob_line_param.set_from_normal(normal);
+                        self.output_text = crate::info_text_f32(id,
+                            self.knob_line_param.value());
                     },
                     KnobsID::Texture => {
                         /*
@@ -280,13 +299,21 @@ impl KnobsStep {
         )
         .tick_marks(&self.octave_tick_marks);
 
-        let knob_vector = Knob::new(
-            &mut self.knob_vector_state,
-            &self.knob_vector_param,
+        let knob_circle = Knob::new(
+            &mut self.knob_circle_state,
+            &self.knob_circle_param,
             Message::KnobsChanged,
         )
         .tick_marks(&self.float_tick_marks)
-        .style(style::KnobCustomStyle);
+        .style(style::KnobCustomStyleCircle);
+
+        let knob_line = Knob::new(
+            &mut self.knob_line_state,
+            &self.knob_line_param,
+            Message::KnobsChanged,
+        )
+        .tick_marks(&self.float_tick_marks)
+        .style(style::KnobCustomStyleLine);
 
         /*
         let knob_texture = Knob::new(
@@ -332,8 +359,11 @@ impl KnobsStep {
                 .max_height(400)
                 .width(Length::Fill)
                 .spacing(10)
-                .push(Text::new(&self.knob_vector_label))
-                .push(knob_vector)
+                .push(Text::new(&self.knob_circle_label))
+                .push(knob_circle)
+
+                .push(Text::new(&self.knob_line_label))
+                .push(knob_line)
 
                 //.push(Text::new(&self.knob_texture_label))
                 //.push(knob_texture)

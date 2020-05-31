@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
@@ -29,6 +29,6 @@ name = "simple"
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.1" }
+iced = { version = "0.1", features = ["canvas"] }
 iced_native = "0.2"
 iced_wgpu = "0.2"

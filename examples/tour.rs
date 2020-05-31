@@ -13,7 +13,10 @@ pub use tour_steps::style;
 static STARTING_STEP: usize = 0;
 
 pub fn main() {
-    Tour::run(Settings::default())
+    Tour::run(Settings {
+        antialiasing: true,
+        ..Settings::default()
+    })
 }
 
 pub struct Tour {
