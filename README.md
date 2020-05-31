@@ -14,7 +14,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 ## Run examples with
 
 ```
-cargo run --example tour --release
+cargo run --example basic_inputs --release
 cargo run --example simple --release
 ```
 

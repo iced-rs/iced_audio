@@ -1,25 +1,25 @@
 extern crate iced;
 
-mod tour_steps;
-use tour_steps::*;
+mod basic_inputs_steps;
+use basic_inputs_steps::*;
 
 use iced::{
     button, Button, scrollable, Scrollable, Column, Row, Container, Element,
     HorizontalAlignment, Length, Space, Color, Sandbox, Settings, Text
 };
 
-pub use tour_steps::style;
+pub use basic_inputs_steps::style;
 
 static STARTING_STEP: usize = 0;
 
 pub fn main() {
-    Tour::run(Settings {
+    BasicInputs::run(Settings {
         antialiasing: true,
         ..Settings::default()
     })
 }
 
-pub struct Tour {
+pub struct BasicInputs {
     steps: Steps,
     scroll: scrollable::State,
     back_button: button::State,
@@ -27,11 +27,11 @@ pub struct Tour {
     debug: bool,
 }
 
-impl Sandbox for Tour {
+impl Sandbox for BasicInputs {
     type Message = Message;
 
-    fn new() -> Tour {
-        Tour {
+    fn new() -> BasicInputs {
+        BasicInputs {
             steps: Steps::default(),
             scroll: scrollable::State::new(),
             back_button: button::State::new(),
@@ -41,7 +41,7 @@ impl Sandbox for Tour {
     }
 
     fn title(&self) -> String {
-        format!("{} - Iced Audio", self.steps.title())
+        format!("{} - Iced Audio Basic Inputs", self.steps.title())
     }
 
     fn update(&mut self, event: Message) {
@@ -59,7 +59,7 @@ impl Sandbox for Tour {
     }
 
     fn view(&mut self) -> Element<Message> {
-        let Tour {
+        let BasicInputs {
             steps,
             scroll,
             back_button,
@@ -242,7 +242,7 @@ impl<'a> Step {
     fn welcome() -> Element<'a, StepMessage> {
         Self::container("Welcome!")
             .push(Text::new(
-                "This is a simple tour meant to showcase a bunch of widgets \
+                "This is a simple tour showcasing basic input widgets \
                 designed specifically for audio software applications such as \
                 VST / LV2 plugins.",
             ))
@@ -252,7 +252,7 @@ impl<'a> Step {
                 Iced Audio is an extension for Iced.",
             ))
             .push(Text::new(
-                "For most controls, holding down the Ctrl key will make fine \
+                "For each control, holding down the Ctrl key will make fine \
                 adjustments, and double-clicking will set the control to its \
                 default value.",
             ))

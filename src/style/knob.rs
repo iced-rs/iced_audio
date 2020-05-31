@@ -86,9 +86,10 @@ pub struct VectorLineStyle {
     pub notch_color: Color,
     /// the width of the notch line
     pub notch_width: f32,
-    /// the height of the notch line
+    /// the scale (height) of the notch line compared to the radius of the knob
     pub notch_scale: Normal,
-    /// the offset of the notch line from the edge of the knob
+    /// the offset of the notch line from the edge of the knob compared to the
+    /// radius of the knob
     pub notch_offset: Normal,
 }
 
