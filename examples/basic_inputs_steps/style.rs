@@ -1,7 +1,7 @@
 
 use iced::{button, Background, Color, Vector, image};
 use iced_audio::{
-    h_slider, v_slider, xy_pad, knob
+    h_slider, v_slider, xy_pad, knob, ramp
 };
 
 pub enum Button {
@@ -484,5 +484,42 @@ impl xy_pad::StyleSheet for XYPadCustomStyle {
             }),
             ..active
         }
+    }
+}
+
+
+// Custom style for the Texture VSlider
+
+pub struct RampCustomStyle;
+impl ramp::StyleSheet for RampCustomStyle{
+    fn active(&self) -> ramp::Style {
+        ramp::Style {
+            background_color: KNOB_COLOR,
+            border_width: 2,
+            border_color: KNOB_BORDER_COLOR,
+            line_width: 2.0,
+            line_center_color: Color::from_rgb(0.7, 0.7, 0.7),
+            line_up_color: Color::from_rgb(0.0, 0.9, 0.0),
+            line_down_color: HANDLE_COLOR,
+        }
+    }
+
+    fn hovered(&self) -> ramp::Style {
+        let active = self.active();
+
+        ramp::Style {
+            line_center_color: Color::from_rgb(0.8, 0.8, 0.8),
+            line_up_color: Color::from_rgb(0.0, 1.0, 0.0),
+            line_down_color: Color::from_rgb(
+                0x8A as f32 / 255.0,
+                0xD7 as f32 / 255.0,
+                0xFF as f32 / 255.0,
+            ),
+            ..active
+        }
+    }
+
+    fn dragging(&self) -> ramp::Style {
+        self.hovered()
     }
 }

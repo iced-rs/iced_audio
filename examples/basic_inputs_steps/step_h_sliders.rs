@@ -336,7 +336,6 @@ impl HSliderStep {
                 .spacing(10)
 
                 .push(Text::new(&self.h_slider_float_label))
-
                 .push(h_slider_float)
 
                 .push(Text::new(&self.h_slider_db_label))

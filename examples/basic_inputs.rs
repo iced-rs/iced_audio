@@ -132,6 +132,7 @@ impl Default for Steps {
                 Step::VSliders(Default::default()),
                 Step::Knobs(Default::default()),
                 Step::XYPads(Default::default()),
+                Step::Ramps(Default::default()),
             ],
             current: STARTING_STEP,
         }
@@ -178,6 +179,7 @@ pub enum Step {
     VSliders(step_v_sliders::VSliderStep),
     Knobs(step_knobs::KnobsStep),
     XYPads(step_xy_pads::XYPadStep),
+    Ramps(step_ramps::RampStep),
 }
 
 #[derive(Debug, Clone)]
@@ -186,6 +188,7 @@ pub enum StepMessage {
     VSlidersMsg(step_v_sliders::Message),
     KnobsMsg(step_knobs::Message),
     XYPadsMsg(step_xy_pads::Message),
+    RampsMsg(step_ramps::Message),
 }
 
 impl<'a> Step {
@@ -203,6 +206,9 @@ impl<'a> Step {
             StepMessage::XYPadsMsg(msg) => {
                 if let Step::XYPads(step) = self { step.update(msg); };
             },
+            StepMessage::RampsMsg(msg) => {
+                if let Step::Ramps(step) = self { step.update(msg); };
+            },
         }
     }
 
@@ -213,6 +219,7 @@ impl<'a> Step {
             Step::VSliders(step) => step.title(),
             Step::Knobs(step) => step.title(),
             Step::XYPads(step) => step.title(),
+            Step::Ramps(step) => step.title(),
         }
     }
 
@@ -230,6 +237,9 @@ impl<'a> Step {
             },
             Step::XYPads(step) => {
                 step.view(debug).map(StepMessage::XYPadsMsg)
+            },
+            Step::Ramps(step) => {
+                step.view(debug).map(StepMessage::RampsMsg)
             },
         }
         .into()

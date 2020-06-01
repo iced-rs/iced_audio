@@ -235,6 +235,62 @@ impl knob::Renderer for Renderer {
             */
 
 
+
+            Style::VectorCircle(style) => {
+
+
+
+                let knob_back = Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: bounds_y,
+                        width: bounds_size,
+                        height: bounds_size,
+                    },
+                    background: Background::Color(style.knob_color),
+                    border_radius: radius as u16,
+                    border_width: style.knob_border_width,
+                    border_color: style.knob_border_color,
+                };
+
+                let angle = ( (angle_range.max() - angle_range.min())
+                                * normal.value()
+                            ) + angle_range.min() + std::f32::consts::PI;
+                
+                let (dx, dy) = {
+                    if angle < -0.001 || angle > 0.001 { angle.sin_cos() }
+                    else { (0.0, -1.0) }
+                };
+
+                let notch_radius = radius * style.notch_scale.value();
+
+                let offset_radius = (radius - (notch_radius * 2.0)) *
+                    (1.0 - style.notch_offset.value()) + notch_radius;
+
+                let notch = Primitive::Quad {
+                    bounds: Rectangle {
+                        x: bounds_x + radius + (dx * offset_radius)
+                            - notch_radius,
+                        y: bounds_y + radius - (dy * offset_radius)
+                            - notch_radius,
+                        width: notch_radius * 2.0,
+                        height: notch_radius * 2.0,
+                    },
+                    background: Background::Color(style.notch_color),
+                    border_radius: notch_radius as u16,
+                    border_width: style.notch_border_width,
+                    border_color: style.notch_border_color,
+                };
+
+                (
+                    Primitive::Group {
+                        primitives: vec![tick_marks, knob_back, notch],
+                    },
+                    MouseCursor::default(),
+                )
+            },
+
+
             Style::VectorLine(style) => {
 
 
@@ -296,63 +352,7 @@ impl knob::Renderer for Renderer {
                     },
                     MouseCursor::default(),
                 )
-            }
-
-
-
-            Style::VectorCircle(style) => {
-
-
-
-                let knob_back = Primitive::Quad {
-                    bounds: Rectangle {
-                        x: bounds_x,
-                        y: bounds_y,
-                        width: bounds_size,
-                        height: bounds_size,
-                    },
-                    background: Background::Color(style.knob_color),
-                    border_radius: radius as u16,
-                    border_width: style.knob_border_width,
-                    border_color: style.knob_border_color,
-                };
-
-                let angle = ( (angle_range.max() - angle_range.min())
-                                * normal.value()
-                            ) + angle_range.min() + std::f32::consts::PI;
-                
-                let (dx, dy) = {
-                    if angle < -0.001 || angle > 0.001 { angle.sin_cos() }
-                    else { (0.0, -1.0) }
-                };
-
-                let notch_radius = radius * style.notch_scale.value();
-
-                let offset_radius = (radius - (notch_radius * 2.0)) *
-                    (1.0 - style.notch_offset.value()) + notch_radius;
-
-                let notch = Primitive::Quad {
-                    bounds: Rectangle {
-                        x: bounds_x + radius + (dx * offset_radius)
-                            - notch_radius,
-                        y: bounds_y + radius - (dy * offset_radius)
-                            - notch_radius,
-                        width: notch_radius * 2.0,
-                        height: notch_radius * 2.0,
-                    },
-                    background: Background::Color(style.notch_color),
-                    border_radius: notch_radius as u16,
-                    border_width: style.notch_border_width,
-                    border_color: style.notch_border_color,
-                };
-
-                (
-                    Primitive::Group {
-                        primitives: vec![tick_marks, knob_back, notch],
-                    },
-                    MouseCursor::default(),
-                )
-            }
+            },
         }
     }
 }

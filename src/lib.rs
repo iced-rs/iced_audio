@@ -248,6 +248,7 @@ mod platform {
         h_slider,
         v_slider,
         knob,
+        ramp,
         xy_pad,
     };
 
@@ -256,6 +257,7 @@ mod platform {
         h_slider::HSlider,
         v_slider::VSlider,
         knob::Knob,
+        ramp::Ramp,
         xy_pad::XYPad,
     };
 }
