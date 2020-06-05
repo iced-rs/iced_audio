@@ -4,24 +4,21 @@
 
 use crate::core::{Normal, TickMarkGroup, TickMarkTier};
 use crate::native::knob;
-use iced_native::{
-    Background, MouseCursor, Point, Rectangle, Color, Vector
-};
+use iced_native::{Background, Color, MouseCursor, Point, Rectangle, Vector};
+use iced_wgpu::widget::canvas::{Frame, LineCap, Path, Stroke};
 use iced_wgpu::{Primitive, Renderer};
-use iced_wgpu::widget::canvas::{Frame, Path, Stroke, LineCap};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    Style, StyleSheet, VectorCircleStyle, VectorLineStyle, TickMarkStyle,
-    CircleTickMarks, LineTickMarks
+    CircleTickMarks, LineTickMarks, Style, StyleSheet, TickMarkStyle,
+    VectorCircleStyle, VectorLineStyle,
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
 /// `iced_wgpu::Renderer`.
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
-pub type Knob<'a, Message, ID> =
-    knob::Knob<'a, Message, Renderer, ID>;
+pub type Knob<'a, Message, ID> = knob::Knob<'a, Message, Renderer, ID>;
 
 impl knob::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
@@ -57,7 +54,6 @@ impl knob::Renderer for Renderer {
         let tick_marks: Primitive = {
             if let Some(tick_marks) = tick_marks {
                 if let Some(style) = style_sheet.tick_mark_style() {
-
                     match style {
                         TickMarkStyle::Circle(style) => {
                             let mut primitives: Vec<Primitive> = Vec::new();
@@ -65,44 +61,48 @@ impl knob::Renderer for Renderer {
                             let tick_mark_radius = radius + style.offset;
 
                             for tick_mark in tick_marks.group.iter() {
-
                                 let (diameter, color) = match tick_mark.tier {
-                                    TickMarkTier::One => {
-                                        (style.diameter_tier_1 as f32,
-                                            style.color_tier_1)
-                                    },
-                                    TickMarkTier::Two => {
-                                        (style.diameter_tier_2 as f32,
-                                            style.color_tier_2)
-                                    },
-                                    TickMarkTier::Three => {
-                                        (style.diameter_tier_3 as f32,
-                                            style.color_tier_3)
-                                    },
+                                    TickMarkTier::One => (
+                                        style.diameter_tier_1 as f32,
+                                        style.color_tier_1,
+                                    ),
+                                    TickMarkTier::Two => (
+                                        style.diameter_tier_2 as f32,
+                                        style.color_tier_2,
+                                    ),
+                                    TickMarkTier::Three => (
+                                        style.diameter_tier_3 as f32,
+                                        style.color_tier_3,
+                                    ),
                                 };
 
                                 let tick_radius = diameter / 2.0;
 
-                                let angle = ( ( angle_range.max() -
-                                              angle_range.min()
-                                        ) * tick_mark.position.value()
-                                    ) + angle_range.min() +
-                                        std::f32::consts::PI;
-                
+                                let angle = ((angle_range.max()
+                                    - angle_range.min())
+                                    * tick_mark.position.value())
+                                    + angle_range.min()
+                                    + std::f32::consts::PI;
+
                                 let (dx, dy) = {
                                     if angle < -0.001 || angle > 0.001 {
                                         angle.sin_cos()
-                                    } else { (0.0, -1.0) }
+                                    } else {
+                                        (0.0, -1.0)
+                                    }
                                 };
 
                                 primitives.push(Primitive::Quad {
                                     bounds: Rectangle {
-                                        x: (bounds_x + radius +
-                                            (dx * tick_mark_radius) -
-                                            tick_radius).round(),
-                                        y: (bounds_y + radius -
-                                            (dy * tick_mark_radius) -
-                                            tick_radius).round(),
+                                        x: (bounds_x
+                                            + radius
+                                            + (dx * tick_mark_radius)
+                                            - tick_radius)
+                                            .round(),
+                                        y: (bounds_y + radius
+                                            - (dy * tick_mark_radius)
+                                            - tick_radius)
+                                            .round(),
                                         width: diameter,
                                         height: diameter,
                                     },
@@ -113,10 +113,8 @@ impl knob::Renderer for Renderer {
                                 });
                             }
 
-                            Primitive::Group {
-                                primitives,
-                            }
-                        },
+                            Primitive::Group { primitives }
+                        }
                         TickMarkStyle::Line(style) => {
                             let tick_mark_offset = radius + style.offset;
 
@@ -125,39 +123,38 @@ impl knob::Renderer for Renderer {
                                 Size::new(bounds_size, bounds_size));
                             */
 
-                            let mut frame = Frame::new(
-                                bounds_size, bounds_size);
-                            
+                            let mut frame =
+                                Frame::new(bounds_size, bounds_size);
+
                             frame.translate(Vector::new(
                                 bounds_x + radius,
                                 bounds_y + radius,
                             ));
 
                             for tick_mark in tick_marks.group.iter() {
-
                                 let (width, length, color) =
                                     match tick_mark.tier {
-                                    TickMarkTier::One => {
-                                        (style.width_tier_1,
-                                        style.length_tier_1,
-                                        style.color_tier_1)
-                                    },
-                                    TickMarkTier::Two => {
-                                        (style.width_tier_2,
-                                        style.length_tier_2,
-                                        style.color_tier_2)
-                                    },
-                                    TickMarkTier::Three => {
-                                        (style.width_tier_3,
-                                        style.length_tier_3,
-                                        style.color_tier_3)
-                                    },
-                                };
+                                        TickMarkTier::One => (
+                                            style.width_tier_1,
+                                            style.length_tier_1,
+                                            style.color_tier_1,
+                                        ),
+                                        TickMarkTier::Two => (
+                                            style.width_tier_2,
+                                            style.length_tier_2,
+                                            style.color_tier_2,
+                                        ),
+                                        TickMarkTier::Three => (
+                                            style.width_tier_3,
+                                            style.length_tier_3,
+                                            style.color_tier_3,
+                                        ),
+                                    };
 
-                                let angle = ( ( angle_range.max() -
-                                              angle_range.min()
-                                        ) * tick_mark.position.value()
-                                    ) + angle_range.min();
+                                let angle = ((angle_range.max()
+                                    - angle_range.min())
+                                    * tick_mark.position.value())
+                                    + angle_range.min();
 
                                 let stroke = Stroke {
                                     width,
@@ -168,7 +165,7 @@ impl knob::Renderer for Renderer {
 
                                 let path = Path::line(
                                     Point::new(0.0, tick_mark_offset),
-                                    Point::new(0.0, tick_mark_offset + length)
+                                    Point::new(0.0, tick_mark_offset + length),
                                 );
 
                                 frame.with_save(|frame| {
@@ -181,16 +178,17 @@ impl knob::Renderer for Renderer {
                             }
 
                             frame.into_primitive()
-                        },
+                        }
                     }
-                } else { Primitive::None }
-            } else { Primitive::None }
-            
+                } else {
+                    Primitive::None
+                }
+            } else {
+                Primitive::None
+            }
         };
 
         match style {
-
-
             /*
             Style::Texture(style) => {
 
@@ -233,13 +231,7 @@ impl knob::Renderer for Renderer {
                 )
             },
             */
-
-
-
             Style::VectorCircle(style) => {
-
-
-
                 let knob_back = Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
@@ -253,25 +245,31 @@ impl knob::Renderer for Renderer {
                     border_color: style.knob_border_color,
                 };
 
-                let angle = ( (angle_range.max() - angle_range.min())
-                                * normal.value()
-                            ) + angle_range.min() + std::f32::consts::PI;
-                
+                let angle = ((angle_range.max() - angle_range.min())
+                    * normal.value())
+                    + angle_range.min()
+                    + std::f32::consts::PI;
+
                 let (dx, dy) = {
-                    if angle < -0.001 || angle > 0.001 { angle.sin_cos() }
-                    else { (0.0, -1.0) }
+                    if angle < -0.001 || angle > 0.001 {
+                        angle.sin_cos()
+                    } else {
+                        (0.0, -1.0)
+                    }
                 };
 
                 let notch_radius = radius * style.notch_scale.value();
 
-                let offset_radius = (radius - (notch_radius * 2.0)) *
-                    (1.0 - style.notch_offset.value()) + notch_radius;
+                let offset_radius = (radius - (notch_radius * 2.0))
+                    * (1.0 - style.notch_offset.value())
+                    + notch_radius;
 
                 let notch = Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x + radius + (dx * offset_radius)
                             - notch_radius,
-                        y: bounds_y + radius - (dy * offset_radius)
+                        y: bounds_y + radius
+                            - (dy * offset_radius)
                             - notch_radius,
                         width: notch_radius * 2.0,
                         height: notch_radius * 2.0,
@@ -288,13 +286,9 @@ impl knob::Renderer for Renderer {
                     },
                     MouseCursor::default(),
                 )
-            },
-
+            }
 
             Style::VectorLine(style) => {
-
-
-
                 let radius = bounds_size / 2.0;
 
                 let knob_back = Primitive::Quad {
@@ -310,9 +304,10 @@ impl knob::Renderer for Renderer {
                     border_color: style.knob_border_color,
                 };
 
-                let angle = ( (angle_range.max() - angle_range.min())
-                                * normal.value()
-                            ) + angle_range.min() + std::f32::consts::PI;
+                let angle = ((angle_range.max() - angle_range.min())
+                    * normal.value())
+                    + angle_range.min()
+                    + std::f32::consts::PI;
 
                 let notch: Primitive = {
                     let stroke = Stroke {
@@ -322,13 +317,13 @@ impl knob::Renderer for Renderer {
                         ..Stroke::default()
                     };
 
-                    let stroke_begin_y = -( radius
-                        - (style.notch_offset.value() * radius) );
+                    let stroke_begin_y =
+                        -(radius - (style.notch_offset.value() * radius));
                     let notch_height = style.notch_scale.value() * radius;
 
                     let path = Path::line(
                         Point::new(0.0, stroke_begin_y),
-                        Point::new(0.0, stroke_begin_y + notch_height)
+                        Point::new(0.0, stroke_begin_y + notch_height),
                     );
 
                     let mut frame = Frame::new(bounds_size, bounds_size);
@@ -352,7 +347,7 @@ impl knob::Renderer for Renderer {
                     },
                     MouseCursor::default(),
                 )
-            },
+            }
         }
     }
 }

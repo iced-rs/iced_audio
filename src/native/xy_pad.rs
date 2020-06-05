@@ -6,7 +6,7 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    input::{mouse, ButtonState, keyboard},
+    input::{keyboard, mouse, ButtonState},
     layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
     Rectangle, Size, Widget,
 };
@@ -28,7 +28,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 #[allow(missing_debug_implementations)]
 pub struct XYPad<'a, Message, Renderer: self::Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     state: &'a mut State,
     id_x: ID,
@@ -44,10 +44,9 @@ where
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID>
-    XYPad<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer: self::Renderer, ID> XYPad<'a, Message, Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     /// Creates a new [`XYPad`].
     ///
@@ -67,13 +66,13 @@ where
     /// [`XYPad`]: struct.XYPad.html
     pub fn new<F>(
         state: &'a mut State,
-        param_x: &impl Param<ID=ID>,
-        param_y: &impl Param<ID=ID>,
+        param_x: &impl Param<ID = ID>,
+        param_y: &impl Param<ID = ID>,
         on_change: F,
     ) -> Self
     where
         F: 'static + Fn((ID, Normal)) -> Message,
-    {  
+    {
         XYPad {
             state,
             id_x: param_x.id(),
@@ -160,9 +159,10 @@ impl State {
     ///
     /// [`Param`]: ../../core/param/trait.Param.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<ID>(param_x: &impl Param<ID=ID>,
-                   param_y: &impl Param<ID=ID>)
-    -> Self {
+    pub fn new<ID>(
+        param_x: &impl Param<ID = ID>,
+        param_y: &impl Param<ID = ID>,
+    ) -> Self {
         Self {
             is_dragging: false,
             prev_drag_x: 0.0,
@@ -194,19 +194,17 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-            let limits = limits
-            .width(self.size)
-            .height(self.size);
-        
-            let mut size = limits.resolve(Size::ZERO);
-            
-            if size.width <= size.height {
-                size.height = size.width;
-            } else {
-                size.width = size.height;
-            }
+        let limits = limits.width(self.size).height(self.size);
 
-            layout::Node::new(size)
+        let mut size = limits.resolve(Size::ZERO);
+
+        if size.width <= size.height {
+            size.height = size.width;
+        } else {
+            size.width = size.height;
+        }
+
+        layout::Node::new(size)
     }
 
     fn on_event(
@@ -237,49 +235,52 @@ where
                                 self.state.prev_drag_y = cursor_position.y;
 
                                 let bounds_size = {
-                                    if layout.bounds().width <=
-                                        layout.bounds().height {
-                                            layout.bounds().width
-                                    } else { layout.bounds().height }
+                                    if layout.bounds().width
+                                        <= layout.bounds().height
+                                    {
+                                        layout.bounds().width
+                                    } else {
+                                        layout.bounds().height
+                                    }
                                 };
 
-                                let normal_x =
-                                    (cursor_position.x - layout.bounds().x) /
-                                        bounds_size;
+                                let normal_x = (cursor_position.x
+                                    - layout.bounds().x)
+                                    / bounds_size;
 
-                                let normal_y =
-                                    (cursor_position.y - layout.bounds().y) /
-                                        bounds_size;
-                                
-                                if normal_x !=
-                                    self.state.continuous_normal_x {
-                                    self.state.continuous_normal_x =
-                                        normal_x;
+                                let normal_y = (cursor_position.y
+                                    - layout.bounds().y)
+                                    / bounds_size;
 
-                                    messages.push((self.on_change)(
-                                        (self.id_x, normal_x.into())
-                                    ));
+                                if normal_x != self.state.continuous_normal_x {
+                                    self.state.continuous_normal_x = normal_x;
+
+                                    messages.push((self.on_change)((
+                                        self.id_x,
+                                        normal_x.into(),
+                                    )));
                                 }
 
-                                if normal_y !=
-                                    self.state.continuous_normal_y {
-                                    self.state.continuous_normal_y =
-                                        normal_y;
+                                if normal_y != self.state.continuous_normal_y {
+                                    self.state.continuous_normal_y = normal_y;
 
-                                    messages.push((self.on_change)(
-                                        (self.id_y, normal_y.into())
-                                    ));
+                                    messages.push((self.on_change)((
+                                        self.id_y,
+                                        normal_y.into(),
+                                    )));
                                 }
                             }
                             _ => {
                                 self.state.is_dragging = false;
 
-                                messages.push((self.on_change)(
-                                    (self.id_x, self.default_normal_x)
-                                ));
-                                messages.push((self.on_change)(
-                                    (self.id_y, self.default_normal_y)
-                                ));
+                                messages.push((self.on_change)((
+                                    self.id_x,
+                                    self.default_normal_x,
+                                )));
+                                messages.push((self.on_change)((
+                                    self.id_y,
+                                    self.default_normal_y,
+                                )));
                             }
                         }
 
@@ -297,19 +298,24 @@ where
                     let bounds_size = {
                         if layout.bounds().width <= layout.bounds().height {
                             layout.bounds().width
-                        } else { layout.bounds().height }
+                        } else {
+                            layout.bounds().height
+                        }
                     };
                     if bounds_size != 0.0 {
-                        let mut movement_x =
-                            (cursor_position.x - self.state.prev_drag_x)
-                                / bounds_size;
-                        
-                        let mut movement_y =
-                            (cursor_position.y - self.state.prev_drag_y)
-                                / bounds_size;
+                        let mut movement_x = (cursor_position.x
+                            - self.state.prev_drag_x)
+                            / bounds_size;
 
-                        if self.state.pressed_modifiers.matches(
-                            self.modifier_keys) {
+                        let mut movement_y = (cursor_position.y
+                            - self.state.prev_drag_y)
+                            / bounds_size;
+
+                        if self
+                            .state
+                            .pressed_modifiers
+                            .matches(self.modifier_keys)
+                        {
                             movement_x *= self.modifier_scalar;
                             movement_y *= self.modifier_scalar;
                         }
@@ -318,34 +324,33 @@ where
                             self.state.continuous_normal_x + movement_x;
                         let normal_y =
                             self.state.continuous_normal_y + movement_y;
-                        
+
                         self.state.prev_drag_x = cursor_position.x;
                         self.state.prev_drag_y = cursor_position.y;
 
                         if normal_x != self.state.continuous_normal_x {
                             self.state.continuous_normal_x = normal_x;
 
-                            messages.push((self.on_change)(
-                                (self.id_x, normal_x.into())
-                            ));
+                            messages.push((self.on_change)((
+                                self.id_x,
+                                normal_x.into(),
+                            )));
                         }
 
                         if normal_y != self.state.continuous_normal_y {
                             self.state.continuous_normal_y = normal_y;
 
-                            messages.push((self.on_change)(
-                                (self.id_y, normal_y.into())
-                            ));
+                            messages.push((self.on_change)((
+                                self.id_y,
+                                normal_y.into(),
+                            )));
                         }
                     }
                 }
-            },
-            Event::Keyboard(keyboard::Event::Input {
-                modifiers,
-                ..
-            }) => {
+            }
+            Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
                 self.state.pressed_modifiers = modifiers;
-            },
+            }
             _ => {}
         }
     }
@@ -407,8 +412,7 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID>
-    From<XYPad<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer, ID> From<XYPad<'a, Message, Renderer, ID>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,

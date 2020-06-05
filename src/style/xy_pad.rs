@@ -1,5 +1,5 @@
 //! Style for the [`XYPad`] widget
-//! 
+//!
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
 use iced::Color;
@@ -148,7 +148,6 @@ impl StyleSheet for Default {
         }
     }
 }
-
 
 impl std::default::Default for Box<dyn StyleSheet> {
     fn default() -> Self {

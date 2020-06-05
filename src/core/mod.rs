@@ -46,17 +46,21 @@ impl Normal {
     /// * `value` - the value to initialize the `Normal` with
     ///
     /// if `value < 0.0`, then `normal.value` is set to `0.0`
-    /// 
+    ///
     /// else if `value > 1.0`, then `normal.value` is set to `1.0`
     ///
     /// else `normal.value` is set to `value`
     pub fn new(value: f32) -> Self {
         Self {
             value: {
-                if value < 0.0 { 0.0 }
-                else if value > 1.0 { 1.0 }
-                else { value }
-            }
+                if value < 0.0 {
+                    0.0
+                } else if value > 1.0 {
+                    1.0
+                } else {
+                    value
+                }
+            },
         }
     }
 
@@ -67,15 +71,19 @@ impl Normal {
     /// * `value` - the value to set the `Normal` with
     ///
     /// if `value < 0.0`, then `normal.value` is set to `0.0`
-    /// 
+    ///
     /// else if `value > 1.0`, then `normal.value` is set to `1.0`
     ///
     /// else `normal.value` is set to `value`
     pub fn set(&mut self, value: f32) {
         self.value = {
-            if value < 0.0 { 0.0 }
-            else if value > 1.0 { 1.0 }
-            else { value }
+            if value < 0.0 {
+                0.0
+            } else if value > 1.0 {
+                1.0
+            } else {
+                value
+            }
         }
     }
 
@@ -149,7 +157,6 @@ impl TexturePadding {
         }
     }
 }
-
 
 static PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
 
@@ -231,14 +238,22 @@ impl KnobAngleRange {
         let mut min = min;
         let mut max = max;
 
-        if min < 0.0 || min >= TAU { min = 0.0; }
-        if max < 0.0 || max >= TAU { max = 0.0; }
+        if min < 0.0 || min >= TAU {
+            min = 0.0;
+        }
+        if max < 0.0 || max >= TAU {
+            max = 0.0;
+        }
 
         Self { min, max }
     }
 
     /// returns the minimum angle (between `0.0` and `TAU` in radians)
-    pub fn min(&self) -> f32 { self.min }
+    pub fn min(&self) -> f32 {
+        self.min
+    }
     /// returns the maximum angle (between `0.0` and `TAU` in radians)
-    pub fn max(&self) -> f32 { self.max }
+    pub fn max(&self) -> f32 {
+        self.max
+    }
 }

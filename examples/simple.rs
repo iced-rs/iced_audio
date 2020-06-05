@@ -1,12 +1,9 @@
 // Import iced modules.
-use iced::{
-    Column, Container, Element, Length, Sandbox, Settings, Align
-};
+use iced::{Align, Column, Container, Element, Length, Sandbox, Settings};
 // Import iced_audio modules.
 use iced_audio::{
-    Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-    v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
-    TickMarkTier
+    h_slider, knob, v_slider, xy_pad, FloatParam, HSlider, Knob, LogDBParam,
+    Normal, OctaveParam, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
 };
 
 // Create a unique identifier for each parameter. Note you may also use any
@@ -31,7 +28,6 @@ pub fn main() {
 }
 
 pub struct App {
-    
     // The parameters (`Param`) hold the current and default values.
     // They also handle converting the output of the widget to a usable value.
     //
@@ -65,7 +61,6 @@ impl Sandbox for App {
     type Message = Message;
 
     fn new() -> App {
-
         // Initialize each parameter:
         // * `ID` - A unique identifier for each parameter
         // * `min` - The minimum of the range (inclusive)
@@ -73,18 +68,44 @@ impl Sandbox for App {
         // * `value` - The initial value of the parameter
         // * `default_value` - The default value of the parameter
         let h_slider_float_param = FloatParam::<ParamID>::new(
-            ParamID::HSliderFloat , -1.0, 1.0, 0.0, 0.0);
+            ParamID::HSliderFloat,
+            -1.0,
+            1.0,
+            0.0,
+            0.0,
+        );
 
         let v_slider_db_param = LogDBParam::<ParamID>::new(
-            ParamID::VSliderDB , -12.0, 12.0, 0.0, 0.0, 0.5.into());
+            ParamID::VSliderDB,
+            -12.0,
+            12.0,
+            0.0,
+            0.0,
+            0.5.into(),
+        );
 
         let knob_octave_param = OctaveParam::<ParamID>::new(
-            ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
+            ParamID::KnobOctave,
+            20.0,
+            20480.0,
+            1000.0,
+            1000.0,
+        );
 
         let xy_pad_float_x_param = FloatParam::<ParamID>::new(
-            ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
+            ParamID::XYPadFloatX,
+            -1.0,
+            1.0,
+            0.0,
+            0.0,
+        );
         let xy_pad_float_y_param = FloatParam::<ParamID>::new(
-            ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
+            ParamID::XYPadFloatY,
+            -1.0,
+            1.0,
+            0.0,
+            0.0,
+        );
 
         App {
             // Add the parameters.
@@ -100,12 +121,12 @@ impl Sandbox for App {
             v_slider_state: v_slider::State::new(&v_slider_db_param),
             knob_state: knob::State::new(&knob_octave_param),
             xy_pad_state: xy_pad::State::new(
-                &xy_pad_float_x_param, &xy_pad_float_y_param),
-            
+                &xy_pad_float_x_param,
+                &xy_pad_float_y_param,
+            ),
+
             // Add a tick mark at the center position with the tier 2 size
-            center_tick_mark: vec![
-                TickMark::center(TickMarkTier::Two)
-            ].into(),
+            center_tick_mark: vec![TickMark::center(TickMarkTier::Two)].into(),
         }
     }
 
@@ -116,7 +137,6 @@ impl Sandbox for App {
     fn update(&mut self, event: Message) {
         match event {
             Message::ParamChanged((id, normal)) => {
-
                 // Update each parameter with the `Normal` output value from
                 // the corresponding parameter widget.
                 //
@@ -126,30 +146,29 @@ impl Sandbox for App {
                     ParamID::HSliderFloat => {
                         self.h_slider_float_param.set_from_normal(normal);
                         // println!("{}", self.h_slider_float_param.value());
-                    },
+                    }
                     ParamID::VSliderDB => {
                         self.v_slider_db_param.set_from_normal(normal);
                         // println!("{}", self.v_slider_db_param.value());
-                    },
+                    }
                     ParamID::KnobOctave => {
                         self.knob_octave_param.set_from_normal(normal);
                         // println!("{}", self.knob_octave_param.value());
-                    },
+                    }
                     ParamID::XYPadFloatX => {
                         self.xy_pad_float_x_param.set_from_normal(normal);
                         // println!("{}", self.xy_pad_float_x_param.value());
-                    },
+                    }
                     ParamID::XYPadFloatY => {
                         self.xy_pad_float_y_param.set_from_normal(normal);
                         // println!("{}", self.xy_pad_float_y_param.value());
-                    },
+                    }
                 }
             }
         }
     }
 
     fn view(&mut self) -> Element<Message> {
-        
         // Create each parameter widget, passing in the current value of the
         // corresponding parameter.
         let h_slider_widget = HSlider::new(

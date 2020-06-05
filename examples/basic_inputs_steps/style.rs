@@ -1,8 +1,5 @@
-
-use iced::{button, Background, Color, Vector, image};
-use iced_audio::{
-    h_slider, v_slider, xy_pad, knob, ramp
-};
+use iced::{button, image, Background, Color, Vector};
+use iced_audio::{h_slider, knob, ramp, v_slider, xy_pad};
 
 pub enum Button {
     Primary,
@@ -90,8 +87,7 @@ pub const KNOB_BORDER_COLOR: Color = Color::from_rgb(
 pub struct HSliderRectStyle;
 impl h_slider::StyleSheet for HSliderRectStyle {
     fn active(&self) -> h_slider::Style {
-        h_slider::Style::Rect(
-        h_slider::RectStyle {
+        h_slider::Style::Rect(h_slider::RectStyle {
             back_empty_color: EMPTY_COLOR,
             back_filled_color: FILLED_COLOR,
             border_color: BORDER_COLOR,
@@ -102,19 +98,20 @@ impl h_slider::StyleSheet for HSliderRectStyle {
             handle_filled_gap: 1,
         })
     }
-    
+
     fn hovered(&self) -> h_slider::Style {
         let active = self.active();
         if let h_slider::Style::Rect(active) = active {
-            h_slider::Style::Rect(
-            h_slider::RectStyle {
+            h_slider::Style::Rect(h_slider::RectStyle {
                 back_filled_color: FILLED_HOVER_COLOR,
                 handle_width: 5,
                 ..active
             })
-        } else { active }
+        } else {
+            active
+        }
     }
-    
+
     fn dragging(&self) -> h_slider::Style {
         self.hovered()
     }
@@ -125,8 +122,7 @@ impl h_slider::StyleSheet for HSliderRectStyle {
 pub struct VSliderRectStyle;
 impl v_slider::StyleSheet for VSliderRectStyle {
     fn active(&self) -> v_slider::Style {
-        v_slider::Style::Rect(
-        v_slider::RectStyle {
+        v_slider::Style::Rect(v_slider::RectStyle {
             back_empty_color: EMPTY_COLOR,
             back_filled_color: FILLED_COLOR,
             border_color: BORDER_COLOR,
@@ -137,19 +133,20 @@ impl v_slider::StyleSheet for VSliderRectStyle {
             handle_filled_gap: 1,
         })
     }
-    
+
     fn hovered(&self) -> v_slider::Style {
         let active = self.active();
         if let v_slider::Style::Rect(active) = active {
-            v_slider::Style::Rect(
-            v_slider::RectStyle {
+            v_slider::Style::Rect(v_slider::RectStyle {
                 back_filled_color: FILLED_HOVER_COLOR,
                 handle_height: 5,
                 ..active
             })
-        } else { active }
+        } else {
+            active
+        }
     }
-    
+
     fn dragging(&self) -> v_slider::Style {
         self.hovered()
     }
@@ -160,8 +157,7 @@ impl v_slider::StyleSheet for VSliderRectStyle {
 pub struct HSliderRectBipolarStyle;
 impl h_slider::StyleSheet for HSliderRectBipolarStyle {
     fn active(&self) -> h_slider::Style {
-        h_slider::Style::RectBipolar(
-        h_slider::RectBipolarStyle {
+        h_slider::Style::RectBipolar(h_slider::RectBipolarStyle {
             back_left_empty_color: EMPTY_COLOR,
             back_left_filled_color: FILLED_COLOR,
             back_right_empty_color: EMPTY_COLOR,
@@ -176,20 +172,21 @@ impl h_slider::StyleSheet for HSliderRectBipolarStyle {
             handle_filled_gap: 1,
         })
     }
-    
+
     fn hovered(&self) -> h_slider::Style {
         let active = self.active();
         if let h_slider::Style::RectBipolar(active) = active {
-            h_slider::Style::RectBipolar(
-            h_slider::RectBipolarStyle {
+            h_slider::Style::RectBipolar(h_slider::RectBipolarStyle {
                 back_left_filled_color: FILLED_HOVER_COLOR,
                 back_right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
                 handle_width: 5,
                 ..active
             })
-        } else { active }
+        } else {
+            active
+        }
     }
-    
+
     fn dragging(&self) -> h_slider::Style {
         self.hovered()
     }
@@ -200,8 +197,7 @@ impl h_slider::StyleSheet for HSliderRectBipolarStyle {
 pub struct VSliderRectBipolarStyle;
 impl v_slider::StyleSheet for VSliderRectBipolarStyle {
     fn active(&self) -> v_slider::Style {
-        v_slider::Style::RectBipolar(
-        v_slider::RectBipolarStyle {
+        v_slider::Style::RectBipolar(v_slider::RectBipolarStyle {
             back_bottom_empty_color: EMPTY_COLOR,
             back_bottom_filled_color: FILLED_COLOR,
             back_top_empty_color: EMPTY_COLOR,
@@ -216,20 +212,21 @@ impl v_slider::StyleSheet for VSliderRectBipolarStyle {
             handle_filled_gap: 1,
         })
     }
-    
+
     fn hovered(&self) -> v_slider::Style {
         let active = self.active();
         if let v_slider::Style::RectBipolar(active) = active {
-            v_slider::Style::RectBipolar(
-            v_slider::RectBipolarStyle {
+            v_slider::Style::RectBipolar(v_slider::RectBipolarStyle {
                 back_bottom_filled_color: FILLED_HOVER_COLOR,
                 back_top_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
                 handle_height: 5,
                 ..active
             })
-        } else { active }
+        } else {
+            active
+        }
     }
-    
+
     fn dragging(&self) -> v_slider::Style {
         self.hovered()
     }
@@ -240,21 +237,22 @@ impl v_slider::StyleSheet for VSliderRectBipolarStyle {
 pub struct HSliderTextureStyle(pub image::Handle);
 impl h_slider::StyleSheet for HSliderTextureStyle {
     fn active(&self) -> h_slider::Style {
-        h_slider::Style::Texture(
-        h_slider::TextureStyle {
-            rail_colors: ([0.0, 0.0, 0.0, 0.9].into(),
-                            [0.36, 0.36, 0.36, 0.75].into()),
+        h_slider::Style::Texture(h_slider::TextureStyle {
+            rail_colors: (
+                [0.0, 0.0, 0.0, 0.9].into(),
+                [0.36, 0.36, 0.36, 0.75].into(),
+            ),
             rail_heights: (1, 2),
             texture: self.0.clone(),
             handle_width: 38,
             texture_padding: None,
         })
     }
-    
+
     fn hovered(&self) -> h_slider::Style {
         self.active()
     }
-    
+
     fn dragging(&self) -> h_slider::Style {
         self.active()
     }
@@ -284,21 +282,22 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
 pub struct VSliderTextureStyle(pub image::Handle);
 impl v_slider::StyleSheet for VSliderTextureStyle {
     fn active(&self) -> v_slider::Style {
-        v_slider::Style::Texture(
-        v_slider::TextureStyle {
-            rail_colors: ([0.0, 0.0, 0.0, 0.9].into(),
-                            [0.36, 0.36, 0.36, 0.75].into()),
+        v_slider::Style::Texture(v_slider::TextureStyle {
+            rail_colors: (
+                [0.0, 0.0, 0.0, 0.9].into(),
+                [0.36, 0.36, 0.36, 0.75].into(),
+            ),
             rail_widths: (1, 2),
             texture: self.0.clone(),
             handle_height: 38,
             texture_padding: None,
         })
     }
-    
+
     fn hovered(&self) -> v_slider::Style {
         self.active()
     }
-    
+
     fn dragging(&self) -> v_slider::Style {
         self.active()
     }
@@ -328,8 +327,7 @@ impl v_slider::StyleSheet for VSliderTextureStyle {
 pub struct KnobCustomStyleCircle;
 impl knob::StyleSheet for KnobCustomStyleCircle {
     fn active(&self) -> knob::Style {
-        knob::Style::VectorCircle(
-        knob::VectorCircleStyle {
+        knob::Style::VectorCircle(knob::VectorCircleStyle {
             knob_color: KNOB_COLOR,
             knob_border_width: 3,
             knob_border_color: KNOB_BORDER_COLOR,
@@ -345,15 +343,14 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
     fn hovered(&self) -> knob::Style {
         let active = self.active();
         if let knob::Style::VectorCircle(active) = self.active() {
-
-        knob::Style::VectorCircle(
-        knob::VectorCircleStyle {
-            notch_color: HANDLE_HOVER_COLOR,
-            notch_border_color: FILLED_HOVER_COLOR,
-            ..active
-        })
-
-        } else { active }
+            knob::Style::VectorCircle(knob::VectorCircleStyle {
+                notch_color: HANDLE_HOVER_COLOR,
+                notch_border_color: FILLED_HOVER_COLOR,
+                ..active
+            })
+        } else {
+            active
+        }
     }
 
     fn dragging(&self) -> knob::Style {
@@ -380,8 +377,7 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
 pub struct KnobCustomStyleLine;
 impl knob::StyleSheet for KnobCustomStyleLine {
     fn active(&self) -> knob::Style {
-        knob::Style::VectorLine(
-        knob::VectorLineStyle {
+        knob::Style::VectorLine(knob::VectorLineStyle {
             knob_color: KNOB_COLOR,
             knob_border_width: 0,
             knob_border_color: KNOB_BORDER_COLOR,
@@ -396,16 +392,15 @@ impl knob::StyleSheet for KnobCustomStyleLine {
     fn hovered(&self) -> knob::Style {
         let active = self.active();
         if let knob::Style::VectorLine(active) = self.active() {
-
-        knob::Style::VectorLine(
-        knob::VectorLineStyle {
-            knob_border_width: 2,
-            notch_width: 3.0,
-            notch_color: Color::from_rgb(0.0, 0.85, 0.0),
-            ..active
-        })
-
-        } else { active }
+            knob::Style::VectorLine(knob::VectorLineStyle {
+                knob_border_width: 2,
+                notch_width: 3.0,
+                notch_color: Color::from_rgb(0.0, 0.85, 0.0),
+                ..active
+            })
+        } else {
+            active
+        }
     }
 
     fn dragging(&self) -> knob::Style {
@@ -430,7 +425,6 @@ impl knob::StyleSheet for KnobCustomStyleLine {
         }))
     }
 }
-
 
 // Custom style for the Texture VSlider
 
@@ -487,11 +481,10 @@ impl xy_pad::StyleSheet for XYPadCustomStyle {
     }
 }
 
-
 // Custom style for the Texture VSlider
 
 pub struct RampCustomStyle;
-impl ramp::StyleSheet for RampCustomStyle{
+impl ramp::StyleSheet for RampCustomStyle {
     fn active(&self) -> ramp::Style {
         ramp::Style {
             background_color: KNOB_COLOR,

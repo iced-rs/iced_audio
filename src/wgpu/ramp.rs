@@ -4,23 +4,18 @@
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced_native::{
-    Background, MouseCursor, Point, Rectangle, Vector
-};
+use iced_native::{Background, MouseCursor, Point, Rectangle, Vector};
+use iced_wgpu::widget::canvas::{Frame, LineCap, Path, Stroke};
 use iced_wgpu::{Primitive, Renderer};
-use iced_wgpu::widget::canvas::{Frame, Path, Stroke, LineCap};
 
-pub use crate::native::ramp::{State, RampDirection};
-pub use crate::style::ramp::{
-    Style, StyleSheet
-};
+pub use crate::native::ramp::{RampDirection, State};
+pub use crate::style::ramp::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`Ramp`] with an
 /// `iced_wgpu::Renderer`.
 ///
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-pub type Ramp<'a, Message, ID> =
-    ramp::Ramp<'a, Message, Renderer, ID>;
+pub type Ramp<'a, Message, ID> = ramp::Ramp<'a, Message, Renderer, ID>;
 
 impl ramp::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
@@ -85,9 +80,8 @@ impl ramp::Renderer for Renderer {
                         );
                         let to = Point::new(range_width, -range_height);
 
-                        let path = Path::new(|p| {
-                            p.quadratic_curve_to(control, to)
-                        });
+                        let path =
+                            Path::new(|p| p.quadratic_curve_to(control, to));
 
                         let mut frame = Frame::new(range_width, range_height);
                         frame.translate(Vector::new(
@@ -98,7 +92,6 @@ impl ramp::Renderer for Renderer {
                         frame.stroke(&path, stroke);
 
                         frame.into_primitive()
-
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -108,9 +101,8 @@ impl ramp::Renderer for Renderer {
                         };
 
                         let control = Point::new(
-                            range_width * (
-                                1.0 - ((normal.value() - 0.5) * 2.0) 
-                            ),
+                            range_width
+                                * (1.0 - ((normal.value() - 0.5) * 2.0)),
                             -range_height,
                         );
                         let to = Point::new(range_width, -range_height);
@@ -129,7 +121,6 @@ impl ramp::Renderer for Renderer {
                         frame.stroke(&path, stroke);
 
                         frame.into_primitive()
-                        
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -140,7 +131,7 @@ impl ramp::Renderer for Renderer {
 
                         let path = Path::line(
                             Point::new(0.0, 0.0),
-                            Point::new(range_width, -range_height)
+                            Point::new(range_width, -range_height),
                         );
 
                         let mut frame = Frame::new(range_width, range_height);
@@ -156,7 +147,7 @@ impl ramp::Renderer for Renderer {
                 };
 
                 primitive
-            },
+            }
             RampDirection::Down => {
                 let primitive = {
                     if normal.value() < 0.449 {
@@ -188,7 +179,6 @@ impl ramp::Renderer for Renderer {
                         frame.stroke(&path, stroke);
 
                         frame.into_primitive()
-
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -198,7 +188,7 @@ impl ramp::Renderer for Renderer {
                         };
 
                         let control = Point::new(
-                            range_width * ( (normal.value() - 0.5) * 2.0 ),
+                            range_width * ((normal.value() - 0.5) * 2.0),
                             -range_height,
                         );
                         let from = Point::new(0.0, -range_height);
@@ -218,7 +208,6 @@ impl ramp::Renderer for Renderer {
                         frame.stroke(&path, stroke);
 
                         frame.into_primitive()
-                        
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -229,7 +218,7 @@ impl ramp::Renderer for Renderer {
 
                         let path = Path::line(
                             Point::new(0.0, -range_height),
-                            Point::new(range_width, 0.0)
+                            Point::new(range_width, 0.0),
                         );
 
                         let mut frame = Frame::new(range_width, range_height);
@@ -245,7 +234,7 @@ impl ramp::Renderer for Renderer {
                 };
 
                 primitive
-            },
+            }
         };
 
         (

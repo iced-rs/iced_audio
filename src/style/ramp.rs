@@ -1,5 +1,5 @@
 //! Various styles for the [`Ramp`] widget
-//! 
+//!
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
 use iced::Color;

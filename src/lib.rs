@@ -29,7 +29,7 @@
 //!     v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
 //!     TickMarkTier
 //! };
-//! 
+//!
 //! // Create a unique identifier for each parameter. Note you may also use any
 //! // type you want such as u32, i32, Strings, etc.
 //! #[derive(Debug, Copy, Clone)]
@@ -40,17 +40,17 @@
 //!     XYPadFloatX,
 //!     XYPadFloatY,
 //! }
-//! 
+//!
 //! // The message when a parameter widget is changed by the user
 //! #[derive(Debug, Clone)]
 //! pub enum Message {
 //!     ParamChanged((ParamID, Normal)),
 //! }
-//! 
+//!
 //! pub fn main() {
 //!     App::run(Settings::default())
 //! }
-//! 
+//!
 //! pub struct App {
 //!     
 //!     // The parameters (`Param`) hold the current and default values.
@@ -71,22 +71,22 @@
 //!     knob_octave_param: OctaveParam<ParamID>,
 //!     xy_pad_float_x_param: FloatParam<ParamID>,
 //!     xy_pad_float_y_param: FloatParam<ParamID>,
-//! 
+//!
 //!     // The states of the parameter widgets that will control the parameters.
 //!     h_slider_state: h_slider::State,
 //!     v_slider_state: v_slider::State,
 //!     knob_state: knob::State,
 //!     xy_pad_state: xy_pad::State,
-//! 
+//!
 //!     // A group of tick marks with their size and position.
 //!     center_tick_mark: TickMarkGroup,
 //! }
-//! 
+//!
 //! impl Sandbox for App {
 //!     type Message = Message;
-//! 
+//!
 //!     fn new() -> App {
-//! 
+//!
 //!         // Initialize each parameter:
 //!         // * `ID` - A unique identifier for each parameter
 //!         // * `min` - The minimum of the range (inclusive)
@@ -95,18 +95,18 @@
 //!         // * `default_value` - The default value of the parameter
 //!         let h_slider_float_param = FloatParam::<ParamID>::new(
 //!             ParamID::HSliderFloat , -1.0, 1.0, 0.0, 0.0);
-//! 
+//!
 //!         let v_slider_db_param = LogDBParam::<ParamID>::new(
 //!             ParamID::VSliderDB , -12.0, 12.0, 0.0, 0.0, 0.5.into());
-//! 
+//!
 //!         let knob_octave_param = OctaveParam::<ParamID>::new(
 //!             ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
-//! 
+//!
 //!         let xy_pad_float_x_param = FloatParam::<ParamID>::new(
 //!             ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
 //!         let xy_pad_float_y_param = FloatParam::<ParamID>::new(
 //!             ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
-//! 
+//!
 //!         App {
 //!             // Add the parameters.
 //!             h_slider_float_param,
@@ -114,7 +114,7 @@
 //!             knob_octave_param,
 //!             xy_pad_float_x_param,
 //!             xy_pad_float_y_param,
-//! 
+//!
 //!             // Initialize the state of the widgets with the initial value
 //!             // of the corresponding parameter.
 //!             h_slider_state: h_slider::State::new(&h_slider_float_param),
@@ -129,15 +129,15 @@
 //!             ].into(),
 //!         }
 //!     }
-//! 
+//!
 //!     fn title(&self) -> String {
 //!         format!("Simple Example - Iced Audio")
 //!     }
-//! 
+//!
 //!     fn update(&mut self, event: Message) {
 //!         match event {
 //!             Message::ParamChanged((id, normal)) => {
-//! 
+//!
 //!                 // Update each parameter with the `Normal` output value from
 //!                 // the corresponding parameter widget.
 //!                 //
@@ -168,7 +168,7 @@
 //!             }
 //!         }
 //!     }
-//! 
+//!
 //!     fn view(&mut self) -> Element<Message> {
 //!         
 //!         // Create each parameter widget, passing in the current value of the
@@ -180,27 +180,27 @@
 //!         )
 //!         // Add the tick mark group to this widget.
 //!         .tick_marks(&self.center_tick_mark);
-//! 
+//!
 //!         let v_slider_widget = VSlider::new(
 //!             &mut self.v_slider_state,
 //!             &self.v_slider_db_param,
 //!             Message::ParamChanged,
 //!         )
 //!         .tick_marks(&self.center_tick_mark);
-//! 
+//!
 //!         let knob_widget = Knob::new(
 //!             &mut self.knob_state,
 //!             &self.knob_octave_param,
 //!             Message::ParamChanged,
 //!         );
-//! 
+//!
 //!         let xy_pad_widget = XYPad::new(
 //!             &mut self.xy_pad_state,
 //!             &self.xy_pad_float_x_param,
 //!             &self.xy_pad_float_y_param,
 //!             Message::ParamChanged,
 //!         );
-//! 
+//!
 //!         // Push the widgets into the iced DOM
 //!         let content: Element<_> = Column::new()
 //!             .max_width(250)
@@ -213,7 +213,7 @@
 //!             .push(knob_widget)
 //!             .push(xy_pad_widget)
 //!             .into();
-//! 
+//!
 //!         Container::new(content)
 //!             .width(Length::Fill)
 //!             .height(Length::Fill)
@@ -244,20 +244,11 @@ pub use crate::core::*;
 #[cfg(not(target_arch = "wasm32"))]
 mod platform {
     #[doc(no_inline)]
-    pub use crate::wgpu::{
-        h_slider,
-        v_slider,
-        knob,
-        ramp,
-        xy_pad,
-    };
+    pub use crate::wgpu::{h_slider, knob, ramp, v_slider, xy_pad};
 
     #[doc(no_inline)]
     pub use {
-        h_slider::HSlider,
-        v_slider::VSlider,
-        knob::Knob,
-        ramp::Ramp,
+        h_slider::HSlider, knob::Knob, ramp::Ramp, v_slider::VSlider,
         xy_pad::XYPad,
     };
 }

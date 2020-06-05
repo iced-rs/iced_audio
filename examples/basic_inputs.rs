@@ -4,8 +4,9 @@ mod basic_inputs_steps;
 use basic_inputs_steps::*;
 
 use iced::{
-    button, Button, scrollable, Scrollable, Column, Row, Container, Element,
-    HorizontalAlignment, Length, Space, Color, Sandbox, Settings, Text
+    button, scrollable, Button, Color, Column, Container, Element,
+    HorizontalAlignment, Length, Row, Sandbox, Scrollable, Settings, Space,
+    Text,
 };
 
 pub use basic_inputs_steps::style;
@@ -195,20 +196,30 @@ impl<'a> Step {
     fn update(&mut self, msg: StepMessage, _debug: &mut bool) {
         match msg {
             StepMessage::HSlidersMsg(msg) => {
-                if let Step::HSliders(step) = self { step.update(msg); };
-            },
+                if let Step::HSliders(step) = self {
+                    step.update(msg);
+                };
+            }
             StepMessage::VSlidersMsg(msg) => {
-                if let Step::VSliders(step) = self { step.update(msg); };
-            },
+                if let Step::VSliders(step) = self {
+                    step.update(msg);
+                };
+            }
             StepMessage::KnobsMsg(msg) => {
-                if let Step::Knobs(step) = self { step.update(msg); };
-            },
+                if let Step::Knobs(step) = self {
+                    step.update(msg);
+                };
+            }
             StepMessage::XYPadsMsg(msg) => {
-                if let Step::XYPads(step) = self { step.update(msg); };
-            },
+                if let Step::XYPads(step) = self {
+                    step.update(msg);
+                };
+            }
             StepMessage::RampsMsg(msg) => {
-                if let Step::Ramps(step) = self { step.update(msg); };
-            },
+                if let Step::Ramps(step) = self {
+                    step.update(msg);
+                };
+            }
         }
     }
 
@@ -228,19 +239,13 @@ impl<'a> Step {
             Step::Welcome => Self::welcome(),
             Step::HSliders(step) => {
                 step.view(debug).map(StepMessage::HSlidersMsg)
-            },
+            }
             Step::VSliders(step) => {
                 step.view(debug).map(StepMessage::VSlidersMsg)
-            },
-            Step::Knobs(step) => {
-                step.view(debug).map(StepMessage::KnobsMsg)
-            },
-            Step::XYPads(step) => {
-                step.view(debug).map(StepMessage::XYPadsMsg)
-            },
-            Step::Ramps(step) => {
-                step.view(debug).map(StepMessage::RampsMsg)
-            },
+            }
+            Step::Knobs(step) => step.view(debug).map(StepMessage::KnobsMsg),
+            Step::XYPads(step) => step.view(debug).map(StepMessage::XYPadsMsg),
+            Step::Ramps(step) => step.view(debug).map(StepMessage::RampsMsg),
         }
         .into()
     }
@@ -266,7 +271,7 @@ impl<'a> Step {
                 adjustments, and double-clicking will set the control to its \
                 default value.",
             ))
-        .into()
+            .into()
     }
 }
 

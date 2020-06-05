@@ -1,5 +1,5 @@
 //! Various styles for the [`HSlider`] widget
-//! 
+//!
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
 use iced::Color;
@@ -44,7 +44,7 @@ pub struct TextureStyle {
     pub texture_padding: Option<TexturePadding>,
 }
 
-/// A classic [`Style`] for an [`HSlider`], modeled after hardware sliders 
+/// A classic [`Style`] for an [`HSlider`], modeled after hardware sliders
 ///
 /// [`Style`]: enum.Style.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
@@ -225,7 +225,7 @@ pub trait StyleSheet {
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
     fn dragging(&self) -> Style;
-    
+
     /// The style of a [`TickMarkGroup`] for an [`HSlider`]
     ///
     /// For no tick marks, don't override this or set this to return `None`.
@@ -241,10 +241,11 @@ struct Default;
 
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style::Classic(
-        ClassicStyle {
-            rail_colors: ([0.26, 0.26, 0.26, 0.75].into(),
-                [0.56, 0.56, 0.56, 0.75].into()),
+        Style::Classic(ClassicStyle {
+            rail_colors: (
+                [0.26, 0.26, 0.26, 0.75].into(),
+                [0.56, 0.56, 0.56, 0.75].into(),
+            ),
             rail_heights: (1, 1),
             handle: ClassicHandle {
                 color: Color::from_rgb(0.97, 0.97, 0.97),
@@ -255,47 +256,43 @@ impl StyleSheet for Default {
                 border_color: Color::from_rgb(0.4, 0.4, 0.4),
                 border_width: 1,
             },
-        }
-        )
+        })
     }
 
     fn hovered(&self) -> Style {
         let active = self.active();
         if let Style::Classic(active) = self.active() {
-
-        Style::Classic(
-        ClassicStyle {
-            handle: ClassicHandle {
-                color: Color::from_rgb(0.93, 0.93, 0.93),
-                ..active.handle
-            },
-            ..active
-        })
-
-        } else { active }
+            Style::Classic(ClassicStyle {
+                handle: ClassicHandle {
+                    color: Color::from_rgb(0.93, 0.93, 0.93),
+                    ..active.handle
+                },
+                ..active
+            })
+        } else {
+            active
+        }
     }
 
     fn dragging(&self) -> Style {
         let active = self.active();
         if let Style::Classic(active) = self.active() {
-
-        Style::Classic(
-        ClassicStyle {
-            handle: ClassicHandle {
-                color: Color::from_rgb(0.92, 0.92, 0.92),
-                ..active.handle
-            },
-            ..active
-        })
-
-        } else { active }
+            Style::Classic(ClassicStyle {
+                handle: ClassicHandle {
+                    color: Color::from_rgb(0.92, 0.92, 0.92),
+                    ..active.handle
+                },
+                ..active
+            })
+        } else {
+            active
+        }
     }
 
     fn tick_mark_style(&self) -> Option<TickMarkStyle> {
         Some(TickMarkStyle::default())
     }
 }
-
 
 impl std::default::Default for Box<dyn StyleSheet> {
     fn default() -> Self {

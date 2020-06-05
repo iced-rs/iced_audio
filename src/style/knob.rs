@@ -1,5 +1,5 @@
 //! Various styles for the [`Knob`] widget
-//! 
+//!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
 use iced::Color;
@@ -225,7 +225,9 @@ pub trait StyleSheet {
     /// knob rotates
     ///
     /// [`KnobAngleRange`]: struct.KnobAngleRange.html
-    fn angle_range(&self) -> KnobAngleRange { KnobAngleRange::default() }
+    fn angle_range(&self) -> KnobAngleRange {
+        KnobAngleRange::default()
+    }
 
     /// The style of a [`TickMarkGroup`] for a [`Knob`]
     ///
@@ -242,8 +244,7 @@ struct Default;
 
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style::VectorCircle(
-        VectorCircleStyle {
+        Style::VectorCircle(VectorCircleStyle {
             knob_color: Color::from_rgb(0.97, 0.97, 0.97),
             knob_border_width: 1,
             knob_border_color: Color::from_rgb(0.4, 0.4, 0.4),
@@ -259,14 +260,13 @@ impl StyleSheet for Default {
     fn hovered(&self) -> Style {
         let active = self.active();
         if let Style::VectorCircle(active) = self.active() {
-
-        Style::VectorCircle(
-        VectorCircleStyle {
-            knob_color: Color::from_rgb(0.96, 0.96, 0.96),
-            ..active
-        })
-
-        } else { active }
+            Style::VectorCircle(VectorCircleStyle {
+                knob_color: Color::from_rgb(0.96, 0.96, 0.96),
+                ..active
+            })
+        } else {
+            active
+        }
     }
 
     fn dragging(&self) -> Style {

@@ -56,7 +56,7 @@ pub struct FloatParam<ID: Debug + Copy + Clone> {
 
 impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// Creates a new `FloatParam`
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `id` - an identifier for the parameter (must be unique!)
@@ -72,8 +72,13 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// # Panics
     ///
     /// This will panic if `max` <= `min`
-    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32)
-    -> Self {
+    pub fn new(
+        id: ID,
+        min: f32,
+        max: f32,
+        value: f32,
+        default_value: f32,
+    ) -> Self {
         assert!(max > min);
 
         let range = max - min;
@@ -95,8 +100,8 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
         new_self.default_value = new_self.constrain(default_value);
 
         new_self.normal = new_self.value_to_normal(new_self.value);
-        new_self.default_normal = new_self.value_to_normal(
-                                    new_self.default_value);
+        new_self.default_normal =
+            new_self.value_to_normal(new_self.default_value);
 
         new_self
     }
@@ -106,7 +111,7 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// If `value` falls outside the range given by `min` and `max` from
     /// `FloatParam::new()`, then
     /// `min` or `max` will be used instead.
-    /// 
+    ///
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
@@ -119,7 +124,7 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     }
 
     /// Sets the parameter's value from a [`Normal`]
-    /// 
+    ///
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
@@ -132,14 +137,22 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     }
 
     /// Returns the parameter's value
-    pub fn value(&self) -> f32 { self.value }
+    pub fn value(&self) -> f32 {
+        self.value
+    }
     /// Returns the parameter's default value
-    pub fn default_value(&self) -> f32 { self.default_value }
+    pub fn default_value(&self) -> f32 {
+        self.default_value
+    }
 
     fn constrain(&self, value: f32) -> f32 {
-        if value <= self.min { self.min }
-        else if value >= self.max { self.max }
-        else { value }
+        if value <= self.min {
+            self.min
+        } else if value >= self.max {
+            self.max
+        } else {
+            value
+        }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
@@ -154,21 +167,29 @@ impl<ID: Debug + Copy + Clone> FloatParam<ID> {
     /// [`Normal`]: ../struct.Normal.html
     pub fn normal_to_value(&self, normal: Normal) -> f32 {
         let value = (normal.value() * self.range) + self.min;
-        if value > self.default_value - 0.001 &&
-            value < self.default_value + 0.001 {
+        if value > self.default_value - 0.001
+            && value < self.default_value + 0.001
+        {
             self.default_value
-        } else { value }
+        } else {
+            value
+        }
     }
 }
 
 impl<ID: Debug + Copy + Clone> Param for FloatParam<ID> {
     type ID = ID;
 
-    fn id(&self) -> ID { self.id }
-    fn normal(&self) -> Normal { self.normal }
-    fn default_normal(&self) -> Normal { self.default_normal }
+    fn id(&self) -> ID {
+        self.id
+    }
+    fn normal(&self) -> Normal {
+        self.normal
+    }
+    fn default_normal(&self) -> Normal {
+        self.default_normal
+    }
 }
-
 
 /// A [`Param`] that defines a discrete linear range of i32 values
 ///
@@ -192,7 +213,7 @@ pub struct IntParam<ID: Debug + Copy + Clone> {
 
 impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// Creates a new `IntParam`
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `id` - an identifier for the parameter (must be unique!)
@@ -208,8 +229,13 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// # Panics
     ///
     /// This will panic if `max` <= `min`
-    pub fn new(id: ID, min: i32, max: i32, value: i32, default_value: i32)
-    -> Self {
+    pub fn new(
+        id: ID,
+        min: i32,
+        max: i32,
+        value: i32,
+        default_value: i32,
+    ) -> Self {
         assert!(max > min);
 
         let range = (max - min) as f32;
@@ -231,8 +257,8 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
         new_self.default_value = new_self.constrain(default_value);
 
         new_self.normal = new_self.value_to_normal(new_self.value);
-        new_self.default_normal = new_self.value_to_normal(
-                                    new_self.default_value);
+        new_self.default_normal =
+            new_self.value_to_normal(new_self.default_value);
 
         new_self
     }
@@ -242,7 +268,7 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     /// If `value` falls outside the range given by `min` and `max` from
     /// `IntParam::new()`, then
     /// `min` or `max` will be used instead.
-    /// 
+    ///
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
@@ -255,7 +281,7 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     }
 
     /// Sets the parameter's value from a [`Normal`]
-    /// 
+    ///
     /// The parameter's resulting [`Normal`] will be calculated from the
     /// resulting parameter's value rounded to the nearest integer.
     ///
@@ -281,14 +307,22 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
     }
 
     /// Returns the parameter's value
-    pub fn value(&self) -> i32 { self.value }
+    pub fn value(&self) -> i32 {
+        self.value
+    }
     /// Returns the parameter's default value
-    pub fn default_value(&self) -> i32 { self.default_value }
+    pub fn default_value(&self) -> i32 {
+        self.default_value
+    }
 
     fn constrain(&self, value: i32) -> i32 {
-        if value <= self.min { self.min }
-        else if value >= self.max { self.max }
-        else { value }
+        if value <= self.min {
+            self.min
+        } else if value >= self.max {
+            self.max
+        } else {
+            value
+        }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
@@ -309,11 +343,16 @@ impl<ID: Debug + Copy + Clone> IntParam<ID> {
 impl<ID: Debug + Copy + Clone> Param for IntParam<ID> {
     type ID = ID;
 
-    fn id(&self) -> ID { self.id }
-    fn normal(&self) -> Normal { self.normal }
-    fn default_normal(&self) -> Normal { self.default_normal }
+    fn id(&self) -> ID {
+        self.id
+    }
+    fn normal(&self) -> Normal {
+        self.normal
+    }
+    fn default_normal(&self) -> Normal {
+        self.default_normal
+    }
 }
-
 
 /// A [`Param`] that defines a continuous logarithmic range of `dB` values,
 /// with an inflection/stationary point at 0 dB
@@ -342,7 +381,7 @@ pub struct LogDBParam<ID: Debug + Copy + Clone> {
 
 impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// Creates a new `LogDBParam`
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `id` - an identifier for the parameter (must be unique!)
@@ -366,9 +405,14 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// * `min` > `0.0`
     /// * `max` < `0.0`
     ///
-    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32,
-    zero_normal: Normal)
-    -> Self {
+    pub fn new(
+        id: ID,
+        min: f32,
+        max: f32,
+        value: f32,
+        default_value: f32,
+        zero_normal: Normal,
+    ) -> Self {
         assert!(max > min, "max must be greater than min");
         assert!(max >= 0.0, "max must be 0.0 or positive");
         assert!(min <= 0.0, "min must be 0.0 or negative");
@@ -393,8 +437,8 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
         new_self.default_value = new_self.constrain(default_value);
 
         new_self.normal = new_self.value_to_normal(new_self.value);
-        new_self.default_normal = new_self.value_to_normal(
-                                    new_self.default_value);
+        new_self.default_normal =
+            new_self.value_to_normal(new_self.default_value);
 
         new_self
     }
@@ -404,7 +448,7 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     /// If `value` falls outside the range given by `min` and `max` from
     /// `FloatParam::new()`, then
     /// `min` or `max` will be used instead.
-    /// 
+    ///
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
@@ -417,7 +461,7 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     }
 
     /// Sets the parameter's value from a [`Normal`]
-    /// 
+    ///
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
@@ -430,59 +474,74 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
     }
 
     /// Returns the parameter's value
-    pub fn value(&self) -> f32 { self.value }
+    pub fn value(&self) -> f32 {
+        self.value
+    }
     /// Returns the parameter's default value
-    pub fn default_value(&self) -> f32 { self.default_value }
+    pub fn default_value(&self) -> f32 {
+        self.default_value
+    }
 
     /// Returns the corresponding [`Normal`] from the supplied `value`
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn value_to_normal(&self, value: f32) -> Normal {
-        if value == 0.0 { self.zero_normal }
-        else if value < 0.0 {
-            if self.min >= 0.0 { return 0.0.into(); }
+        if value == 0.0 {
+            self.zero_normal
+        } else if value < 0.0 {
+            if self.min >= 0.0 {
+                return 0.0.into();
+            }
             let neg_normal = value / self.min;
 
             let log_normal = 1.0 - neg_normal.sqrt();
 
             (log_normal * self.zero_normal.value()).into()
-        }
-        else {
-            if self.max <= 0.0 { return 1.0.into(); }
+        } else {
+            if self.max <= 0.0 {
+                return 1.0.into();
+            }
             let pos_normal = value / self.max;
 
             let log_normal = pos_normal.sqrt();
 
-            ( (log_normal * (1.0 - self.zero_normal.value()))
-                + self.zero_normal.value()).into()
+            ((log_normal * (1.0 - self.zero_normal.value()))
+                + self.zero_normal.value())
+            .into()
         }
     }
 
     fn constrain(&self, value: f32) -> f32 {
-        if value <= self.min { self.min }
-        else if value >= self.max { self.max }
-        else { value }
+        if value <= self.min {
+            self.min
+        } else if value >= self.max {
+            self.max
+        } else {
+            value
+        }
     }
 
     /// Returns the corresponding dB value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn normal_to_value(&self, normal: Normal) -> f32 {
-        if normal == self.zero_normal { 0.0 }
-        else if normal < self.zero_normal {
-            if self.min >= 0.0 { return self.min; }
+        if normal == self.zero_normal {
+            0.0
+        } else if normal < self.zero_normal {
+            if self.min >= 0.0 {
+                return self.min;
+            }
             let neg_normal = normal.value() / self.zero_normal.value();
 
             let log_normal = 1.0 - (1.0 - neg_normal).powi(2);
 
             (1.0 - log_normal) * self.min
-        }
-        else {
+        } else {
             if self.zero_normal.value() == 1.0 || self.max <= 0.0 {
                 return self.max;
             }
             let pos_normal = (normal.value() - self.zero_normal.value())
-                                    / (1.0 - self.zero_normal.value());
+                / (1.0 - self.zero_normal.value());
 
             let log_normal = pos_normal.powi(2);
 
@@ -494,11 +553,16 @@ impl<ID: Debug + Copy + Clone> LogDBParam<ID> {
 impl<ID: Debug + Copy + Clone> Param for LogDBParam<ID> {
     type ID = ID;
 
-    fn id(&self) -> ID { self.id }
-    fn normal(&self) -> Normal { self.normal }
-    fn default_normal(&self) -> Normal { self.default_normal }
+    fn id(&self) -> ID {
+        self.id
+    }
+    fn normal(&self) -> Normal {
+        self.normal
+    }
+    fn default_normal(&self) -> Normal {
+        self.default_normal
+    }
 }
-
 
 /// A [`Param`] that defines a continuous logarithmic range of `f32` frequency
 /// values, with each octave in the 10 octave spectrum spaced evenly.
@@ -524,12 +588,11 @@ pub struct OctaveParam<ID: Debug + Copy + Clone> {
     max: f32,
     range: f32,
     range_recip: f32,
-
 }
 
 impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// Creates a new `OctaveParam`
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `id` - an identifier for the parameter (must be unique!)
@@ -549,15 +612,24 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// This will panic if
     /// * `max` <= `min`
     ///
-    pub fn new(id: ID, min: f32, max: f32, value: f32, default_value: f32)
-    -> Self {
+    pub fn new(
+        id: ID,
+        min: f32,
+        max: f32,
+        value: f32,
+        default_value: f32,
+    ) -> Self {
         assert!(max > min, "max must be greater than min");
 
         let mut min = min;
-        if min < 20.0 { min = 20.0; }
+        if min < 20.0 {
+            min = 20.0;
+        }
 
         let mut max = max;
-        if max > 20480.0 { max = 20480.0; }
+        if max > 20480.0 {
+            max = 20480.0;
+        }
 
         let range = max - min;
         let range_recip = range.recip();
@@ -565,8 +637,8 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
         let min_spectrum_normal = octave_spectrum_to_normal(min);
         let max_spectrum_normal = octave_spectrum_to_normal(max);
 
-        let spectrum_normal_range = max_spectrum_normal.value() -
-                                        min_spectrum_normal.value();
+        let spectrum_normal_range =
+            max_spectrum_normal.value() - min_spectrum_normal.value();
 
         let mut new_self = Self {
             id,
@@ -586,8 +658,8 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
         new_self.default_value = new_self.constrain(default_value);
 
         new_self.normal = new_self.value_to_normal(new_self.value);
-        new_self.default_normal = new_self.value_to_normal(
-                                    new_self.default_value);
+        new_self.default_normal =
+            new_self.value_to_normal(new_self.default_value);
 
         new_self
     }
@@ -597,7 +669,7 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// If `value` falls outside the range given by `min` and `max` from
     /// `FloatParam::new()`, then
     /// `min` or `max` will be used instead.
-    /// 
+    ///
     /// Value to [`Normal`] calculactions will not be recalculated if the value
     /// has not changed.
     ///
@@ -610,7 +682,7 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     }
 
     /// Sets the parameter's value from a [`Normal`]
-    /// 
+    ///
     /// [`Normal`] to value calculactions will not be recalculated if the Normal
     /// has not changed.
     ///
@@ -623,14 +695,22 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     }
 
     /// Returns the parameter's value
-    pub fn value(&self) -> f32 { self.value }
+    pub fn value(&self) -> f32 {
+        self.value
+    }
     /// Returns the parameter's default value
-    pub fn default_value(&self) -> f32 { self.default_value }
+    pub fn default_value(&self) -> f32 {
+        self.default_value
+    }
 
     fn constrain(&self, value: f32) -> f32 {
-        if value <= self.min { self.min }
-        else if value >= self.max { self.max }
-        else { value }
+        if value <= self.min {
+            self.min
+        } else if value >= self.max {
+            self.max
+        } else {
+            value
+        }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied frequency value
@@ -638,23 +718,22 @@ impl<ID: Debug + Copy + Clone> OctaveParam<ID> {
     /// [`Normal`]: ../struct.Normal.html
     pub fn value_to_normal(&self, value: f32) -> Normal {
         let spectrum_normal = octave_spectrum_to_normal(value);
-        ( (spectrum_normal.value() - self.min_spectrum_normal.value())
-             / self.spectrum_normal_range ).into()
+        ((spectrum_normal.value() - self.min_spectrum_normal.value())
+            / self.spectrum_normal_range)
+            .into()
     }
-    
+
     /// Returns the corresponding frequency value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn normal_to_value(&self, normal: Normal) -> f32 {
         let spectrum_normal = Normal::new(
-                                normal.value() * self.spectrum_normal_range
-                                + self.min_spectrum_normal.value()
+            normal.value() * self.spectrum_normal_range
+                + self.min_spectrum_normal.value(),
         );
 
         octave_normal_to_spectrum(spectrum_normal)
     }
-
-    
 }
 
 /// Returns the corresponding frequency for the whole 10 octave spectrum
@@ -674,7 +753,13 @@ fn octave_spectrum_to_normal(freq: f32) -> Normal {
 impl<ID: Debug + Copy + Clone> Param for OctaveParam<ID> {
     type ID = ID;
 
-    fn id(&self) -> ID { self.id }
-    fn normal(&self) -> Normal { self.normal }
-    fn default_normal(&self) -> Normal { self.default_normal }
+    fn id(&self) -> ID {
+        self.id
+    }
+    fn normal(&self) -> Normal {
+        self.normal
+    }
+    fn default_normal(&self) -> Normal {
+        self.default_normal
+    }
 }
