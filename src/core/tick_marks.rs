@@ -61,9 +61,12 @@ impl TickMarkGroup {
     /// same as tier 2 tick marks.
     /// * `sides` - The tier of tick marks to put on the two sides (`0.0` and
     /// `1.0`). For no tick marks on the sides, put `None`.
-    pub fn subdivided(one: u16, two: u16, three: u16,
-        sides: Option<TickMarkTier>) -> Self
-    {
+    pub fn subdivided(
+        one: u16,
+        two: u16,
+        three: u16,
+        sides: Option<TickMarkTier>,
+    ) -> Self {
         let mut vec: Vec<TickMark> = Vec::new();
 
         let one_ranges = one + 1;
@@ -188,7 +191,10 @@ impl TickMark {
     ///
     /// [`TickMarkTier`]: enum.TickMarkTier.html
     pub fn center(tier: TickMarkTier) -> Self {
-        Self { position: 0.5.into(), tier }
+        Self {
+            position: 0.5.into(),
+            tier,
+        }
     }
 
     /// Returns a tick mark at the minimum position.
@@ -197,7 +203,10 @@ impl TickMark {
     ///
     /// [`TickMarkTier`]: enum.TickMarkTier.html
     pub fn min(tier: TickMarkTier) -> Self {
-        Self { position: 0.0.into(), tier }
+        Self {
+            position: 0.0.into(),
+            tier,
+        }
     }
 
     /// Returns a tick mark at the maximum position.
@@ -206,6 +215,9 @@ impl TickMark {
     ///
     /// [`TickMarkTier`]: enum.TickMarkTier.html
     pub fn max(tier: TickMarkTier) -> Self {
-        Self { position: 1.0.into(), tier }
+        Self {
+            position: 1.0.into(),
+            tier,
+        }
     }
 }

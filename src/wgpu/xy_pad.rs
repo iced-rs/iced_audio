@@ -4,23 +4,19 @@
 
 use crate::core::Normal;
 use crate::native::xy_pad;
-use iced_native::{
-    Background, Color, MouseCursor, Point, Rectangle
-};
+use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
-
 
 pub use crate::native::xy_pad::State;
 pub use crate::style::xy_pad::{
-    Style, StyleSheet, HandleShape, HandleCircle, HandleSquare,
+    HandleCircle, HandleShape, HandleSquare, Style, StyleSheet,
 };
 
 /// This is an alias of a `crate::native` [`XYPad`] with an
 /// `iced_wgpu::Renderer`.
 ///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-pub type XYPad<'a, Message, ID> =
-    xy_pad::XYPad<'a, Message, Renderer, ID>;
+pub type XYPad<'a, Message, ID> = xy_pad::XYPad<'a, Message, Renderer, ID>;
 
 impl xy_pad::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
@@ -48,8 +44,11 @@ impl xy_pad::Renderer for Renderer {
         let bounds_y = bounds.y.floor();
 
         let bounds_size = {
-            if bounds.width <= bounds.height { bounds.width.floor() }
-            else { bounds.height.floor() }
+            if bounds.width <= bounds.height {
+                bounds.width.floor()
+            } else {
+                bounds.height.floor()
+            }
         };
 
         let back = Primitive::Quad {
@@ -72,10 +71,10 @@ impl xy_pad::Renderer for Renderer {
 
         let half_center_line_width =
             (style.center_line_width as f32 / 2.0).floor();
-        
-        let draw_center_lines = style.center_line_width != 0 &&
-            style.center_line_color != Color::TRANSPARENT;
-        
+
+        let draw_center_lines = style.center_line_width != 0
+            && style.center_line_color != Color::TRANSPARENT;
+
         let draw_rail_lines = style.rail_width != 0;
 
         let h_center_line = {
@@ -92,7 +91,9 @@ impl xy_pad::Renderer for Renderer {
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
                 }
-            } else { Primitive::None }
+            } else {
+                Primitive::None
+            }
         };
 
         let v_center_line = {
@@ -109,7 +110,9 @@ impl xy_pad::Renderer for Renderer {
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
                 }
-            } else { Primitive::None }
+            } else {
+                Primitive::None
+            }
         };
 
         let half_rail_width = (style.rail_width as f32 / 2.0).floor();
@@ -128,7 +131,9 @@ impl xy_pad::Renderer for Renderer {
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
                 }
-            } else { Primitive::None }
+            } else {
+                Primitive::None
+            }
         };
 
         let v_rail = {
@@ -145,7 +150,9 @@ impl xy_pad::Renderer for Renderer {
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
                 }
-            } else { Primitive::None }
+            } else {
+                Primitive::None
+            }
         };
 
         let handle = {
@@ -166,7 +173,7 @@ impl xy_pad::Renderer for Renderer {
                         border_width: circle.border_width,
                         border_color: circle.border_color,
                     }
-                },
+                }
                 HandleShape::Square(square) => {
                     let size = square.size as f32;
                     let half_size = (size / 2.0).round();
@@ -183,14 +190,20 @@ impl xy_pad::Renderer for Renderer {
                         border_width: square.border_width,
                         border_color: square.border_color,
                     }
-                },
+                }
             }
         };
 
         (
             Primitive::Group {
-                primitives: vec![back, h_center_line, v_center_line,
-                    h_rail, v_rail, handle],
+                primitives: vec![
+                    back,
+                    h_center_line,
+                    v_center_line,
+                    h_rail,
+                    v_rail,
+                    handle,
+                ],
             },
             MouseCursor::default(),
         )

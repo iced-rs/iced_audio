@@ -6,7 +6,7 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    input::{mouse, ButtonState, keyboard},
+    input::{keyboard, mouse, ButtonState},
     layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
     Rectangle, Size, Widget,
 };
@@ -43,7 +43,7 @@ impl Default for RampDirection {
 #[allow(missing_debug_implementations)]
 pub struct Ramp<'a, Message, Renderer: self::Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     state: &'a mut State,
     id: ID,
@@ -59,10 +59,9 @@ where
     direction: RampDirection,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID>
-    Ramp<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer: self::Renderer, ID> Ramp<'a, Message, Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     /// Creates a new [`Ramp`].
     ///
@@ -85,13 +84,13 @@ where
     /// [`Ramp`]: struct.Ramp.html
     pub fn new<F>(
         state: &'a mut State,
-        param: &impl Param<ID=ID>,
+        param: &impl Param<ID = ID>,
         on_change: F,
         direction: RampDirection,
     ) -> Self
     where
         F: 'static + Fn((ID, Normal)) -> Message,
-    {  
+    {
         Ramp {
             state,
             id: param.id(),
@@ -202,7 +201,7 @@ impl State {
     /// [`Param`]: ../../core/param/trait.Param.html
     /// [`Normal`]: ../../core/struct.Normal.html
     /// [`Ramp`]: struct.Ramp.html
-    pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
+    pub fn new<ID>(param: &impl Param<ID = ID>) -> Self {
         Self {
             is_dragging: false,
             prev_drag_y: 0.0,
@@ -232,13 +231,11 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-            let limits = limits
-            .width(self.width)
-            .height(self.height);
-        
-            let size = limits.resolve(Size::ZERO);
+        let limits = limits.width(self.width).height(self.height);
 
-            layout::Node::new(size)
+        let size = limits.resolve(Size::ZERO);
+
+        layout::Node::new(size)
     }
 
     fn on_event(
@@ -270,9 +267,10 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                messages.push((self.on_change)(
-                                    (self.id, self.default_normal)
-                                ));
+                                messages.push((self.on_change)((
+                                    self.id,
+                                    self.default_normal,
+                                )));
                             }
                         }
 
@@ -286,35 +284,32 @@ where
             },
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
                 if self.state.is_dragging && cursor_position.y != -1.0 {
-                    let mut movement_y =
-                        (cursor_position.y - self.state.prev_drag_y)
-                            * self.scalar;
-                    
-                    if self.state.pressed_modifiers.matches(
-                        self.modifier_keys) {
+                    let mut movement_y = (cursor_position.y
+                        - self.state.prev_drag_y)
+                        * self.scalar;
+
+                    if self.state.pressed_modifiers.matches(self.modifier_keys)
+                    {
                         movement_y *= self.modifier_scalar;
                     }
 
-                    let mut normal =
-                        self.state.continuous_normal - movement_y;
-                    
-                    if normal < 0.0 { normal = 0.0; }
-                    else if normal > 1.0 { normal = 1.0; }
+                    let mut normal = self.state.continuous_normal - movement_y;
+
+                    if normal < 0.0 {
+                        normal = 0.0;
+                    } else if normal > 1.0 {
+                        normal = 1.0;
+                    }
 
                     self.state.continuous_normal = normal;
                     self.state.prev_drag_y = cursor_position.y;
 
-                    messages.push((self.on_change)(
-                        (self.id, normal.into())
-                    ));
+                    messages.push((self.on_change)((self.id, normal.into())));
                 }
-            },
-            Event::Keyboard(keyboard::Event::Input {
-                modifiers,
-                ..
-            }) => {
+            }
+            Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
                 self.state.pressed_modifiers = modifiers;
-            },
+            }
             _ => {}
         }
     }
@@ -377,8 +372,7 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID>
-    From<Ramp<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer, ID> From<Ramp<'a, Message, Renderer, ID>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,

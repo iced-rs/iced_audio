@@ -5,7 +5,7 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    input::{mouse, ButtonState, keyboard},
+    input::{keyboard, mouse, ButtonState},
     layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
     Rectangle, Size, Widget,
 };
@@ -26,7 +26,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 #[allow(missing_debug_implementations)]
 pub struct HSlider<'a, Message, Renderer: self::Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     state: &'a mut State,
     id: ID,
@@ -44,7 +44,7 @@ where
 impl<'a, Message, Renderer: self::Renderer, ID>
     HSlider<'a, Message, Renderer, ID>
 where
-    ID: Debug + Copy + Clone
+    ID: Debug + Copy + Clone,
 {
     /// Creates a new [`HSlider`].
     ///
@@ -63,12 +63,12 @@ where
     /// [`HSlider`]: struct.HSlider.html
     pub fn new<F>(
         state: &'a mut State,
-        param: &impl Param<ID=ID>,
+        param: &impl Param<ID = ID>,
         on_change: F,
     ) -> Self
     where
         F: 'static + Fn((ID, Normal)) -> Message,
-    {  
+    {
         HSlider {
             state,
             id: param.id(),
@@ -172,7 +172,7 @@ impl State {
     ///
     /// [`Param`]: ../../core/param/trait.Param.html
     /// [`HSlider`]: struct.HSlider.html
-    pub fn new<ID>(param: &impl Param<ID=ID>) -> Self {
+    pub fn new<ID>(param: &impl Param<ID = ID>) -> Self {
         Self {
             is_dragging: false,
             prev_drag_x: 0.0,
@@ -202,13 +202,11 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-            let limits = limits
-            .width(self.width)
-            .height(self.height);
-        
-            let size = limits.resolve(Size::ZERO);
+        let limits = limits.width(self.width).height(self.height);
 
-            layout::Node::new(size)
+        let size = limits.resolve(Size::ZERO);
+
+        layout::Node::new(size)
     }
 
     fn on_event(
@@ -240,9 +238,10 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                messages.push((self.on_change)(
-                                    (self.id, self.default_normal)
-                                ));
+                                messages.push((self.on_change)((
+                                    self.id,
+                                    self.default_normal,
+                                )));
                             }
                         }
 
@@ -258,33 +257,31 @@ where
                 if self.state.is_dragging {
                     let bounds_width = layout.bounds().width;
                     if bounds_width != 0.0 {
-                        let mut movement_x =
-                            (cursor_position.x - self.state.prev_drag_x)
-                                / bounds_width;
+                        let mut movement_x = (cursor_position.x
+                            - self.state.prev_drag_x)
+                            / bounds_width;
 
-                        if self.state.pressed_modifiers.matches(
-                            self.modifier_keys) {
+                        if self
+                            .state
+                            .pressed_modifiers
+                            .matches(self.modifier_keys)
+                        {
                             movement_x *= self.modifier_scalar;
                         }
 
-                        let normal =
-                            self.state.continuous_normal + movement_x;
+                        let normal = self.state.continuous_normal + movement_x;
 
                         self.state.continuous_normal = normal;
                         self.state.prev_drag_x = cursor_position.x;
 
-                        messages.push((self.on_change)(
-                            (self.id, normal.into())
-                        ));
+                        messages
+                            .push((self.on_change)((self.id, normal.into())));
                     }
                 }
-            },
-            Event::Keyboard(keyboard::Event::Input {
-                modifiers,
-                ..
-            }) => {
+            }
+            Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
                 self.state.pressed_modifiers = modifiers;
-            },
+            }
             _ => {}
         }
     }
@@ -346,8 +343,7 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID>
-    From<HSlider<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer, ID> From<HSlider<'a, Message, Renderer, ID>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
