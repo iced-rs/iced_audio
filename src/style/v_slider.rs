@@ -154,11 +154,11 @@ pub struct RectBipolarStyle {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Copy, Clone)]
 pub struct TickMarkStyle {
-    /// The height of a tier 1 tick mark relative to the height of the `HSlider`
+    /// The width of a tier 1 tick mark relative to the width of the `VSlider`
     pub scale_tier_1: f32,
-    /// The height of a tier 2 tick mark relative to the height of the `HSlider`
+    /// The width of a tier 2 tick mark relative to the width of the `VSlider`
     pub scale_tier_2: f32,
-    /// The height of a tier 3 tick mark relative to the height of the `HSlider`
+    /// The width of a tier 3 tick mark relative to the width of the `VSlider`
     pub scale_tier_3: f32,
 
     /// The height (thickness) of a tier 1 tick mark
@@ -181,7 +181,7 @@ pub struct TickMarkStyle {
     /// rail.
     pub center_offset: u16,
 
-    /// The horizontal offset from the edges of the `HSlider`. This is usually
+    /// The horizontal offset from the edges of the `VSlider`. This is usually
     /// half of the width of the handle.
     pub handle_offset: u16,
 }

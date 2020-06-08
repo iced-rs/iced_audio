@@ -25,6 +25,11 @@ name = "basic_inputs"
 [[example]]
 name = "simple"
 
+[workspace]
+members = [
+    "examples/db_meter",
+]
+
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
