@@ -7,8 +7,8 @@
 An extension to the [Iced] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
 
 <div align="center">
-    <img src="/screenshots/HSliders.png" height="450px">
-    <img src="/screenshots/DB_Meter.png" height="450px">
+    <img src="/screenshots/HSliders.png">
+    <img src="/screenshots/DB_Meter.png">
 </div>
 
 ## Run examples with
