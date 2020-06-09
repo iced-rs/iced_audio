@@ -1,11 +1,13 @@
 use iced::{Column, Element, Length, Row, Text};
 
-use iced_audio::{xy_pad, FloatParam, Normal, XYPad};
+use iced_audio::{
+    xy_pad, DBRange, FloatRange, FreqRange, IntRange, TickMark, TickMarkGroup,
+    TickMarkTier, XYPad,
+};
 
 use crate::{style, Step};
 
-/// Unique identifier for each parameter. An XYPad widget needs two parameters
-/// for the x and y coordinate. Note you may also use u32, i32, or
+/// Unique identifier for each parameter. Note you may also use u32, i32, or
 /// Strings if you wish.
 #[derive(Debug, Copy, Clone)]
 pub enum XYPadsID {
@@ -17,117 +19,85 @@ pub enum XYPadsID {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    XYPadsChanged((XYPadsID, Normal)),
+    XYPadMoved(XYPadsID),
 }
 
 pub struct XYPadStep {
-    default_x_param: FloatParam<XYPadsID>,
-    default_y_param: FloatParam<XYPadsID>,
-    xy_pad_default_state: xy_pad::State,
-    xy_pad_default_label: String,
+    float_range: FloatRange,
 
-    custom_x_param: FloatParam<XYPadsID>,
-    custom_y_param: FloatParam<XYPadsID>,
-    xy_pad_custom_state: xy_pad::State,
-    xy_pad_custom_label: String,
+    xy_pad_default_state: xy_pad::State<XYPadsID>,
+    xy_pad_custom_state: xy_pad::State<XYPadsID>,
 
-    output_text_x: String,
-    output_text_y: String,
+    output_text: String,
 }
 
 impl Default for XYPadStep {
     fn default() -> Self {
         // initalize parameters
 
-        let default_x_param = FloatParam::<XYPadsID>::new(
-            XYPadsID::DefaultX,
-            -1.0,
-            1.0,
-            0.0,
-            0.0,
-        );
-        let default_y_param = FloatParam::<XYPadsID>::new(
-            XYPadsID::DefaultY,
-            -1.0,
-            1.0,
-            0.0,
-            0.0,
-        );
+        let float_range = FloatRange::default_bipolar();
 
-        let custom_x_param =
-            FloatParam::<XYPadsID>::new(XYPadsID::CustomX, -1.0, 1.0, 0.0, 0.0);
-        let custom_y_param =
-            FloatParam::<XYPadsID>::new(XYPadsID::CustomY, -1.0, 1.0, 0.0, 0.0);
+        // create application
 
         Self {
-            // add the parameters
-            default_x_param,
-            default_y_param,
-            // initialize the state of the XYPad widget
+            float_range,
+
+            // initialize the state of the xy_pad widget
             xy_pad_default_state: xy_pad::State::new(
-                &default_x_param,
-                &default_y_param,
+                float_range.create_param_default(XYPadsID::DefaultX),
+                float_range.create_param_default(XYPadsID::DefaultY),
             ),
 
-            // initialize the label above the XYPad widget
-            xy_pad_default_label: String::from("Default Style"),
-
-            custom_x_param,
-            custom_y_param,
             xy_pad_custom_state: xy_pad::State::new(
-                &custom_x_param,
-                &custom_y_param,
+                float_range.create_param_default(XYPadsID::CustomX),
+                float_range.create_param_default(XYPadsID::CustomY),
             ),
-            xy_pad_custom_label: String::from("Custom Style"),
 
-            output_text_x: String::from("Move a widget"),
-            output_text_y: String::from("Move a widget"),
+            output_text: String::from("Move a widget"),
         }
     }
 }
 
 impl XYPadStep {
     pub fn title(&self) -> &str {
-        "XY Pads"
+        "XYPads"
     }
 
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::XYPadsChanged((id, normal)) => {
-                // Update the parameter with the output of the corresponding
-                // XYPad widget (Note this must be done or the widget will
-                // not work).
-
-                // Then update the output text with the new value of the
-                // parameter.
+            Message::XYPadMoved(id) => {
+                // Update the output text with the new value of the parameter.
                 match id {
                     XYPadsID::DefaultX => {
-                        self.default_x_param.set_from_normal(normal);
-                        self.output_text_x = crate::info_text_f32(
+                        self.output_text = crate::info_text_f32(
                             id,
-                            self.default_x_param.value(),
+                            self.float_range.to_value(
+                                self.xy_pad_default_state.param_x.normal,
+                            ),
                         );
                     }
                     XYPadsID::DefaultY => {
-                        self.default_y_param.set_from_normal(normal);
-                        self.output_text_y = crate::info_text_f32(
+                        self.output_text = crate::info_text_f32(
                             id,
-                            self.default_y_param.value(),
+                            self.float_range.to_value(
+                                self.xy_pad_default_state.param_y.normal,
+                            ),
                         );
                     }
-
                     XYPadsID::CustomX => {
-                        self.custom_x_param.set_from_normal(normal);
-                        self.output_text_x = crate::info_text_f32(
+                        self.output_text = crate::info_text_f32(
                             id,
-                            self.custom_x_param.value(),
+                            self.float_range.to_value(
+                                self.xy_pad_custom_state.param_x.normal,
+                            ),
                         );
                     }
                     XYPadsID::CustomY => {
-                        self.custom_y_param.set_from_normal(normal);
-                        self.output_text_y = crate::info_text_f32(
+                        self.output_text = crate::info_text_f32(
                             id,
-                            self.custom_y_param.value(),
+                            self.float_range.to_value(
+                                self.xy_pad_custom_state.param_y.normal,
+                            ),
                         );
                     }
                 }
@@ -139,37 +109,28 @@ impl XYPadStep {
         // create each of the XYPad widgets, passing in the value of
         // the corresponding parameter
 
-        let xy_pad_default = XYPad::new(
-            &mut self.xy_pad_default_state,
-            &self.default_x_param,
-            &self.default_y_param,
-            Message::XYPadsChanged,
-        );
+        let xy_pad_default =
+            XYPad::new(&mut self.xy_pad_default_state, Message::XYPadMoved);
 
-        let xy_pad_custom = XYPad::new(
-            &mut self.xy_pad_custom_state,
-            &self.custom_x_param,
-            &self.custom_y_param,
-            Message::XYPadsChanged,
-        )
-        .style(style::XYPadCustomStyle);
+        let xy_pad_custom =
+            XYPad::new(&mut self.xy_pad_custom_state, Message::XYPadMoved)
+                .style(style::XYPadCustomStyle);
 
         // push the widgets into rows
-
         let xy_pad_row = Row::new()
             .spacing(20)
             .push(
                 Column::new()
-                    .max_height(300)
                     .width(Length::Fill)
-                    .push(Text::new(&self.xy_pad_default_label))
+                    .spacing(10)
+                    .push(Text::new("Default Style"))
                     .push(xy_pad_default),
             )
             .push(
                 Column::new()
-                    .max_height(300)
                     .width(Length::Fill)
-                    .push(Text::new(&self.xy_pad_custom_label))
+                    .spacing(10)
+                    .push(Text::new("Custom Style"))
                     .push(xy_pad_custom),
             );
 
@@ -177,9 +138,8 @@ impl XYPadStep {
             .spacing(20)
             .padding(20)
             .push(xy_pad_row)
-            .push(Text::new(&self.output_text_x).size(16))
-            .push(Text::new(&self.output_text_y).size(16));
+            .push(Text::new(&self.output_text).size(16));
 
-        Step::container("XY Pads (XYPad)").push(content).into()
+        Step::container("XYPads").push(content).into()
     }
 }

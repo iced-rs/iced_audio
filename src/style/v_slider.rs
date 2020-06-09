@@ -5,6 +5,7 @@
 use iced::Color;
 use iced_native::image;
 
+use crate::style::default_colors;
 use crate::TexturePadding;
 
 /// The appearance of an [`VSlider`].
@@ -197,9 +198,9 @@ impl std::default::Default for TickMarkStyle {
             height_tier_2: 2,
             height_tier_3: 1,
 
-            color_tier_1: [0.56, 0.56, 0.56, 0.7].into(),
-            color_tier_2: [0.56, 0.56, 0.56, 0.43].into(),
-            color_tier_3: [0.56, 0.56, 0.56, 0.39].into(),
+            color_tier_1: default_colors::SLIDER_TICK_TIER_1,
+            color_tier_2: default_colors::SLIDER_TICK_TIER_2,
+            color_tier_3: default_colors::SLIDER_TICK_TIER_3,
 
             center_offset: 1,
             handle_offset: 17,
@@ -242,18 +243,15 @@ struct Default;
 impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style::Classic(ClassicStyle {
-            rail_colors: (
-                [0.26, 0.26, 0.26, 0.75].into(),
-                [0.56, 0.56, 0.56, 0.75].into(),
-            ),
+            rail_colors: default_colors::SLIDER_RAIL,
             rail_widths: (1, 1),
             handle: ClassicHandle {
-                color: Color::from_rgb(0.97, 0.97, 0.97),
+                color: default_colors::LIGHT_BACK,
                 height: 34,
                 notch_height: 4,
-                notch_color: Color::from_rgb(0.4, 0.4, 0.4),
+                notch_color: default_colors::BORDER,
                 border_radius: 2,
-                border_color: Color::from_rgb(0.4, 0.4, 0.4),
+                border_color: default_colors::BORDER,
                 border_width: 1,
             },
         })
@@ -264,7 +262,7 @@ impl StyleSheet for Default {
         if let Style::Classic(active) = self.active() {
             Style::Classic(ClassicStyle {
                 handle: ClassicHandle {
-                    color: Color::from_rgb(0.93, 0.93, 0.93),
+                    color: default_colors::LIGHT_BACK_HOVER,
                     ..active.handle
                 },
                 ..active
@@ -279,7 +277,7 @@ impl StyleSheet for Default {
         if let Style::Classic(active) = self.active() {
             Style::Classic(ClassicStyle {
                 handle: ClassicHandle {
-                    color: Color::from_rgb(0.92, 0.92, 0.92),
+                    color: default_colors::LIGHT_BACK_DRAG,
                     ..active.handle
                 },
                 ..active

@@ -30,14 +30,8 @@ pub struct XYPad<'a, Message, Renderer: self::Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
-    state: &'a mut State,
-    id_x: ID,
-    id_y: ID,
-    normal_x: Normal,
-    normal_y: Normal,
-    default_normal_x: Normal,
-    default_normal_y: Normal,
-    on_change: Box<dyn Fn((ID, Normal)) -> Message>,
+    state: &'a mut State<ID>,
+    on_change: Box<dyn Fn(ID) -> Message>,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     size: Length,
@@ -52,35 +46,16 @@ where
     ///
     /// It expects:
     ///   * the local [`State`] of the [`XYPad`]
-    ///   * a [`Param`] with the current and default values for the x coordinate
-    ///   * a [`Param`] with the current and default values for the y coordinate
     ///   * a function that will be called when the [`XYPad`] is dragged.
-    ///   It receives the parameter's `ID` and the new [`Normal`] of the
-    /// [`XYPad`].
-    /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
-    /// `String`, etc. Each parameter must have a unique `ID` value!
     ///
     /// [`State`]: struct.State.html
-    /// [`Param`]: ../../core/param/trait.Param.html
-    /// [`Normal`]: ../../core/struct.Normal.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<F>(
-        state: &'a mut State,
-        param_x: &impl Param<ID = ID>,
-        param_y: &impl Param<ID = ID>,
-        on_change: F,
-    ) -> Self
+    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
     where
-        F: 'static + Fn((ID, Normal)) -> Message,
+        F: 'static + Fn(ID) -> Message,
     {
         XYPad {
             state,
-            id_x: param_x.id(),
-            id_y: param_y.id(),
-            normal_x: param_x.normal(),
-            normal_y: param_y.normal(),
-            default_normal_x: param_x.default_normal(),
-            default_normal_y: param_y.default_normal(),
             on_change: Box::new(on_change),
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::ModifiersState {
@@ -140,7 +115,15 @@ where
 ///
 /// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
-pub struct State {
+pub struct State<ID: Debug + Copy + Clone> {
+    /// The [`Param`] assigned to this widget's x axis
+    ///
+    /// [`Param`]: ../../core/param/trait.Param.html
+    pub param_x: Param<ID>,
+    /// The [`Param`] assigned to this widget's y axis
+    ///
+    /// [`Param`]: ../../core/param/trait.Param.html
+    pub param_y: Param<ID>,
     is_dragging: bool,
     prev_drag_x: f32,
     prev_drag_y: f32,
@@ -150,25 +133,24 @@ pub struct State {
     last_click: Option<mouse::Click>,
 }
 
-impl State {
+impl<ID: Debug + Copy + Clone> State<ID> {
     /// Creates a new [`XYPad`] state.
     ///
     /// It expects:
-    /// * a [`Param`] with the initial value for the x coordinate
-    /// * a [`Param`] with the initial value for the y coordinate
+    /// * a [`Param`] to assign to this widget's x axis
+    /// * a [`Param`] to assign to this widget's y axis
     ///
     /// [`Param`]: ../../core/param/trait.Param.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<ID>(
-        param_x: &impl Param<ID = ID>,
-        param_y: &impl Param<ID = ID>,
-    ) -> Self {
+    pub fn new(param_x: Param<ID>, param_y: Param<ID>) -> Self {
         Self {
+            param_x,
+            param_y,
             is_dragging: false,
             prev_drag_x: 0.0,
             prev_drag_y: 0.0,
-            continuous_normal_x: param_x.normal().value(),
-            continuous_normal_y: param_y.normal().value(),
+            continuous_normal_x: param_x.normal.value(),
+            continuous_normal_y: param_y.normal.value(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
@@ -255,32 +237,37 @@ where
                                 if normal_x != self.state.continuous_normal_x {
                                     self.state.continuous_normal_x = normal_x;
 
-                                    messages.push((self.on_change)((
-                                        self.id_x,
-                                        normal_x.into(),
-                                    )));
+                                    self.state.param_x.normal = normal_x.into();
+
+                                    messages.push((self.on_change)(
+                                        self.state.param_x.id,
+                                    ));
                                 }
 
                                 if normal_y != self.state.continuous_normal_y {
                                     self.state.continuous_normal_y = normal_y;
 
-                                    messages.push((self.on_change)((
-                                        self.id_y,
-                                        normal_y.into(),
-                                    )));
+                                    self.state.param_y.normal = normal_y.into();
+
+                                    messages.push((self.on_change)(
+                                        self.state.param_y.id,
+                                    ));
                                 }
                             }
                             _ => {
                                 self.state.is_dragging = false;
 
-                                messages.push((self.on_change)((
-                                    self.id_x,
-                                    self.default_normal_x,
-                                )));
-                                messages.push((self.on_change)((
-                                    self.id_y,
-                                    self.default_normal_y,
-                                )));
+                                self.state.param_x.normal =
+                                    self.state.param_x.default_normal;
+                                self.state.param_y.normal =
+                                    self.state.param_y.default_normal;
+
+                                messages.push((self.on_change)(
+                                    self.state.param_x.id,
+                                ));
+                                messages.push((self.on_change)(
+                                    self.state.param_y.id,
+                                ));
                             }
                         }
 
@@ -289,8 +276,10 @@ where
                 }
                 ButtonState::Released => {
                     self.state.is_dragging = false;
-                    self.state.continuous_normal_x = self.normal_x.value();
-                    self.state.continuous_normal_y = self.normal_y.value();
+                    self.state.continuous_normal_x =
+                        self.state.param_x.normal.value();
+                    self.state.continuous_normal_y =
+                        self.state.param_y.normal.value();
                 }
             },
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
@@ -331,19 +320,19 @@ where
                         if normal_x != self.state.continuous_normal_x {
                             self.state.continuous_normal_x = normal_x;
 
-                            messages.push((self.on_change)((
-                                self.id_x,
-                                normal_x.into(),
-                            )));
+                            self.state.param_x.normal = normal_x.into();
+
+                            messages
+                                .push((self.on_change)(self.state.param_x.id));
                         }
 
                         if normal_y != self.state.continuous_normal_y {
                             self.state.continuous_normal_y = normal_y;
 
-                            messages.push((self.on_change)((
-                                self.id_y,
-                                normal_y.into(),
-                            )));
+                            self.state.param_y.normal = normal_y.into();
+
+                            messages
+                                .push((self.on_change)(self.state.param_y.id));
                         }
                     }
                 }
@@ -365,8 +354,8 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.normal_x,
-            self.normal_y,
+            self.state.param_x.normal,
+            self.state.param_y.normal,
             self.state.is_dragging,
             &self.style,
         )
@@ -397,7 +386,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the current cursor position
     ///   * the current normal of the x coordinate of the [`XYPad`]
     ///   * the current normal of the y coordinate of the [`XYPad`]
-    ///   * the local state of the [`XYPad`]
+    ///   * whether the xy_pad is currently being dragged
     ///   * the style of the [`XYPad`]
     ///
     /// [`XYPad`]: struct.XYPad.html

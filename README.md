@@ -8,7 +8,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 
 <div align="center">
     <img src="/screenshots/HSliders.png" height="450px">
-    <img src="/screenshots/Simple_Example.png" height="450px">
+    <img src="/screenshots/DB_Meter.png" height="450px">
 </div>
 
 ## Run examples with
@@ -16,6 +16,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 ```
 cargo run --example basic_inputs --release
 cargo run --example simple --release
+cargo run --package db_meter --release
 ```
 
 ## Widgets implemented
@@ -26,6 +27,7 @@ cargo run --example simple --release
 
 ## Widgets partially implemented
 * [x] `Knob` - No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
+* [x] `DBMeter` - No animation or DSP yet. The user must calculate levels and animate them manually.
 
 ## Roadmap of planned widgets
 ### Inputs
@@ -46,7 +48,7 @@ cargo run --example simple --release
 
 ### Visualizers
 
-* [ ] `DBMeter` - a meter that displays peak loudness of a signal. This can have optional colors for good headroom (green), low headroom (yellow), and peaking (red). It can be either vertical or horizontal. It can also have an optional line showing the average loudness.
+* [x] `DBMeter` - a meter that displays peak loudness of a signal. This can have optional colors for good headroom (green), low headroom (yellow), and peaking (red). It can be either vertical or horizontal. It can also have an optional line showing the peak loudness.
 * [ ] `ReductionMeter` - a meter that displays the reduction of loudness in a signal. It can be either vertical or horizontal. It can also have an optional line showing the average loudness.
 * [ ] `KnobAutoRange` - an arc line around a Knob that represents the range of automation active on that parameter. May also have multiple of these in a ring-like pattern like in the original Massive synthesizer.
 * [ ] `Oscilloscope` - displays oscillations of an audio signal in a given time window
@@ -57,17 +59,17 @@ cargo run --example simple --release
 * [ ] `Goniometer` - displays a polar graph representing the stereo phase of an audio signal
 * [ ] `WavetableView` - same as oscilloscope but specifically for rendering single waveforms instead of an audio signal
 
-## Each input widget with a continuous output can accept one of four types of parameters
-* `FloatParam` - a linear range of f32 values
-* `IntParam` - a discrete range of i32 values. This will cause the widget to "step" when moved.
-* `LogDBParam` - a logarithmic range of decibel values. Values around 0 dB will increment slower than values farther away from 0 dB.
-* `OctaveParam` - a logarithmic range of frequency values. Each octave in the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
+## Each parameter can be mapped to one of four ranges:
+* `FloatRange` - a linear range of f32 values
+* `IntRange` - a discrete range of i32 values. This will cause the widget to "step" when moved.
+* `DBRange` - a logarithmic range of decibel values. Values around 0 dB will increment slower than values farther away from 0 dB.
+* `FreqRange` - a logarithmic range of frequency values. Each octave in the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
 
 ## Installation
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```
 iced = { version = "0.1", features = ["image"] }
-iced_audio = "0.1"
+iced_audio = "0.2"
 ```
 __Both Iced Audio and [Iced] move fast and the `master` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
@@ -77,30 +79,29 @@ This crate assumes you know the basics of how to use [Iced]. If you haven't alre
 ```rust
 // Import iced modules.
 use iced::{
-    Column, Container, Element, Length, Sandbox, Settings, Align
+    Align, Column, Container, Element, Length, Sandbox, Settings, Text,
 };
 // Import iced_audio modules.
 use iced_audio::{
-    Normal, FloatParam, LogDBParam, OctaveParam, h_slider, HSlider,
-    v_slider, VSlider, knob, Knob, xy_pad, XYPad, TickMarkGroup, TickMark,
-    TickMarkTier
+    h_slider, knob, v_slider, xy_pad, DBRange, FloatRange, FreqRange, HSlider,
+    IntRange, Knob, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
 };
 
 // Create a unique identifier for each parameter. Note you may also use any
 // type you want such as u32, i32, Strings, etc.
 #[derive(Debug, Copy, Clone)]
 pub enum ParamID {
-    HSliderFloat,
+    HSliderInt,
     VSliderDB,
-    KnobOctave,
+    KnobFreq,
     XYPadFloatX,
     XYPadFloatY,
 }
 
-// The message when a parameter widget is changed by the user
+// The message when a parameter widget is moved by the user
 #[derive(Debug, Clone)]
 pub enum Message {
-    ParamChanged((ParamID, Normal)),
+    ParamMoved(ParamID),
 }
 
 pub fn main() {
@@ -108,81 +109,80 @@ pub fn main() {
 }
 
 pub struct App {
-    
-    // The parameters (`Param`) hold the current and default values.
-    // They also handle converting the output of the widget to a usable value.
+    // The ranges handle converting the input/output of a parameter to and from
+    // a usable value.
     //
-    // There are 4 options available for a parameter:
+    // There are 4 options available for a range:
     //
-    // * FloatParam - a linear range of f32 values
-    // * IntParam - a discrete range of i32 values. This will cause the widget
+    // * FloatRange - a linear range of f32 values
+    // * IntRange - a discrete range of i32 values. This will cause the widget
     // to "step" when moved.
-    // * LogDBParam - a logarithmic range of decibel values. Values around 0 dB
+    // * DBRange - a logarithmic range of decibel values. Values around 0 dB
     // will increment slower than values farther away from 0 dB.
-    // * OctaveParam - a logarithmic range of frequency values. Each octave in
+    // * FreqRange - a logarithmic range of frequency values. Each octave in
     // the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
     //
-    h_slider_float_param: FloatParam<ParamID>,
-    v_slider_db_param: LogDBParam<ParamID>,
-    knob_octave_param: OctaveParam<ParamID>,
-    xy_pad_float_x_param: FloatParam<ParamID>,
-    xy_pad_float_y_param: FloatParam<ParamID>,
+    float_range: FloatRange,
+    int_range: IntRange,
+    db_range: DBRange,
+    freq_range: FreqRange,
 
-    // The states of the parameter widgets that will control the parameters.
-    h_slider_state: h_slider::State,
-    v_slider_state: v_slider::State,
-    knob_state: knob::State,
-    xy_pad_state: xy_pad::State,
+    // The states of the widgets that will control the parameters.
+    //
+    // The `ID` can be any user-defined type such as an enum, i32, u32, String, etc.
+    //
+    h_slider_state: h_slider::State<ParamID>,
+    v_slider_state: v_slider::State<ParamID>,
+    knob_state: knob::State<ParamID>,
+    xy_pad_state: xy_pad::State<ParamID>,
 
     // A group of tick marks with their size and position.
     center_tick_mark: TickMarkGroup,
+
+    output_text: String,
 }
 
 impl Sandbox for App {
     type Message = Message;
 
     fn new() -> App {
-
-        // Initialize each parameter:
-        // * `ID` - A unique identifier for each parameter
-        // * `min` - The minimum of the range (inclusive)
-        // * `max` - The maximum of the range (inclusive)
-        // * `value` - The initial value of the parameter
-        // * `default_value` - The default value of the parameter
-        let h_slider_float_param = FloatParam::<ParamID>::new(
-            ParamID::HSliderFloat , -1.0, 1.0, 0.0, 0.0);
-
-        let v_slider_db_param = LogDBParam::<ParamID>::new(
-            ParamID::VSliderDB , -12.0, 12.0, 0.0, 0.0, 0.5.into());
-
-        let knob_octave_param = OctaveParam::<ParamID>::new(
-            ParamID::KnobOctave , 20.0, 20480.0, 1000.0, 1000.0);
-
-        let xy_pad_float_x_param = FloatParam::<ParamID>::new(
-            ParamID::XYPadFloatX , -1.0, 1.0, 0.0, 0.0);
-        let xy_pad_float_y_param = FloatParam::<ParamID>::new(
-            ParamID::XYPadFloatY , -1.0, 1.0, 0.0, 0.0);
+        // Initalize each range:
+        let float_range = FloatRange::default_bipolar();
+        let int_range = IntRange::new(0, 10);
+        let db_range = DBRange::new(-12.0, 12.0, 0.5.into());
+        let freq_range = FreqRange::default();
 
         App {
-            // Add the parameters.
-            h_slider_float_param,
-            v_slider_db_param,
-            knob_octave_param,
-            xy_pad_float_x_param,
-            xy_pad_float_y_param,
+            // Add the ranges.
+            float_range,
+            int_range,
+            db_range,
+            freq_range,
 
-            // Initialize the state of the widgets with the initial value
-            // of the corresponding parameter.
-            h_slider_state: h_slider::State::new(&h_slider_float_param),
-            v_slider_state: v_slider::State::new(&v_slider_db_param),
-            knob_state: knob::State::new(&knob_octave_param),
+            // Initialize the state of the widgets with a parameter than has an ID, value,
+            // and default value.
+            h_slider_state: h_slider::State::new(int_range.create_param(
+                ParamID::HSliderInt,
+                5,
+                5,
+            )),
+            v_slider_state: v_slider::State::new(
+                db_range.create_param_default(ParamID::VSliderDB),
+            ),
+            knob_state: knob::State::new(freq_range.create_param(
+                ParamID::KnobFreq,
+                1000.0,
+                1000.0,
+            )),
             xy_pad_state: xy_pad::State::new(
-                &xy_pad_float_x_param, &xy_pad_float_y_param),
-            
+                float_range.create_param_default(ParamID::XYPadFloatX),
+                float_range.create_param_default(ParamID::XYPadFloatY),
+            ),
+
             // Add a tick mark at the center position with the tier 2 size
-            center_tick_mark: vec![
-                TickMark::center(TickMarkTier::Two)
-            ].into(),
+            center_tick_mark: vec![TickMark::center(TickMarkTier::Two)].into(),
+
+            output_text: "Move a widget!".into(),
         }
     }
 
@@ -192,70 +192,68 @@ impl Sandbox for App {
 
     fn update(&mut self, event: Message) {
         match event {
-            Message::ParamChanged((id, normal)) => {
-
-                // Update each parameter with the `Normal` output value from
-                // the corresponding parameter widget.
+            Message::ParamMoved(id) => {
+                // Retrieve the value by mapping the normal of the parameter
+                // to the corresponding range.
                 //
                 // Now do something useful with that value!
                 //
                 match id {
-                    ParamID::HSliderFloat => {
-                        self.h_slider_float_param.set_from_normal(normal);
-                        // println!("{}", self.h_slider_float_param.value());
-                    },
+                    ParamID::HSliderInt => {
+                        // Integer ranges must be snapped to make the widget "step"
+                        // when moved.
+                        self.int_range
+                            .snap_normal(&mut self.h_slider_state.param.normal);
+
+                        let value = self
+                            .int_range
+                            .to_value(self.h_slider_state.param.normal);
+                        self.output_text = format!("{:?}: {}", id, value);
+                    }
                     ParamID::VSliderDB => {
-                        self.v_slider_db_param.set_from_normal(normal);
-                        // println!("{}", self.v_slider_db_param.value());
-                    },
-                    ParamID::KnobOctave => {
-                        self.knob_octave_param.set_from_normal(normal);
-                        // println!("{}", self.knob_octave_param.value());
-                    },
+                        let value = self
+                            .db_range
+                            .to_value(self.v_slider_state.param.normal);
+                        self.output_text = format!("{:?}: {:.3}", id, value);
+                    }
+                    ParamID::KnobFreq => {
+                        let value = self
+                            .freq_range
+                            .to_value(self.knob_state.param.normal);
+                        self.output_text = format!("{:?}: {:.3}", id, value);
+                    }
                     ParamID::XYPadFloatX => {
-                        self.xy_pad_float_x_param.set_from_normal(normal);
-                        // println!("{}", self.xy_pad_float_x_param.value());
-                    },
+                        let value = self
+                            .float_range
+                            .to_value(self.xy_pad_state.param_x.normal);
+                        self.output_text = format!("{:?}: {:.3}", id, value);
+                    }
                     ParamID::XYPadFloatY => {
-                        self.xy_pad_float_y_param.set_from_normal(normal);
-                        // println!("{}", self.xy_pad_float_y_param.value());
-                    },
+                        let value = self
+                            .float_range
+                            .to_value(self.xy_pad_state.param_y.normal);
+                        self.output_text = format!("{:?}: {:.3}", id, value);
+                    }
                 }
             }
         }
     }
 
     fn view(&mut self) -> Element<Message> {
-        
-        // Create each parameter widget, passing in the current value of the
-        // corresponding parameter.
-        let h_slider_widget = HSlider::new(
-            &mut self.h_slider_state,
-            &self.h_slider_float_param,
-            Message::ParamChanged,
-        )
-        // Add the tick mark group to this widget.
-        .tick_marks(&self.center_tick_mark);
+        // Create each parameter widget, passing in the current state of the widget.
+        let h_slider_widget =
+            HSlider::new(&mut self.h_slider_state, Message::ParamMoved)
+                // Add the tick mark group to this widget.
+                .tick_marks(&self.center_tick_mark);
 
-        let v_slider_widget = VSlider::new(
-            &mut self.v_slider_state,
-            &self.v_slider_db_param,
-            Message::ParamChanged,
-        )
-        .tick_marks(&self.center_tick_mark);
+        let v_slider_widget =
+            VSlider::new(&mut self.v_slider_state, Message::ParamMoved)
+                .tick_marks(&self.center_tick_mark);
 
-        let knob_widget = Knob::new(
-            &mut self.knob_state,
-            &self.knob_octave_param,
-            Message::ParamChanged,
-        );
+        let knob_widget = Knob::new(&mut self.knob_state, Message::ParamMoved);
 
-        let xy_pad_widget = XYPad::new(
-            &mut self.xy_pad_state,
-            &self.xy_pad_float_x_param,
-            &self.xy_pad_float_y_param,
-            Message::ParamChanged,
-        );
+        let xy_pad_widget =
+            XYPad::new(&mut self.xy_pad_state, Message::ParamMoved);
 
         // Push the widgets into the iced DOM
         let content: Element<_> = Column::new()
@@ -268,6 +266,10 @@ impl Sandbox for App {
             .push(v_slider_widget)
             .push(knob_widget)
             .push(xy_pad_widget)
+            .push(
+                Container::new(Text::new(&self.output_text))
+                    .width(Length::Fill),
+            )
             .into();
 
         Container::new(content)
@@ -278,6 +280,7 @@ impl Sandbox for App {
             .into()
     }
 }
+
 ```
 
 ## Contributing / Feedback

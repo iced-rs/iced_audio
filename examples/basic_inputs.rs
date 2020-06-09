@@ -178,7 +178,7 @@ pub enum Step {
     Welcome,
     HSliders(step_h_sliders::HSliderStep),
     VSliders(step_v_sliders::VSliderStep),
-    Knobs(step_knobs::KnobsStep),
+    Knobs(step_knobs::KnobStep),
     XYPads(step_xy_pads::XYPadStep),
     Ramps(step_ramps::RampStep),
 }
@@ -301,7 +301,7 @@ pub fn info_text_db<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
     format!("id: {:?}  |  value: {:.3} dB", id, value)
 }
 
-pub fn info_text_octave<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
+pub fn info_text_freq<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
     if value < 1000.0 {
         format!("id: {:?}  |  value: {:.2} Hz", id, value)
     } else {

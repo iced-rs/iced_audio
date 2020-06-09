@@ -1,4 +1,5 @@
-//!
+//! Display a visualizer that displays average/peak decibel levels. It can be
+//! either mono or stereo.
 
 use std::fmt::Debug;
 
@@ -13,12 +14,14 @@ use crate::core::{Normal, TickMarkGroup};
 
 static DEFAULT_WIDTH: u16 = 20;
 
+/// The orientation of a [`DBMeter`]
 ///
+/// [`DBMeter`]: struct.DBMeter.html
 #[allow(missing_debug_implementations)]
 pub enum Orientation {
-    ///
+    /// Vertical orientation
     Vertical,
-    ///
+    /// Horizontal orientation
     Horizontal,
 }
 
@@ -28,9 +31,10 @@ impl Default for Orientation {
     }
 }
 
+/// A visualizer that displays average/peak decibel levels. It can be
+/// either mono or stereo.
 ///
-///
-/// A [`DBMeter`] will try to fill the vertical space of its container.
+/// A [`DBMeter`] will try to fill the length of its container.
 ///
 /// [`DBMeter`]: struct.DBMeter.html
 #[allow(missing_debug_implementations)]
@@ -44,7 +48,15 @@ pub struct DBMeter<'a, Renderer: self::Renderer> {
 }
 
 impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
+    /// Creates a new [`DBMeter`].
     ///
+    /// It expects:
+    ///   * the local [`State`] of the [`DBMeter`]
+    ///   * the [`Orientation`] of the [`DBMeter`]
+    ///
+    /// [`State`]: struct.State.html
+    /// [`Orientation`]: enum.Orientation.html
+    /// [`DBMeter`]: struct.DBMeter.html
     pub fn new(state: &'a mut State, orientation: Orientation) -> Self {
         let (width, height) = match orientation {
             Orientation::Vertical => {
@@ -94,39 +106,67 @@ impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
     /// them to display (which the default style does).
     ///
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
-    /// [`StyleSheet`]: ../../style/v_db_meter/trait.StyleSheet.html
+    /// [`StyleSheet`]: ../../style/db_meter/trait.StyleSheet.html
     pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
         self.tick_marks = Some(tick_marks);
         self
     }
 }
 
+/// The [`Normal`] positions of each color tier of a [`DBMeter`]
 ///
-///
+/// [`Normal`]: ../../core/struct.Normal.html
 /// [`DBMeter`]: struct.DBMeter.html
 #[derive(Debug, Copy, Clone)]
 pub struct TierPositions {
+    /// The [`Normal`] position where the `clipping` color starts.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub clipping: Normal,
+
+    /// The [`Normal`] position where the `high` color starts. Set this
+    /// to `None` for no `high` color tier.
     ///
-    pub med: Option<Normal>,
-    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub high: Option<Normal>,
+
+    /// The [`Normal`] position where the `medium` color starts. Set this
+    /// to `None` for no `medium` color tier. This will not be active
+    /// if `high` is set to `None`.
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub med: Option<Normal>,
 }
 
-///
+/// The state of a single meter bar in a [`DBMeter`] [`State`].
 ///
 /// [`DBMeter`]: struct.DBMeter.html
+/// [`State`]: struct.State.html
 #[derive(Debug, Copy, Clone)]
 pub struct BarState {
+    /// The [`Normal`] position of the main bar.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub normal: Normal,
+
+    /// The [`Normal`] position of the peak line. Set this to `None`
+    /// for no peak line.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub peak_normal: Option<Normal>,
 }
 
 impl BarState {
+    /// Creates a new [`BarState`] for a [`DBMeter`] [`State`]
     ///
+    /// * `normal` - The [`Normal`] position of the main bar.
+    /// * `peak_normal` - The [`Normal`] position of the peak line.
+    /// Set this to `None` for no peak line.
+    ///
+    /// [`DBMeter`]: struct.DBMeter.html
+    /// [`BarState`]: struct.BarState.html
+    /// [`State`]: struct.State.html
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn new(normal: Normal, peak_normal: Option<Normal>) -> Self {
         Self {
             normal,
@@ -157,6 +197,11 @@ pub struct State {
 impl State {
     /// Creates a new [`DBMeter`] state.
     ///
+    /// * `left_bar` - The state of the left/top bar.
+    /// * `right_bar` - The state of the right/bottom bar. Set this
+    /// to `None` for a mono [`DBMeter`].
+    /// * `tier_positions` - The positions where each tier of color starts.
+    ///
     /// [`DBMeter`]: struct.DBMeter.html
     pub fn new(
         left_bar: BarState,
@@ -170,21 +215,31 @@ impl State {
         }
     }
 
+    /// Sets the [`Normal`] position of the left main bar.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_left(&mut self, normal: Normal) {
         self.left_bar.normal = normal;
     }
+    /// Sets the [`Normal`] position of the left peak line.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_left_peak(&mut self, normal: Normal) {
         self.left_bar.peak_normal = Some(normal);
     }
+    /// Sets the [`Normal`] position of the right main bar. This will
+    /// have no effect if `right` was set to `None` in `State::new()`.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_right(&mut self, normal: Normal) {
         if let Some(right_bar) = &mut self.right_bar {
             right_bar.normal = normal;
         }
     }
+    /// Sets the [`Normal`] position of the right peak line. This will
+    /// have no effect if `right` was set to `None` in `State::new()`.
     ///
+    /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_right_peak(&mut self, normal: Normal) {
         if let Some(right_bar) = &mut self.right_bar {
             right_bar.peak_normal = Some(normal);
@@ -254,7 +309,7 @@ where
     }
 }
 
-/// The renderer of an [`DBMeter`].
+/// The renderer of a [`DBMeter`].
 ///
 /// Your renderer will need to implement this trait before being
 /// able to use an [`DBMeter`] in your user interface.
@@ -268,8 +323,11 @@ pub trait Renderer: iced_native::Renderer {
     ///
     /// It receives:
     ///   * the bounds of the [`DBMeter`]
-    ///   * the current cursor position
-    ///   * the local state of the [`DBMeter`]
+    ///   * the state of the left bar
+    ///   * the state of the right bar
+    ///   * the positions of each tier of color
+    ///   * the orientation of the [`DBMeter`]
+    ///   * any tick marks to display
     ///   * the style of the [`DBMeter`]
     ///
     /// [`DBMeter`]: struct.DBMeter.html

@@ -26,12 +26,9 @@ pub struct Knob<'a, Message, Renderer: self::Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
-    state: &'a mut State,
+    state: &'a mut State<ID>,
     size: Length,
-    id: ID,
-    normal: Normal,
-    default_normal: Normal,
-    on_change: Box<dyn Fn((ID, Normal)) -> Message>,
+    on_change: Box<dyn Fn(ID) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
@@ -47,31 +44,17 @@ where
     ///
     /// It expects:
     ///   * the local [`State`] of the [`Knob`]
-    ///   * a [`Param`] with the current and default values
     ///   * a function that will be called when the [`Knob`] is turned.
-    ///   It receives the parameter's `ID` and the new [`Normal`] of the
-    /// [`Knob`].
-    /// `ID` is a user supplied type. It can be an `enum`, `u32`, `i32`,
-    /// `String`, etc. Each parameter must have a unique `ID` value!
     ///
     /// [`State`]: struct.State.html
-    /// [`Param`]: ../../core/param/trait.Param.html
-    /// [`Normal`]: ../../core/struct.Normal.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new<F>(
-        state: &'a mut State,
-        param: &impl Param<ID = ID>,
-        on_change: F,
-    ) -> Self
+    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
     where
-        F: 'static + Fn((ID, Normal)) -> Message,
+        F: 'static + Fn(ID) -> Message,
     {
         Knob {
             state,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
-            id: param.id(),
-            normal: param.normal(),
-            default_normal: param.default_normal(),
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
@@ -158,7 +141,11 @@ where
 ///
 /// [`Knob`]: struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct State {
+pub struct State<ID: Debug + Copy + Clone> {
+    /// The [`Param`] assigned to this widget
+    ///
+    /// [`Param`]: ../../core/param/trait.Param.html
+    pub param: Param<ID>,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -166,19 +153,20 @@ pub struct State {
     last_click: Option<mouse::Click>,
 }
 
-impl State {
+impl<ID: Debug + Copy + Clone> State<ID> {
     /// Creates a new [`Knob`] state.
     ///
     /// It expects:
-    /// * a [`Param`] with the initial value
+    /// * a [`Param`] to assign to this widget
     ///
     /// [`Param`]: ../../core/param/trait.Param.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new<ID>(param: &impl Param<ID = ID>) -> Self {
+    pub fn new(param: Param<ID>) -> Self {
         Self {
+            param,
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: param.normal().value(),
+            continuous_normal: param.normal.value(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
@@ -240,10 +228,12 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                messages.push((self.on_change)((
-                                    self.id,
-                                    self.default_normal,
-                                )));
+                                self.state.param.normal =
+                                    self.state.param.default_normal;
+
+                                messages.push((self.on_change)(
+                                    self.state.param.id,
+                                ));
                             }
                         }
 
@@ -252,7 +242,8 @@ where
                 }
                 ButtonState::Released => {
                     self.state.is_dragging = false;
-                    self.state.continuous_normal = self.normal.value();
+                    self.state.continuous_normal =
+                        self.state.param.normal.value();
                 }
             },
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
@@ -277,7 +268,9 @@ where
                     self.state.continuous_normal = normal;
                     self.state.prev_drag_y = cursor_position.y;
 
-                    messages.push((self.on_change)((self.id, normal.into())));
+                    self.state.param.normal = normal.into();
+
+                    messages.push((self.on_change)(self.state.param.id));
                 }
             }
             Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
@@ -297,7 +290,7 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.normal,
+            self.state.param.normal,
             self.state.is_dragging,
             self.tick_marks,
             &self.style,
@@ -328,7 +321,8 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the bounds of the [`Knob`]
     ///   * the current cursor position
     ///   * the current normal of the [`Knob`]
-    ///   * the local state of the [`Knob`]
+    ///   * whether the knob is currently being dragged
+    ///   * any tick marks to display
     ///   * the style of the [`Knob`]
     ///
     /// [`Knob`]: struct.Knob.html

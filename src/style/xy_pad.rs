@@ -4,6 +4,8 @@
 
 use iced::Color;
 
+use crate::style::default_colors;
+
 /// The appearance of an [`XYPad`].
 ///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
@@ -104,19 +106,19 @@ impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style {
             rail_width: 2,
-            h_rail_color: [0.56, 0.56, 0.56, 0.75].into(),
-            v_rail_color: [0.56, 0.56, 0.56, 0.75].into(),
+            h_rail_color: default_colors::XY_PAD_RAIL,
+            v_rail_color: default_colors::XY_PAD_RAIL,
             handle: HandleShape::Circle(HandleCircle {
-                color: Color::from_rgb(0.97, 0.97, 0.97),
+                color: default_colors::LIGHT_BACK,
                 diameter: 11,
                 border_width: 2,
-                border_color: Color::from_rgb(0.4, 0.4, 0.4),
+                border_color: default_colors::BORDER,
             }),
-            back_color: Color::from_rgb(0.97, 0.97, 0.97),
+            back_color: default_colors::LIGHT_BACK,
             border_width: 1,
-            border_color: Color::from_rgb(0.4, 0.4, 0.4),
+            border_color: default_colors::BORDER,
             center_line_width: 1,
-            center_line_color: [0.56, 0.56, 0.56, 0.4].into(),
+            center_line_color: default_colors::XY_PAD_CENTER_LINE,
         }
     }
 
@@ -125,10 +127,10 @@ impl StyleSheet for Default {
 
         Style {
             handle: HandleShape::Circle(HandleCircle {
-                color: Color::from_rgb(0.93, 0.93, 0.93),
+                color: default_colors::LIGHT_BACK_HOVER,
                 diameter: 11,
                 border_width: 2,
-                border_color: Color::from_rgb(0.4, 0.4, 0.4),
+                border_color: default_colors::BORDER,
             }),
             ..active
         }
@@ -139,10 +141,10 @@ impl StyleSheet for Default {
 
         Style {
             handle: HandleShape::Circle(HandleCircle {
-                color: Color::from_rgb(0.92, 0.92, 0.92),
+                color: default_colors::LIGHT_BACK_DRAG,
                 diameter: 9,
                 border_width: 2,
-                border_color: Color::from_rgb(0.4, 0.4, 0.4),
+                border_color: default_colors::BORDER,
             }),
             ..active
         }

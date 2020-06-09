@@ -5,6 +5,7 @@
 use iced::Color;
 //use iced_native::image;
 
+use crate::style::default_colors;
 use crate::{KnobAngleRange, Normal};
 
 /// The appearance of a [`Knob`],
@@ -142,9 +143,9 @@ impl std::default::Default for CircleTickMarks {
             diameter_tier_2: 2,
             diameter_tier_3: 2,
 
-            color_tier_1: [0.56, 0.56, 0.56, 0.73].into(),
-            color_tier_2: [0.56, 0.56, 0.56, 0.75].into(),
-            color_tier_3: [0.56, 0.56, 0.56, 0.55].into(),
+            color_tier_1: default_colors::KNOB_TICK_TIER_1,
+            color_tier_2: default_colors::KNOB_TICK_TIER_2,
+            color_tier_3: default_colors::KNOB_TICK_TIER_3,
 
             offset: 4.47,
         }
@@ -193,9 +194,9 @@ impl std::default::Default for LineTickMarks {
             length_tier_2: 2.5,
             length_tier_3: 2.5,
 
-            color_tier_1: [0.56, 0.56, 0.56, 0.90].into(),
-            color_tier_2: [0.56, 0.56, 0.56, 0.85].into(),
-            color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
+            color_tier_1: default_colors::KNOB_TICK_TIER_1,
+            color_tier_2: default_colors::KNOB_TICK_TIER_2,
+            color_tier_3: default_colors::KNOB_TICK_TIER_3,
 
             offset: 2.0,
         }
@@ -245,10 +246,10 @@ struct Default;
 impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style::VectorCircle(VectorCircleStyle {
-            knob_color: Color::from_rgb(0.97, 0.97, 0.97),
+            knob_color: default_colors::LIGHT_BACK,
             knob_border_width: 1,
-            knob_border_color: Color::from_rgb(0.4, 0.4, 0.4),
-            notch_color: Color::from_rgb(0.4, 0.4, 0.4),
+            knob_border_color: default_colors::BORDER,
+            notch_color: default_colors::BORDER,
             notch_border_width: 0,
             notch_border_color: Color::TRANSPARENT,
             notch_scale: 0.17.into(),
@@ -261,7 +262,7 @@ impl StyleSheet for Default {
         let active = self.active();
         if let Style::VectorCircle(active) = self.active() {
             Style::VectorCircle(VectorCircleStyle {
-                knob_color: Color::from_rgb(0.96, 0.96, 0.96),
+                knob_color: default_colors::KNOB_BACK_HOVER,
                 ..active
             })
         } else {

@@ -4,6 +4,8 @@
 
 use iced::Color;
 
+use crate::style::default_colors;
+
 /// The appearance of a [`Ramp`],
 ///
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
@@ -49,16 +51,14 @@ struct Default;
 
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        let line_color = Color::from_rgb(0.4, 0.4, 0.4);
-
         Style {
-            background_color: Color::from_rgb(0.97, 0.97, 0.97),
+            background_color: default_colors::LIGHT_BACK,
             border_width: 1,
-            border_color: line_color,
+            border_color: default_colors::BORDER,
             line_width: 2.0,
-            line_center_color: line_color,
-            line_up_color: line_color,
-            line_down_color: line_color,
+            line_center_color: default_colors::BORDER,
+            line_up_color: default_colors::BORDER,
+            line_down_color: default_colors::BORDER,
         }
     }
 
@@ -66,7 +66,7 @@ impl StyleSheet for Default {
         let active = self.active();
 
         Style {
-            background_color: Color::from_rgb(0.95, 0.95, 0.95),
+            background_color: default_colors::RAMP_BACK_HOVER,
             ..active
         }
     }

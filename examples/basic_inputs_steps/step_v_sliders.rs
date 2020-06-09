@@ -2,7 +2,7 @@ use iced::{Column, Element, Length, Row, Text};
 use iced_native::image;
 
 use iced_audio::{
-    v_slider, FloatParam, IntParam, LogDBParam, Normal, OctaveParam, TickMark,
+    v_slider, DBRange, FloatRange, FreqRange, IntRange, TickMark,
     TickMarkGroup, TickMarkTier, VSlider,
 };
 
@@ -15,52 +15,37 @@ pub enum VSlidersID {
     Float,
     Int,
     DB,
-    Octave,
+    Freq,
     RectStyle,
-    BipolarRectStyle,
+    RectBipolarStyle,
     TextureStyle,
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    VSlidersChanged((VSlidersID, Normal)),
+    VSliderMoved(VSlidersID),
 }
 
 pub struct VSliderStep {
-    v_slider_float_param: FloatParam<VSlidersID>,
-    v_slider_float_state: v_slider::State,
-    v_slider_float_label: String,
+    float_range: FloatRange,
+    int_range: IntRange,
+    db_range: DBRange,
+    freq_range: FreqRange,
 
-    v_slider_int_param: IntParam<VSlidersID>,
-    v_slider_int_state: v_slider::State,
-    v_slider_int_label: String,
-
-    v_slider_db_param: LogDBParam<VSlidersID>,
-    v_slider_db_state: v_slider::State,
-    v_slider_db_label: String,
-
-    v_slider_oct_param: OctaveParam<VSlidersID>,
-    v_slider_oct_state: v_slider::State,
-    v_slider_oct_label: String,
-
-    v_slider_rect_param: FloatParam<VSlidersID>,
-    v_slider_rect_state: v_slider::State,
-    v_slider_rect_label: String,
-
-    v_slider_rect_bp_param: FloatParam<VSlidersID>,
-    v_slider_rect_bp_state: v_slider::State,
-    v_slider_rect_bp_label: String,
-
-    v_slider_texture_param: FloatParam<VSlidersID>,
-    v_slider_texture_state: v_slider::State,
-    v_slider_texture_label: String,
+    v_slider_float_state: v_slider::State<VSlidersID>,
+    v_slider_int_state: v_slider::State<VSlidersID>,
+    v_slider_db_state: v_slider::State<VSlidersID>,
+    v_slider_freq_state: v_slider::State<VSlidersID>,
+    v_slider_rect_state: v_slider::State<VSlidersID>,
+    v_slider_rect_bp_state: v_slider::State<VSlidersID>,
+    v_slider_texture_state: v_slider::State<VSlidersID>,
 
     v_slider_texture_handle: image::Handle,
 
     float_tick_marks: TickMarkGroup,
     int_tick_marks: TickMarkGroup,
     db_tick_marks: TickMarkGroup,
-    octave_tick_marks: TickMarkGroup,
+    freq_tick_marks: TickMarkGroup,
 
     output_text: String,
 }
@@ -69,95 +54,47 @@ impl Default for VSliderStep {
     fn default() -> Self {
         // initalize parameters
 
-        let v_slider_float_param = FloatParam::<VSlidersID>::new(
-            VSlidersID::Float,
-            -1.0,
-            1.0,
-            0.0,
-            0.0,
-        );
-
-        let v_slider_int_param =
-            IntParam::<VSlidersID>::new(VSlidersID::Int, 0, 5, 0, 2);
-
-        let v_slider_db_param = LogDBParam::<VSlidersID>::new(
-            VSlidersID::DB,
-            -12.0,
-            12.0,
-            0.0,
-            0.0,
-            0.5.into(),
-        );
-
-        let v_slider_oct_param = OctaveParam::<VSlidersID>::new(
-            VSlidersID::Octave,
-            20.0,
-            20_480.0,
-            1000.0,
-            1000.0,
-        );
-
-        let v_slider_rect_param = FloatParam::<VSlidersID>::new(
-            VSlidersID::RectStyle,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-        );
-
-        let v_slider_rect_bp_param = FloatParam::<VSlidersID>::new(
-            VSlidersID::BipolarRectStyle,
-            -1.0,
-            1.0,
-            0.0,
-            0.0,
-        );
-
-        let v_slider_texture_param = FloatParam::<VSlidersID>::new(
-            VSlidersID::TextureStyle,
-            0.0,
-            1.0,
-            1.0,
-            1.0,
-        );
+        let float_range = FloatRange::default_bipolar();
+        let int_range = IntRange::new(0, 5);
+        let db_range = DBRange::default();
+        let freq_range = FreqRange::default();
 
         // create application
 
         Self {
-            // add the parameter
-            v_slider_float_param,
+            float_range,
+            int_range,
+            db_range,
+            freq_range,
+
             // initialize the state of the VSlider widget
-            v_slider_float_state: v_slider::State::new(&v_slider_float_param),
-            // initialize the label above the VSlider widget
-            v_slider_float_label: String::from("Float Range"),
+            v_slider_float_state: v_slider::State::new(
+                float_range.create_param_default(VSlidersID::Float),
+            ),
 
-            v_slider_int_param,
-            v_slider_int_state: v_slider::State::new(&v_slider_int_param),
-            v_slider_int_label: String::from("Int Range"),
+            v_slider_int_state: v_slider::State::new(
+                int_range.create_param_default(VSlidersID::Int),
+            ),
 
-            v_slider_db_param,
-            v_slider_db_state: v_slider::State::new(&v_slider_db_param),
-            v_slider_db_label: String::from("Log dB Range"),
+            v_slider_db_state: v_slider::State::new(
+                db_range.create_param_default(VSlidersID::DB),
+            ),
 
-            v_slider_oct_param,
-            v_slider_oct_state: v_slider::State::new(&v_slider_oct_param),
-            v_slider_oct_label: String::from("Octave Freq Range"),
+            v_slider_freq_state: v_slider::State::new(
+                freq_range.create_param_default(VSlidersID::Freq),
+            ),
 
-            v_slider_rect_param,
-            v_slider_rect_state: v_slider::State::new(&v_slider_rect_param),
-            v_slider_rect_label: String::from("Custom Rect Style"),
+            v_slider_rect_state: v_slider::State::new(
+                float_range.create_param_default(VSlidersID::RectStyle),
+            ),
 
-            v_slider_rect_bp_param,
             v_slider_rect_bp_state: v_slider::State::new(
-                &v_slider_rect_bp_param,
+                float_range.create_param_default(VSlidersID::RectBipolarStyle),
             ),
-            v_slider_rect_bp_label: String::from("Custom Rect Bipolar Style"),
 
-            v_slider_texture_param,
             v_slider_texture_state: v_slider::State::new(
-                &v_slider_texture_param,
+                float_range.create_param_default(VSlidersID::TextureStyle),
             ),
-            v_slider_texture_label: String::from("Custom Texture Style"),
 
             v_slider_texture_handle: format!(
                 "{}/examples/images/iced_v_slider.png",
@@ -181,83 +118,83 @@ impl Default for VSliderStep {
 
             db_tick_marks: vec![
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(0.0),
+                    position: db_range.to_normal(0.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(1.0),
+                    position: db_range.to_normal(1.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(3.0),
+                    position: db_range.to_normal(3.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(6.0),
+                    position: db_range.to_normal(6.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(12.0),
+                    position: db_range.to_normal(12.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(-1.0),
+                    position: db_range.to_normal(-1.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(-3.0),
+                    position: db_range.to_normal(-3.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(-6.0),
+                    position: db_range.to_normal(-6.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_db_param.value_to_normal(-12.0),
+                    position: db_range.to_normal(-12.0),
                     tier: TickMarkTier::Two,
                 },
             ]
             .into(),
 
-            octave_tick_marks: vec![
+            freq_tick_marks: vec![
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(20.0),
+                    position: freq_range.to_normal(20.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(50.0),
+                    position: freq_range.to_normal(50.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(100.0),
+                    position: freq_range.to_normal(100.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(200.0),
+                    position: freq_range.to_normal(200.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(400.0),
+                    position: freq_range.to_normal(400.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(1000.0),
+                    position: freq_range.to_normal(1000.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(2000.0),
+                    position: freq_range.to_normal(2000.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(5000.0),
+                    position: freq_range.to_normal(5000.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(10000.0),
+                    position: freq_range.to_normal(10000.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: v_slider_oct_param.value_to_normal(20000.0),
+                    position: freq_range.to_normal(20000.0),
                     tier: TickMarkTier::Two,
                 },
             ]
@@ -275,61 +212,67 @@ impl VSliderStep {
 
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::VSlidersChanged((id, normal)) => {
-                // Update the parameter with the output of the corresponding
-                // VSlider widget (Note this must be done or the widget will
-                // not work).
-
-                // Then update the output text with the new value of the
-                // parameter.
+            Message::VSliderMoved(id) => {
+                // Update the output text with the new value of the parameter.
                 match id {
                     VSlidersID::Float => {
-                        self.v_slider_float_param.set_from_normal(normal);
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.v_slider_float_param.value(),
+                            self.float_range.to_value(
+                                self.v_slider_float_state.param.normal,
+                            ),
                         );
                     }
                     VSlidersID::Int => {
-                        self.v_slider_int_param.set_from_normal(normal);
+                        // Integer parameters must be snapped for the widget to
+                        // "step" when moved.
+                        self.int_range.snap_normal(
+                            &mut self.v_slider_int_state.param.normal,
+                        );
+
                         self.output_text = crate::info_text_i32(
                             id,
-                            self.v_slider_int_param.value(),
+                            self.int_range
+                                .to_value(self.v_slider_int_state.param.normal),
                         );
                     }
                     VSlidersID::DB => {
-                        self.v_slider_db_param.set_from_normal(normal);
                         self.output_text = crate::info_text_db(
                             id,
-                            self.v_slider_db_param.value(),
+                            self.db_range
+                                .to_value(self.v_slider_db_state.param.normal),
                         );
                     }
-                    VSlidersID::Octave => {
-                        self.v_slider_oct_param.set_from_normal(normal);
-                        self.output_text = crate::info_text_octave(
+                    VSlidersID::Freq => {
+                        self.output_text = crate::info_text_freq(
                             id,
-                            self.v_slider_oct_param.value(),
+                            self.freq_range.to_value(
+                                self.v_slider_freq_state.param.normal,
+                            ),
                         );
                     }
                     VSlidersID::RectStyle => {
-                        self.v_slider_rect_param.set_from_normal(normal);
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.v_slider_rect_param.value(),
+                            self.float_range.to_value(
+                                self.v_slider_rect_state.param.normal,
+                            ),
                         );
                     }
-                    VSlidersID::BipolarRectStyle => {
-                        self.v_slider_rect_bp_param.set_from_normal(normal);
+                    VSlidersID::RectBipolarStyle => {
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.v_slider_rect_bp_param.value(),
+                            self.float_range.to_value(
+                                self.v_slider_rect_bp_state.param.normal,
+                            ),
                         );
                     }
                     VSlidersID::TextureStyle => {
-                        self.v_slider_texture_param.set_from_normal(normal);
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.v_slider_texture_param.value(),
+                            self.float_range.to_value(
+                                self.v_slider_texture_state.param.normal,
+                            ),
                         );
                     }
                 }
@@ -341,105 +284,86 @@ impl VSliderStep {
         // create each of the VSlider widgets, passing in the value of
         // the corresponding parameter
 
-        let v_slider_float = VSlider::new(
-            &mut self.v_slider_float_state,
-            &self.v_slider_float_param,
-            Message::VSlidersChanged,
-        )
-        .tick_marks(&self.float_tick_marks);
+        let v_slider_float =
+            VSlider::new(&mut self.v_slider_float_state, Message::VSliderMoved)
+                .tick_marks(&self.float_tick_marks);
 
-        let v_slider_int = VSlider::new(
-            &mut self.v_slider_int_state,
-            &self.v_slider_int_param,
-            Message::VSlidersChanged,
-        )
-        .tick_marks(&self.int_tick_marks);
+        let v_slider_int =
+            VSlider::new(&mut self.v_slider_int_state, Message::VSliderMoved)
+                .tick_marks(&self.int_tick_marks);
 
-        let v_slider_db = VSlider::new(
-            &mut self.v_slider_db_state,
-            &self.v_slider_db_param,
-            Message::VSlidersChanged,
-        )
-        .tick_marks(&self.db_tick_marks);
+        let v_slider_db =
+            VSlider::new(&mut self.v_slider_db_state, Message::VSliderMoved)
+                .tick_marks(&self.db_tick_marks);
 
-        let v_slider_oct = VSlider::new(
-            &mut self.v_slider_oct_state,
-            &self.v_slider_oct_param,
-            Message::VSlidersChanged,
-        )
-        .tick_marks(&self.octave_tick_marks);
+        let v_slider_freq =
+            VSlider::new(&mut self.v_slider_freq_state, Message::VSliderMoved)
+                .tick_marks(&self.freq_tick_marks);
 
-        let v_slider_style = VSlider::new(
-            &mut self.v_slider_rect_state,
-            &self.v_slider_rect_param,
-            Message::VSlidersChanged,
-        )
-        .width(Length::from(Length::Units(28)))
-        .style(style::VSliderRectStyle);
+        let v_slider_rect =
+            VSlider::new(&mut self.v_slider_rect_state, Message::VSliderMoved)
+                .width(Length::from(Length::Units(24)))
+                .style(style::VSliderRectStyle);
 
         let v_slider_rect_bp = VSlider::new(
             &mut self.v_slider_rect_bp_state,
-            &self.v_slider_rect_bp_param,
-            Message::VSlidersChanged,
+            Message::VSliderMoved,
         )
-        .width(Length::from(Length::Units(28)))
+        .width(Length::from(Length::Units(24)))
         .style(style::VSliderRectBipolarStyle);
 
         let v_slider_texture = VSlider::new(
             &mut self.v_slider_texture_state,
-            &self.v_slider_texture_param,
-            Message::VSlidersChanged,
+            Message::VSliderMoved,
         )
         .tick_marks(&self.float_tick_marks)
-        // the width of the handle texture
+        // the width of the texture
         .width(Length::from(Length::Units(20)))
-        // clone the handle to the loaded texture
         .style(style::VSliderTextureStyle(
+            // clone the handle to the loaded texture
             self.v_slider_texture_handle.clone(),
         ));
 
-        // push the sliders into columns
-
+        // push the widgets into rows
         let v_slider_row = Row::new()
             .spacing(20)
+            .max_height(400)
             .push(
                 Column::new()
-                    .max_height(400)
-                    // * Note: `.width(Length::Fill)` is broken for `VSlider`
-                    // for the time being.
                     .max_width(120)
+                    .height(Length::Fill)
                     .spacing(10)
-                    .push(Text::new(&self.v_slider_float_label))
+                    .push(Text::new("Float Range"))
                     .push(v_slider_float)
-                    .push(Text::new(&self.v_slider_int_label))
-                    .push(v_slider_int),
+                    .push(Text::new("DB Range"))
+                    .push(v_slider_db),
             )
             .push(
                 Column::new()
-                    .max_height(400)
                     .max_width(120)
+                    .height(Length::Fill)
                     .spacing(10)
-                    .push(Text::new(&self.v_slider_db_label))
-                    .push(v_slider_db)
-                    .push(Text::new(&self.v_slider_oct_label))
-                    .push(v_slider_oct),
-            )
-            .push(
-                Column::new()
-                    .max_height(400)
-                    .max_width(120)
-                    .spacing(10)
-                    .push(Text::new(&self.v_slider_rect_label))
-                    .push(v_slider_style)
-                    .push(Text::new(&self.v_slider_texture_label))
+                    .push(Text::new("Custom Style"))
+                    .push(v_slider_rect)
+                    .push(Text::new("Custom Texture Style"))
                     .push(v_slider_texture),
             )
             .push(
                 Column::new()
-                    .max_height(400)
                     .max_width(120)
+                    .height(Length::Fill)
                     .spacing(10)
-                    .push(Text::new(&self.v_slider_rect_bp_label))
+                    .push(Text::new("Int Range"))
+                    .push(v_slider_int)
+                    .push(Text::new("Freq Range"))
+                    .push(v_slider_freq),
+            )
+            .push(
+                Column::new()
+                    .max_width(120)
+                    .height(Length::Fill)
+                    .spacing(10)
+                    .push(Text::new("Custom Bipolar Style"))
                     .push(v_slider_rect_bp),
             );
 

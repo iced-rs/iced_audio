@@ -1,9 +1,9 @@
 use iced::{Column, Element, Length, Row, Text};
-//use iced_native::image;
+use iced_native::image;
 
 use iced_audio::{
-    knob, FloatParam, IntParam, Knob, LogDBParam, Normal, OctaveParam,
-    TickMark, TickMarkGroup, TickMarkTier,
+    knob, DBRange, FloatRange, FreqRange, IntRange, Knob, TickMark,
+    TickMarkGroup, TickMarkTier,
 };
 
 use crate::{style, Step};
@@ -15,137 +15,79 @@ pub enum KnobsID {
     Float,
     Int,
     DB,
-    Octave,
-    Circle,
-    Line,
-    Texture,
+    Freq,
+    Style1,
+    Style2,
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    KnobsChanged((KnobsID, Normal)),
+    KnobMoved(KnobsID),
 }
 
-pub struct KnobsStep {
-    knob_float_param: FloatParam<KnobsID>,
-    knob_float_state: knob::State,
-    knob_float_label: String,
+pub struct KnobStep {
+    float_range: FloatRange,
+    int_range: IntRange,
+    db_range: DBRange,
+    freq_range: FreqRange,
 
-    knob_int_param: IntParam<KnobsID>,
-    knob_int_state: knob::State,
-    knob_int_label: String,
+    knob_float_state: knob::State<KnobsID>,
+    knob_int_state: knob::State<KnobsID>,
+    knob_db_state: knob::State<KnobsID>,
+    knob_freq_state: knob::State<KnobsID>,
+    knob_style1_state: knob::State<KnobsID>,
+    knob_style2_state: knob::State<KnobsID>,
 
-    knob_db_param: LogDBParam<KnobsID>,
-    knob_db_state: knob::State,
-    knob_db_label: String,
-
-    knob_oct_param: OctaveParam<KnobsID>,
-    knob_oct_state: knob::State,
-    knob_oct_label: String,
-
-    knob_circle_param: FloatParam<KnobsID>,
-    knob_circle_state: knob::State,
-    knob_circle_label: String,
-
-    knob_line_param: FloatParam<KnobsID>,
-    knob_line_state: knob::State,
-    knob_line_label: String,
-
-    /*
-    knob_texture_param: FloatParam<KnobsID>,
-    knob_texture_state: knob::State,
-    knob_texture_label: String,
-
-    knob_texture_handle: image::Handle,
-    */
     float_tick_marks: TickMarkGroup,
     int_tick_marks: TickMarkGroup,
     db_tick_marks: TickMarkGroup,
-    octave_tick_marks: TickMarkGroup,
+    freq_tick_marks: TickMarkGroup,
 
     output_text: String,
 }
 
-impl Default for KnobsStep {
+impl Default for KnobStep {
     fn default() -> Self {
         // initalize parameters
 
-        let knob_float_param =
-            FloatParam::<KnobsID>::new(KnobsID::Float, -1.0, 1.0, 0.0, 0.0);
-
-        let knob_int_param = IntParam::<KnobsID>::new(KnobsID::Int, 0, 5, 0, 2);
-
-        let knob_db_param = LogDBParam::<KnobsID>::new(
-            KnobsID::DB,
-            -12.0,
-            12.0,
-            0.0,
-            0.0,
-            0.5.into(),
-        );
-
-        let knob_oct_param = OctaveParam::<KnobsID>::new(
-            KnobsID::Octave,
-            20.0,
-            20_480.0,
-            1000.0,
-            1000.0,
-        );
-
-        let knob_circle_param =
-            FloatParam::<KnobsID>::new(KnobsID::Circle, -1.0, 1.0, 0.0, 0.0);
-
-        let knob_line_param =
-            FloatParam::<KnobsID>::new(KnobsID::Line, -1.0, 1.0, 0.0, 0.0);
-
-        /*
-        let knob_texture_param = FloatParam::<KnobsID>::new(
-            KnobsID::Texture, -1.0, 1.0, 0.0, 0.0);
-        */
+        let float_range = FloatRange::default_bipolar();
+        let int_range = IntRange::new(0, 5);
+        let db_range = DBRange::default();
+        let freq_range = FreqRange::default();
 
         // create application
 
         Self {
-            // add the parameter
-            knob_float_param,
+            float_range,
+            int_range,
+            db_range,
+            freq_range,
+
             // initialize the state of the Knob widget
-            knob_float_state: knob::State::new(&knob_float_param),
-            // initialize the label above the Knob widget
-            knob_float_label: String::from("Float Range"),
-
-            knob_int_param,
-            knob_int_state: knob::State::new(&knob_int_param),
-            knob_int_label: String::from("Int Range"),
-
-            knob_db_param,
-            knob_db_state: knob::State::new(&knob_db_param),
-            knob_db_label: String::from("Log dB Range"),
-
-            knob_oct_param,
-            knob_oct_state: knob::State::new(&knob_oct_param),
-            knob_oct_label: String::from("Octave Freq Range"),
-
-            knob_circle_param,
-            knob_circle_state: knob::State::new(&knob_circle_param),
-            knob_circle_label: String::from("Custom Vector Circle Style"),
-
-            knob_line_param,
-            knob_line_state: knob::State::new(&knob_line_param),
-            knob_line_label: String::from("Custom Vector Line Style"),
-
-            /*
-            knob_texture_param,
-            knob_texture_state: knob::State::new(
-                &knob_texture_param
+            knob_float_state: knob::State::new(
+                float_range.create_param_default(KnobsID::Float),
             ),
-            knob_texture_label: String::from("Custom Texture Style"),
 
+            knob_int_state: knob::State::new(
+                int_range.create_param_default(KnobsID::Int),
+            ),
 
-            knob_texture_handle: format!(
-                "{}/examples/images/iced_knob.png",
-                env!("CARGO_MANIFEST_DIR")
-            ).into(),
-            */
+            knob_db_state: knob::State::new(
+                db_range.create_param_default(KnobsID::DB),
+            ),
+
+            knob_freq_state: knob::State::new(
+                freq_range.create_param_default(KnobsID::Freq),
+            ),
+
+            knob_style1_state: knob::State::new(
+                float_range.create_param_default(KnobsID::Style1),
+            ),
+
+            knob_style2_state: knob::State::new(
+                float_range.create_param_default(KnobsID::Style2),
+            ),
+
             float_tick_marks: TickMarkGroup::subdivided(
                 1,
                 1,
@@ -162,83 +104,83 @@ impl Default for KnobsStep {
 
             db_tick_marks: vec![
                 TickMark {
-                    position: knob_db_param.value_to_normal(0.0),
+                    position: db_range.to_normal(0.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(1.0),
+                    position: db_range.to_normal(1.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(3.0),
+                    position: db_range.to_normal(3.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(6.0),
+                    position: db_range.to_normal(6.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(12.0),
+                    position: db_range.to_normal(12.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(-1.0),
+                    position: db_range.to_normal(-1.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(-3.0),
+                    position: db_range.to_normal(-3.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(-6.0),
+                    position: db_range.to_normal(-6.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_db_param.value_to_normal(-12.0),
+                    position: db_range.to_normal(-12.0),
                     tier: TickMarkTier::Two,
                 },
             ]
             .into(),
 
-            octave_tick_marks: vec![
+            freq_tick_marks: vec![
                 TickMark {
-                    position: knob_oct_param.value_to_normal(20.0),
+                    position: freq_range.to_normal(20.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(50.0),
+                    position: freq_range.to_normal(50.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(100.0),
+                    position: freq_range.to_normal(100.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(200.0),
+                    position: freq_range.to_normal(200.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(400.0),
+                    position: freq_range.to_normal(400.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(1000.0),
+                    position: freq_range.to_normal(1000.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(2000.0),
+                    position: freq_range.to_normal(2000.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(5000.0),
+                    position: freq_range.to_normal(5000.0),
                     tier: TickMarkTier::Two,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(10000.0),
+                    position: freq_range.to_normal(10000.0),
                     tier: TickMarkTier::One,
                 },
                 TickMark {
-                    position: knob_oct_param.value_to_normal(20000.0),
+                    position: freq_range.to_normal(20000.0),
                     tier: TickMarkTier::Two,
                 },
             ]
@@ -249,67 +191,62 @@ impl Default for KnobsStep {
     }
 }
 
-impl KnobsStep {
+impl KnobStep {
     pub fn title(&self) -> &str {
         "Knobs"
     }
 
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::KnobsChanged((id, normal)) => {
-                // Update the parameter with the output of the corresponding
-                // Knobs widget (Note this must be done or the widget will
-                // not work).
-
-                // Then update the output text with the new value of the
-                // parameter.
+            Message::KnobMoved(id) => {
+                // Update the output text with the new value of the parameter.
                 match id {
                     KnobsID::Float => {
-                        self.knob_float_param.set_from_normal(normal);
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.knob_float_param.value(),
+                            self.float_range
+                                .to_value(self.knob_float_state.param.normal),
                         );
                     }
                     KnobsID::Int => {
-                        self.knob_int_param.set_from_normal(normal);
+                        // Integer parameters must be snapped for the widget to
+                        // "step" when moved.
+                        self.int_range
+                            .snap_normal(&mut self.knob_int_state.param.normal);
+
                         self.output_text = crate::info_text_i32(
                             id,
-                            self.knob_int_param.value(),
+                            self.int_range
+                                .to_value(self.knob_int_state.param.normal),
                         );
                     }
                     KnobsID::DB => {
-                        self.knob_db_param.set_from_normal(normal);
-                        self.output_text =
-                            crate::info_text_db(id, self.knob_db_param.value());
-                    }
-                    KnobsID::Octave => {
-                        self.knob_oct_param.set_from_normal(normal);
-                        self.output_text = crate::info_text_octave(
+                        self.output_text = crate::info_text_db(
                             id,
-                            self.knob_oct_param.value(),
+                            self.db_range
+                                .to_value(self.knob_db_state.param.normal),
                         );
                     }
-                    KnobsID::Circle => {
-                        self.knob_circle_param.set_from_normal(normal);
+                    KnobsID::Freq => {
+                        self.output_text = crate::info_text_freq(
+                            id,
+                            self.freq_range
+                                .to_value(self.knob_freq_state.param.normal),
+                        );
+                    }
+                    KnobsID::Style1 => {
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.knob_circle_param.value(),
+                            self.float_range
+                                .to_value(self.knob_style1_state.param.normal),
                         );
                     }
-                    KnobsID::Line => {
-                        self.knob_line_param.set_from_normal(normal);
+                    KnobsID::Style2 => {
                         self.output_text = crate::info_text_f32(
                             id,
-                            self.knob_line_param.value(),
+                            self.float_range
+                                .to_value(self.knob_style2_state.param.normal),
                         );
-                    }
-                    KnobsID::Texture => {
-                        /*
-                        self.knob_texture_param.set_from_normal(normal);
-                        self.output_text = crate::info_text_f32(id,
-                            self.knob_texture_param.value());
-                        */
                     }
                 }
             }
@@ -317,99 +254,55 @@ impl KnobsStep {
     }
 
     pub fn view(&mut self, _debug: bool) -> Element<Message> {
-        // create each of the Knobs widgets, passing in the value of
+        // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_float = Knob::new(
-            &mut self.knob_float_state,
-            &self.knob_float_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.float_tick_marks);
+        let knob_float =
+            Knob::new(&mut self.knob_float_state, Message::KnobMoved)
+                .tick_marks(&self.float_tick_marks);
 
-        let knob_int = Knob::new(
-            &mut self.knob_int_state,
-            &self.knob_int_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.int_tick_marks);
+        let knob_int = Knob::new(&mut self.knob_int_state, Message::KnobMoved)
+            .tick_marks(&self.int_tick_marks);
 
-        let knob_db = Knob::new(
-            &mut self.knob_db_state,
-            &self.knob_db_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.db_tick_marks);
+        let knob_db = Knob::new(&mut self.knob_db_state, Message::KnobMoved)
+            .tick_marks(&self.db_tick_marks);
 
-        let knob_oct = Knob::new(
-            &mut self.knob_oct_state,
-            &self.knob_oct_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.octave_tick_marks);
+        let knob_freq =
+            Knob::new(&mut self.knob_freq_state, Message::KnobMoved)
+                .tick_marks(&self.freq_tick_marks);
 
-        let knob_circle = Knob::new(
-            &mut self.knob_circle_state,
-            &self.knob_circle_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.float_tick_marks)
-        .style(style::KnobCustomStyleCircle);
+        let knob_style1 =
+            Knob::new(&mut self.knob_style1_state, Message::KnobMoved)
+                .style(style::KnobCustomStyleCircle);
 
-        let knob_line = Knob::new(
-            &mut self.knob_line_state,
-            &self.knob_line_param,
-            Message::KnobsChanged,
-        )
-        .tick_marks(&self.float_tick_marks)
-        .style(style::KnobCustomStyleLine);
+        let knob_style2 =
+            Knob::new(&mut self.knob_style2_state, Message::KnobMoved)
+                .style(style::KnobCustomStyleLine);
 
-        /*
-        let knob_texture = Knob::new(
-            &mut self.knob_texture_state,
-            &self.knob_texture_param,
-            Message::KnobsChanged,
-        )
-        // clone the handle to the loaded texture
-        .style(style::KnobTextureStyle(
-            self.knob_texture_handle.clone()
-        ));
-        */
-
-        // push the knobs into columns
-
+        // push the widgets into rows
         let knob_row = Row::new()
             .spacing(20)
             .push(
                 Column::new()
-                    .max_height(400)
                     .width(Length::Fill)
                     .spacing(10)
-                    .push(Text::new(&self.knob_float_label))
+                    .push(Text::new("Float Range"))
                     .push(knob_float)
-                    .push(Text::new(&self.knob_int_label))
-                    .push(knob_int),
-            )
-            .push(
-                Column::new()
-                    .max_height(400)
-                    .width(Length::Fill)
-                    .spacing(10)
-                    .push(Text::new(&self.knob_db_label))
+                    .push(Text::new("DB Range"))
                     .push(knob_db)
-                    .push(Text::new(&self.knob_oct_label))
-                    .push(knob_oct),
+                    .push(Text::new("Custom Style 1"))
+                    .push(knob_style1),
             )
             .push(
                 Column::new()
-                    .max_height(400)
                     .width(Length::Fill)
                     .spacing(10)
-                    .push(Text::new(&self.knob_circle_label))
-                    .push(knob_circle)
-                    .push(Text::new(&self.knob_line_label))
-                    .push(knob_line), //.push(Text::new(&self.knob_texture_label))
-                                      //.push(knob_texture)
+                    .push(Text::new("Int Range"))
+                    .push(knob_int)
+                    .push(Text::new("Freq Range"))
+                    .push(knob_freq)
+                    .push(Text::new("Custom Style 2"))
+                    .push(knob_style2),
             );
 
         let content = Column::new()

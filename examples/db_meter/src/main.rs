@@ -7,12 +7,14 @@
 //!
 //! [1]: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Basic_animations#An_animated_solar_system
 use iced::{
-    executor, Application, Column, Command, Container, Element, Length, Row,
-    Settings, Subscription, Color, Text
+    executor, Application, Color, Column, Command, Container, Element, Length,
+    Row, Settings, Subscription, Text,
 };
 
-use iced_audio::{db_meter, knob, DBMeter, Knob, LogDBParam, Normal,
-TickMarkGroup, TickMarkTier, TickMark};
+use iced_audio::{
+    db_meter, knob, DBMeter, DBRange, Knob, TickMark, TickMarkGroup,
+    TickMarkTier,
+};
 
 use std::time::Instant;
 
@@ -36,19 +38,17 @@ pub fn main() {
 #[derive(Debug, Clone, Copy)]
 enum Message {
     Tick(Instant),
-    ParamChanged((ParamID, Normal)),
+    ParamMoved(ParamID),
 }
 
 struct DBMeterApp {
-    left_main_db_parm: LogDBParam<ParamID>,
-    left_peak_db_param: LogDBParam<ParamID>,
-    right_main_db_parm: LogDBParam<ParamID>,
-    right_peak_db_param: LogDBParam<ParamID>,
+    #[allow(dead_code)]
+    db_range: DBRange,
 
-    left_main_db_knob_state: knob::State,
-    left_peak_db_knob_state: knob::State,
-    right_main_db_knob_state: knob::State,
-    right_peak_db_knob_state: knob::State,
+    left_main_db_knob_state: knob::State<ParamID>,
+    left_peak_db_knob_state: knob::State<ParamID>,
+    right_main_db_knob_state: knob::State<ParamID>,
+    right_peak_db_knob_state: knob::State<ParamID>,
 
     db_meter_state: db_meter::State,
     db_meter_custom_state: db_meter::State,
@@ -70,61 +70,32 @@ impl Application for DBMeterApp {
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
-        let left_main_db_parm = LogDBParam::<ParamID>::new(
-            ParamID::LeftMainDB,
-            -64.0,
-            3.0,
-            -64.0,
-            0.0,
-            0.9.into(),
-        );
-        let left_peak_db_param = LogDBParam::<ParamID>::new(
-            ParamID::LeftPeakDB,
-            -64.0,
-            3.0,
-            -64.0,
-            0.0,
-            0.9.into(),
-        );
-
-        let right_main_db_parm = LogDBParam::<ParamID>::new(
-            ParamID::RightMainDB,
-            -64.0,
-            3.0,
-            -64.0,
-            0.0,
-            0.9.into(),
-        );
-        let right_peak_db_param = LogDBParam::<ParamID>::new(
-            ParamID::RightPeakDB,
-            -64.0,
-            3.0,
-            -64.0,
-            0.0,
-            0.9.into(),
-        );
+        let db_range = DBRange::new(-64.0, 3.0, 0.9.into());
 
         (
             DBMeterApp {
-                left_main_db_parm,
-                left_peak_db_param,
-                right_main_db_parm,
-                right_peak_db_param,
+                db_range,
 
-                left_main_db_knob_state: knob::State::new(&left_main_db_parm),
-                left_peak_db_knob_state: knob::State::new(&left_peak_db_param),
-                right_main_db_knob_state: knob::State::new(&right_main_db_parm),
+                left_main_db_knob_state: knob::State::new(
+                    db_range.create_param(ParamID::LeftMainDB, -64.0, -64.0),
+                ),
+                left_peak_db_knob_state: knob::State::new(
+                    db_range.create_param(ParamID::LeftPeakDB, -64.0, -64.0),
+                ),
+                right_main_db_knob_state: knob::State::new(
+                    db_range.create_param(ParamID::RightMainDB, -64.0, -64.0),
+                ),
                 right_peak_db_knob_state: knob::State::new(
-                    &right_peak_db_param,
+                    db_range.create_param(ParamID::RightPeakDB, -64.0, -64.0),
                 ),
 
                 db_meter_state: db_meter::State::new(
                     db_meter::BarState::default(),
                     Some(db_meter::BarState::default()),
                     db_meter::TierPositions {
-                        clipping: left_main_db_parm.value_to_normal(0.0),
-                        med: Some(left_main_db_parm.value_to_normal(-12.0)),
-                        high: Some(left_main_db_parm.value_to_normal(-3.0)),
+                        clipping: db_range.to_normal(0.0),
+                        med: Some(db_range.to_normal(-12.0)),
+                        high: Some(db_range.to_normal(-3.0)),
                     },
                 ),
 
@@ -132,44 +103,42 @@ impl Application for DBMeterApp {
                     db_meter::BarState::default(),
                     None,
                     db_meter::TierPositions {
-                        clipping: left_main_db_parm.value_to_normal(0.0),
+                        clipping: db_range.to_normal(0.0),
                         med: None,
-                        high: Some(left_main_db_parm.value_to_normal(-6.0)),
+                        high: Some(db_range.to_normal(-6.0)),
                     },
                 ),
 
-                tick_marks: TickMarkGroup::from_vec(
-                    vec![
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(0.0),
-                            tier: TickMarkTier::One,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-3.0),
-                            tier: TickMarkTier::Two,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-6.0),
-                            tier: TickMarkTier::Two,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-9.0),
-                            tier: TickMarkTier::Two,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-12.0),
-                            tier: TickMarkTier::Two,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-24.0),
-                            tier: TickMarkTier::Two,
-                        },
-                        TickMark {
-                            position: left_main_db_parm.value_to_normal(-48.0),
-                            tier: TickMarkTier::Two,
-                        },
-                    ]
-                ),
+                tick_marks: TickMarkGroup::from_vec(vec![
+                    TickMark {
+                        position: db_range.to_normal(0.0),
+                        tier: TickMarkTier::One,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-3.0),
+                        tier: TickMarkTier::Two,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-6.0),
+                        tier: TickMarkTier::Two,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-9.0),
+                        tier: TickMarkTier::Two,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-12.0),
+                        tier: TickMarkTier::Two,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-24.0),
+                        tier: TickMarkTier::Two,
+                    },
+                    TickMark {
+                        position: db_range.to_normal(-48.0),
+                        tier: TickMarkTier::Two,
+                    },
+                ]),
 
                 current: Instant::now(),
             },
@@ -185,34 +154,31 @@ impl Application for DBMeterApp {
         match message {
             Message::Tick(instant) => {
                 self.update(instant);
+
+                // Normally you would animate the DBMeter here, but basic
+                // knobs are used instead for demonstration.
             }
-            Message::ParamChanged((id, normal)) => {
-                // Update each parameter with the `Normal` output value from
-                // the corresponding parameter widget.
-                //
-                // Now do something useful with that value!
-                //
-                match id {
-                    ParamID::LeftMainDB => {
-                        self.left_main_db_parm.set_from_normal(normal);
-                        self.db_meter_state.set_left(normal);
-                        self.db_meter_custom_state.set_left(normal);
-                    }
-                    ParamID::LeftPeakDB => {
-                        self.left_peak_db_param.set_from_normal(normal);
-                        self.db_meter_state.set_left_peak(normal);
-                        self.db_meter_custom_state.set_left_peak(normal);
-                    }
-                    ParamID::RightMainDB => {
-                        self.right_main_db_parm.set_from_normal(normal);
-                        self.db_meter_state.set_right(normal);
-                    }
-                    ParamID::RightPeakDB => {
-                        self.right_peak_db_param.set_from_normal(normal);
-                        self.db_meter_state.set_right_peak(normal);
-                    }
+            Message::ParamMoved(id) => match id {
+                ParamID::LeftMainDB => {
+                    let normal = self.left_main_db_knob_state.param.normal;
+                    self.db_meter_state.set_left(normal);
+                    self.db_meter_custom_state.set_left(normal);
                 }
-            }
+                ParamID::LeftPeakDB => {
+                    let normal = self.left_peak_db_knob_state.param.normal;
+                    self.db_meter_state.set_left_peak(normal);
+                    self.db_meter_custom_state.set_left_peak(normal);
+                }
+                ParamID::RightMainDB => {
+                    self.db_meter_state
+                        .set_right(self.right_main_db_knob_state.param.normal);
+                }
+                ParamID::RightPeakDB => {
+                    self.db_meter_state.set_right_peak(
+                        self.right_peak_db_knob_state.param.normal,
+                    );
+                }
+            },
         }
 
         Command::none()
@@ -224,27 +190,15 @@ impl Application for DBMeterApp {
     }
 
     fn view(&mut self) -> Element<Message> {
-        let left_main_knob = Knob::new(
-            &mut self.left_main_db_knob_state,
-            &self.left_main_db_parm,
-            Message::ParamChanged,
-        );
-        let left_peak_knob = Knob::new(
-            &mut self.left_peak_db_knob_state,
-            &self.left_peak_db_param,
-            Message::ParamChanged,
-        );
+        let left_main_knob =
+            Knob::new(&mut self.left_main_db_knob_state, Message::ParamMoved);
+        let left_peak_knob =
+            Knob::new(&mut self.left_peak_db_knob_state, Message::ParamMoved);
 
-        let right_main_knob = Knob::new(
-            &mut self.right_main_db_knob_state,
-            &self.right_main_db_parm,
-            Message::ParamChanged,
-        );
-        let right_peak_knob = Knob::new(
-            &mut self.right_peak_db_knob_state,
-            &self.right_peak_db_param,
-            Message::ParamChanged,
-        );
+        let right_main_knob =
+            Knob::new(&mut self.right_main_db_knob_state, Message::ParamMoved);
+        let right_peak_knob =
+            Knob::new(&mut self.right_peak_db_knob_state, Message::ParamMoved);
 
         let db_meter = DBMeter::new(
             &mut self.db_meter_state,
@@ -265,39 +219,38 @@ impl Application for DBMeterApp {
             .height(Length::Fill)
             .spacing(20)
             .padding(20)
-            
-            .push(Column::new()
-                .max_width(60)
-                .height(Length::Fill)
-                .spacing(20)
-                .push(left_main_knob)
-                .push(Text::new("Left DB"))
+            .push(
+                Column::new()
+                    .max_width(60)
+                    .height(Length::Fill)
+                    .spacing(20)
+                    .push(left_main_knob)
+                    .push(Text::new("Left DB")),
             )
-
-            .push(Column::new()
-                .max_width(60)
-                .height(Length::Fill)
-                .spacing(20)
-                .push(left_peak_knob)
-                .push(Text::new("Left Peak DB"))
+            .push(
+                Column::new()
+                    .max_width(60)
+                    .height(Length::Fill)
+                    .spacing(20)
+                    .push(left_peak_knob)
+                    .push(Text::new("Left Peak DB")),
             )
-
-            .push(Column::new()
-                .max_width(60)
-                .height(Length::Fill)
-                .spacing(20)
-                .push(right_main_knob)
-                .push(Text::new("Right DB"))
+            .push(
+                Column::new()
+                    .max_width(60)
+                    .height(Length::Fill)
+                    .spacing(20)
+                    .push(right_main_knob)
+                    .push(Text::new("Right DB")),
             )
-
-            .push(Column::new()
-                .max_width(60)
-                .height(Length::Fill)
-                .spacing(20)
-                .push(right_peak_knob)
-                .push(Text::new("Right Peak DB"))
+            .push(
+                Column::new()
+                    .max_width(60)
+                    .height(Length::Fill)
+                    .spacing(20)
+                    .push(right_peak_knob)
+                    .push(Text::new("Right Peak DB")),
             )
-
             .push(db_meter)
             .push(db_meter_custom);
 
@@ -395,13 +348,13 @@ impl db_meter::StyleSheet for CustomDBMeterStyle {
 
     fn tick_mark_style(&self) -> Option<db_meter::TickMarkStyle> {
         Some(db_meter::TickMarkStyle {
-            size_tier_1: 4,
-            size_tier_2: 3,
-            size_tier_3: 2,
+            length_tier_1: 4,
+            length_tier_2: 3,
+            length_tier_3: 2,
 
-            height_tier_1: 2,
-            height_tier_2: 2,
-            height_tier_3: 1,
+            width_tier_1: 2,
+            width_tier_2: 2,
+            width_tier_3: 1,
 
             color_tier_1: BACK_COLOR,
             color_tier_2: BACK_COLOR,
@@ -409,7 +362,7 @@ impl db_meter::StyleSheet for CustomDBMeterStyle {
 
             offset: 2,
 
-            position: db_meter::TickMarkPosition::Right,
+            placement: db_meter::TickMarkPlacement::Right,
         })
     }
 }

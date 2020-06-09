@@ -4,54 +4,67 @@
 
 use iced::Color;
 
+use crate::style::default_colors;
+
 /// The appearance of a [`DBMeter`].
 ///
 /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
 #[derive(Debug, Clone)]
 pub struct Style {
-    ///
+    /// The color of the background rectangle
     pub back_color: Color,
-    ///
+    /// The width of the border of the background rectangle
     pub back_border_width: u16,
-    ///
+    /// The color of the border of the background rectangle
     pub back_border_color: Color,
-    ///
+    /// The color of the bar in the low tier
     pub low_color: Color,
-    ///
+    /// The color of the bar in the medium tier
     pub med_color: Color,
-    ///
+    /// The color of the bar in the high tier
     pub high_color: Color,
-    ///
+    /// The color of the bar/peak line in the clipping tier
     pub clip_color: Color,
-    ///
+    /// The color of the peak line. Set this to `None` to use
+    /// the same colors as the bar.
     pub peak_line_color: Option<Color>,
-    ///
+    /// The width of the peak line
     pub peak_line_width: u16,
-    ///
+    /// If true, this will color the entire bar `clip_color` when
+    /// the clipping tier is reached.
     pub color_all_clip_color: bool,
-    /// 
+    /// The width of the line that marks where clipping starts
     pub clip_marker_width: u16,
-    /// 
+    /// The color of the line that marks where clipping starts
     pub clip_marker_color: Color,
+    /// The width of the gap between the left and right bar. This has
+    /// no effect if the [`DBMeter`] is in mono mode.
     ///
+    /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
     pub inner_gap: u16,
+    /// The color of the gap between the left and right bar. This has
+    /// no effect if the [`DBMeter`] is in mono mode.
     ///
+    /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
     pub inner_gap_color: Color,
 }
-/// 
+
+/// The placement of tick marks for a [`DBMeter`].
+///
+/// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum TickMarkPosition {
-    /// 
+pub enum TickMarkPlacement {
+    /// Tick marks on both sides
     LeftAndRight,
-    /// 
+    /// Tick marks only on the left/top side
     Left,
-    /// 
+    /// Tick marks only on the right/bottom side
     Right,
 }
 
-impl std::default::Default for TickMarkPosition {
+impl std::default::Default for TickMarkPlacement {
     fn default() -> Self {
-        TickMarkPosition::LeftAndRight
+        TickMarkPlacement::LeftAndRight
     }
 }
 
@@ -61,19 +74,19 @@ impl std::default::Default for TickMarkPosition {
 /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
 #[derive(Debug, Copy, Clone)]
 pub struct TickMarkStyle {
-    /// 
-    pub size_tier_1: u16,
-    /// 
-    pub size_tier_2: u16,
-    /// 
-    pub size_tier_3: u16,
+    /// The length of a tier 1 tick mark
+    pub length_tier_1: u16,
+    /// The length of a tier 2 tick mark
+    pub length_tier_2: u16,
+    /// The length of a tier 3 tick mark
+    pub length_tier_3: u16,
 
-    /// The height (thickness) of a tier 1 tick mark
-    pub height_tier_1: u16,
-    /// The height (thickness) of a tier 2 tick mark
-    pub height_tier_2: u16,
-    /// The height (thickness) of a tier 3 tick mark
-    pub height_tier_3: u16,
+    /// The width (thickness) of a tier 1 tick mark
+    pub width_tier_1: u16,
+    /// The width (thickness) of a tier 2 tick mark
+    pub width_tier_2: u16,
+    /// The width (thickness) of a tier 3 tick mark
+    pub width_tier_3: u16,
 
     /// The color of a tier 1 tick mark
     pub color_tier_1: Color,
@@ -82,31 +95,33 @@ pub struct TickMarkStyle {
     /// The color of a tier 3 tick mark
     pub color_tier_3: Color,
 
-    /// 
+    /// The offset of the tick marks from the side of the [`DBMeter`]
+    ///
+    /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
     pub offset: u16,
 
-    /// 
-    pub position: TickMarkPosition,
+    /// The placement of the tick marks
+    pub placement: TickMarkPlacement,
 }
 
 impl std::default::Default for TickMarkStyle {
     fn default() -> Self {
         Self {
-            size_tier_1: 4,
-            size_tier_2: 3,
-            size_tier_3: 2,
+            length_tier_1: 4,
+            length_tier_2: 3,
+            length_tier_3: 2,
 
-            height_tier_1: 2,
-            height_tier_2: 2,
-            height_tier_3: 1,
+            width_tier_1: 2,
+            width_tier_2: 2,
+            width_tier_3: 1,
 
-            color_tier_1: [0.56, 0.56, 0.56, 0.85].into(),
-            color_tier_2: [0.56, 0.56, 0.56, 0.73].into(),
-            color_tier_3: [0.56, 0.56, 0.56, 0.63].into(),
+            color_tier_1: default_colors::DB_METER_TICK_TIER_1,
+            color_tier_2: default_colors::DB_METER_TICK_TIER_2,
+            color_tier_3: default_colors::DB_METER_TICK_TIER_3,
 
             offset: 2,
 
-            position: TickMarkPosition::default(),
+            placement: TickMarkPlacement::default(),
         }
     }
 }
@@ -115,7 +130,7 @@ impl std::default::Default for TickMarkStyle {
 ///
 /// [`DBMeter`]: ../../native/DBMeter/struct.DBMeter.html
 pub trait StyleSheet {
-    /// Produces the style of an active [`DBMeter`].
+    /// Produces the style of a [`DBMeter`].
     ///
     /// [`DBMeter`]: ../../native/DBMeter/struct.DBMeter.html
     fn style(&self) -> Style;
@@ -136,20 +151,20 @@ struct Default;
 impl StyleSheet for Default {
     fn style(&self) -> Style {
         Style {
-            back_color: Color::from_rgb(0.45, 0.45, 0.45),
+            back_color: default_colors::DB_METER_BACK,
             back_border_width: 1,
-            back_border_color: Color::from_rgb(0.2, 0.2, 0.2),
-            low_color: Color::from_rgb(0.435, 0.886, 0.11),
-            med_color: Color::from_rgb(0.737, 1.0, 0.145),
-            high_color: Color::from_rgb(1.0, 0.945, 0.0),
-            clip_color: Color::from_rgb(1.0, 0.071, 0.071),
+            back_border_color: default_colors::DB_METER_BORDER,
+            low_color: default_colors::DB_METER_LOW,
+            med_color: default_colors::DB_METER_MED,
+            high_color: default_colors::DB_METER_HIGH,
+            clip_color: default_colors::DB_METER_CLIP,
             peak_line_color: None,
             peak_line_width: 2,
             color_all_clip_color: true,
             clip_marker_width: 2,
-            clip_marker_color: Color::from_rgba8(200, 200, 200, 0.28),
+            clip_marker_color: default_colors::DB_METER_CLIP_MARKER,
             inner_gap: 2,
-            inner_gap_color: Color::from_rgb(0.25, 0.25, 0.25),
+            inner_gap_color: default_colors::DB_METER_GAP,
         }
     }
 
