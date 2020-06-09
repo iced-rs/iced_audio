@@ -159,7 +159,7 @@ impl Sandbox for App {
             db_range,
             freq_range,
 
-            // Initialize the state of the widgets with a parameter than has an ID, value,
+            // Initialize the state of the widgets with a parameter that has an ID, value,
             // and default value.
             h_slider_state: h_slider::State::new(int_range.create_param(
                 ParamID::HSliderInt,
