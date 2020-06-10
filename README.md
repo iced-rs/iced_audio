@@ -11,13 +11,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
     <img src="/screenshots/DB_Meter.png">
 </div>
 
-## Run examples with
-
-```
-cargo run --example basic_inputs --release
-cargo run --example simple --release
-cargo run --package db_meter --release
-```
+[more screenshots]
 
 ## Widgets implemented
 * [x] `HSlider`
@@ -64,6 +58,14 @@ cargo run --package db_meter --release
 * `IntRange` - a discrete range of i32 values. This will cause the widget to "step" when moved.
 * `DBRange` - a logarithmic range of decibel values. Values around 0 dB will increment slower than values farther away from 0 dB.
 * `FreqRange` - a logarithmic range of frequency values. Each octave in the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
+
+## Run examples with
+
+```
+cargo run --example basic_inputs --release
+cargo run --example simple --release
+cargo run --package db_meter --release
+```
 
 ## Installation
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
@@ -299,3 +301,4 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [Zulip server]: https://iced.zulipchat.com/
 [Rust Community Discord]: https://bit.ly/rust-community
 [the release list]: https://github.com/BillyDM/iced_audio/releases
+[more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots

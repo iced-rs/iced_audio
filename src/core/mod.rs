@@ -235,7 +235,7 @@ impl KnobAngleRange {
     ///
     /// This will panic if `min` > `max`.
     pub fn from_rad(min: f32, max: f32) -> Self {
-        assert!(min <= max);
+        debug_assert!(min <= max);
 
         let mut min = min;
         let mut max = max;

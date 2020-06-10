@@ -81,6 +81,12 @@ pub const KNOB_BORDER_COLOR: Color = Color::from_rgb(
     0x46 as f32 / 255.0,
     0x4D as f32 / 255.0,
 );
+pub const KNOB_ARC_COLOR: Color = Color::from_rgb(
+    0x3D as f32 / 255.0,
+    0x9E as f32 / 255.0,
+    0xE9 as f32 / 255.0,
+);
+pub const KNOB_ARC_RIGHT_COLOR: Color = Color::from_rgb(0.0, 0.77, 0.0);
 
 // Custom style for the Rect HSlider
 
@@ -382,7 +388,7 @@ impl knob::StyleSheet for KnobCustomStyleLine {
             knob_border_width: 0,
             knob_border_color: KNOB_BORDER_COLOR,
             notch_color: Color::from_rgb(0.0, 0.8, 0.0),
-            notch_width: 4.0,
+            notch_width: 3.5,
             notch_scale: 0.35.into(),
             notch_offset: 0.21.into(),
         })
@@ -413,7 +419,7 @@ impl knob::StyleSheet for KnobCustomStyleLine {
             width_tier_2: 1.0,
             width_tier_3: 1.0,
 
-            length_tier_1: 4.0,
+            length_tier_1: 3.5,
             length_tier_2: 2.5,
             length_tier_3: 2.5,
 
@@ -423,6 +429,69 @@ impl knob::StyleSheet for KnobCustomStyleLine {
 
             offset: 2.1,
         }))
+    }
+}
+
+// Custom style for the Knob
+
+pub struct KnobCustomArc;
+impl knob::StyleSheet for KnobCustomArc {
+    fn active(&self) -> knob::Style {
+        knob::Style::Arc(knob::ArcStyle {
+            arc_width: 3.15,
+            arc_empty_color: EMPTY_COLOR,
+            arc_filled_color: KNOB_ARC_COLOR,
+            notch: Some(knob::ArcNotch {
+                width: 3.15,
+                length_scale: 0.55.into(),
+                color: KNOB_ARC_COLOR,
+            }),
+        })
+    }
+
+    fn hovered(&self) -> knob::Style {
+        self.active()
+    }
+
+    fn dragging(&self) -> knob::Style {
+        self.active()
+    }
+
+    fn angle_range(&self) -> iced_audio::KnobAngleRange {
+        iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
+    }
+}
+
+// Custom style for the Knob
+
+pub struct KnobCustomArcBipolar;
+impl knob::StyleSheet for KnobCustomArcBipolar {
+    fn active(&self) -> knob::Style {
+        knob::Style::ArcBipolar(knob::ArcBipolarStyle {
+            arc_width: 3.15,
+            arc_empty_color: EMPTY_COLOR,
+            arc_left_color: KNOB_ARC_COLOR,
+            arc_right_color: KNOB_ARC_RIGHT_COLOR,
+            notch: Some(knob::ArcBipolarNotch {
+                width: 3.15,
+                length_scale: 0.55.into(),
+                color_center: EMPTY_COLOR,
+                color_left: KNOB_ARC_COLOR,
+                color_right: KNOB_ARC_RIGHT_COLOR,
+            }),
+        })
+    }
+
+    fn hovered(&self) -> knob::Style {
+        self.active()
+    }
+
+    fn dragging(&self) -> knob::Style {
+        self.active()
+    }
+
+    fn angle_range(&self) -> iced_audio::KnobAngleRange {
+        iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
 }
 

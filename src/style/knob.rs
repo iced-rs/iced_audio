@@ -14,10 +14,15 @@ use crate::{KnobAngleRange, Normal};
 #[derive(Debug, Clone)]
 pub enum Style {
     //Texture(TextureStyle),
-    /// a simple modern vector style with a circle as the notch
+    /// a classic vector style with a circle as the notch
     VectorCircle(VectorCircleStyle),
-    /// a simple modern vector style with a line as the notch
+    /// a classic vector style with a line as the notch
     VectorLine(VectorLineStyle),
+    /// a modern arc style with an optional line as the notch
+    Arc(ArcStyle),
+    /// a modern arc style with an optional line as the notch. It can
+    /// display different colors for left, right, and center positions.
+    ArcBipolar(ArcBipolarStyle),
 }
 
 /*
@@ -41,7 +46,7 @@ pub struct TextureStyle {
 }
 */
 
-/// A simple vector [`Style`] of a [`Knob`] witch a circle as the notch
+/// a classic vector [`Style`] of a [`Knob`] witch a circle as the notch
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -70,7 +75,7 @@ pub struct VectorCircleStyle {
     pub notch_offset: Normal,
 }
 
-/// A vector [`Style`] of a [`Knob`] with a line as the notch
+/// a classic vector [`Style`] of a [`Knob`] with a line as the notch
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -92,6 +97,80 @@ pub struct VectorLineStyle {
     /// the offset of the notch line from the edge of the knob compared to the
     /// radius of the knob
     pub notch_offset: Normal,
+}
+
+/// a modern arc [`Style`] of a [`Knob`] with an optional [`ArcNotch`]
+///
+/// [`Style`]: enum.Style.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+/// [`ArcNotch`]: struct.ArcNotch.html
+#[derive(Debug, Clone)]
+pub struct ArcStyle {
+    /// the width (thickness) of the arc
+    pub arc_width: f32,
+    /// the color of an empty portion of the arc
+    pub arc_empty_color: Color,
+    /// the color of the filled portion of the arc
+    pub arc_filled_color: Color,
+    /// an option notch to display
+    pub notch: Option<ArcNotch>,
+}
+
+/// The notch for the [`ArcStyle`] of a [`Knob`]
+///
+/// [`ArcStyle`]: struct.ArcStyle.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Clone)]
+pub struct ArcNotch {
+    /// the width (thickness) of the notch
+    pub width: f32,
+    /// the length of the notch compared to the radius of the [`Knob`]
+    ///
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    pub length_scale: Normal,
+    /// the color of the notch
+    pub color: Color,
+}
+
+/// a modern arc [`Style`] of a [`Knob`] with an optional [`ArcBipolarNotch`].
+/// It can display different colors for left, right, and center positions. The filled arc
+/// color draws from the center position.
+///
+/// [`Style`]: enum.Style.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+/// [`ArcBipolarNotch`]: struct.ArcBipolarNotch.html
+#[derive(Debug, Clone)]
+pub struct ArcBipolarStyle {
+    /// the width (thickness) of the arc
+    pub arc_width: f32,
+    /// the color of an empty portion of the arc
+    pub arc_empty_color: Color,
+    /// the color of the filled portion of the arc left of the center
+    pub arc_left_color: Color,
+    /// the color of the filled portion of the arc right of the center
+    pub arc_right_color: Color,
+    /// an optional notch to display
+    pub notch: Option<ArcBipolarNotch>,
+}
+
+/// The notch for the [`ArcBipolarStyle`] of a [`Knob`]
+///
+/// [`ArcBipolarStyle`]: struct.ArcBipolarStyle.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Clone)]
+pub struct ArcBipolarNotch {
+    /// the width (thickness) of the notch
+    pub width: f32,
+    /// the length of the notch compared to the radius of the [`Knob`]
+    ///
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    pub length_scale: Normal,
+    /// the color of the notch when it is in the center
+    pub color_center: Color,
+    /// the color of the notch when it is left of the center
+    pub color_left: Color,
+    /// the color of the notch when it is right of the center
+    pub color_right: Color,
 }
 
 /// The style of a [`TickMarkGroup`] for a [`Knob`]

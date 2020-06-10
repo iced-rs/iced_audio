@@ -1,5 +1,4 @@
 use iced::{Column, Element, Length, Row, Text};
-use iced_native::image;
 
 use iced_audio::{
     knob, DBRange, FloatRange, FreqRange, IntRange, Knob, TickMark,
@@ -18,6 +17,8 @@ pub enum KnobsID {
     Freq,
     Style1,
     Style2,
+    Style3,
+    Style4,
 }
 
 #[derive(Debug, Clone)]
@@ -37,6 +38,8 @@ pub struct KnobStep {
     knob_freq_state: knob::State<KnobsID>,
     knob_style1_state: knob::State<KnobsID>,
     knob_style2_state: knob::State<KnobsID>,
+    knob_style3_state: knob::State<KnobsID>,
+    knob_style4_state: knob::State<KnobsID>,
 
     float_tick_marks: TickMarkGroup,
     int_tick_marks: TickMarkGroup,
@@ -86,6 +89,14 @@ impl Default for KnobStep {
 
             knob_style2_state: knob::State::new(
                 float_range.create_param_default(KnobsID::Style2),
+            ),
+
+            knob_style3_state: knob::State::new(
+                float_range.create_param_default(KnobsID::Style3),
+            ),
+
+            knob_style4_state: knob::State::new(
+                float_range.create_param_default(KnobsID::Style4),
             ),
 
             float_tick_marks: TickMarkGroup::subdivided(
@@ -248,6 +259,20 @@ impl KnobStep {
                                 .to_value(self.knob_style2_state.param.normal),
                         );
                     }
+                    KnobsID::Style3 => {
+                        self.output_text = crate::info_text_f32(
+                            id,
+                            self.float_range
+                                .to_value(self.knob_style3_state.param.normal),
+                        );
+                    }
+                    KnobsID::Style4 => {
+                        self.output_text = crate::info_text_f32(
+                            id,
+                            self.float_range
+                                .to_value(self.knob_style4_state.param.normal),
+                        );
+                    }
                 }
             }
         }
@@ -279,6 +304,14 @@ impl KnobStep {
             Knob::new(&mut self.knob_style2_state, Message::KnobMoved)
                 .style(style::KnobCustomStyleLine);
 
+        let knob_style3 =
+            Knob::new(&mut self.knob_style3_state, Message::KnobMoved)
+                .style(style::KnobCustomArc);
+
+        let knob_style4 =
+            Knob::new(&mut self.knob_style4_state, Message::KnobMoved)
+                .style(style::KnobCustomArcBipolar);
+
         // push the widgets into rows
         let knob_row = Row::new()
             .spacing(20)
@@ -291,7 +324,7 @@ impl KnobStep {
                     .push(Text::new("DB Range"))
                     .push(knob_db)
                     .push(Text::new("Custom Style 1"))
-                    .push(knob_style1),
+                    .push(knob_style1)
             )
             .push(
                 Column::new()
@@ -302,7 +335,16 @@ impl KnobStep {
                     .push(Text::new("Freq Range"))
                     .push(knob_freq)
                     .push(Text::new("Custom Style 2"))
-                    .push(knob_style2),
+                    .push(knob_style2)
+            )
+            .push(
+                Column::new()
+                    .width(Length::Fill)
+                    .spacing(10)
+                    .push(Text::new("Custom Style 3"))
+                    .push(knob_style3)
+                    .push(Text::new("Custom Bipolar Style 4"))
+                    .push(knob_style4)
             );
 
         let content = Column::new()
