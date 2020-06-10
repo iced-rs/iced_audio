@@ -14,44 +14,16 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 [more screenshots]
 
 ## Widgets implemented
-* [x] `HSlider`
-* [x] `VSlider`
-* [x] `Ramp`
-* [x] `XYPad`
+* [x] `HSlider` - Horizontal Slider
+* [x] `VSlider` - Vertical Slider
+* [x] `Ramp` - Ramp used to control the easing between two points in time
+* [x] `XYPad`- XY Pad for controlling 2 parameters at once
 
 ## Widgets partially implemented
-* [x] `Knob` - No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
-* [x] `DBMeter` - No animation or DSP yet. The user must calculate levels and animate them manually.
+* [x] `Knob` - A basic knob widget. No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
+* [x] `DBMeter` - A decibel meter. No animation or DSP yet. The user must calculate levels and animate them manually.
 
-## Roadmap of planned widgets
-### Inputs
-
-* [x] `HSlider` - horizontal slider with optional tick marks
-* [x] `VSlider` - vertical slider with optional tick marks
-* [ ] `HRangeSlider` - a horizontal slider with two or more handles for controlling the automation range of a parameter.
-* [x] `Knob` - a rotating knob with optional tick marks. Texture style may have optional highlight and shadow layers.
-* [ ] `KnobAutoRangeInput` - a static dot that controls a `KnobAutoRange` visualizer by dragging up and down. This dot is usually positioned on or near the visualizer it is controlling.
-* [x] `Ramp` - a line that curves up and down while being dragged. It is used to represent the easing of a parameter between two points in time.
-* [ ] `ADSREnvelope` - adjustable points connected by lines that represent an ADSR envelope. Can also have optional `delay` and `hold` points. The curve of each line may also optionally be controlled by dragging up and down on that line.
-* [ ] `EnvelopeEditor` - adjustable points connected by lines that represent automation / envelopes / lfo`s. Lines can be straight, curved, or stepped. Extra points can be added or removed.
-* [ ] `StepEditor` - a row of vertical sliders for step automation
-* [ ] `ParEqEditor` - a row of points connected by lines used to control parametric equalizers. These points can also be controlled with the scroll wheel to adjust the Q value.
-* [ ] `Keys` - piano keys that can be clicked with a mouse to play a synthesizer. Velocity is controlled by how low on the key the mouse was clicked at. It can be horizontal or vertical.
-* [ ] `ModWheel` - like VSlider, but the Texture style is that of a mod wheel with optional highlight and shadow layers. Will also have a PitchWheel mode where it will automatically snap to the middle position when the mouse button is released.
-* [x] `XYPad` - a draggable point in a 2D square used to control 2 parameters at once
-
-### Visualizers
-
-* [x] `DBMeter` - a meter that displays peak loudness of a signal. This can have optional colors for good headroom (green), low headroom (yellow), and peaking (red). It can be either vertical or horizontal. It can also have an optional line showing the peak loudness.
-* [ ] `ReductionMeter` - a meter that displays the reduction of loudness in a signal. It can be either vertical or horizontal. It can also have an optional line showing the average loudness.
-* [ ] `KnobAutoRange` - an arc line around a Knob that represents the range of automation active on that parameter. May also have multiple of these in a ring-like pattern like in the original Massive synthesizer.
-* [ ] `Oscilloscope` - displays oscillations of an audio signal in a given time window
-* [ ] `Spectrometer` - displays the amplitude of a range of frequencies from 20hz to 20000hz.
-* [ ] `SpectrometerGrid` - a grid behind a Spectrometer that shows frequency on x axis and amplitude on y axis
-* [ ] `WaveformView` - displays the peak amplitude of a signal over time. It can optionally be zoomed in and out of (like Audacity).
-* [ ] `PhaseMeter` - a line that shows the phase correlation of an audio signal. It can be horizontal or vertical.
-* [ ] `Goniometer` - displays a polar graph representing the stereo phase of an audio signal
-* [ ] `WavetableView` - same as oscilloscope but specifically for rendering single waveforms instead of an audio signal
+Take a look at the [roadmap] for a list of planned widgets.
 
 ## Each parameter can be mapped to one of four ranges:
 * `FloatRange` - a linear range of f32 values
@@ -302,3 +274,4 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [Rust Community Discord]: https://bit.ly/rust-community
 [the release list]: https://github.com/BillyDM/iced_audio/releases
 [more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots
+[roadmap]: https://github.com/BillyDM/iced_audio/tree/master/ROADMAP.md
