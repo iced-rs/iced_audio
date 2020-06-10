@@ -17,7 +17,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 * [x] `HSlider` - Horizontal Slider
 * [x] `VSlider` - Vertical Slider
 * [x] `Ramp` - Ramp used to control the easing between two points in time
-* [x] `XYPad`- XY Pad for controlling 2 parameters at once
+* [x] `XYPad`- XY Pad for controlling two parameters at once
 
 ## Widgets partially implemented
 * [x] `Knob` - A basic knob widget. No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
