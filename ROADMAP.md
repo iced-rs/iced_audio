@@ -19,7 +19,7 @@
 * [ ] `HRangeSlider` - a horizontal slider with two or more handles for controlling the automation range of a parameter.
 * [ ] `Keys` - piano keys that can be clicked with a mouse to play a synthesizer. Velocity is controlled by how low on the key the mouse was clicked at. It can be horizontal or vertical.
 * [ ] `ModWheel` - like VSlider, but the Texture style is that of a mod wheel with optional highlight and shadow layers. Will also have a PitchWheel mode where it will automatically snap to the middle position when the mouse button is released.
-* [ ] `ADSREnvelope` - adjustable points connected by lines that represent an ADSR envelope. Can also have optional `delay` and `hold` points. The curve of each line may also optionally be controlled by dragging up and down on that line.
+* [ ] `ADSREnvelope` - adjustable points connected by lines that represent an ADSR envelope. Can also have optional delay and hold points. The curve of each line may also optionally be controlled by dragging up and down on that line.
 * [ ] `ParEqEditor` - a row of points connected by lines used to control parametric equalizers. These points can also be controlled with the scroll wheel to adjust the Q value.
 * [ ] `WaveformView` - displays the peak amplitude of a signal over time. It can optionally be zoomed in and out of (like Audacity).
 * [ ] `Goniometer` - displays a polar graph representing the stereo phase of an audio signal
