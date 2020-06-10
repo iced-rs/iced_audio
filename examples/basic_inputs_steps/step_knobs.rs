@@ -324,7 +324,7 @@ impl KnobStep {
                     .push(Text::new("DB Range"))
                     .push(knob_db)
                     .push(Text::new("Custom Style 1"))
-                    .push(knob_style1)
+                    .push(knob_style1),
             )
             .push(
                 Column::new()
@@ -335,7 +335,7 @@ impl KnobStep {
                     .push(Text::new("Freq Range"))
                     .push(knob_freq)
                     .push(Text::new("Custom Style 2"))
-                    .push(knob_style2)
+                    .push(knob_style2),
             )
             .push(
                 Column::new()
@@ -344,7 +344,7 @@ impl KnobStep {
                     .push(Text::new("Custom Style 3"))
                     .push(knob_style3)
                     .push(Text::new("Custom Bipolar Style 4"))
-                    .push(knob_style4)
+                    .push(knob_style4),
             );
 
         let content = Column::new()

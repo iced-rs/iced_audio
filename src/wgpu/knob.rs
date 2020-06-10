@@ -5,14 +5,14 @@
 use crate::core::{Normal, TickMarkGroup, TickMarkTier};
 use crate::native::knob;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle, Vector};
-use iced_wgpu::widget::canvas::{Frame, LineCap, Path, Stroke, path::Arc};
+use iced_wgpu::widget::canvas::{path::Arc, Frame, LineCap, Path, Stroke};
 use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    CircleTickMarks, LineTickMarks, Style, StyleSheet, TickMarkStyle,
-    VectorCircleStyle, VectorLineStyle, ArcStyle, ArcNotch, ArcBipolarStyle,
-    ArcBipolarNotch,
+    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, CircleTickMarks,
+    LineTickMarks, Style, StyleSheet, TickMarkStyle, VectorCircleStyle,
+    VectorLineStyle,
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
@@ -352,8 +352,9 @@ impl knob::Renderer for Renderer {
 
             Style::Arc(style) => {
                 let radius = bounds_size / 2.0;
-                
-                let mut start_angle = angle_range.min() + std::f32::consts::FRAC_PI_2;
+
+                let mut start_angle =
+                    angle_range.min() + std::f32::consts::FRAC_PI_2;
                 if start_angle >= crate::TAU {
                     start_angle -= crate::TAU
                 }
@@ -364,6 +365,7 @@ impl knob::Renderer for Renderer {
 
                 let arc: Primitive = {
                     let center_point = Point::new(radius, radius);
+                    let arc_radius = radius - (style.arc_width * 0.5);
 
                     let filled_stroke = Stroke {
                         width: style.arc_width,
@@ -374,14 +376,12 @@ impl knob::Renderer for Renderer {
 
                     let filled_arc = Arc {
                         center: center_point,
-                        radius,
+                        radius: arc_radius,
                         start_angle,
                         end_angle: fill_angle_span,
                     };
 
-                    let filled_path = Path::new(|path| {
-                        path.arc(filled_arc)
-                    });
+                    let filled_path = Path::new(|path| path.arc(filled_arc));
 
                     let empty_stroke = Stroke {
                         width: style.arc_width,
@@ -392,26 +392,23 @@ impl knob::Renderer for Renderer {
 
                     let empty_arc = Arc {
                         center: center_point,
-                        radius,
+                        radius: arc_radius,
                         start_angle: start_angle + fill_angle_span,
                         end_angle: angle_span - fill_angle_span,
                     };
 
-                    let empty_path = Path::new(|path| {
-                        path.arc(empty_arc)
-                    });
+                    let empty_path = Path::new(|path| path.arc(empty_arc));
 
                     let mut frame = Frame::new(bounds_size, bounds_size);
-                    frame.translate(Vector::new(
-                        bounds_x,
-                        bounds_y,
-                    ));
+                    frame.translate(Vector::new(bounds_x, bounds_y));
 
                     frame.stroke(&filled_path, filled_stroke);
                     frame.stroke(&empty_path, empty_stroke);
 
                     if let Some(notch) = style.notch {
-                        let angle = start_angle + fill_angle_span + std::f32::consts::FRAC_PI_2;
+                        let angle = start_angle
+                            + fill_angle_span
+                            + std::f32::consts::FRAC_PI_2;
 
                         let stroke = Stroke {
                             width: notch.width,
@@ -419,24 +416,22 @@ impl knob::Renderer for Renderer {
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
-    
-                        let stroke_begin_y = -radius;
-                        let notch_height = notch.length_scale.value() * radius;
-    
+
+                        let stroke_begin_y = -arc_radius;
+                        let notch_height =
+                            notch.length_scale.value() * arc_radius;
+
                         let path = Path::line(
                             Point::new(0.0, stroke_begin_y),
                             Point::new(0.0, stroke_begin_y + notch_height),
                         );
-                        
-                        frame.translate(Vector::new(
-                            radius,
-                            radius,
-                        ));
-    
+
+                        frame.translate(Vector::new(radius, radius));
+
                         if angle < -0.001 || angle > 0.001 {
                             frame.rotate(angle);
                         }
-    
+
                         frame.stroke(&path, stroke);
                     }
 
@@ -453,8 +448,9 @@ impl knob::Renderer for Renderer {
 
             Style::ArcBipolar(style) => {
                 let radius = bounds_size / 2.0;
-                
-                let mut start_angle = angle_range.min() + std::f32::consts::FRAC_PI_2;
+
+                let mut start_angle =
+                    angle_range.min() + std::f32::consts::FRAC_PI_2;
                 if start_angle >= crate::TAU {
                     start_angle -= crate::TAU
                 }
@@ -465,10 +461,7 @@ impl knob::Renderer for Renderer {
 
                 let arc: Primitive = {
                     let mut frame = Frame::new(bounds_size, bounds_size);
-                    frame.translate(Vector::new(
-                        bounds_x,
-                        bounds_y,
-                    ));
+                    frame.translate(Vector::new(bounds_x, bounds_y));
 
                     let empty_stroke = Stroke {
                         width: style.arc_width,
@@ -478,32 +471,29 @@ impl knob::Renderer for Renderer {
                     };
 
                     let center_point = Point::new(radius, radius);
+                    let arc_radius = radius - (style.arc_width * 0.5);
 
                     if normal.value() == 0.5 {
                         let empty_arc = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle,
                             end_angle: angle_span,
                         };
-    
-                        let empty_path = Path::new(|path| {
-                            path.arc(empty_arc)
-                        });
-    
-                        frame.stroke(&empty_path, empty_stroke);
 
+                        let empty_path = Path::new(|path| path.arc(empty_arc));
+
+                        frame.stroke(&empty_path, empty_stroke);
                     } else if normal.value() < 0.5 {
                         let empty_arc_1 = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle,
                             end_angle: fill_angle_span,
                         };
-    
-                        let empty_path_1 = Path::new(|path| {
-                            path.arc(empty_arc_1)
-                        });
+
+                        let empty_path_1 =
+                            Path::new(|path| path.arc(empty_arc_1));
 
                         let filled_stroke = Stroke {
                             width: style.arc_width,
@@ -511,44 +501,40 @@ impl knob::Renderer for Renderer {
                             line_cap: LineCap::Butt,
                             ..Stroke::default()
                         };
-    
+
                         let filled_arc = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle: start_angle + fill_angle_span,
                             end_angle: (angle_span * 0.5) - fill_angle_span,
                         };
-    
-                        let filled_path = Path::new(|path| {
-                            path.arc(filled_arc)
-                        });
-    
+
+                        let filled_path =
+                            Path::new(|path| path.arc(filled_arc));
+
                         let empty_arc_2 = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle: start_angle + (angle_span * 0.5),
                             end_angle: (angle_span * 0.5),
                         };
-    
-                        let empty_path_2 = Path::new(|path| {
-                            path.arc(empty_arc_2)
-                        });
-    
+
+                        let empty_path_2 =
+                            Path::new(|path| path.arc(empty_arc_2));
+
                         frame.stroke(&empty_path_1, empty_stroke);
                         frame.stroke(&filled_path, filled_stroke);
                         frame.stroke(&empty_path_2, empty_stroke);
-
                     } else {
                         let empty_arc_1 = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle,
                             end_angle: (angle_span * 0.5),
                         };
-    
-                        let empty_path_1 = Path::new(|path| {
-                            path.arc(empty_arc_1)
-                        });
+
+                        let empty_path_1 =
+                            Path::new(|path| path.arc(empty_arc_1));
 
                         let filled_stroke = Stroke {
                             width: style.arc_width,
@@ -556,29 +542,27 @@ impl knob::Renderer for Renderer {
                             line_cap: LineCap::Butt,
                             ..Stroke::default()
                         };
-    
+
                         let filled_arc = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle: start_angle + (angle_span * 0.5),
                             end_angle: fill_angle_span - (angle_span * 0.5),
                         };
-    
-                        let filled_path = Path::new(|path| {
-                            path.arc(filled_arc)
-                        });
-    
+
+                        let filled_path =
+                            Path::new(|path| path.arc(filled_arc));
+
                         let empty_arc_2 = Arc {
                             center: center_point,
-                            radius,
+                            radius: arc_radius,
                             start_angle: start_angle + fill_angle_span,
                             end_angle: angle_span - fill_angle_span,
                         };
-    
-                        let empty_path_2 = Path::new(|path| {
-                            path.arc(empty_arc_2)
-                        });
-    
+
+                        let empty_path_2 =
+                            Path::new(|path| path.arc(empty_arc_2));
+
                         frame.stroke(&empty_path_1, empty_stroke);
                         frame.stroke(&filled_path, filled_stroke);
                         frame.stroke(&empty_path_2, empty_stroke);
@@ -595,7 +579,9 @@ impl knob::Renderer for Renderer {
                             }
                         };
 
-                        let angle = start_angle + fill_angle_span + std::f32::consts::FRAC_PI_2;
+                        let angle = start_angle
+                            + fill_angle_span
+                            + std::f32::consts::FRAC_PI_2;
 
                         let stroke = Stroke {
                             width: notch.width,
@@ -603,24 +589,22 @@ impl knob::Renderer for Renderer {
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
-    
-                        let stroke_begin_y = -radius;
-                        let notch_height = notch.length_scale.value() * radius;
-    
+
+                        let stroke_begin_y = -arc_radius;
+                        let notch_height =
+                            notch.length_scale.value() * arc_radius;
+
                         let path = Path::line(
                             Point::new(0.0, stroke_begin_y),
                             Point::new(0.0, stroke_begin_y + notch_height),
                         );
-                        
-                        frame.translate(Vector::new(
-                            radius,
-                            radius,
-                        ));
-    
+
+                        frame.translate(Vector::new(radius, radius));
+
                         if angle < -0.001 || angle > 0.001 {
                             frame.rotate(angle);
                         }
-    
+
                         frame.stroke(&path, stroke);
                     }
 
