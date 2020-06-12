@@ -259,3 +259,47 @@ impl KnobAngleRange {
         self.max
     }
 }
+
+/// The state of an automation range
+#[derive(Debug, Copy, Clone)]
+pub struct AutomationRange {
+    /// Where the automation range starts.
+    /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
+    pub start: Normal,
+    /// Where the automation range ends.
+    /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
+    pub end: Normal,
+    /// Whether the automation range is visible or not.
+    pub visible: bool,
+    /// Whether the filled portion of the automation range is visible or not, while keeping
+    /// the empty portion visible. This will have no effect if the `visible` field is false.
+    pub filled_visible: bool,
+}
+
+impl AutomationRange {
+    /// Creates a new `Automation Range`
+    /// 
+    /// * start - Where the automation range starts.
+    /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
+    /// * ends - Where the automation range ends.
+    /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
+    pub fn new(start: Normal, end: Normal) -> Self {
+        Self {
+            start,
+            end,
+            visible: true,
+            filled_visible: true,
+        }
+    }
+}
+
+impl Default for AutomationRange {
+    fn default() -> Self {
+        Self {
+            start: 0.0.into(),
+            end: 0.0.into(),
+            visible: true,
+            filled_visible: true,
+        }
+    }
+}

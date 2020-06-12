@@ -87,6 +87,7 @@ pub const KNOB_ARC_COLOR: Color = Color::from_rgb(
     0xE9 as f32 / 255.0,
 );
 pub const KNOB_ARC_RIGHT_COLOR: Color = Color::from_rgb(0.0, 0.77, 0.0);
+pub const KNOB_ARC_EMPTY_COLOR: Color = Color::from_rgb(0.8, 0.8, 0.8);
 
 // Custom style for the Rect HSlider
 
@@ -363,18 +364,14 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
         self.hovered()
     }
 
-    fn tick_mark_style(&self) -> Option<knob::TickMarkStyle> {
-        Some(knob::TickMarkStyle::Circle(knob::CircleTickMarks {
-            diameter_tier_1: 2,
-            diameter_tier_2: 2,
-            diameter_tier_3: 2,
-
-            color_tier_1: Color::from_rgb(0.45, 0.45, 0.45),
-            color_tier_2: Color::from_rgb(0.45, 0.45, 0.45),
-            color_tier_3: Color::from_rgb(0.45, 0.45, 0.45),
-
-            offset: 3.2,
-        }))
+    fn value_ring_style(&self) -> Option<knob::ValueRingStyle> {
+        Some(knob::ValueRingStyle {
+            width: 3.0,
+            offset: 1.5,
+            color_empty: KNOB_ARC_EMPTY_COLOR,
+            color_left: KNOB_ARC_COLOR,
+            color_right: None,
+        })
     }
 }
 
@@ -387,7 +384,7 @@ impl knob::StyleSheet for KnobCustomStyleLine {
             knob_color: KNOB_COLOR,
             knob_border_width: 0,
             knob_border_color: KNOB_BORDER_COLOR,
-            notch_color: Color::from_rgb(0.0, 0.8, 0.0),
+            notch_color: Color::from_rgb(0.0, 0.82, 0.0),
             notch_width: 3.5,
             notch_scale: 0.35.into(),
             notch_offset: 0.21.into(),
@@ -396,39 +393,21 @@ impl knob::StyleSheet for KnobCustomStyleLine {
 
     #[allow(irrefutable_let_patterns)]
     fn hovered(&self) -> knob::Style {
-        let active = self.active();
-        if let knob::Style::VectorLine(active) = self.active() {
-            knob::Style::VectorLine(knob::VectorLineStyle {
-                knob_border_width: 2,
-                notch_width: 3.0,
-                notch_color: Color::from_rgb(0.0, 0.85, 0.0),
-                ..active
-            })
-        } else {
-            active
-        }
+        self.active()
     }
 
     fn dragging(&self) -> knob::Style {
-        self.hovered()
+        self.active()
     }
 
-    fn tick_mark_style(&self) -> Option<knob::TickMarkStyle> {
-        Some(knob::TickMarkStyle::Line(knob::LineTickMarks {
-            width_tier_1: 2.0,
-            width_tier_2: 1.0,
-            width_tier_3: 1.0,
-
-            length_tier_1: 3.5,
-            length_tier_2: 2.5,
-            length_tier_3: 2.5,
-
-            color_tier_1: Color::from_rgb(0.56, 0.56, 0.56),
-            color_tier_2: Color::from_rgb(0.45, 0.45, 0.45),
-            color_tier_3: Color::from_rgb(0.45, 0.45, 0.45),
-
-            offset: 2.1,
-        }))
+    fn value_ring_style(&self) -> Option<knob::ValueRingStyle> {
+        Some(knob::ValueRingStyle {
+            width: 2.5,
+            offset: 2.0,
+            color_empty: KNOB_ARC_EMPTY_COLOR,
+            color_left: KNOB_ARC_COLOR,
+            color_right: Some(KNOB_ARC_RIGHT_COLOR),
+        })
     }
 }
 
@@ -439,7 +418,7 @@ impl knob::StyleSheet for KnobCustomArc {
     fn active(&self) -> knob::Style {
         knob::Style::Arc(knob::ArcStyle {
             arc_width: 3.15,
-            arc_empty_color: EMPTY_COLOR,
+            arc_empty_color: KNOB_ARC_EMPTY_COLOR,
             arc_filled_color: KNOB_ARC_COLOR,
             notch: Some(knob::ArcNotch {
                 width: 3.15,
@@ -460,6 +439,16 @@ impl knob::StyleSheet for KnobCustomArc {
     fn angle_range(&self) -> iced_audio::KnobAngleRange {
         iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
+
+    fn auto_range_ring_style(&self) -> Option<knob::AutoRangeRingStyle> {
+        Some(knob::AutoRangeRingStyle {
+            width: 3.0,
+            offset: 1.5,
+            color_empty: Some(KNOB_ARC_EMPTY_COLOR),
+            color: KNOB_ARC_COLOR,
+            color_inverse: KNOB_ARC_RIGHT_COLOR,
+        })
+    }
 }
 
 // Custom style for the Knob
@@ -469,7 +458,7 @@ impl knob::StyleSheet for KnobCustomArcBipolar {
     fn active(&self) -> knob::Style {
         knob::Style::ArcBipolar(knob::ArcBipolarStyle {
             arc_width: 3.15,
-            arc_empty_color: EMPTY_COLOR,
+            arc_empty_color: KNOB_ARC_EMPTY_COLOR,
             arc_left_color: KNOB_ARC_COLOR,
             arc_right_color: KNOB_ARC_RIGHT_COLOR,
             notch: Some(knob::ArcBipolarNotch {

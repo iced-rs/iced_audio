@@ -1,8 +1,7 @@
 use iced::{Column, Element, Length, Row, Text};
 
 use iced_audio::{
-    ramp, DBRange, FloatRange, FreqRange, IntRange, Ramp, TickMark,
-    TickMarkGroup, TickMarkTier,
+    ramp, FloatRange, Ramp,
 };
 
 use crate::{style, Step};

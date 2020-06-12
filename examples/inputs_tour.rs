@@ -1,7 +1,7 @@
 extern crate iced;
 
-mod basic_inputs_steps;
-use basic_inputs_steps::*;
+mod inputs_tour_steps;
+use inputs_tour_steps::*;
 
 use iced::{
     button, scrollable, Button, Color, Column, Container, Element,
@@ -9,9 +9,9 @@ use iced::{
     Text,
 };
 
-pub use basic_inputs_steps::style;
+pub use inputs_tour_steps::style;
 
-static STARTING_STEP: usize = 0;
+static STARTING_STEP: usize = 4;
 
 pub fn main() {
     BasicInputs::run(Settings {
@@ -42,7 +42,7 @@ impl Sandbox for BasicInputs {
     }
 
     fn title(&self) -> String {
-        format!("{} - Iced Audio Basic Inputs", self.steps.title())
+        format!("{} - Iced Audio Inputs Tour", self.steps.title())
     }
 
     fn update(&mut self, event: Message) {
@@ -132,6 +132,7 @@ impl Default for Steps {
                 Step::HSliders(Default::default()),
                 Step::VSliders(Default::default()),
                 Step::Knobs(Default::default()),
+                Step::KnobAutoRanges(Default::default()),
                 Step::XYPads(Default::default()),
                 Step::Ramps(Default::default()),
             ],
@@ -179,6 +180,7 @@ pub enum Step {
     HSliders(step_h_sliders::HSliderStep),
     VSliders(step_v_sliders::VSliderStep),
     Knobs(step_knobs::KnobStep),
+    KnobAutoRanges(step_knob_auto_ranges::KnobAutoRanges),
     XYPads(step_xy_pads::XYPadStep),
     Ramps(step_ramps::RampStep),
 }
@@ -188,6 +190,7 @@ pub enum StepMessage {
     HSlidersMsg(step_h_sliders::Message),
     VSlidersMsg(step_v_sliders::Message),
     KnobsMsg(step_knobs::Message),
+    KnobAutoRangesMsg(step_knob_auto_ranges::Message),
     XYPadsMsg(step_xy_pads::Message),
     RampsMsg(step_ramps::Message),
 }
@@ -210,6 +213,11 @@ impl<'a> Step {
                     step.update(msg);
                 };
             }
+            StepMessage::KnobAutoRangesMsg(msg) => {
+                if let Step::KnobAutoRanges(step) = self {
+                    step.update(msg);
+                };
+            }
             StepMessage::XYPadsMsg(msg) => {
                 if let Step::XYPads(step) = self {
                     step.update(msg);
@@ -229,6 +237,7 @@ impl<'a> Step {
             Step::HSliders(step) => step.title(),
             Step::VSliders(step) => step.title(),
             Step::Knobs(step) => step.title(),
+            Step::KnobAutoRanges(step) => step.title(),
             Step::XYPads(step) => step.title(),
             Step::Ramps(step) => step.title(),
         }
@@ -244,6 +253,7 @@ impl<'a> Step {
                 step.view(debug).map(StepMessage::VSlidersMsg)
             }
             Step::Knobs(step) => step.view(debug).map(StepMessage::KnobsMsg),
+            Step::KnobAutoRanges(step) => step.view(debug).map(StepMessage::KnobAutoRangesMsg),
             Step::XYPads(step) => step.view(debug).map(StepMessage::XYPadsMsg),
             Step::Ramps(step) => step.view(debug).map(StepMessage::RampsMsg),
         }

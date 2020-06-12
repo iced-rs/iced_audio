@@ -21,7 +21,7 @@ image = ["iced/image"]
 svg = ["iced/svg"]
 
 [[example]]
-name = "basic_inputs"
+name = "inputs_tour"
 [[example]]
 name = "simple"
 

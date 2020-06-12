@@ -282,6 +282,44 @@ impl std::default::Default for LineTickMarks {
     }
 }
 
+/// A style for a value ring around a [`Knob`]
+///
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub struct ValueRingStyle {
+    /// The width (thickness) of the ring
+    pub width: f32,
+    /// The offset from the edge of the `Knob`
+    pub offset: f32,
+    /// The color of an empty portion in the ring
+    pub color_empty: Color,
+    /// The color of a filled portion of the ring. If `color_right` is
+    /// `Some`, then this will only apply to the left side of the ring.
+    pub color_left: Color,
+    /// The color of a filled portion on the right side of the ring.
+    /// Set this to `None` for unipolar mode.
+    pub color_right: Option<Color>,
+}
+
+/// A style for an [`AutomationRange`] ring around a [`Knob`]
+///
+/// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub struct AutoRangeRingStyle {
+    /// The width (thickness) of the ring
+    pub width: f32,
+    /// The offset from the edge of the `Knob`
+    pub offset: f32,
+    /// The color of an empty portion in the ring.
+    /// Set to `None` for no empty portion.
+    pub color_empty: Option<Color>,
+    /// The color of a filled portion of the ring.
+    pub color: Color,
+    /// The color of a filled portion of the ring.
+    pub color_inverse: Color,
+}
+
 /// A set of rules that dictate the style of a [`Knob`].
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -316,6 +354,25 @@ pub trait StyleSheet {
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
     fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        None
+    }
+
+    /// The style of a value ring around a [`Knob`]
+    ///
+    /// For no value ring, don't override this or set this to return `None`.
+    ///
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    fn value_ring_style(&self) -> Option<ValueRingStyle> {
+        None
+    }
+
+    /// The style of an [`AutomationRange`] ring around a [`Knob`]
+    ///
+    /// For no automation range ring, don't override this or set this to return `None`.
+    ///
+    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    fn auto_range_ring_style(&self) -> Option<AutoRangeRingStyle> {
         None
     }
 }
