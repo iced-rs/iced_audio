@@ -12,7 +12,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param, TickMarkGroup};
+use crate::core::{Normal, Param, TickMarkGroup, AutomationRange};
 
 static DEFAULT_WIDTH: u16 = 14;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -144,6 +144,10 @@ pub struct State<ID: Debug + Copy + Clone> {
     ///
     /// [`Param`]: ../../core/param/trait.Param.html
     pub param: Param<ID>,
+    /// An optional [`AutomationRange`] to assign to this widget
+    ///
+    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    pub automation_range: Option<AutomationRange>,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -162,12 +166,24 @@ impl<ID: Debug + Copy + Clone> State<ID> {
     pub fn new(param: Param<ID>) -> Self {
         Self {
             param,
+            automation_range: None,
             is_dragging: false,
             prev_drag_y: 0.0,
             continuous_normal: param.normal.value(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
+    }
+
+    /// Assigns an [`AutomationRange`] to this widget
+    ///
+    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    pub fn automation_range(
+        mut self,
+        automation_range: AutomationRange,
+    ) -> Self {
+        self.automation_range = Some(automation_range);
+        self
     }
 }
 
@@ -290,6 +306,7 @@ where
             cursor_position,
             self.state.param.normal,
             self.state.is_dragging,
+            self.state.automation_range,
             self.tick_marks,
             &self.style,
         )
@@ -331,6 +348,7 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        automation_range: Option<AutomationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;

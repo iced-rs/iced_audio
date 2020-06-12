@@ -1,8 +1,6 @@
 use iced::{Column, Element, Length, Row, Text};
 
-use iced_audio::{
-    xy_pad, FloatRange, XYPad,
-};
+use iced_audio::{xy_pad, FloatRange, XYPad};
 
 use crate::{style, Step};
 

@@ -245,12 +245,14 @@ pub use crate::core::*;
 #[cfg(not(target_arch = "wasm32"))]
 mod platform {
     #[doc(no_inline)]
-    pub use crate::wgpu::{db_meter, h_slider, knob, ramp, v_slider, xy_pad};
+    pub use crate::wgpu::{
+        auto_range_input, db_meter, h_slider, knob, ramp, v_slider, xy_pad,
+    };
 
     #[doc(no_inline)]
     pub use {
-        db_meter::DBMeter, h_slider::HSlider, knob::Knob, ramp::Ramp,
-        v_slider::VSlider, xy_pad::XYPad,
+        auto_range_input::AutoRangeInput, db_meter::DBMeter, h_slider::HSlider,
+        knob::Knob, ramp::Ramp, v_slider::VSlider, xy_pad::XYPad,
     };
 }
 

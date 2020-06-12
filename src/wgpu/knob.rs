@@ -2,7 +2,7 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use crate::core::{Normal, TickMarkGroup, TickMarkTier, AutomationRange};
+use crate::core::{AutomationRange, Normal, TickMarkGroup, TickMarkTier};
 use crate::native::knob;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle, Vector};
 use iced_wgpu::widget::canvas::{path::Arc, Frame, LineCap, Path, Stroke};
@@ -10,9 +10,9 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, CircleTickMarks,
-    LineTickMarks, Style, StyleSheet, TickMarkStyle, VectorCircleStyle,
-    VectorLineStyle, ValueRingStyle, AutoRangeRingStyle,
+    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, AutoRangeRingStyle,
+    CircleTickMarks, LineTickMarks, Style, StyleSheet, TickMarkStyle,
+    ValueRingStyle, VectorCircleStyle, VectorLineStyle,
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
@@ -55,7 +55,6 @@ impl knob::Renderer for Renderer {
 
         let value_ring: Primitive = {
             if let Some(style) = style_sheet.value_ring_style() {
-
                 let mut start_angle =
                     angle_range.min() + std::f32::consts::FRAC_PI_2;
                 if start_angle >= crate::TAU {
@@ -66,7 +65,8 @@ impl knob::Renderer for Renderer {
 
                 let fill_angle_span = angle_span * normal.value();
 
-                let frame_size = bounds_size + style.offset + (style.width * 0.5);
+                let frame_size =
+                    bounds_size + style.offset + (style.width * 0.5);
 
                 let mut frame = Frame::new(frame_size, frame_size);
                 frame.translate(Vector::new(bounds_x, bounds_y));
@@ -94,7 +94,6 @@ impl knob::Renderer for Renderer {
 
                 if let Some(color_right) = style.color_right {
                     if normal.value() < 0.5 {
-
                         let filled_stroke = Stroke {
                             width: style.width,
                             color: style.color_left,
@@ -132,11 +131,11 @@ impl knob::Renderer for Renderer {
                             Path::new(|path| path.arc(filled_arc));
 
                         frame.stroke(&filled_path, filled_stroke);
-                    } 
-
+                    }
                 } else {
                     let center_point = Point::new(radius, radius);
-                    let arc_radius = radius + style.offset + (style.width * 0.5);
+                    let arc_radius =
+                        radius + style.offset + (style.width * 0.5);
 
                     let empty_arc = Arc {
                         center: center_point,
@@ -156,15 +155,16 @@ impl knob::Renderer for Renderer {
                             line_cap: LineCap::Butt,
                             ..Stroke::default()
                         };
-    
+
                         let filled_arc = Arc {
                             center: center_point,
                             radius: arc_radius,
                             start_angle,
                             end_angle: fill_angle_span,
                         };
-    
-                        let filled_path = Path::new(|path| path.arc(filled_arc));
+
+                        let filled_path =
+                            Path::new(|path| path.arc(filled_arc));
 
                         frame.stroke(&filled_path, filled_stroke);
                     }
@@ -185,17 +185,19 @@ impl knob::Renderer for Renderer {
                         if start_angle >= crate::TAU {
                             start_angle -= crate::TAU
                         }
-    
+
                         let center_point = Point::new(radius, radius);
-                        let arc_radius = radius + style.offset + (style.width * 0.5);
-    
+                        let arc_radius =
+                            radius + style.offset + (style.width * 0.5);
+
                         let angle_span = angle_range.max() - angle_range.min();
-    
-                        let frame_size = bounds_size + style.offset + (style.width * 0.5);
-    
+
+                        let frame_size =
+                            bounds_size + style.offset + (style.width * 0.5);
+
                         let mut frame = Frame::new(frame_size, frame_size);
                         frame.translate(Vector::new(bounds_x, bounds_y));
-    
+
                         if let Some(color_empty) = style.color_empty {
                             let empty_stroke = Stroke {
                                 width: style.width,
@@ -203,48 +205,64 @@ impl knob::Renderer for Renderer {
                                 line_cap: LineCap::Butt,
                                 ..Stroke::default()
                             };
-    
+
                             let empty_arc = Arc {
                                 center: center_point,
                                 radius: arc_radius,
                                 start_angle: start_angle,
                                 end_angle: angle_span,
                             };
-    
-                            let empty_path = Path::new(|path| path.arc(empty_arc));
-    
+
+                            let empty_path =
+                                Path::new(|path| path.arc(empty_arc));
+
                             frame.stroke(&empty_path, empty_stroke);
                         }
-    
-                        if auto_range.filled_visible && (auto_range.start.value() != auto_range.end.value()) {
-                            let (start, end, color) = if auto_range.start.value() < auto_range.end.value() {
-                                (auto_range.start.value(), auto_range.end.value(), style.color)
-                            } else {
-                                (auto_range.end.value(), auto_range.start.value(), style.color_inverse)
-                            };
-    
+
+                        if auto_range.filled_visible
+                            && (auto_range.start.value()
+                                != auto_range.end.value())
+                        {
+                            let (start, end, color) =
+                                if auto_range.start.value()
+                                    < auto_range.end.value()
+                                {
+                                    (
+                                        auto_range.start.value(),
+                                        auto_range.end.value(),
+                                        style.color,
+                                    )
+                                } else {
+                                    (
+                                        auto_range.end.value(),
+                                        auto_range.start.value(),
+                                        style.color_inverse,
+                                    )
+                                };
+
                             let start_span = angle_span * start;
                             let span = (angle_span * end) - start_span;
-        
+
                             let filled_stroke = Stroke {
                                 width: style.width,
                                 color: color,
                                 line_cap: LineCap::Butt,
                                 ..Stroke::default()
                             };
-        
+
                             let filled_arc = Arc {
                                 center: center_point,
                                 radius: arc_radius,
                                 start_angle: start_angle + start_span,
                                 end_angle: span,
                             };
-        
-                            let filled_path = Path::new(|path| path.arc(filled_arc));
-        
+
+                            let filled_path =
+                                Path::new(|path| path.arc(filled_arc));
+
                             frame.stroke(&filled_path, filled_stroke);
                         }
-    
+
                         frame.into_primitive()
                     } else {
                         Primitive::None
@@ -488,7 +506,13 @@ impl knob::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, value_ring, auto_range_ring, knob_back, notch],
+                        primitives: vec![
+                            tick_marks,
+                            value_ring,
+                            auto_range_ring,
+                            knob_back,
+                            notch,
+                        ],
                     },
                     MouseCursor::default(),
                 )
@@ -549,7 +573,13 @@ impl knob::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, value_ring, auto_range_ring, knob_back, notch],
+                        primitives: vec![
+                            tick_marks,
+                            value_ring,
+                            auto_range_ring,
+                            knob_back,
+                            notch,
+                        ],
                     },
                     MouseCursor::default(),
                 )
@@ -645,7 +675,12 @@ impl knob::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, value_ring, auto_range_ring, arc],
+                        primitives: vec![
+                            tick_marks,
+                            value_ring,
+                            auto_range_ring,
+                            arc,
+                        ],
                     },
                     MouseCursor::default(),
                 )
@@ -774,7 +809,12 @@ impl knob::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, value_ring, auto_range_ring, arc],
+                        primitives: vec![
+                            tick_marks,
+                            value_ring,
+                            auto_range_ring,
+                            arc,
+                        ],
                     },
                     MouseCursor::default(),
                 )

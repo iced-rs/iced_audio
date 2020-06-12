@@ -208,6 +208,45 @@ impl std::default::Default for TickMarkStyle {
     }
 }
 
+/// The position of an [`AutoRangeStyle`] ring for a [`VSlider`]
+///
+/// [`AutoRangeStyle`]: struct.AutoRangeStyle.html
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+#[derive(Debug, Copy, Clone)]
+pub enum AutoRangePlacement {
+    /// In the center of the widget
+    Center,
+    /// To the left of the widget
+    Left,
+    /// To the right of the widget
+    Right,
+}
+
+/// A style for an [`AutomationRange`] ring for a [`VSlider`]
+///
+/// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+#[derive(Debug, Copy, Clone)]
+pub struct AutoRangeStyle {
+    /// The width of the line
+    pub width: u16,
+    /// The offset of the line from the edge of the widget.
+    /// If `placement` is `AutoRangePlacement::center`, then 
+    /// this will be the padding from the edge of the widget.
+    pub offset: i32,
+    /// The placement of the line relative to the widget
+    pub placement: AutoRangePlacement,
+    /// The color of an empty portion of the line.
+    /// Set to `None` for no empty portion.
+    pub color_empty: Option<Color>,
+    /// The color of a filled portion of the line.
+    pub color: Color,
+    /// The color of a filled portion of the ring when `end` is less than
+    /// `start`.
+    pub color_inverse: Color,
+
+}
+
 /// A set of rules that dictate the style of an [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
@@ -234,6 +273,16 @@ pub trait StyleSheet {
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
     fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+        None
+    }
+
+    /// The style of an [`AutomationRange`] line for a [`VSlider`]
+    ///
+    /// For no automation range line, don't override this or set this to return `None`.
+    ///
+    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    /// [`VSlider`]: ../../native/h_slider/struct.VSlider.html
+    fn auto_range_style(&self) -> Option<AutoRangeStyle> {
         None
     }
 }

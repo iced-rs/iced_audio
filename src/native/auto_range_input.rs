@@ -1,4 +1,4 @@
-//! Display an interactive rotating knob that controls a [`Param`]
+//! Display an interactive dot that controls an [`Param`]
 //!
 //! [`Param`]: ../core/param/struct.Param.html
 
@@ -12,17 +12,17 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{AutomationRange, Normal, Param, TickMarkGroup};
+use crate::core::Param;
 
-static DEFAULT_SIZE: u16 = 30;
-static DEFAULT_SCALAR: f32 = 0.008;
+static DEFAULT_SIZE: u16 = 10;
+static DEFAULT_SCALAR: f32 = 0.004;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// A rotating knob GUI widget that controls a [`Param`]
+/// An interactive dot that controls an [`Param`]
 ///
-/// [`Param`]: ../../core/param/struct.Param.html
+/// [`Param`]: ../core/param/struct.Param.html
 #[allow(missing_debug_implementations)]
-pub struct Knob<'a, Message, Renderer: self::Renderer, ID>
+pub struct AutoRangeInput<'a, Message, Renderer: self::Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
@@ -33,26 +33,26 @@ where
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     style: Renderer::Style,
-    tick_marks: Option<&'a TickMarkGroup>,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID> Knob<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer: self::Renderer, ID>
+    AutoRangeInput<'a, Message, Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
-    /// Creates a new [`Knob`].
+    /// Creates a new [`AutoRangeInput`].
     ///
     /// It expects:
-    ///   * the local [`State`] of the [`Knob`]
-    ///   * a function that will be called when the [`Knob`] is turned.
+    ///   * the local [`State`] of the [`AutoRangeInput`]
+    ///   * a function that will be called when the [`AutoRangeInput`] is turned.
     ///
     /// [`State`]: struct.State.html
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
     where
         F: 'static + Fn(ID) -> Message,
     {
-        Knob {
+        AutoRangeInput {
             state,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
@@ -63,44 +63,43 @@ where
                 ..Default::default()
             },
             style: Renderer::Style::default(),
-            tick_marks: None,
         }
     }
 
-    /// Sets the diameter of the [`Knob`]. The default size is
+    /// Sets the diameter of the [`AutoRangeInput`]. The default size is
     /// `Length::from(Length::Units(31))`.
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn size(mut self, size: Length) -> Self {
         self.size = size;
         self
     }
 
-    /// Sets the style of the [`Knob`].
+    /// Sets the style of the [`AutoRangeInput`].
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
         self.style = style.into();
         self
     }
 
-    /// Sets how much the [`Normal`] value will change for the [`Knob`] per `y`
+    /// Sets how much the [`Normal`] value will change for the [`AutoRangeInput`] per `y`
     /// pixel movement of the mouse.
     ///
     /// The default value is `0.008`
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     /// [`Normal`]: ../../core/struct.Normal.html
     pub fn scalar(mut self, scalar: f32) -> Self {
         self.scalar = scalar;
         self
     }
 
-    /// Sets the modifier keys of the [`Knob`].
+    /// Sets the modifier keys of the [`AutoRangeInput`].
     ///
     /// The default modifier key is `Ctrl`.
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn modifier_keys(
         mut self,
         modifier_keys: keyboard::ModifiersState,
@@ -109,47 +108,32 @@ where
         self
     }
 
-    /// Sets the scalar to use when the user drags the knobs while holding down
+    /// Sets the scalar to use when the user drags the AutoRangeInputs while holding down
     /// the modifier key. This is multiplied to the value set by
-    /// `Knob::scalar()` (which the default is `0.008`).
+    /// `AutoRangeInput::scalar()` (which the default is `0.008`).
     ///
-    /// For example, a `modifier_scalar` of `0.5` will cause the knob to turn
+    /// For example, a `modifier_scalar` of `0.5` will cause the AutoRangeInput to turn
     /// half as fast when the modifier key is down.
     ///
     /// The default `modifier_scalar` is `0.02`, and the default modifier key
     /// is `Ctrl`.
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn modifier_scalar(mut self, scalar: f32) -> Self {
         self.modifier_scalar = scalar;
         self
     }
-
-    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
-    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
-    /// them to display (which the default style does).
-    ///
-    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
-    /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
-        self.tick_marks = Some(tick_marks);
-        self
-    }
 }
 
-/// The local state of a [`Knob`].
+/// The local state of an [`AutoRangeInput`].
 ///
-/// [`Knob`]: struct.Knob.html
+/// [`AutoRangeInput`]: struct.AutoRangeInput.html
 #[derive(Debug, Copy, Clone)]
 pub struct State<ID: Debug + Copy + Clone> {
     /// The [`Param`] assigned to this widget
     ///
     /// [`Param`]: ../../core/param/struct.Param.html
     pub param: Param<ID>,
-    /// An optional [`AutomationRange`] to assign to this widget
-    ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
-    pub automation_range: Option<AutomationRange>,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -158,17 +142,16 @@ pub struct State<ID: Debug + Copy + Clone> {
 }
 
 impl<ID: Debug + Copy + Clone> State<ID> {
-    /// Creates a new [`Knob`] state.
+    /// Creates a new [`AutoRangeInput`] state.
     ///
     /// It expects:
     /// * a [`Param`] to assign to this widget
     ///
     /// [`Param`]: ../../core/param/struct.Param.html
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     pub fn new(param: Param<ID>) -> Self {
         Self {
             param,
-            automation_range: None,
             is_dragging: false,
             prev_drag_y: 0.0,
             continuous_normal: param.normal.value(),
@@ -176,21 +159,10 @@ impl<ID: Debug + Copy + Clone> State<ID> {
             last_click: None,
         }
     }
-
-    /// Assigns an [`AutomationRange`] to this widget
-    ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
-    pub fn automation_range(
-        mut self,
-        automation_range: AutomationRange,
-    ) -> Self {
-        self.automation_range = Some(automation_range);
-        self
-    }
 }
 
 impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for Knob<'a, Message, Renderer, ID>
+    for AutoRangeInput<'a, Message, Renderer, ID>
 where
     Renderer: self::Renderer,
     ID: Debug + Copy + Clone,
@@ -306,10 +278,7 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.param.normal,
             self.state.is_dragging,
-            self.state.automation_range,
-            self.tick_marks,
             &self.style,
         )
     }
@@ -322,40 +291,35 @@ where
     }
 }
 
-/// The renderer of a [`Knob`].
+/// The renderer of an [`AutoRangeInput`].
 ///
 /// Your renderer will need to implement this trait before being
-/// able to use a [`Knob`] in your user interface.
+/// able to use an [`AutoRangeInput`] in your user interface.
 ///
-/// [`Knob`]: struct.Knob.html
+/// [`AutoRangeInput`]: struct.AutoRangeInput.html
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
 
-    /// Draws a [`Knob`].
+    /// Draws an [`AutoRangeInput`].
     ///
     /// It receives:
-    ///   * the bounds of the [`Knob`]
+    ///   * the bounds of the [`AutoRangeInput`]
     ///   * the current cursor position
-    ///   * the current normal of the [`Knob`]
-    ///   * whether the knob is currently being dragged
-    ///   * any tick marks to display
-    ///   * the style of the [`Knob`]
+    ///   * whether the AutoRangeInput is currently being dragged
+    ///   * the style of the [`AutoRangeInput`]
     ///
-    /// [`Knob`]: struct.Knob.html
+    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
     fn draw(
         &mut self,
         bounds: Rectangle,
         cursor_position: Point,
-        normal: Normal,
         is_dragging: bool,
-        automation_range: Option<AutomationRange>,
-        tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<Knob<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer, ID> From<AutoRangeInput<'a, Message, Renderer, ID>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
@@ -363,8 +327,8 @@ where
     ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        knob: Knob<'a, Message, Renderer, ID>,
+        auto_range_input: AutoRangeInput<'a, Message, Renderer, ID>,
     ) -> Element<'a, Message, Renderer> {
-        Element::new(knob)
+        Element::new(auto_range_input)
     }
 }

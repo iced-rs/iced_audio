@@ -278,7 +278,7 @@ pub struct AutomationRange {
 
 impl AutomationRange {
     /// Creates a new `Automation Range`
-    /// 
+    ///
     /// * start - Where the automation range starts.
     /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
     /// * ends - Where the automation range ends.

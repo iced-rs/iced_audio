@@ -2,6 +2,7 @@
 
 mod default_colors;
 
+pub mod auto_range_input;
 pub mod h_slider;
 pub mod knob;
 pub mod ramp;

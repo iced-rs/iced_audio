@@ -11,16 +11,16 @@ use iced::{
 
 pub use inputs_tour_steps::style;
 
-static STARTING_STEP: usize = 4;
+static STARTING_STEP: usize = 0;
 
 pub fn main() {
-    BasicInputs::run(Settings {
+    InputsTour::run(Settings {
         antialiasing: true,
         ..Settings::default()
     })
 }
 
-pub struct BasicInputs {
+pub struct InputsTour {
     steps: Steps,
     scroll: scrollable::State,
     back_button: button::State,
@@ -28,11 +28,11 @@ pub struct BasicInputs {
     debug: bool,
 }
 
-impl Sandbox for BasicInputs {
+impl Sandbox for InputsTour {
     type Message = Message;
 
-    fn new() -> BasicInputs {
-        BasicInputs {
+    fn new() -> InputsTour {
+        InputsTour {
             steps: Steps::default(),
             scroll: scrollable::State::new(),
             back_button: button::State::new(),
@@ -60,7 +60,7 @@ impl Sandbox for BasicInputs {
     }
 
     fn view(&mut self) -> Element<Message> {
-        let BasicInputs {
+        let InputsTour {
             steps,
             scroll,
             back_button,
@@ -132,7 +132,7 @@ impl Default for Steps {
                 Step::HSliders(Default::default()),
                 Step::VSliders(Default::default()),
                 Step::Knobs(Default::default()),
-                Step::KnobAutoRanges(Default::default()),
+                Step::AutoRanges(Default::default()),
                 Step::XYPads(Default::default()),
                 Step::Ramps(Default::default()),
             ],
@@ -180,7 +180,7 @@ pub enum Step {
     HSliders(step_h_sliders::HSliderStep),
     VSliders(step_v_sliders::VSliderStep),
     Knobs(step_knobs::KnobStep),
-    KnobAutoRanges(step_knob_auto_ranges::KnobAutoRanges),
+    AutoRanges(step_auto_ranges::AutoRanges),
     XYPads(step_xy_pads::XYPadStep),
     Ramps(step_ramps::RampStep),
 }
@@ -190,7 +190,7 @@ pub enum StepMessage {
     HSlidersMsg(step_h_sliders::Message),
     VSlidersMsg(step_v_sliders::Message),
     KnobsMsg(step_knobs::Message),
-    KnobAutoRangesMsg(step_knob_auto_ranges::Message),
+    AutoRangesMsg(step_auto_ranges::Message),
     XYPadsMsg(step_xy_pads::Message),
     RampsMsg(step_ramps::Message),
 }
@@ -213,8 +213,8 @@ impl<'a> Step {
                     step.update(msg);
                 };
             }
-            StepMessage::KnobAutoRangesMsg(msg) => {
-                if let Step::KnobAutoRanges(step) = self {
+            StepMessage::AutoRangesMsg(msg) => {
+                if let Step::AutoRanges(step) = self {
                     step.update(msg);
                 };
             }
@@ -237,7 +237,7 @@ impl<'a> Step {
             Step::HSliders(step) => step.title(),
             Step::VSliders(step) => step.title(),
             Step::Knobs(step) => step.title(),
-            Step::KnobAutoRanges(step) => step.title(),
+            Step::AutoRanges(step) => step.title(),
             Step::XYPads(step) => step.title(),
             Step::Ramps(step) => step.title(),
         }
@@ -253,7 +253,9 @@ impl<'a> Step {
                 step.view(debug).map(StepMessage::VSlidersMsg)
             }
             Step::Knobs(step) => step.view(debug).map(StepMessage::KnobsMsg),
-            Step::KnobAutoRanges(step) => step.view(debug).map(StepMessage::KnobAutoRangesMsg),
+            Step::AutoRanges(step) => {
+                step.view(debug).map(StepMessage::AutoRangesMsg)
+            }
             Step::XYPads(step) => step.view(debug).map(StepMessage::XYPadsMsg),
             Step::Ramps(step) => step.view(debug).map(StepMessage::RampsMsg),
         }

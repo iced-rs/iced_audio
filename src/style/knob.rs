@@ -316,7 +316,8 @@ pub struct AutoRangeRingStyle {
     pub color_empty: Option<Color>,
     /// The color of a filled portion of the ring.
     pub color: Color,
-    /// The color of a filled portion of the ring.
+    /// The color of a filled portion of the ring when `end` is less than
+    /// `start`.
     pub color_inverse: Color,
 }
 

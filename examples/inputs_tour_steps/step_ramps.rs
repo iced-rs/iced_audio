@@ -1,8 +1,6 @@
 use iced::{Column, Element, Length, Row, Text};
 
-use iced_audio::{
-    ramp, FloatRange, Ramp,
-};
+use iced_audio::{ramp, FloatRange, Ramp};
 
 use crate::{style, Step};
 

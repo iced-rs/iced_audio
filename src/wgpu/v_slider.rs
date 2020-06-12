@@ -2,7 +2,7 @@
 //!
 //! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
-use crate::core::{Normal, TickMarkGroup, TickMarkTier};
+use crate::core::{AutomationRange, Normal, TickMarkGroup, TickMarkTier};
 use crate::native::v_slider;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
@@ -10,7 +10,7 @@ use iced_wgpu::{Primitive, Renderer};
 pub use crate::native::v_slider::State;
 pub use crate::style::v_slider::{
     ClassicHandle, ClassicStyle, RectBipolarStyle, RectStyle, Style,
-    StyleSheet, TextureStyle, TickMarkStyle,
+    StyleSheet, TextureStyle, TickMarkStyle, AutoRangeStyle, AutoRangePlacement,
 };
 
 /// This is an alias of a `crate::native` [`VSlider`] with an
@@ -29,6 +29,7 @@ impl v_slider::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        auto_range: Option<AutomationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
@@ -49,6 +50,109 @@ impl v_slider::Renderer for Renderer {
         let bounds_height = bounds.height.floor();
 
         let rail_x = (bounds_x + (bounds_width / 2.0)).round();
+
+        let auto_range_line: Primitive = {
+            if let Some(auto_range) = auto_range {
+                if auto_range.visible {
+                    if let Some(style) = style_sheet.auto_range_style() {
+
+                        let offset = style.offset as f32;
+
+                        let (x, width) = match style.placement {
+                            AutoRangePlacement::Center => {
+                                (
+                                    bounds_x + offset,
+                                    bounds_width - (offset * 2.0),
+                                )
+                            },
+                            AutoRangePlacement::Left => {
+                                (
+                                    bounds_x - offset - style.width as f32,
+                                    style.width as f32,
+                                )
+                            },
+                            AutoRangePlacement::Right => {
+                                (
+                                    bounds_x + bounds_width + offset,
+                                    style.width as f32,
+                                )
+                            },
+                        };
+
+                        let back: Primitive = {
+                            if let Some(color_empty) = style.color_empty {
+                                Primitive::Quad {
+                                    bounds: Rectangle {
+                                        x,
+                                        y: bounds_y,
+                                        width,
+                                        height: bounds_height,
+                                    },
+                                    background: Background::Color(color_empty),
+                                    border_radius: 0,
+                                    border_width: 0,
+                                    border_color: Color::TRANSPARENT,
+                                }
+                            } else {
+                                Primitive::None
+                            }
+                        };
+
+                        let filled: Primitive = {
+                            if auto_range.filled_visible
+                            && (auto_range.start.value()
+                                != auto_range.end.value())
+                            {
+                                let (start, end, color) =
+                                    if auto_range.start.value()
+                                        < auto_range.end.value()
+                                    {
+                                        (
+                                            auto_range.start.value(),
+                                            auto_range.end.value(),
+                                            style.color,
+                                        )
+                                    } else {
+                                        (
+                                            auto_range.end.value(),
+                                            auto_range.start.value(),
+                                            style.color_inverse,
+                                        )
+                                    };
+                                
+                                let start_offset = bounds_height * start;
+                                let filled_height = (bounds_height * end) - start_offset;
+                                
+                                Primitive::Quad {
+                                    bounds: Rectangle {
+                                        x,
+                                        y: bounds_y + bounds_height - start_offset - filled_height,
+                                        width,
+                                        height: filled_height,
+                                    },
+                                    background: Background::Color(color),
+                                    border_radius: 0,
+                                    border_width: 0,
+                                    border_color: Color::TRANSPARENT,
+                                }
+                            } else {
+                                Primitive::None
+                            }
+                        };
+
+                        Primitive::Group {
+                            primitives: vec![back, filled],
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                } else {
+                    Primitive::None
+                }
+            } else {
+                Primitive::None
+            }
+        };
 
         let tick_marks: Primitive = {
             if let Some(tick_marks) = tick_marks {
@@ -222,7 +326,7 @@ impl v_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![
-                            tick_marks, rail_left, rail_right, handle,
+                            tick_marks, rail_left, rail_right, handle, auto_range_line
                         ],
                     },
                     MouseCursor::default(),
@@ -310,6 +414,7 @@ impl v_slider::Renderer for Renderer {
                             rail_right,
                             handle,
                             handle_notch,
+                            auto_range_line,
                         ],
                     },
                     MouseCursor::default(),
@@ -377,6 +482,7 @@ impl v_slider::Renderer for Renderer {
                             empty_rect,
                             tick_marks,
                             filled_rect,
+                            auto_range_line,
                             handle,
                         ],
                     },
@@ -449,6 +555,7 @@ impl v_slider::Renderer for Renderer {
                                 bottom_empty_rect,
                                 top_empty_rect,
                                 tick_marks,
+                                auto_range_line,
                                 handle,
                             ],
                         },
@@ -495,6 +602,7 @@ impl v_slider::Renderer for Renderer {
                                 top_empty_rect,
                                 tick_marks,
                                 filled_rect,
+                                auto_range_line,
                                 handle,
                             ],
                         },
@@ -542,6 +650,7 @@ impl v_slider::Renderer for Renderer {
                                 top_empty_rect,
                                 tick_marks,
                                 filled_rect,
+                                auto_range_line,
                                 handle,
                             ],
                         },

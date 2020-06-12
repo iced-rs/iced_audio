@@ -2,7 +2,7 @@
 //!
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
-use crate::core::{Normal, TickMarkGroup, TickMarkTier};
+use crate::core::{AutomationRange, Normal, TickMarkGroup, TickMarkTier};
 use crate::native::h_slider;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
@@ -10,7 +10,7 @@ use iced_wgpu::{Primitive, Renderer};
 pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{
     ClassicHandle, ClassicStyle, RectBipolarStyle, RectStyle, Style,
-    StyleSheet, TextureStyle, TickMarkStyle,
+    StyleSheet, TextureStyle, TickMarkStyle, AutoRangeStyle, AutoRangePlacement,
 };
 
 /// This is an alias of a `crate::native` [`HSlider`] with an
@@ -29,6 +29,7 @@ impl h_slider::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
+        auto_range: Option<AutomationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
@@ -49,6 +50,109 @@ impl h_slider::Renderer for Renderer {
         let bounds_height = bounds.height.floor();
 
         let rail_y = (bounds_y + (bounds_height / 2.0)).round();
+
+        let auto_range_line: Primitive = {
+            if let Some(auto_range) = auto_range {
+                if auto_range.visible {
+                    if let Some(style) = style_sheet.auto_range_style() {
+
+                        let offset = style.offset as f32;
+
+                        let (y, height) = match style.placement {
+                            AutoRangePlacement::Center => {
+                                (
+                                    bounds_y + offset,
+                                    bounds_height - (offset * 2.0),
+                                )
+                            },
+                            AutoRangePlacement::Top => {
+                                (
+                                    bounds_y - offset - style.width as f32,
+                                    style.width as f32,
+                                )
+                            },
+                            AutoRangePlacement::Bottom => {
+                                (
+                                    bounds_y + bounds_height + offset,
+                                    style.width as f32,
+                                )
+                            },
+                        };
+
+                        let back: Primitive = {
+                            if let Some(color_empty) = style.color_empty {
+                                Primitive::Quad {
+                                    bounds: Rectangle {
+                                        x: bounds_x,
+                                        y,
+                                        width: bounds_width,
+                                        height,
+                                    },
+                                    background: Background::Color(color_empty),
+                                    border_radius: 0,
+                                    border_width: 0,
+                                    border_color: Color::TRANSPARENT,
+                                }
+                            } else {
+                                Primitive::None
+                            }
+                        };
+
+                        let filled: Primitive = {
+                            if auto_range.filled_visible
+                            && (auto_range.start.value()
+                                != auto_range.end.value())
+                            {
+                                let (start, end, color) =
+                                    if auto_range.start.value()
+                                        < auto_range.end.value()
+                                    {
+                                        (
+                                            auto_range.start.value(),
+                                            auto_range.end.value(),
+                                            style.color,
+                                        )
+                                    } else {
+                                        (
+                                            auto_range.end.value(),
+                                            auto_range.start.value(),
+                                            style.color_inverse,
+                                        )
+                                    };
+                                
+                                let start_offset = bounds_width * start;
+                                let filled_width = (bounds_width * end) - start_offset;
+                                
+                                Primitive::Quad {
+                                    bounds: Rectangle {
+                                        x: bounds_x + start_offset,
+                                        y,
+                                        width: filled_width,
+                                        height,
+                                    },
+                                    background: Background::Color(color),
+                                    border_radius: 0,
+                                    border_width: 0,
+                                    border_color: Color::TRANSPARENT,
+                                }
+                            } else {
+                                Primitive::None
+                            }
+                        };
+
+                        Primitive::Group {
+                            primitives: vec![back, filled],
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                } else {
+                    Primitive::None
+                }
+            } else {
+                Primitive::None
+            }
+        };
 
         let tick_marks: Primitive = {
             if let Some(tick_marks) = tick_marks {
@@ -218,6 +322,7 @@ impl h_slider::Renderer for Renderer {
                             rail_top,
                             rail_bottom,
                             handle,
+                            auto_range_line,
                         ],
                     },
                     MouseCursor::default(),
@@ -312,6 +417,7 @@ impl h_slider::Renderer for Renderer {
                             rail_bottom,
                             handle,
                             handle_notch,
+                            auto_range_line,
                         ],
                     },
                     MouseCursor::default(),
@@ -374,6 +480,7 @@ impl h_slider::Renderer for Renderer {
                             empty_rect,
                             tick_marks,
                             filled_rect,
+                            auto_range_line,
                             handle,
                         ],
                     },
@@ -441,6 +548,7 @@ impl h_slider::Renderer for Renderer {
                                 left_empty_rect,
                                 right_empty_rect,
                                 tick_marks,
+                                auto_range_line,
                                 handle,
                             ],
                         },
@@ -488,6 +596,7 @@ impl h_slider::Renderer for Renderer {
                                 right_empty_rect,
                                 tick_marks,
                                 filled_rect,
+                                auto_range_line,
                                 handle,
                             ],
                         },
@@ -532,6 +641,7 @@ impl h_slider::Renderer for Renderer {
                                 right_empty_rect,
                                 tick_marks,
                                 filled_rect,
+                                auto_range_line,
                                 handle,
                             ],
                         },

@@ -1,5 +1,6 @@
 //! A renderer-agnostic native GUI runtime for Iced Audio.
 
+pub mod auto_range_input;
 pub mod h_slider;
 pub mod knob;
 pub mod ramp;
@@ -8,6 +9,8 @@ pub mod xy_pad;
 
 pub mod db_meter;
 
+#[doc(no_inline)]
+pub use auto_range_input::AutoRangeInput;
 #[doc(no_inline)]
 pub use h_slider::HSlider;
 #[doc(no_inline)]
