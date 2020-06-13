@@ -36,7 +36,7 @@ Take a look at the [roadmap] for a list of planned widgets.
 ## Run examples with
 
 ```
-cargo run --example basic_inputs --release
+cargo run --example inputs_tour --release
 cargo run --example simple --release
 cargo run --package db_meter --release
 ```
