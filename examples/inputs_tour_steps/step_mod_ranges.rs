@@ -1,14 +1,14 @@
 use iced::{Column, Element, Length, Row, Text, Align};
 
-use iced_audio::{knob, AutomationRange, FloatRange, Knob, 
-    auto_range_input, AutoRangeInput, h_slider, HSlider, v_slider, VSlider};
+use iced_audio::{knob, ModulationRange, FloatRange, Knob, 
+    mod_range_input, ModRangeInput, h_slider, HSlider, v_slider, VSlider};
 
 use crate::{style, Step};
 
 /// Unique identifier for each parameter. Note you may also use u32, i32, or
 /// Strings if you wish.
 #[derive(Debug, Copy, Clone)]
-pub enum AutoRangesID {
+pub enum ModRangesID {
     RangeStart,
     RangeEnd,
     Knob1,
@@ -16,43 +16,43 @@ pub enum AutoRangesID {
     VSlider1,
     AutoKnob1,
     AutoKnob2,
-    AutoRangeInput1,
-    AutoRangeInput2,
+    ModRangeInput1,
+    ModRangeInput2,
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    KnobMoved(AutoRangesID),
+    KnobMoved(ModRangesID),
 }
 
-pub struct AutoRanges {
+pub struct ModRanges {
     float_range: FloatRange,
     float_range_bipolar: FloatRange,
 
-    knob_start_state: knob::State<AutoRangesID>,
-    knob_end_state: knob::State<AutoRangesID>,
+    knob_start_state: knob::State<ModRangesID>,
+    knob_end_state: knob::State<ModRangesID>,
 
-    knob1_state: knob::State<AutoRangesID>,
-    h_slider1_state: h_slider::State<AutoRangesID>,
-    v_slider1_state: v_slider::State<AutoRangesID>,
+    knob1_state: knob::State<ModRangesID>,
+    h_slider1_state: h_slider::State<ModRangesID>,
+    v_slider1_state: v_slider::State<ModRangesID>,
 
-    auto_input1_state: auto_range_input::State<AutoRangesID>,
-    knob_auto1_state: knob::State<AutoRangesID>,
+    auto_input1_state: mod_range_input::State<ModRangesID>,
+    knob_auto1_state: knob::State<ModRangesID>,
 
-    auto_input2_state: auto_range_input::State<AutoRangesID>,
-    knob_auto2_state: knob::State<AutoRangesID>,
+    auto_input2_state: mod_range_input::State<ModRangesID>,
+    knob_auto2_state: knob::State<ModRangesID>,
 
     output_text: String,
 }
 
-impl Default for AutoRanges {
+impl Default for ModRanges {
     fn default() -> Self {
         // initalize parameters
 
         let float_range = FloatRange::default();
         let float_range_bipolar = FloatRange::default_bipolar();
 
-        let auto_range = AutomationRange::new(0.0.into(), 0.0.into());
+        let mod_range = ModulationRange::new(0.0.into(), 0.0.into());
 
         // create application
 
@@ -62,53 +62,53 @@ impl Default for AutoRanges {
 
             // initialize the state of the Knob widget
             knob_start_state: knob::State::new(
-                float_range.create_param_default(AutoRangesID::RangeStart),
+                float_range.create_param_default(ModRangesID::RangeStart),
             ),
             knob_end_state: knob::State::new(
-                float_range.create_param_default(AutoRangesID::RangeEnd),
+                float_range.create_param_default(ModRangesID::RangeEnd),
             ),
 
             knob1_state: knob::State::new(
-                float_range.create_param_default(AutoRangesID::Knob1),
+                float_range.create_param_default(ModRangesID::Knob1),
             )
-            .automation_range(auto_range),
+            .modulation_range(mod_range),
 
             h_slider1_state: h_slider::State::new(
-                float_range.create_param_default(AutoRangesID::HSlider1),
+                float_range.create_param_default(ModRangesID::HSlider1),
             )
-            .automation_range(auto_range),
+            .modulation_range(mod_range),
 
             v_slider1_state: v_slider::State::new(
-                float_range.create_param_default(AutoRangesID::VSlider1),
+                float_range.create_param_default(ModRangesID::VSlider1),
             )
-            .automation_range(auto_range),
+            .modulation_range(mod_range),
 
-            auto_input1_state: auto_range_input::State::new(
-                float_range_bipolar.create_param_default(AutoRangesID::AutoRangeInput1),
+            auto_input1_state: mod_range_input::State::new(
+                float_range_bipolar.create_param_default(ModRangesID::ModRangeInput1),
             ),
             
             knob_auto1_state: knob::State::new(
-                float_range.create_param_default(AutoRangesID::AutoKnob1),
+                float_range.create_param_default(ModRangesID::AutoKnob1),
             )
-            .automation_range(AutomationRange::default()),
+            .modulation_range(ModulationRange::default()),
 
-            auto_input2_state: auto_range_input::State::new(
-                float_range_bipolar.create_param_default(AutoRangesID::AutoRangeInput2),
+            auto_input2_state: mod_range_input::State::new(
+                float_range_bipolar.create_param_default(ModRangesID::ModRangeInput2),
             ),
             
             knob_auto2_state: knob::State::new(
-                float_range.create_param_default(AutoRangesID::AutoKnob2),
+                float_range.create_param_default(ModRangesID::AutoKnob2),
             )
-            .automation_range(AutomationRange::default()),
+            .modulation_range(ModulationRange::default()),
 
             output_text: String::from("Move a widget"),
         }
     }
 }
 
-impl AutoRanges {
+impl ModRanges {
     pub fn title(&self) -> &str {
-        "Automation Ranges"
+        "Modulation Ranges"
     }
 
     pub fn update(&mut self, message: Message) {
@@ -116,70 +116,70 @@ impl AutoRanges {
             Message::KnobMoved(id) => {
                 // Update the output text with the new value of the parameter.
                 match id {
-                    AutoRangesID::RangeStart => {
+                    ModRangesID::RangeStart => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.knob_start_state.param.normal),
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob1_state.modulation_range
                         {
-                            auto_range.start =
+                            mod_range.start =
                                 self.knob_start_state.param.normal;
                         }
-                        if let Some(auto_range) =
-                            &mut self.h_slider1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.h_slider1_state.modulation_range
                         {
-                            auto_range.start =
+                            mod_range.start =
                                 self.knob_start_state.param.normal;
                         }
-                        if let Some(auto_range) =
-                            &mut self.v_slider1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.v_slider1_state.modulation_range
                         {
-                            auto_range.start =
+                            mod_range.start =
                                 self.knob_start_state.param.normal;
                         }
                     }
-                    AutoRangesID::RangeEnd => {
+                    ModRangesID::RangeEnd => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.knob_end_state.param.normal),
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob1_state.modulation_range
                         {
-                            auto_range.end = self.knob_end_state.param.normal;
+                            mod_range.end = self.knob_end_state.param.normal;
                         }
-                        if let Some(auto_range) =
-                            &mut self.h_slider1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.h_slider1_state.modulation_range
                         {
-                            auto_range.end = self.knob_end_state.param.normal;
+                            mod_range.end = self.knob_end_state.param.normal;
                         }
-                        if let Some(auto_range) =
-                            &mut self.v_slider1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.v_slider1_state.modulation_range
                         {
-                            auto_range.end = self.knob_end_state.param.normal;
+                            mod_range.end = self.knob_end_state.param.normal;
                         }
                     }
-                    AutoRangesID::Knob1 => {
+                    ModRangesID::Knob1 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.knob1_state.param.normal),
                         );
                     }
-                    AutoRangesID::HSlider1 => {
+                    ModRangesID::HSlider1 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.h_slider1_state.param.normal),
                         );
                     }
-                    AutoRangesID::VSlider1 => {
+                    ModRangesID::VSlider1 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
@@ -187,25 +187,25 @@ impl AutoRanges {
                         );
                     }
 
-                    AutoRangesID::AutoKnob1 => {
+                    ModRangesID::AutoKnob1 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.knob_auto1_state.param.normal),
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob_auto1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob_auto1_state.modulation_range
                         {
                             let auto_value = self.float_range_bipolar
                                 .to_value(self.auto_input1_state.param.normal);
 
-                            auto_range.start = self.knob_auto1_state.param.normal;
-                            auto_range.end = (auto_range.start.value() +
+                            mod_range.start = self.knob_auto1_state.param.normal;
+                            mod_range.end = (mod_range.start.value() +
                                 auto_value).into();
                         }
                     }
-                    AutoRangesID::AutoRangeInput1 => {
+                    ModRangesID::ModRangeInput1 => {
                         let auto_value = self.float_range_bipolar
                             .to_value(self.auto_input1_state.param.normal);
 
@@ -214,33 +214,33 @@ impl AutoRanges {
                             auto_value,
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob_auto1_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob_auto1_state.modulation_range
                         {
-                            auto_range.end = (self.knob_auto1_state.param.normal.value() +
+                            mod_range.end = (self.knob_auto1_state.param.normal.value() +
                                 auto_value).into();
                         }
                     }
 
-                    AutoRangesID::AutoKnob2 => {
+                    ModRangesID::AutoKnob2 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
                                 .to_value(self.knob_auto2_state.param.normal),
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob_auto2_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob_auto2_state.modulation_range
                         {
                             let auto_value = self.float_range_bipolar
                                 .to_value(self.auto_input2_state.param.normal);
 
-                            auto_range.start = self.knob_auto2_state.param.normal;
-                            auto_range.end = (auto_range.start.value() +
+                            mod_range.start = self.knob_auto2_state.param.normal;
+                            mod_range.end = (mod_range.start.value() +
                                 auto_value).into();
                         }
                     }
-                    AutoRangesID::AutoRangeInput2 => {
+                    ModRangesID::ModRangeInput2 => {
                         let auto_value = self.float_range_bipolar
                             .to_value(self.auto_input2_state.param.normal);
 
@@ -249,10 +249,10 @@ impl AutoRanges {
                             auto_value,
                         );
 
-                        if let Some(auto_range) =
-                            &mut self.knob_auto2_state.automation_range
+                        if let Some(mod_range) =
+                            &mut self.knob_auto2_state.modulation_range
                         {
-                            auto_range.end = (self.knob_auto2_state.param.normal.value() +
+                            mod_range.end = (self.knob_auto2_state.param.normal.value() +
                                 auto_value).into();
                         }
                     }
@@ -275,9 +275,9 @@ impl AutoRanges {
                 .style(style::KnobCustomArc);
         
         let auto_input1 =
-            AutoRangeInput::new(&mut self.auto_input1_state, Message::KnobMoved)
+            ModRangeInput::new(&mut self.auto_input1_state, Message::KnobMoved)
                 .size(Length::from(10))
-                .style(style::AutoRangeInputCustom);
+                .style(style::ModRangeInputCustom);
         
         let knob_auto1 =
             Knob::new(&mut self.knob_auto1_state, Message::KnobMoved)
@@ -293,9 +293,9 @@ impl AutoRanges {
                 .style(style::VSliderRectStyle);
         
         let auto_input2 =
-            AutoRangeInput::new(&mut self.auto_input2_state, Message::KnobMoved)
+            ModRangeInput::new(&mut self.auto_input2_state, Message::KnobMoved)
                 .size(Length::from(15))
-                .style(auto_range_input::DefaultInvisible);
+                .style(mod_range_input::DefaultInvisible);
         
         let knob_auto2 =
             Knob::new(&mut self.knob_auto2_state, Message::KnobMoved)
@@ -327,7 +327,7 @@ impl AutoRanges {
                 .width(Length::Fill)
                 .spacing(10)
                 .align_items(Align::Center)
-                .push(Text::new("Custom Style with AutoRangeInput"))
+                .push(Text::new("Custom Style with ModRangeInput"))
                 .push(auto_input1)
                 .push(knob_auto1),
             )
@@ -335,7 +335,7 @@ impl AutoRanges {
                 .width(Length::Fill)
                 .spacing(0)
                 .align_items(Align::Center)
-                .push(Text::new("Custom Style with invisible AutoRangeInput"))
+                .push(Text::new("Custom Style with invisible ModRangeInput"))
                 .push(auto_input2)
                 .push(knob_auto2),
             )
@@ -347,6 +347,6 @@ impl AutoRanges {
             .push(knob_row)
             .push(Text::new(&self.output_text).size(16));
 
-        Step::container("Automation Ranges").push(content).into()
+        Step::container("Modulation Ranges").push(content).into()
     }
 }

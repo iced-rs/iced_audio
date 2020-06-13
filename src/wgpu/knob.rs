@@ -2,7 +2,7 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use crate::core::{AutomationRange, Normal, TickMarkGroup, TickMarkTier};
+use crate::core::{ModulationRange, Normal, TickMarkGroup, TickMarkTier};
 use crate::native::knob;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle, Vector};
 use iced_wgpu::widget::canvas::{path::Arc, Frame, LineCap, Path, Stroke};
@@ -10,7 +10,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, AutoRangeRingStyle,
+    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, ModRangeRingStyle,
     CircleTickMarks, LineTickMarks, Style, StyleSheet, TickMarkStyle,
     ValueRingStyle, VectorCircleStyle, VectorLineStyle,
 };
@@ -30,7 +30,7 @@ impl knob::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        auto_range: Option<AutomationRange>,
+        mod_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
@@ -176,10 +176,10 @@ impl knob::Renderer for Renderer {
             }
         };
 
-        let auto_range_ring: Primitive = {
-            if let Some(auto_range) = auto_range {
-                if auto_range.visible {
-                    if let Some(style) = style_sheet.auto_range_ring_style() {
+        let mod_range_ring: Primitive = {
+            if let Some(mod_range) = mod_range {
+                if mod_range.visible {
+                    if let Some(style) = style_sheet.mod_range_ring_style() {
                         let mut start_angle =
                             angle_range.min() + std::f32::consts::FRAC_PI_2;
                         if start_angle >= crate::TAU {
@@ -219,23 +219,23 @@ impl knob::Renderer for Renderer {
                             frame.stroke(&empty_path, empty_stroke);
                         }
 
-                        if auto_range.filled_visible
-                            && (auto_range.start.value()
-                                != auto_range.end.value())
+                        if mod_range.filled_visible
+                            && (mod_range.start.value()
+                                != mod_range.end.value())
                         {
                             let (start, end, color) =
-                                if auto_range.start.value()
-                                    < auto_range.end.value()
+                                if mod_range.start.value()
+                                    < mod_range.end.value()
                                 {
                                     (
-                                        auto_range.start.value(),
-                                        auto_range.end.value(),
+                                        mod_range.start.value(),
+                                        mod_range.end.value(),
                                         style.color,
                                     )
                                 } else {
                                     (
-                                        auto_range.end.value(),
-                                        auto_range.start.value(),
+                                        mod_range.end.value(),
+                                        mod_range.start.value(),
                                         style.color_inverse,
                                     )
                                 };
@@ -509,7 +509,7 @@ impl knob::Renderer for Renderer {
                         primitives: vec![
                             tick_marks,
                             value_ring,
-                            auto_range_ring,
+                            mod_range_ring,
                             knob_back,
                             notch,
                         ],
@@ -576,7 +576,7 @@ impl knob::Renderer for Renderer {
                         primitives: vec![
                             tick_marks,
                             value_ring,
-                            auto_range_ring,
+                            mod_range_ring,
                             knob_back,
                             notch,
                         ],
@@ -678,7 +678,7 @@ impl knob::Renderer for Renderer {
                         primitives: vec![
                             tick_marks,
                             value_ring,
-                            auto_range_ring,
+                            mod_range_ring,
                             arc,
                         ],
                     },
@@ -812,7 +812,7 @@ impl knob::Renderer for Renderer {
                         primitives: vec![
                             tick_marks,
                             value_ring,
-                            auto_range_ring,
+                            mod_range_ring,
                             arc,
                         ],
                     },

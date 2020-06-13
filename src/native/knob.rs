@@ -12,7 +12,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{AutomationRange, Normal, Param, TickMarkGroup};
+use crate::core::{ModulationRange, Normal, Param, TickMarkGroup};
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.008;
@@ -146,10 +146,10 @@ pub struct State<ID: Debug + Copy + Clone> {
     ///
     /// [`Param`]: ../../core/param/struct.Param.html
     pub param: Param<ID>,
-    /// An optional [`AutomationRange`] to assign to this widget
+    /// An optional [`ModulationRange`] to assign to this widget
     ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
-    pub automation_range: Option<AutomationRange>,
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    pub modulation_range: Option<ModulationRange>,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -168,7 +168,7 @@ impl<ID: Debug + Copy + Clone> State<ID> {
     pub fn new(param: Param<ID>) -> Self {
         Self {
             param,
-            automation_range: None,
+            modulation_range: None,
             is_dragging: false,
             prev_drag_y: 0.0,
             continuous_normal: param.normal.value(),
@@ -177,14 +177,14 @@ impl<ID: Debug + Copy + Clone> State<ID> {
         }
     }
 
-    /// Assigns an [`AutomationRange`] to this widget
+    /// Assigns an [`ModulationRange`] to this widget
     ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
-    pub fn automation_range(
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    pub fn modulation_range(
         mut self,
-        automation_range: AutomationRange,
+        modulation_range: ModulationRange,
     ) -> Self {
-        self.automation_range = Some(automation_range);
+        self.modulation_range = Some(modulation_range);
         self
     }
 }
@@ -308,7 +308,7 @@ where
             cursor_position,
             self.state.param.normal,
             self.state.is_dragging,
-            self.state.automation_range,
+            self.state.modulation_range,
             self.tick_marks,
             &self.style,
         )
@@ -349,7 +349,7 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        automation_range: Option<AutomationRange>,
+        modulation_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;

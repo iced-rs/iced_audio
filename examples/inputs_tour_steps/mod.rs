@@ -1,4 +1,4 @@
-pub mod step_auto_ranges;
+pub mod step_mod_ranges;
 pub mod step_h_sliders;
 pub mod step_knobs;
 pub mod step_ramps;

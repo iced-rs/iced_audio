@@ -8,7 +8,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 
 <div align="center">
     <img src="/screenshots/HSliders.png">
-    <img src="/screenshots/Automation_Ranges.png">
+    <img src="/screenshots/Modulation_Ranges.png">
     <img src="/screenshots/DB_Meter.png">
 </div>
 
@@ -19,7 +19,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 * [x] `VSlider` - Vertical Slider
 * [x] `Ramp` - Ramp used to control the easing between two points in time
 * [x] `XYPad`- XY Pad for controlling two parameters at once
-* [x] `AutoRangeInput` - A dot used to control the range of automation for a parameter. Styles for visual feedback of the automation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
+* [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
 * [x] `DBMeter` - A decibel meter. Note that any DSP and animation must be done manually.
 
 ## Widgets partially implemented

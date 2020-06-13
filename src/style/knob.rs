@@ -301,12 +301,12 @@ pub struct ValueRingStyle {
     pub color_right: Option<Color>,
 }
 
-/// A style for an [`AutomationRange`] ring around a [`Knob`]
+/// A style for a [`ModulationRange`] ring around a [`Knob`]
 ///
-/// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+/// [`ModulationRange`]: ../../core/struct.ModulationRange.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct AutoRangeRingStyle {
+pub struct ModRangeRingStyle {
     /// The width (thickness) of the ring
     pub width: f32,
     /// The offset from the edge of the `Knob`
@@ -367,13 +367,13 @@ pub trait StyleSheet {
         None
     }
 
-    /// The style of an [`AutomationRange`] ring around a [`Knob`]
+    /// The style of an [`ModulationRange`] ring around a [`Knob`]
     ///
-    /// For no automation range ring, don't override this or set this to return `None`.
+    /// For no modulation range ring, don't override this or set this to return `None`.
     ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn auto_range_ring_style(&self) -> Option<AutoRangeRingStyle> {
+    fn mod_range_ring_style(&self) -> Option<ModRangeRingStyle> {
         None
     }
 }

@@ -1,25 +1,25 @@
-//! wgpu renderer for the [`AutoRangeInput`] widget
+//! wgpu renderer for the [`ModRangeInput`] widget
 //!
-//! [`AutoRangeInput`]: ../native/auto_range_input/struct.AutoRangeInput.html
+//! [`ModRangeInput`]: ../native/mod_range_input/struct.ModRangeInput.html
 
-use crate::native::auto_range_input;
+use crate::native::mod_range_input;
 
 use iced_native::{Background, MouseCursor, Point, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
-pub use crate::native::auto_range_input::State;
-pub use crate::style::auto_range_input::{
+pub use crate::native::mod_range_input::State;
+pub use crate::style::mod_range_input::{
     CircleStyle, SquareStyle, Style, StyleSheet, DefaultInvisible
 };
 
-/// This is an alias of a `crate::native` [`AutoRangeInput`] with an
+/// This is an alias of a `crate::native` [`ModRangeInput`] with an
 /// `iced_wgpu::Renderer`.
 ///
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
-pub type AutoRangeInput<'a, Message, ID> =
-    auto_range_input::AutoRangeInput<'a, Message, Renderer, ID>;
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
+pub type ModRangeInput<'a, Message, ID> =
+    mod_range_input::ModRangeInput<'a, Message, Renderer, ID>;
 
-impl auto_range_input::Renderer for Renderer {
+impl mod_range_input::Renderer for Renderer {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(

@@ -246,12 +246,12 @@ pub use crate::core::*;
 mod platform {
     #[doc(no_inline)]
     pub use crate::wgpu::{
-        auto_range_input, db_meter, h_slider, knob, ramp, v_slider, xy_pad,
+        mod_range_input, db_meter, h_slider, knob, ramp, v_slider, xy_pad,
     };
 
     #[doc(no_inline)]
     pub use {
-        auto_range_input::AutoRangeInput, db_meter::DBMeter, h_slider::HSlider,
+        mod_range_input::ModRangeInput, db_meter::DBMeter, h_slider::HSlider,
         knob::Knob, ramp::Ramp, v_slider::VSlider, xy_pad::XYPad,
     };
 }

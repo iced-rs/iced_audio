@@ -1,14 +1,14 @@
-//! Various styles for the [`AutoRangeInput`] widget
+//! Various styles for the [`ModRangeInput`] widget
 //!
-//! [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+//! [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 
 use iced::Color;
 
 use crate::style::default_colors;
 
-/// The appearance of an [`AutoRangeInput`]
+/// The appearance of an [`ModRangeInput`]
 ///
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
 pub enum Style {
     /// A circle style
@@ -16,17 +16,17 @@ pub enum Style {
     /// A square style
     Square(SquareStyle),
     /// Appearance is invisible, but still interactable. Useful if placed right
-    /// on top of a [`Knob`] with an [`AutoRangeRingStyle`].
+    /// on top of a [`Knob`] with an [`ModRangeRingStyle`].
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    /// [`AutoRangeRingStyle`]: ../knob/struct.AutoRangeRingStyle.html
+    /// [`ModRangeRingStyle`]: ../knob/struct.ModRangeRingStyle.html
     Invisible,
 }
 
-/// A circle [`Style`] for an [`AutoRangeInput`]
+/// A circle [`Style`] for an [`ModRangeInput`]
 ///
 /// [`Style`]: enum.Style.html
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
 pub struct CircleStyle {
     /// Color of the circle
@@ -37,10 +37,10 @@ pub struct CircleStyle {
     pub border_color: Color,
 }
 
-/// A square [`Style`] for an [`AutoRangeInput`]
+/// A square [`Style`] for an [`ModRangeInput`]
 ///
 /// [`Style`]: enum.Style.html
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
 pub struct SquareStyle {
     /// Color of the square
@@ -53,23 +53,23 @@ pub struct SquareStyle {
     pub border_color: Color,
 }
 
-/// A set of rules that dictate the style of a [`AutoRangeInput`].
+/// A set of rules that dictate the style of a [`ModRangeInput`].
 ///
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 pub trait StyleSheet {
-    /// Produces the style of an active [`AutoRangeInput`].
+    /// Produces the style of an active [`ModRangeInput`].
     ///
-    /// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
     fn active(&self) -> Style;
 
-    /// Produces the style of a hovered [`AutoRangeInput`].
+    /// Produces the style of a hovered [`ModRangeInput`].
     ///
-    /// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
     fn hovered(&self) -> Style;
 
-    /// Produces the style of a [`AutoRangeInput`] that is being dragged.
+    /// Produces the style of a [`ModRangeInput`] that is being dragged.
     ///
-    /// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
     fn dragging(&self) -> Style;
 }
 
@@ -101,15 +101,15 @@ impl StyleSheet for Default {
     }
 }
 
-/// An invisible [`StyleSheet`] for an [`AutoRangeInput`]
+/// An invisible [`StyleSheet`] for an [`ModRangeInput`]
 /// 
 /// Appearance is invisible, but the input is still interactable. Useful
-/// if placed right on top of a [`Knob`] with an [`AutoRangeRingStyle`].
+/// if placed right on top of a [`Knob`] with a [`ModRangeRingStyle`].
 ///
 /// [`StyleSheet`]: struct.StyleSheet.html
-/// [`AutoRangeInput`]: ../../native/auto_range_input/struct.AutoRangeInput.html
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
-/// [`AutoRangeRingStyle`]: ../knob/struct.AutoRangeRingStyle.html
+/// [`ModRangeRingStyle`]: ../knob/struct.ModRangeRingStyle.html
 #[allow(missing_debug_implementations)]
 pub struct DefaultInvisible;
 

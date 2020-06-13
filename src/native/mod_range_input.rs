@@ -22,7 +22,7 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 ///
 /// [`Param`]: ../core/param/struct.Param.html
 #[allow(missing_debug_implementations)]
-pub struct AutoRangeInput<'a, Message, Renderer: self::Renderer, ID>
+pub struct ModRangeInput<'a, Message, Renderer: self::Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
@@ -36,23 +36,23 @@ where
 }
 
 impl<'a, Message, Renderer: self::Renderer, ID>
-    AutoRangeInput<'a, Message, Renderer, ID>
+    ModRangeInput<'a, Message, Renderer, ID>
 where
     ID: Debug + Copy + Clone,
 {
-    /// Creates a new [`AutoRangeInput`].
+    /// Creates a new [`ModRangeInput`].
     ///
     /// It expects:
-    ///   * the local [`State`] of the [`AutoRangeInput`]
-    ///   * a function that will be called when the [`AutoRangeInput`] is turned.
+    ///   * the local [`State`] of the [`ModRangeInput`]
+    ///   * a function that will be called when the [`ModRangeInput`] is turned.
     ///
     /// [`State`]: struct.State.html
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
     where
         F: 'static + Fn(ID) -> Message,
     {
-        AutoRangeInput {
+        ModRangeInput {
             state,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
@@ -66,40 +66,40 @@ where
         }
     }
 
-    /// Sets the diameter of the [`AutoRangeInput`]. The default size is
+    /// Sets the diameter of the [`ModRangeInput`]. The default size is
     /// `Length::from(Length::Units(31))`.
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn size(mut self, size: Length) -> Self {
         self.size = size;
         self
     }
 
-    /// Sets the style of the [`AutoRangeInput`].
+    /// Sets the style of the [`ModRangeInput`].
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
         self.style = style.into();
         self
     }
 
-    /// Sets how much the [`Normal`] value will change for the [`AutoRangeInput`] per `y`
+    /// Sets how much the [`Normal`] value will change for the [`ModRangeInput`] per `y`
     /// pixel movement of the mouse.
     ///
     /// The default value is `0.008`
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     /// [`Normal`]: ../../core/struct.Normal.html
     pub fn scalar(mut self, scalar: f32) -> Self {
         self.scalar = scalar;
         self
     }
 
-    /// Sets the modifier keys of the [`AutoRangeInput`].
+    /// Sets the modifier keys of the [`ModRangeInput`].
     ///
     /// The default modifier key is `Ctrl`.
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn modifier_keys(
         mut self,
         modifier_keys: keyboard::ModifiersState,
@@ -108,26 +108,26 @@ where
         self
     }
 
-    /// Sets the scalar to use when the user drags the AutoRangeInputs while holding down
+    /// Sets the scalar to use when the user drags the ModRangeInputs while holding down
     /// the modifier key. This is multiplied to the value set by
-    /// `AutoRangeInput::scalar()` (which the default is `0.008`).
+    /// `ModRangeInput::scalar()` (which the default is `0.008`).
     ///
-    /// For example, a `modifier_scalar` of `0.5` will cause the AutoRangeInput to turn
+    /// For example, a `modifier_scalar` of `0.5` will cause the ModRangeInput to turn
     /// half as fast when the modifier key is down.
     ///
     /// The default `modifier_scalar` is `0.02`, and the default modifier key
     /// is `Ctrl`.
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn modifier_scalar(mut self, scalar: f32) -> Self {
         self.modifier_scalar = scalar;
         self
     }
 }
 
-/// The local state of an [`AutoRangeInput`].
+/// The local state of an [`ModRangeInput`].
 ///
-/// [`AutoRangeInput`]: struct.AutoRangeInput.html
+/// [`ModRangeInput`]: struct.ModRangeInput.html
 #[derive(Debug, Copy, Clone)]
 pub struct State<ID: Debug + Copy + Clone> {
     /// The [`Param`] assigned to this widget
@@ -142,13 +142,13 @@ pub struct State<ID: Debug + Copy + Clone> {
 }
 
 impl<ID: Debug + Copy + Clone> State<ID> {
-    /// Creates a new [`AutoRangeInput`] state.
+    /// Creates a new [`ModRangeInput`] state.
     ///
     /// It expects:
     /// * a [`Param`] to assign to this widget
     ///
     /// [`Param`]: ../../core/param/struct.Param.html
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn new(param: Param<ID>) -> Self {
         Self {
             param,
@@ -162,7 +162,7 @@ impl<ID: Debug + Copy + Clone> State<ID> {
 }
 
 impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for AutoRangeInput<'a, Message, Renderer, ID>
+    for ModRangeInput<'a, Message, Renderer, ID>
 where
     Renderer: self::Renderer,
     ID: Debug + Copy + Clone,
@@ -291,25 +291,25 @@ where
     }
 }
 
-/// The renderer of an [`AutoRangeInput`].
+/// The renderer of an [`ModRangeInput`].
 ///
 /// Your renderer will need to implement this trait before being
-/// able to use an [`AutoRangeInput`] in your user interface.
+/// able to use an [`ModRangeInput`] in your user interface.
 ///
-/// [`AutoRangeInput`]: struct.AutoRangeInput.html
+/// [`ModRangeInput`]: struct.ModRangeInput.html
 pub trait Renderer: iced_native::Renderer {
     /// The style supported by this renderer.
     type Style: Default;
 
-    /// Draws an [`AutoRangeInput`].
+    /// Draws an [`ModRangeInput`].
     ///
     /// It receives:
-    ///   * the bounds of the [`AutoRangeInput`]
+    ///   * the bounds of the [`ModRangeInput`]
     ///   * the current cursor position
-    ///   * whether the AutoRangeInput is currently being dragged
-    ///   * the style of the [`AutoRangeInput`]
+    ///   * whether the ModRangeInput is currently being dragged
+    ///   * the style of the [`ModRangeInput`]
     ///
-    /// [`AutoRangeInput`]: struct.AutoRangeInput.html
+    /// [`ModRangeInput`]: struct.ModRangeInput.html
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -319,7 +319,7 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<AutoRangeInput<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer, ID> From<ModRangeInput<'a, Message, Renderer, ID>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
@@ -327,8 +327,8 @@ where
     ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        auto_range_input: AutoRangeInput<'a, Message, Renderer, ID>,
+        mod_range_input: ModRangeInput<'a, Message, Renderer, ID>,
     ) -> Element<'a, Message, Renderer> {
-        Element::new(auto_range_input)
+        Element::new(mod_range_input)
     }
 }

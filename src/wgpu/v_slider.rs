@@ -2,7 +2,7 @@
 //!
 //! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
-use crate::core::{AutomationRange, Normal, TickMarkGroup, TickMarkTier};
+use crate::core::{ModulationRange, Normal, TickMarkGroup, TickMarkTier};
 use crate::native::v_slider;
 use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
@@ -10,7 +10,7 @@ use iced_wgpu::{Primitive, Renderer};
 pub use crate::native::v_slider::State;
 pub use crate::style::v_slider::{
     ClassicHandle, ClassicStyle, RectBipolarStyle, RectStyle, Style,
-    StyleSheet, TextureStyle, TickMarkStyle, AutoRangeStyle, AutoRangePlacement,
+    StyleSheet, TextureStyle, TickMarkStyle, ModRangeStyle, ModRangePlacement,
 };
 
 /// This is an alias of a `crate::native` [`VSlider`] with an
@@ -29,7 +29,7 @@ impl v_slider::Renderer for Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        auto_range: Option<AutomationRange>,
+        mod_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
@@ -51,27 +51,27 @@ impl v_slider::Renderer for Renderer {
 
         let rail_x = (bounds_x + (bounds_width / 2.0)).round();
 
-        let auto_range_line: Primitive = {
-            if let Some(auto_range) = auto_range {
-                if auto_range.visible {
-                    if let Some(style) = style_sheet.auto_range_style() {
+        let mod_range_line: Primitive = {
+            if let Some(mod_range) = mod_range {
+                if mod_range.visible {
+                    if let Some(style) = style_sheet.mod_range_style() {
 
                         let offset = style.offset as f32;
 
                         let (x, width) = match style.placement {
-                            AutoRangePlacement::Center => {
+                            ModRangePlacement::Center => {
                                 (
                                     bounds_x + offset,
                                     bounds_width - (offset * 2.0),
                                 )
                             },
-                            AutoRangePlacement::Left => {
+                            ModRangePlacement::Left => {
                                 (
                                     bounds_x - offset - style.width as f32,
                                     style.width as f32,
                                 )
                             },
-                            AutoRangePlacement::Right => {
+                            ModRangePlacement::Right => {
                                 (
                                     bounds_x + bounds_width + offset,
                                     style.width as f32,
@@ -99,23 +99,23 @@ impl v_slider::Renderer for Renderer {
                         };
 
                         let filled: Primitive = {
-                            if auto_range.filled_visible
-                            && (auto_range.start.value()
-                                != auto_range.end.value())
+                            if mod_range.filled_visible
+                            && (mod_range.start.value()
+                                != mod_range.end.value())
                             {
                                 let (start, end, color) =
-                                    if auto_range.start.value()
-                                        < auto_range.end.value()
+                                    if mod_range.start.value()
+                                        < mod_range.end.value()
                                     {
                                         (
-                                            auto_range.start.value(),
-                                            auto_range.end.value(),
+                                            mod_range.start.value(),
+                                            mod_range.end.value(),
                                             style.color,
                                         )
                                     } else {
                                         (
-                                            auto_range.end.value(),
-                                            auto_range.start.value(),
+                                            mod_range.end.value(),
+                                            mod_range.start.value(),
                                             style.color_inverse,
                                         )
                                     };
@@ -326,7 +326,7 @@ impl v_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![
-                            tick_marks, rail_left, rail_right, handle, auto_range_line
+                            tick_marks, rail_left, rail_right, handle, mod_range_line
                         ],
                     },
                     MouseCursor::default(),
@@ -414,7 +414,7 @@ impl v_slider::Renderer for Renderer {
                             rail_right,
                             handle,
                             handle_notch,
-                            auto_range_line,
+                            mod_range_line,
                         ],
                     },
                     MouseCursor::default(),
@@ -482,7 +482,7 @@ impl v_slider::Renderer for Renderer {
                             empty_rect,
                             tick_marks,
                             filled_rect,
-                            auto_range_line,
+                            mod_range_line,
                             handle,
                         ],
                     },
@@ -555,7 +555,7 @@ impl v_slider::Renderer for Renderer {
                                 bottom_empty_rect,
                                 top_empty_rect,
                                 tick_marks,
-                                auto_range_line,
+                                mod_range_line,
                                 handle,
                             ],
                         },
@@ -602,7 +602,7 @@ impl v_slider::Renderer for Renderer {
                                 top_empty_rect,
                                 tick_marks,
                                 filled_rect,
-                                auto_range_line,
+                                mod_range_line,
                                 handle,
                             ],
                         },
@@ -650,7 +650,7 @@ impl v_slider::Renderer for Renderer {
                                 top_empty_rect,
                                 tick_marks,
                                 filled_rect,
-                                auto_range_line,
+                                mod_range_line,
                                 handle,
                             ],
                         },

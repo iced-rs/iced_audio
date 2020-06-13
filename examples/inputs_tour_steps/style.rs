@@ -1,5 +1,5 @@
 use iced::{button, image, Background, Color, Vector};
-use iced_audio::{auto_range_input, h_slider, knob, ramp, v_slider, xy_pad};
+use iced_audio::{mod_range_input, h_slider, knob, ramp, v_slider, xy_pad};
 
 pub enum Button {
     Primary,
@@ -123,11 +123,11 @@ impl h_slider::StyleSheet for HSliderRectStyle {
         self.hovered()
     }
 
-    fn auto_range_style(&self) -> Option<h_slider::AutoRangeStyle> {
-        Some(h_slider::AutoRangeStyle {
+    fn mod_range_style(&self) -> Option<h_slider::ModRangeStyle> {
+        Some(h_slider::ModRangeStyle {
             width: 3,
             offset: 2,
-            placement: h_slider::AutoRangePlacement::Bottom,
+            placement: h_slider::ModRangePlacement::Bottom,
             color_empty: Some(KNOB_ARC_EMPTY_COLOR),
             color: KNOB_ARC_COLOR,
             color_inverse: KNOB_ARC_RIGHT_COLOR,
@@ -169,11 +169,11 @@ impl v_slider::StyleSheet for VSliderRectStyle {
         self.hovered()
     }
 
-    fn auto_range_style(&self) -> Option<v_slider::AutoRangeStyle> {
-        Some(v_slider::AutoRangeStyle {
+    fn mod_range_style(&self) -> Option<v_slider::ModRangeStyle> {
+        Some(v_slider::ModRangeStyle {
             width: 0,
             offset: 10,
-            placement: v_slider::AutoRangePlacement::Center,
+            placement: v_slider::ModRangePlacement::Center,
             color_empty: None,
             color: Color { r: 0.0, g: 0.7, b: 0.0, a: 0.3 },
             color_inverse: Color { r: 0.0, g: 0.7, b: 0.0, a: 0.5 },
@@ -396,8 +396,8 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
         })
     }
 
-    fn auto_range_ring_style(&self) -> Option<knob::AutoRangeRingStyle> {
-        Some(knob::AutoRangeRingStyle {
+    fn mod_range_ring_style(&self) -> Option<knob::ModRangeRingStyle> {
+        Some(knob::ModRangeRingStyle {
             width: 3.0,
             offset: 6.0,
             color_empty: Some(KNOB_ARC_EMPTY_COLOR),
@@ -472,8 +472,8 @@ impl knob::StyleSheet for KnobCustomArc {
         iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
 
-    fn auto_range_ring_style(&self) -> Option<knob::AutoRangeRingStyle> {
-        Some(knob::AutoRangeRingStyle {
+    fn mod_range_ring_style(&self) -> Option<knob::ModRangeRingStyle> {
+        Some(knob::ModRangeRingStyle {
             width: 3.0,
             offset: 1.5,
             color_empty: Some(KNOB_ARC_EMPTY_COLOR),
@@ -516,23 +516,23 @@ impl knob::StyleSheet for KnobCustomArcBipolar {
     }
 }
 
-// Custom style for the AutoRangeInput
+// Custom style for the ModRangeInput
 
-pub struct AutoRangeInputCustom;
+pub struct ModRangeInputCustom;
 
-impl auto_range_input::StyleSheet for AutoRangeInputCustom {
-    fn active(&self) -> auto_range_input::Style {
-        auto_range_input::Style::Circle(auto_range_input::CircleStyle {
+impl mod_range_input::StyleSheet for ModRangeInputCustom {
+    fn active(&self) -> mod_range_input::Style {
+        mod_range_input::Style::Circle(mod_range_input::CircleStyle {
             color: KNOB_ARC_RIGHT_COLOR,
             border_width: 2,
             border_color: Color::from_rgb(0.0, 0.6, 0.0),
         })
     }
 
-    fn hovered(&self) -> auto_range_input::Style {
+    fn hovered(&self) -> mod_range_input::Style {
         let active = self.active();
-        if let auto_range_input::Style::Circle(active) = self.active() {
-            auto_range_input::Style::Circle(auto_range_input::CircleStyle {
+        if let mod_range_input::Style::Circle(active) = self.active() {
+            mod_range_input::Style::Circle(mod_range_input::CircleStyle {
                 border_width: 1,
                 ..active
             })
@@ -541,7 +541,7 @@ impl auto_range_input::StyleSheet for AutoRangeInputCustom {
         }
     }
 
-    fn dragging(&self) -> auto_range_input::Style {
+    fn dragging(&self) -> mod_range_input::Style {
         self.hovered()
     }
 }

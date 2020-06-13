@@ -208,12 +208,12 @@ impl std::default::Default for TickMarkStyle {
     }
 }
 
-/// The position of an [`AutoRangeStyle`] ring for an [`HSlider`]
+/// The position of a [`ModRangeStyle`] ring for an [`HSlider`]
 ///
-/// [`AutoRangeStyle`]: struct.AutoRangeStyle.html
+/// [`ModRangeStyle`]: struct.ModRangeStyle.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Copy, Clone)]
-pub enum AutoRangePlacement {
+pub enum ModRangePlacement {
     /// In the center of the widget
     Center,
     /// Above the widget
@@ -222,20 +222,20 @@ pub enum AutoRangePlacement {
     Bottom,
 }
 
-/// A style for an [`AutomationRange`] ring for an [`HSlider`]
+/// A style for a [`ModulationRange`] ring for an [`HSlider`]
 ///
-/// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+/// [`ModulationRange`]: ../../core/struct.ModulationRange.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Copy, Clone)]
-pub struct AutoRangeStyle {
+pub struct ModRangeStyle {
     /// The width of the line
     pub width: u16,
     /// The offset of the line from the edge of the widget.
-    /// If `placement` is `AutoRangePlacement::center`, then 
+    /// If `placement` is `ModRangePlacement::center`, then 
     /// this will be the padding from the edge of the widget.
     pub offset: i32,
     /// The placement of the line relative to the widget
-    pub placement: AutoRangePlacement,
+    pub placement: ModRangePlacement,
     /// The color of an empty portion of the line.
     /// Set to `None` for no empty portion.
     pub color_empty: Option<Color>,
@@ -276,13 +276,13 @@ pub trait StyleSheet {
         None
     }
 
-    /// The style of an [`AutomationRange`] line for an [`HSlider`]
+    /// The style of an [`ModulationRange`] line for an [`HSlider`]
     ///
-    /// For no automation range line, don't override this or set this to return `None`.
+    /// For no modulation range line, don't override this or set this to return `None`.
     ///
-    /// [`AutomationRange`]: ../../core/struct.AutomationRange.html
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn auto_range_style(&self) -> Option<AutoRangeStyle> {
+    fn mod_range_style(&self) -> Option<ModRangeStyle> {
         None
     }
 }
