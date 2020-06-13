@@ -9,8 +9,9 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{
-    ClassicHandle, ClassicStyle, RectBipolarStyle, RectStyle, Style,
-    StyleSheet, TextureStyle, TickMarkStyle, ModRangeStyle, ModRangePlacement,
+    ClassicHandle, ClassicStyle, ModRangePlacement, ModRangeStyle,
+    RectBipolarStyle, RectStyle, Style, StyleSheet, TextureStyle,
+    TickMarkStyle,
 };
 
 /// This is an alias of a `crate::native` [`HSlider`] with an
@@ -55,28 +56,21 @@ impl h_slider::Renderer for Renderer {
             if let Some(mod_range) = mod_range {
                 if mod_range.visible {
                     if let Some(style) = style_sheet.mod_range_style() {
-
                         let offset = style.offset as f32;
 
                         let (y, height) = match style.placement {
-                            ModRangePlacement::Center => {
-                                (
-                                    bounds_y + offset,
-                                    bounds_height - (offset * 2.0),
-                                )
-                            },
-                            ModRangePlacement::Top => {
-                                (
-                                    bounds_y - offset - style.width as f32,
-                                    style.width as f32,
-                                )
-                            },
-                            ModRangePlacement::Bottom => {
-                                (
-                                    bounds_y + bounds_height + offset,
-                                    style.width as f32,
-                                )
-                            },
+                            ModRangePlacement::Center => (
+                                bounds_y + offset,
+                                bounds_height - (offset * 2.0),
+                            ),
+                            ModRangePlacement::Top => (
+                                bounds_y - offset - style.width as f32,
+                                style.width as f32,
+                            ),
+                            ModRangePlacement::Bottom => (
+                                bounds_y + bounds_height + offset,
+                                style.width as f32,
+                            ),
                         };
 
                         let back: Primitive = {
@@ -100,8 +94,8 @@ impl h_slider::Renderer for Renderer {
 
                         let filled: Primitive = {
                             if mod_range.filled_visible
-                            && (mod_range.start.value()
-                                != mod_range.end.value())
+                                && (mod_range.start.value()
+                                    != mod_range.end.value())
                             {
                                 let (start, end, color) =
                                     if mod_range.start.value()
@@ -119,10 +113,11 @@ impl h_slider::Renderer for Renderer {
                                             style.color_inverse,
                                         )
                                     };
-                                
+
                                 let start_offset = bounds_width * start;
-                                let filled_width = (bounds_width * end) - start_offset;
-                                
+                                let filled_width =
+                                    (bounds_width * end) - start_offset;
+
                                 Primitive::Quad {
                                     bounds: Rectangle {
                                         x: bounds_x + start_offset,

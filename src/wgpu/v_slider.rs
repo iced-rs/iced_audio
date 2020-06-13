@@ -9,8 +9,9 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::v_slider::State;
 pub use crate::style::v_slider::{
-    ClassicHandle, ClassicStyle, RectBipolarStyle, RectStyle, Style,
-    StyleSheet, TextureStyle, TickMarkStyle, ModRangeStyle, ModRangePlacement,
+    ClassicHandle, ClassicStyle, ModRangePlacement, ModRangeStyle,
+    RectBipolarStyle, RectStyle, Style, StyleSheet, TextureStyle,
+    TickMarkStyle,
 };
 
 /// This is an alias of a `crate::native` [`VSlider`] with an
@@ -55,28 +56,21 @@ impl v_slider::Renderer for Renderer {
             if let Some(mod_range) = mod_range {
                 if mod_range.visible {
                     if let Some(style) = style_sheet.mod_range_style() {
-
                         let offset = style.offset as f32;
 
                         let (x, width) = match style.placement {
-                            ModRangePlacement::Center => {
-                                (
-                                    bounds_x + offset,
-                                    bounds_width - (offset * 2.0),
-                                )
-                            },
-                            ModRangePlacement::Left => {
-                                (
-                                    bounds_x - offset - style.width as f32,
-                                    style.width as f32,
-                                )
-                            },
-                            ModRangePlacement::Right => {
-                                (
-                                    bounds_x + bounds_width + offset,
-                                    style.width as f32,
-                                )
-                            },
+                            ModRangePlacement::Center => (
+                                bounds_x + offset,
+                                bounds_width - (offset * 2.0),
+                            ),
+                            ModRangePlacement::Left => (
+                                bounds_x - offset - style.width as f32,
+                                style.width as f32,
+                            ),
+                            ModRangePlacement::Right => (
+                                bounds_x + bounds_width + offset,
+                                style.width as f32,
+                            ),
                         };
 
                         let back: Primitive = {
@@ -100,8 +94,8 @@ impl v_slider::Renderer for Renderer {
 
                         let filled: Primitive = {
                             if mod_range.filled_visible
-                            && (mod_range.start.value()
-                                != mod_range.end.value())
+                                && (mod_range.start.value()
+                                    != mod_range.end.value())
                             {
                                 let (start, end, color) =
                                     if mod_range.start.value()
@@ -119,14 +113,17 @@ impl v_slider::Renderer for Renderer {
                                             style.color_inverse,
                                         )
                                     };
-                                
+
                                 let start_offset = bounds_height * start;
-                                let filled_height = (bounds_height * end) - start_offset;
-                                
+                                let filled_height =
+                                    (bounds_height * end) - start_offset;
+
                                 Primitive::Quad {
                                     bounds: Rectangle {
                                         x,
-                                        y: bounds_y + bounds_height - start_offset - filled_height,
+                                        y: bounds_y + bounds_height
+                                            - start_offset
+                                            - filled_height,
                                         width,
                                         height: filled_height,
                                     },
@@ -326,7 +323,11 @@ impl v_slider::Renderer for Renderer {
                 (
                     Primitive::Group {
                         primitives: vec![
-                            tick_marks, rail_left, rail_right, handle, mod_range_line
+                            tick_marks,
+                            rail_left,
+                            rail_right,
+                            handle,
+                            mod_range_line,
                         ],
                     },
                     MouseCursor::default(),

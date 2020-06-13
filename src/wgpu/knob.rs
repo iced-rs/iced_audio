@@ -10,8 +10,8 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
-    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, ModRangeRingStyle,
-    CircleTickMarks, LineTickMarks, Style, StyleSheet, TickMarkStyle,
+    ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, CircleTickMarks,
+    LineTickMarks, ModRangeRingStyle, Style, StyleSheet, TickMarkStyle,
     ValueRingStyle, VectorCircleStyle, VectorLineStyle,
 };
 
@@ -223,22 +223,21 @@ impl knob::Renderer for Renderer {
                             && (mod_range.start.value()
                                 != mod_range.end.value())
                         {
-                            let (start, end, color) =
-                                if mod_range.start.value()
-                                    < mod_range.end.value()
-                                {
-                                    (
-                                        mod_range.start.value(),
-                                        mod_range.end.value(),
-                                        style.color,
-                                    )
-                                } else {
-                                    (
-                                        mod_range.end.value(),
-                                        mod_range.start.value(),
-                                        style.color_inverse,
-                                    )
-                                };
+                            let (start, end, color) = if mod_range.start.value()
+                                < mod_range.end.value()
+                            {
+                                (
+                                    mod_range.start.value(),
+                                    mod_range.end.value(),
+                                    style.color,
+                                )
+                            } else {
+                                (
+                                    mod_range.end.value(),
+                                    mod_range.start.value(),
+                                    style.color_inverse,
+                                )
+                            };
 
                             let start_span = angle_span * start;
                             let span = (angle_span * end) - start_span;

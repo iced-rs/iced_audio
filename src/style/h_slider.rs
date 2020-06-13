@@ -231,7 +231,7 @@ pub struct ModRangeStyle {
     /// The width of the line
     pub width: u16,
     /// The offset of the line from the edge of the widget.
-    /// If `placement` is `ModRangePlacement::center`, then 
+    /// If `placement` is `ModRangePlacement::center`, then
     /// this will be the padding from the edge of the widget.
     pub offset: i32,
     /// The placement of the line relative to the widget
@@ -244,7 +244,6 @@ pub struct ModRangeStyle {
     /// The color of a filled portion of the ring when `end` is less than
     /// `start`.
     pub color_inverse: Color,
-
 }
 
 /// A set of rules that dictate the style of an [`HSlider`].

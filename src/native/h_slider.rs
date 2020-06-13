@@ -12,7 +12,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param, TickMarkGroup, ModulationRange};
+use crate::core::{ModulationRange, Normal, Param, TickMarkGroup};
 
 static DEFAULT_HEIGHT: u16 = 14;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;

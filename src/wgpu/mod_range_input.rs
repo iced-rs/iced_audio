@@ -9,7 +9,7 @@ use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::mod_range_input::State;
 pub use crate::style::mod_range_input::{
-    CircleStyle, SquareStyle, Style, StyleSheet, DefaultInvisible
+    CircleStyle, DefaultInvisible, SquareStyle, Style, StyleSheet,
 };
 
 /// This is an alias of a `crate::native` [`ModRangeInput`] with an
@@ -59,7 +59,7 @@ impl mod_range_input::Renderer for Renderer {
                     border_width: style.border_width,
                     border_color: style.border_color,
                 }
-            },
+            }
             Style::Square(style) => {
                 let bounds_x = bounds.x.floor();
                 let bounds_y = bounds.y.floor();
@@ -77,7 +77,7 @@ impl mod_range_input::Renderer for Renderer {
                     border_width: style.border_width,
                     border_color: style.border_color,
                 }
-            },
+            }
             Style::Invisible => Primitive::None,
         };
 

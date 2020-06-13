@@ -102,7 +102,7 @@ impl StyleSheet for Default {
 }
 
 /// An invisible [`StyleSheet`] for an [`ModRangeInput`]
-/// 
+///
 /// Appearance is invisible, but the input is still interactable. Useful
 /// if placed right on top of a [`Knob`] with a [`ModRangeRingStyle`].
 ///

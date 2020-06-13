@@ -1,5 +1,5 @@
 use iced::{button, image, Background, Color, Vector};
-use iced_audio::{mod_range_input, h_slider, knob, ramp, v_slider, xy_pad};
+use iced_audio::{h_slider, knob, mod_range_input, ramp, v_slider, xy_pad};
 
 pub enum Button {
     Primary,
@@ -175,8 +175,18 @@ impl v_slider::StyleSheet for VSliderRectStyle {
             offset: 10,
             placement: v_slider::ModRangePlacement::Center,
             color_empty: None,
-            color: Color { r: 0.0, g: 0.7, b: 0.0, a: 0.3 },
-            color_inverse: Color { r: 0.0, g: 0.7, b: 0.0, a: 0.5 },
+            color: Color {
+                r: 0.0,
+                g: 0.7,
+                b: 0.0,
+                a: 0.3,
+            },
+            color_inverse: Color {
+                r: 0.0,
+                g: 0.7,
+                b: 0.0,
+                a: 0.5,
+            },
         })
     }
 }
