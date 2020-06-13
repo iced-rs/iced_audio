@@ -14,8 +14,8 @@ pub enum ModRangesID {
     Knob1,
     HSlider1,
     VSlider1,
-    AutoKnob1,
-    AutoKnob2,
+    ModKnob1,
+    ModKnob2,
     ModRangeInput1,
     ModRangeInput2,
 }
@@ -88,7 +88,7 @@ impl Default for ModRanges {
             ),
             
             knob_auto1_state: knob::State::new(
-                float_range.create_param_default(ModRangesID::AutoKnob1),
+                float_range.create_param_default(ModRangesID::ModKnob1),
             )
             .modulation_range(ModulationRange::default()),
 
@@ -97,7 +97,7 @@ impl Default for ModRanges {
             ),
             
             knob_auto2_state: knob::State::new(
-                float_range.create_param_default(ModRangesID::AutoKnob2),
+                float_range.create_param_default(ModRangesID::ModKnob2),
             )
             .modulation_range(ModulationRange::default()),
 
@@ -187,7 +187,7 @@ impl ModRanges {
                         );
                     }
 
-                    ModRangesID::AutoKnob1 => {
+                    ModRangesID::ModKnob1 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
@@ -222,7 +222,7 @@ impl ModRanges {
                         }
                     }
 
-                    ModRangesID::AutoKnob2 => {
+                    ModRangesID::ModKnob2 => {
                         self.output_text = crate::info_text_f32(
                             id,
                             self.float_range
