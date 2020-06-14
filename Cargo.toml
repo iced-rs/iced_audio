@@ -28,6 +28,7 @@ name = "simple"
 [workspace]
 members = [
     "examples/db_meter",
+    "examples/reduction_meter",
 ]
 
 # See more keys and their definitions at

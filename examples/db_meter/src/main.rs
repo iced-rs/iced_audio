@@ -1,11 +1,3 @@
-//! An animated solar system.
-//!
-//! This example showcases how to use a `Canvas` widget with transforms to draw
-//! using different coordinate systems.
-//!
-//! Inspired by the example found in the MDN docs[1].
-//!
-//! [1]: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Basic_animations#An_animated_solar_system
 use iced::{
     executor, Application, Color, Column, Command, Container, Element, Length,
     Row, Settings, Subscription, Text,
@@ -166,8 +158,8 @@ impl Application for DBMeterApp {
                 }
                 ParamID::LeftPeakDB => {
                     let normal = self.left_peak_db_knob_state.param.normal;
-                    self.db_meter_state.set_left_peak(normal);
-                    self.db_meter_custom_state.set_left_peak(normal);
+                    self.db_meter_state.set_left_peak(Some(normal));
+                    self.db_meter_custom_state.set_left_peak(Some(normal));
                 }
                 ParamID::RightMainDB => {
                     self.db_meter_state
@@ -202,14 +194,13 @@ impl Application for DBMeterApp {
 
         let db_meter = DBMeter::new(
             &mut self.db_meter_state,
-            db_meter::Orientation::Vertical,
         )
         .tick_marks(&self.tick_marks);
 
         let db_meter_custom = DBMeter::new(
             &mut self.db_meter_custom_state,
-            db_meter::Orientation::Horizontal,
         )
+        .orientation(db_meter::Orientation::Horizontal)
         .height(Length::from(Length::Units(24)))
         .tick_marks(&self.tick_marks)
         .style(CustomDBMeterStyle);

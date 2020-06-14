@@ -21,6 +21,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 * [x] `XYPad`- XY Pad for controlling two parameters at once
 * [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
 * [x] `DBMeter` - A decibel meter. Note that any DSP and animation must be done manually.
+* [x] `ReductionMeter` - a meter that displays the reduction of loudness in a signal. Note that any DSP and animation must be done manually.
 
 ## Widgets partially implemented
 * [x] `Knob` - A basic knob widget. No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
@@ -39,6 +40,7 @@ Take a look at the [roadmap] for a list of planned widgets.
 cargo run --example inputs_tour --release
 cargo run --example simple --release
 cargo run --package db_meter --release
+cargo run --package reduction_meter --release
 ```
 
 ## Installation

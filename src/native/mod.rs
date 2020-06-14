@@ -8,6 +8,7 @@ pub mod v_slider;
 pub mod xy_pad;
 
 pub mod db_meter;
+pub mod reduction_meter;
 
 #[doc(no_inline)]
 pub use h_slider::HSlider;
@@ -24,3 +25,5 @@ pub use xy_pad::XYPad;
 
 #[doc(no_inline)]
 pub use db_meter::DBMeter;
+#[doc(no_inline)]
+pub use reduction_meter::ReductionMeter;

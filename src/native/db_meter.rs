@@ -18,6 +18,7 @@ static DEFAULT_WIDTH: u16 = 20;
 ///
 /// [`DBMeter`]: struct.DBMeter.html
 #[allow(missing_debug_implementations)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Orientation {
     /// Vertical orientation
     Vertical,
@@ -52,29 +53,32 @@ impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
     ///
     /// It expects:
     ///   * the local [`State`] of the [`DBMeter`]
-    ///   * the [`Orientation`] of the [`DBMeter`]
     ///
     /// [`State`]: struct.State.html
-    /// [`Orientation`]: enum.Orientation.html
     /// [`DBMeter`]: struct.DBMeter.html
-    pub fn new(state: &'a mut State, orientation: Orientation) -> Self {
-        let (width, height) = match orientation {
-            Orientation::Vertical => {
-                (Length::from(Length::Units(DEFAULT_WIDTH)), Length::Fill)
-            }
-            Orientation::Horizontal => {
-                (Length::Fill, Length::from(Length::Units(DEFAULT_WIDTH)))
-            }
-        };
-
+    pub fn new(state: &'a mut State) -> Self {
         DBMeter {
             state,
-            width,
-            height,
+            width: Length::from(Length::Units(DEFAULT_WIDTH)),
+            height: Length::Fill,
             style: Renderer::Style::default(),
-            orientation,
+            orientation: Orientation::Vertical,
             tick_marks: None,
         }
+    }
+
+    /// Sets the [`Orientation`] of the [`DBMeter`].
+    ///
+    /// [`Orientation`]: enum.Orientation.html
+    /// [`DBMeter`]: struct.DBMeter.html
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
+        if self.orientation != orientation {
+            self.orientation = orientation;
+            let temp_height = self.height;
+            self.height = self.width;
+            self.width = temp_height;
+        }
+        self
     }
 
     /// Sets the width of the [`DBMeter`].
@@ -144,7 +148,7 @@ pub struct TierPositions {
 /// [`State`]: struct.State.html
 #[derive(Debug, Copy, Clone)]
 pub struct BarState {
-    /// The [`Normal`] position of the main bar.
+    /// The [`Normal`] position of the bar.
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
     pub normal: Normal,
@@ -159,7 +163,7 @@ pub struct BarState {
 impl BarState {
     /// Creates a new [`BarState`] for a [`DBMeter`] [`State`]
     ///
-    /// * `normal` - The [`Normal`] position of the main bar.
+    /// * `normal` - The [`Normal`] position of the bar.
     /// * `peak_normal` - The [`Normal`] position of the peak line.
     /// Set this to `None` for no peak line.
     ///
@@ -215,19 +219,20 @@ impl State {
         }
     }
 
-    /// Sets the [`Normal`] position of the left main bar.
+    /// Sets the [`Normal`] position of the left bar.
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_left(&mut self, normal: Normal) {
         self.left_bar.normal = normal;
     }
-    /// Sets the [`Normal`] position of the left peak line.
+    /// Sets the [`Normal`] position of the left peak line. Set this to
+    /// `None` for no peak line.
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn set_left_peak(&mut self, normal: Normal) {
-        self.left_bar.peak_normal = Some(normal);
+    pub fn set_left_peak(&mut self, normal: Option<Normal>) {
+        self.left_bar.peak_normal = normal;
     }
-    /// Sets the [`Normal`] position of the right main bar. This will
+    /// Sets the [`Normal`] position of the right bar. This will
     /// have no effect if `right` was set to `None` in `State::new()`.
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
@@ -236,13 +241,53 @@ impl State {
             right_bar.normal = normal;
         }
     }
-    /// Sets the [`Normal`] position of the right peak line. This will
-    /// have no effect if `right` was set to `None` in `State::new()`.
+    /// Sets the [`Normal`] position of the right peak line. Set this to
+    /// `None` for no peak line. This will have no effect if `right`
+    /// was set to `None` in `State::new()`.
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
     pub fn set_right_peak(&mut self, normal: Normal) {
         if let Some(right_bar) = &mut self.right_bar {
             right_bar.peak_normal = Some(normal);
+        }
+    }
+
+    /// Returns the [`Normal`] position of the left bar.
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn left_normal(&self) -> Normal {
+        self.left_bar.normal
+    }
+
+    /// Returns the [`Normal`] position of the left peak line.
+    /// Returns `None` if none exists.
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn left_peak_normal(&self) -> Option<Normal> {
+        self.left_bar.peak_normal
+    }
+
+    /// Returns the [`Normal`] position of the right bar.
+    /// Returns `None` if the meter is mono.
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn right_normal(&self) -> Option<Normal> {
+        if let Some(right_bar) = self.right_bar {
+            Some(right_bar.normal)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the [`Normal`] position of the right peak line.
+    /// Returns `None` if none exists or if the meter is mono.
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn right_peak_normal(&self) -> Option<Normal> {
+        if let Some(right_bar) = self.right_bar {
+            right_bar.peak_normal
+        } else {
+            None
         }
     }
 }

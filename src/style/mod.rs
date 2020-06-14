@@ -10,3 +10,4 @@ pub mod v_slider;
 pub mod xy_pad;
 
 pub mod db_meter;
+pub mod reduction_meter;
