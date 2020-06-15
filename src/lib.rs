@@ -246,16 +246,15 @@ pub use crate::core::*;
 mod platform {
     #[doc(no_inline)]
     pub use crate::wgpu::{
-        db_meter, h_slider, knob, mod_range_input, ramp, reduction_meter,
-        v_slider, xy_pad, phase_meter,
+        db_meter, h_slider, knob, mod_range_input, phase_meter, ramp,
+        reduction_meter, v_slider, xy_pad,
     };
 
     #[doc(no_inline)]
     pub use {
         db_meter::DBMeter, h_slider::HSlider, knob::Knob,
-        mod_range_input::ModRangeInput, ramp::Ramp,
+        mod_range_input::ModRangeInput, phase_meter::PhaseMeter, ramp::Ramp,
         reduction_meter::ReductionMeter, v_slider::VSlider, xy_pad::XYPad,
-        phase_meter::PhaseMeter,
     };
 }
 

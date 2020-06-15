@@ -149,10 +149,7 @@ impl State {
     /// * `tier_positions` - The positions where each tier of color starts.
     ///
     /// [`PhaseMeter`]: struct.PhaseMeter.html
-    pub fn new(
-        normal: Normal,
-        tier_positions: TierPositions,
-    ) -> Self {
+    pub fn new(normal: Normal, tier_positions: TierPositions) -> Self {
         Self {
             normal,
             tier_positions,
@@ -169,7 +166,8 @@ impl Default for State {
     }
 }
 
-impl<'a, Message, Renderer> Widget<Message, Renderer> for PhaseMeter<'a, Renderer>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for PhaseMeter<'a, Renderer>
 where
     Renderer: self::Renderer,
 {
@@ -267,7 +265,9 @@ where
     Renderer: 'a + self::Renderer,
     Message: 'a,
 {
-    fn from(phase_meter: PhaseMeter<'a, Renderer>) -> Element<'a, Message, Renderer> {
+    fn from(
+        phase_meter: PhaseMeter<'a, Renderer>,
+    ) -> Element<'a, Message, Renderer> {
         Element::new(phase_meter)
     }
 }

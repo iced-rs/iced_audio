@@ -7,12 +7,8 @@ use crate::native::phase_meter;
 use iced_native::{Background, Color, MouseCursor, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
-pub use crate::native::phase_meter::{
-    Orientation, State, TierPositions,
-};
-pub use crate::style::phase_meter::{
-    Style, StyleSheet,
-};
+pub use crate::native::phase_meter::{Orientation, State, TierPositions};
+pub use crate::style::phase_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`PhaseMeter`] with an
 /// `iced_wgpu::Renderer`.
@@ -28,7 +24,10 @@ enum PhaseTier {
     Good,
 }
 
-fn tier(normal: Normal, tier_positions: phase_meter::TierPositions) -> PhaseTier {
+fn tier(
+    normal: Normal,
+    tier_positions: phase_meter::TierPositions,
+) -> PhaseTier {
     let value = normal.value();
 
     if value >= (0.5 + (tier_positions.good.value() / 2.0)) {
@@ -87,7 +86,8 @@ impl phase_meter::Renderer for Renderer {
 
                 let center_line = Primitive::Quad {
                     bounds: Rectangle {
-                        x: (bounds_x + h_center - (center_line_width / 2.0)).round(),
+                        x: (bounds_x + h_center - (center_line_width / 2.0))
+                            .round(),
                         y: bar_y,
                         width: center_line_width,
                         height: bar_height,
@@ -102,8 +102,12 @@ impl phase_meter::Renderer for Renderer {
                     let meter_span = bounds_width - (border_width * 2.0);
 
                     let normal_offset = (normal.value() * meter_span).round();
-                    let poor_offset = (meter_span * (tier_positions.poor.value() / 2.0)).round();
-                    let good_offset = (meter_span * (0.5 + (tier_positions.good.value() / 2.0))).round();
+                    let poor_offset = (meter_span
+                        * (tier_positions.poor.value() / 2.0))
+                        .round();
+                    let good_offset = (meter_span
+                        * (0.5 + (tier_positions.good.value() / 2.0)))
+                        .round();
 
                     let normal_tier = tier(normal, tier_positions);
 
@@ -136,13 +140,17 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, bad_bar, poor_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        bad_bar,
+                                        poor_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Poor => {
-
                             let poor_bar = Primitive::Quad {
                                 bounds: Rectangle {
                                     x: bounds_x + normal_offset + border_width,
@@ -158,11 +166,15 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, poor_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        poor_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Okay => {
                             let okay_bar = Primitive::Quad {
                                 bounds: Rectangle {
@@ -179,11 +191,15 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, okay_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        okay_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Good => {
                             let okay_bar = Primitive::Quad {
                                 bounds: Rectangle {
@@ -212,11 +228,16 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, okay_bar, good_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        okay_bar,
+                                        good_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                     }
                 } else {
                     (
@@ -226,7 +247,7 @@ impl phase_meter::Renderer for Renderer {
                         MouseCursor::default(),
                     )
                 }
-            },
+            }
             Orientation::Vertical => {
                 let v_center = (bounds_height / 2.0).round();
 
@@ -236,7 +257,8 @@ impl phase_meter::Renderer for Renderer {
                 let center_line = Primitive::Quad {
                     bounds: Rectangle {
                         x: bar_x,
-                        y: (bounds_y + v_center - (center_line_width / 2.0)).round(),
+                        y: (bounds_y + v_center - (center_line_width / 2.0))
+                            .round(),
                         width: bar_width,
                         height: center_line_width,
                     },
@@ -249,9 +271,14 @@ impl phase_meter::Renderer for Renderer {
                 if normal.value() < 0.499 || normal.value() > 0.501 {
                     let meter_span = bounds_height - (border_width * 2.0);
 
-                    let normal_offset = ((1.0 - normal.value()) * meter_span).round();
-                    let poor_offset = (meter_span * (1.0 - (tier_positions.poor.value() / 2.0))).round();
-                    let good_offset = (meter_span * (1.0 - (0.5 + (tier_positions.good.value() / 2.0)))).round();
+                    let normal_offset =
+                        ((1.0 - normal.value()) * meter_span).round();
+                    let poor_offset = (meter_span
+                        * (1.0 - (tier_positions.poor.value() / 2.0)))
+                        .round();
+                    let good_offset = (meter_span
+                        * (1.0 - (0.5 + (tier_positions.good.value() / 2.0))))
+                        .round();
 
                     let normal_tier = tier(normal, tier_positions);
 
@@ -262,7 +289,8 @@ impl phase_meter::Renderer for Renderer {
                                     x: bar_x,
                                     y: bounds_y + v_center,
                                     width: bar_width,
-                                    height: poor_offset - v_center + border_width,
+                                    height: poor_offset - v_center
+                                        + border_width,
                                 },
                                 background: Background::Color(style.poor_color),
                                 border_radius: 0,
@@ -274,7 +302,8 @@ impl phase_meter::Renderer for Renderer {
                                     x: bar_x,
                                     y: bounds_y + poor_offset,
                                     width: bar_width,
-                                    height: normal_offset - poor_offset + border_width,
+                                    height: normal_offset - poor_offset
+                                        + border_width,
                                 },
                                 background: Background::Color(style.bad_color),
                                 border_radius: 0,
@@ -284,18 +313,24 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, poor_bar, bad_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        poor_bar,
+                                        bad_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Poor => {
                             let poor_bar = Primitive::Quad {
                                 bounds: Rectangle {
                                     x: bar_x,
                                     y: bounds_y + v_center,
                                     width: bar_width,
-                                    height: normal_offset - v_center + border_width,
+                                    height: normal_offset - v_center
+                                        + border_width,
                                 },
                                 background: Background::Color(style.poor_color),
                                 border_radius: 0,
@@ -305,11 +340,15 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, poor_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        poor_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Okay => {
                             let okay_bar = Primitive::Quad {
                                 bounds: Rectangle {
@@ -326,11 +365,15 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, okay_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        okay_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                         PhaseTier::Good => {
                             let good_bar = Primitive::Quad {
                                 bounds: Rectangle {
@@ -359,11 +402,16 @@ impl phase_meter::Renderer for Renderer {
 
                             (
                                 Primitive::Group {
-                                    primitives: vec![back, okay_bar, good_bar, center_line],
+                                    primitives: vec![
+                                        back,
+                                        okay_bar,
+                                        good_bar,
+                                        center_line,
+                                    ],
                                 },
                                 MouseCursor::default(),
                             )
-                        },
+                        }
                     }
                 } else {
                     (

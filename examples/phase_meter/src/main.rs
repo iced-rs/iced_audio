@@ -3,9 +3,7 @@ use iced::{
     Row, Settings, Subscription, Text,
 };
 
-use iced_audio::{
-    knob, FloatRange, Knob, phase_meter, PhaseMeter,
-};
+use iced_audio::{knob, phase_meter, FloatRange, Knob, PhaseMeter};
 
 use std::time::Instant;
 
@@ -111,13 +109,15 @@ impl Application for PhaseMeterApp {
     fn view(&mut self) -> Element<Message> {
         let phase_knob =
             Knob::new(&mut self.phase_knob_state, Message::ParamMoved);
-        
-        let phase_meter_default = PhaseMeter::new(&mut self.phase_meter_default_state);
 
-        let phase_meter_custom = PhaseMeter::new(&mut self.phase_meter_custom_state)
-            .orientation(phase_meter::Orientation::Vertical)
-            .style(CustomPhaseMeterStyle)
-            .width(Length::from(Length::Units(14)));
+        let phase_meter_default =
+            PhaseMeter::new(&mut self.phase_meter_default_state);
+
+        let phase_meter_custom =
+            PhaseMeter::new(&mut self.phase_meter_custom_state)
+                .orientation(phase_meter::Orientation::Vertical)
+                .style(CustomPhaseMeterStyle)
+                .width(Length::from(Length::Units(14)));
 
         let row = Row::new()
             .width(Length::Fill)
