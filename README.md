@@ -18,6 +18,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 ### Inputs
 * [x] `HSlider` - Horizontal Slider
 * [x] `VSlider` - Vertical Slider
+* [x] `Knob` - A classic knob widget. (no texture style yet)
 * [x] `Ramp` - Ramp used to control the easing between two points in time
 * [x] `XYPad`- XY Pad for controlling two parameters at once
 * [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
@@ -26,9 +27,6 @@ Note that these visualizers do not contain any DSP or animation. That must be do
 * [x] `DBMeter` - A decibel meter.
 * [x] `ReductionMeter` - a meter that displays the reduction of loudness in a signal.
 * [x] `PhaseMeter` - a meter that displays the phase correlation of an audio signal.
-
-## Widgets partially implemented
-* [x] `Knob` - A basic knob widget. No texture style yet. There is also a known bug where input will stop when the mouse leaves the window under some conditions.
 
 Take a look at the [roadmap] for a list of planned widgets.
 
