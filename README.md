@@ -21,7 +21,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 * [x] `Knob` - A classic knob widget. (no texture style yet)
 * [x] `Ramp` - Ramp used to control the easing between two points in time
 * [x] `XYPad`- XY Pad for controlling two parameters at once
-* [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
+* [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles that add visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
 ### Visualizers
 Note that these visualizers do not contain any DSP or animation. That must be done manually.
 * [x] `DBMeter` - A decibel meter.
