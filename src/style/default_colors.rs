@@ -106,3 +106,4 @@ pub static DB_METER_TICK_TIER_3: Color = Color {
     b: 0.56,
     a: 0.63,
 };
+pub static PHASE_METER_CENTER_LINE: Color = Color::from_rgb(0.92, 0.92, 0.92);

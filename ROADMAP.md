@@ -8,7 +8,7 @@
 * [x] `DBMeter` - a meter that displays peak loudness of a signal. This can have optional colors for good headroom (green), low headroom (yellow), and peaking (red). It can be either vertical or horizontal. It can also have an optional line showing the peak loudness.
 * [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
 * [x] `ReductionMeter` - a meter that displays the reduction of loudness in a signal. It can be either vertical or horizontal. It can also have an optional line showing the average loudness.
-* [ ] `PhaseMeter` - a line that shows the phase correlation of an audio signal. It can be horizontal or vertical.
+* [x] `PhaseMeter` - a meter that displays the phase correlation of an audio signal. It can be horizontal or vertical.
 * [ ] `EnvelopeEditor` - adjustable points connected by lines that represent automation / envelopes / lfo`s. Lines can be straight or curved. Extra points can be added or removed.
 * [ ] `Oscilloscope` - displays oscillations of an audio signal in a given time window
 * [ ] `Spectrometer` - displays the amplitude of a range of frequencies from 20hz to 20000hz.

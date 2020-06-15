@@ -247,7 +247,7 @@ mod platform {
     #[doc(no_inline)]
     pub use crate::wgpu::{
         db_meter, h_slider, knob, mod_range_input, ramp, reduction_meter,
-        v_slider, xy_pad,
+        v_slider, xy_pad, phase_meter,
     };
 
     #[doc(no_inline)]
@@ -255,6 +255,7 @@ mod platform {
         db_meter::DBMeter, h_slider::HSlider, knob::Knob,
         mod_range_input::ModRangeInput, ramp::Ramp,
         reduction_meter::ReductionMeter, v_slider::VSlider, xy_pad::XYPad,
+        phase_meter::PhaseMeter,
     };
 }
 

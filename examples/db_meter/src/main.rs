@@ -192,18 +192,14 @@ impl Application for DBMeterApp {
         let right_peak_knob =
             Knob::new(&mut self.right_peak_db_knob_state, Message::ParamMoved);
 
-        let db_meter = DBMeter::new(
-            &mut self.db_meter_state,
-        )
-        .tick_marks(&self.tick_marks);
+        let db_meter =
+            DBMeter::new(&mut self.db_meter_state).tick_marks(&self.tick_marks);
 
-        let db_meter_custom = DBMeter::new(
-            &mut self.db_meter_custom_state,
-        )
-        .orientation(db_meter::Orientation::Horizontal)
-        .height(Length::from(Length::Units(24)))
-        .tick_marks(&self.tick_marks)
-        .style(CustomDBMeterStyle);
+        let db_meter_custom = DBMeter::new(&mut self.db_meter_custom_state)
+            .orientation(db_meter::Orientation::Horizontal)
+            .height(Length::from(Length::Units(24)))
+            .tick_marks(&self.tick_marks)
+            .style(CustomDBMeterStyle);
 
         let row = Row::new()
             .width(Length::Fill)

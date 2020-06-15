@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.2.5"
+version = "0.2.6"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
@@ -29,6 +29,7 @@ name = "simple"
 members = [
     "examples/db_meter",
     "examples/reduction_meter",
+    "examples/phase_meter",
 ]
 
 # See more keys and their definitions at

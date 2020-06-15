@@ -166,12 +166,14 @@ impl Application for ReductionMeterApp {
         let peak_knob =
             Knob::new(&mut self.peak_knob_state, Message::ParamMoved);
 
-        let r_meter_default = ReductionMeter::new(&mut self.r_meter_default_state)
-            .tick_marks(&self.tick_marks);
+        let r_meter_default =
+            ReductionMeter::new(&mut self.r_meter_default_state)
+                .tick_marks(&self.tick_marks);
 
-        let r_meter_custom = ReductionMeter::new(&mut self.r_meter_custom_state)
-            .orientation(reduction_meter::Orientation::Horizontal)
-            .style(CustomReductionMeterStyle)
+        let r_meter_custom =
+            ReductionMeter::new(&mut self.r_meter_custom_state)
+                .orientation(reduction_meter::Orientation::Horizontal)
+                .style(CustomReductionMeterStyle)
                 .tick_marks(&self.tick_marks);
 
         let row = Row::new()
@@ -195,8 +197,19 @@ impl Application for ReductionMeterApp {
                     .push(peak_knob)
                     .push(Text::new("Peak DB")),
             )
-            .push(Column::new().max_height(400).max_width(100).spacing(20).push(r_meter_default))
-            .push(Column::new().max_height(400).spacing(20).push(r_meter_custom));
+            .push(
+                Column::new()
+                    .max_height(400)
+                    .max_width(100)
+                    .spacing(20)
+                    .push(r_meter_default),
+            )
+            .push(
+                Column::new()
+                    .max_height(400)
+                    .spacing(20)
+                    .push(r_meter_custom),
+            );
 
         Container::new(row)
             .width(Length::Fill)

@@ -249,7 +249,8 @@ impl reduction_meter::Renderer for Renderer {
 
                                 for left_tick_mark in tick_marks.group.iter() {
                                     let x_offset = notch_span
-                                        * (1.0 - left_tick_mark.position.value());
+                                        * (1.0
+                                            - left_tick_mark.position.value());
 
                                     let (length, width, color) =
                                         match left_tick_mark.tier {
@@ -301,7 +302,8 @@ impl reduction_meter::Renderer for Renderer {
 
                                 for right_tick_mark in tick_marks.group.iter() {
                                     let x_offset = notch_span
-                                        * (1.0 - right_tick_mark.position.value());
+                                        * (1.0
+                                            - right_tick_mark.position.value());
 
                                     let (length, width, color) =
                                         match right_tick_mark.tier {
@@ -355,7 +357,8 @@ impl reduction_meter::Renderer for Renderer {
 
                 let bar: Primitive = {
                     if bar_normal.value() != 0.0 {
-                        let bar_offset = (bounds_width * (1.0 - bar_normal.value())).round();
+                        let bar_offset =
+                            (bounds_width * (1.0 - bar_normal.value())).round();
 
                         Primitive::Quad {
                             bounds: Rectangle {
@@ -379,7 +382,9 @@ impl reduction_meter::Renderer for Renderer {
                         let peak_width =
                             style.peak_line_width as f32 + (border_width * 2.0);
 
-                        let peak_offset = ((bounds_width - peak_width) * (1.0 - peak_normal.value())).round();
+                        let peak_offset = ((bounds_width - peak_width)
+                            * (1.0 - peak_normal.value()))
+                        .round();
 
                         if peak_normal.value() != 0.0 {
                             Primitive::Quad {

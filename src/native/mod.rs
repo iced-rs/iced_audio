@@ -8,6 +8,7 @@ pub mod v_slider;
 pub mod xy_pad;
 
 pub mod db_meter;
+pub mod phase_meter;
 pub mod reduction_meter;
 
 #[doc(no_inline)]
@@ -25,5 +26,7 @@ pub use xy_pad::XYPad;
 
 #[doc(no_inline)]
 pub use db_meter::DBMeter;
+#[doc(no_inline)]
+pub use phase_meter::PhaseMeter;
 #[doc(no_inline)]
 pub use reduction_meter::ReductionMeter;
