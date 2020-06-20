@@ -2,17 +2,16 @@
 //!
 //! [`DBMeter`]: ../native/db_meter/struct.DBMeter.html
 
-use crate::core::{Normal, TickMarkGroup, TickMarkTier};
+use crate::core::{Normal, TickMarkGroup};
 use crate::native::db_meter;
+use crate::wgpu::bar_tick_marks;
 use iced_native::{Background, Color, MouseCursor, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::db_meter::{
     BarState, Orientation, State, TierPositions,
 };
-pub use crate::style::db_meter::{
-    Style, StyleSheet, TickMarkPlacement, TickMarkStyle,
-};
+pub use crate::style::db_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`DBMeter`] with an
 /// `iced_wgpu::Renderer`.
@@ -465,6 +464,7 @@ impl db_meter::Renderer for Renderer {
         let style = style_sheet.style();
 
         let border_width = style.back_border_width as f32;
+        let twice_border_width = border_width * 2.0;
 
         let back = Primitive::Quad {
             bounds: Rectangle {
@@ -481,120 +481,21 @@ impl db_meter::Renderer for Renderer {
 
         match orientation {
             Orientation::Vertical => {
-                let bar_height = bounds_height - (border_width * 2.0);
+                let bar_height = bounds_height - twice_border_width;
                 let bar_y = bounds_y + border_width;
 
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
-                            let notch_span =
-                                bounds_height - (border_width * 2.0);
-                            let start_y =
-                                bounds_y + bounds_height - border_width;
-
-                            let mut primitives: Vec<Primitive> = Vec::new();
-
-                            if style.placement != TickMarkPlacement::Right {
-                                let notch_x = bounds_x - style.offset as f32;
-
-                                for left_tick_mark in tick_marks.group.iter() {
-                                    let y_offset = notch_span
-                                        * left_tick_mark.position.value();
-
-                                    let (length, height, color) =
-                                        match left_tick_mark.tier {
-                                            TickMarkTier::One => (
-                                                style.length_tier_1,
-                                                style.width_tier_1,
-                                                style.color_tier_1,
-                                            ),
-                                            TickMarkTier::Two => (
-                                                style.length_tier_2,
-                                                style.width_tier_2,
-                                                style.color_tier_2,
-                                            ),
-                                            TickMarkTier::Three => (
-                                                style.length_tier_3,
-                                                style.width_tier_3,
-                                                style.color_tier_3,
-                                            ),
-                                        };
-
-                                    let half_height = height as f32 / 2.0;
-
-                                    let x = notch_x - length as f32;
-
-                                    let mark = Primitive::Quad {
-                                        bounds: Rectangle {
-                                            x,
-                                            y: (start_y
-                                                - y_offset
-                                                - half_height)
-                                                .floor(),
-                                            width: length as f32,
-                                            height: height as f32,
-                                        },
-                                        background: Background::Color(color),
-                                        border_radius: 0,
-                                        border_width: 0,
-                                        border_color: Color::TRANSPARENT,
-                                    };
-
-                                    primitives.push(mark);
-                                }
-                            }
-
-                            if style.placement != TickMarkPlacement::Left {
-                                let notch_x = bounds_x
-                                    + bounds_width
-                                    + style.offset as f32;
-
-                                for right_tick_mark in tick_marks.group.iter() {
-                                    let y_offset = notch_span
-                                        * right_tick_mark.position.value();
-
-                                    let (length, height, color) =
-                                        match right_tick_mark.tier {
-                                            TickMarkTier::One => (
-                                                style.length_tier_1,
-                                                style.width_tier_1,
-                                                style.color_tier_1,
-                                            ),
-                                            TickMarkTier::Two => (
-                                                style.length_tier_2,
-                                                style.width_tier_2,
-                                                style.color_tier_2,
-                                            ),
-                                            TickMarkTier::Three => (
-                                                style.length_tier_3,
-                                                style.width_tier_3,
-                                                style.color_tier_3,
-                                            ),
-                                        };
-
-                                    let half_height = height as f32 / 2.0;
-
-                                    let mark = Primitive::Quad {
-                                        bounds: Rectangle {
-                                            x: notch_x,
-                                            y: (start_y
-                                                - y_offset
-                                                - half_height)
-                                                .floor(),
-                                            width: length as f32,
-                                            height: height as f32,
-                                        },
-                                        background: Background::Color(color),
-                                        border_radius: 0,
-                                        border_width: 0,
-                                        border_color: Color::TRANSPARENT,
-                                    };
-
-                                    primitives.push(mark);
-                                }
-                            }
-
-                            Primitive::Group { primitives }
+                            bar_tick_marks::draw_vertical_tick_marks(
+                                bounds_x,
+                                bar_y,
+                                bounds_width,
+                                bar_height,
+                                &tick_marks,
+                                &style,
+                                false,
+                            )
                         } else {
                             Primitive::None
                         }
@@ -605,7 +506,7 @@ impl db_meter::Renderer for Renderer {
 
                 let clip_marker_height = style.clip_marker_width as f32;
                 let half_clip_marker_height =
-                    (clip_marker_height * 0.5).round();
+                    (clip_marker_height / 2.0).round();
                 let clip_y = (bar_y
                     + (bar_height * (1.0 - tier_positions.clipping.value()))
                     - half_clip_marker_height)
@@ -615,7 +516,7 @@ impl db_meter::Renderer for Renderer {
                     bounds: Rectangle {
                         x: bounds_x + border_width,
                         y: clip_y,
-                        width: bounds_width - (border_width * 2.0),
+                        width: bounds_width - twice_border_width,
                         height: clip_marker_height,
                     },
                     background: Background::Color(style.clip_marker_color),
@@ -628,8 +529,7 @@ impl db_meter::Renderer for Renderer {
                     let inner_gap = style.inner_gap as f32;
 
                     let bar_width =
-                        ((bounds_width - (border_width * 2.0) - inner_gap)
-                            * 0.5)
+                        ((bounds_width - twice_border_width - inner_gap) / 2.0)
                             .floor();
 
                     let left_bar_x = bounds_x + border_width;
@@ -685,8 +585,8 @@ impl db_meter::Renderer for Renderer {
                         MouseCursor::default(),
                     )
                 } else {
-                    let bar_width = bounds_width - (border_width * 2.0);
-                    let bar_height = bounds_height - (border_width * 2.0);
+                    let bar_width = bounds_width - twice_border_width;
+                    let bar_height = bounds_height - twice_border_width;
                     let bar_x = bounds_x + border_width;
                     let bar_y = bounds_y + border_width;
 
@@ -715,114 +615,21 @@ impl db_meter::Renderer for Renderer {
                 }
             }
             Orientation::Horizontal => {
-                let bar_width = bounds_width - (border_width * 2.0);
+                let bar_width = bounds_width - twice_border_width;
                 let bar_x = bounds_x + border_width;
 
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
-                            let notch_span =
-                                bounds_width - (border_width * 2.0);
-
-                            let mut primitives: Vec<Primitive> = Vec::new();
-
-                            if style.placement != TickMarkPlacement::Right {
-                                let notch_y = bounds_y - style.offset as f32;
-
-                                for left_tick_mark in tick_marks.group.iter() {
-                                    let x_offset = notch_span
-                                        * left_tick_mark.position.value();
-
-                                    let (length, width, color) =
-                                        match left_tick_mark.tier {
-                                            TickMarkTier::One => (
-                                                style.length_tier_1,
-                                                style.width_tier_1,
-                                                style.color_tier_1,
-                                            ),
-                                            TickMarkTier::Two => (
-                                                style.length_tier_2,
-                                                style.width_tier_2,
-                                                style.color_tier_2,
-                                            ),
-                                            TickMarkTier::Three => (
-                                                style.length_tier_3,
-                                                style.width_tier_3,
-                                                style.color_tier_3,
-                                            ),
-                                        };
-
-                                    let half_width = width as f32 / 2.0;
-
-                                    let y = notch_y - length as f32;
-
-                                    let mark = Primitive::Quad {
-                                        bounds: Rectangle {
-                                            x: (bar_x + x_offset - half_width)
-                                                .floor(),
-                                            y,
-                                            width: width as f32,
-                                            height: length as f32,
-                                        },
-                                        background: Background::Color(color),
-                                        border_radius: 0,
-                                        border_width: 0,
-                                        border_color: Color::TRANSPARENT,
-                                    };
-
-                                    primitives.push(mark);
-                                }
-                            }
-
-                            if style.placement != TickMarkPlacement::Left {
-                                let notch_y = bounds_y
-                                    + bounds_height
-                                    + style.offset as f32;
-
-                                for right_tick_mark in tick_marks.group.iter() {
-                                    let x_offset = notch_span
-                                        * right_tick_mark.position.value();
-
-                                    let (length, width, color) =
-                                        match right_tick_mark.tier {
-                                            TickMarkTier::One => (
-                                                style.length_tier_1,
-                                                style.width_tier_1,
-                                                style.color_tier_1,
-                                            ),
-                                            TickMarkTier::Two => (
-                                                style.length_tier_2,
-                                                style.width_tier_2,
-                                                style.color_tier_2,
-                                            ),
-                                            TickMarkTier::Three => (
-                                                style.length_tier_3,
-                                                style.width_tier_3,
-                                                style.color_tier_3,
-                                            ),
-                                        };
-
-                                    let half_width = width as f32 / 2.0;
-
-                                    let mark = Primitive::Quad {
-                                        bounds: Rectangle {
-                                            x: (bar_x + x_offset - half_width)
-                                                .floor(),
-                                            y: notch_y,
-                                            width: width as f32,
-                                            height: length as f32,
-                                        },
-                                        background: Background::Color(color),
-                                        border_radius: 0,
-                                        border_width: 0,
-                                        border_color: Color::TRANSPARENT,
-                                    };
-
-                                    primitives.push(mark);
-                                }
-                            }
-
-                            Primitive::Group { primitives }
+                            bar_tick_marks::draw_horizontal_tick_marks(
+                                bar_x,
+                                bounds_y,
+                                bar_width,
+                                bounds_height,
+                                &tick_marks,
+                                &style,
+                                false,
+                            )
                         } else {
                             Primitive::None
                         }
@@ -832,7 +639,7 @@ impl db_meter::Renderer for Renderer {
                 };
 
                 let clip_marker_width = style.clip_marker_width as f32;
-                let half_clip_marker_width = clip_marker_width * 0.5;
+                let half_clip_marker_width = clip_marker_width / 2.0;
                 let clip_x = (bar_x
                     + (bar_width * tier_positions.clipping.value())
                     - half_clip_marker_width)
@@ -843,7 +650,7 @@ impl db_meter::Renderer for Renderer {
                         x: clip_x,
                         y: bounds_y + border_width,
                         width: clip_marker_width,
-                        height: bounds_height - (border_width * 2.0),
+                        height: bounds_height - twice_border_width,
                     },
                     background: Background::Color(style.clip_marker_color),
                     border_radius: 0,
@@ -855,8 +662,8 @@ impl db_meter::Renderer for Renderer {
                     let inner_gap = style.inner_gap as f32;
 
                     let bar_height =
-                        ((bounds_height - (border_width * 2.0) - inner_gap)
-                            * 0.5)
+                        ((bounds_height - twice_border_width - inner_gap)
+                            / 2.0)
                             .floor();
 
                     let left_bar_y = bounds_y + border_width;
@@ -912,8 +719,8 @@ impl db_meter::Renderer for Renderer {
                         MouseCursor::default(),
                     )
                 } else {
-                    let bar_width = bounds_width - (border_width * 2.0);
-                    let bar_height = bounds_height - (border_width * 2.0);
+                    let bar_width = bounds_width - twice_border_width;
+                    let bar_height = bounds_height - twice_border_width;
                     let bar_x = bounds_x + border_width;
                     let bar_y = bounds_y + border_width;
 

@@ -9,7 +9,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::Normal;
+use crate::core::{Normal, TickMarkGroup};
 
 static DEFAULT_HEIGHT: u16 = 8;
 
@@ -43,6 +43,7 @@ pub struct PhaseMeter<'a, Renderer: self::Renderer> {
     height: Length,
     style: Renderer::Style,
     orientation: Orientation,
+    tick_marks: Option<&'a TickMarkGroup>,
 }
 
 impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
@@ -60,6 +61,7 @@ impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
             height: Length::from(Length::Units(DEFAULT_HEIGHT)),
             style: Renderer::Style::default(),
             orientation: Orientation::Horizontal,
+            tick_marks: None,
         }
     }
 
@@ -98,6 +100,17 @@ impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
     /// [`PhaseMeter`]: struct.PhaseMeter.html
     pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
         self.style = style.into();
+        self
+    }
+
+    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`StyleSheet`]: ../../style/phase_meter/trait.StyleSheet.html
+    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
+        self.tick_marks = Some(tick_marks);
         self
     }
 }
@@ -214,6 +227,7 @@ where
             self.state.normal,
             self.state.tier_positions,
             &self.orientation,
+            self.tick_marks,
             &self.style,
         )
     }
@@ -255,6 +269,7 @@ pub trait Renderer: iced_native::Renderer {
         normal: Normal,
         tier_positions: TierPositions,
         orientation: &Orientation,
+        tick_marks: Option<&TickMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

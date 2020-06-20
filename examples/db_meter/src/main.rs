@@ -4,8 +4,8 @@ use iced::{
 };
 
 use iced_audio::{
-    db_meter, knob, DBMeter, DBRange, Knob, TickMark, TickMarkGroup,
-    TickMarkTier,
+    bar_tick_marks, db_meter, knob, DBMeter, DBRange, Knob, TickMark,
+    TickMarkGroup, TickMarkTier,
 };
 
 use std::time::Instant;
@@ -101,7 +101,7 @@ impl Application for DBMeterApp {
                     },
                 ),
 
-                tick_marks: TickMarkGroup::from_vec(vec![
+                tick_marks: TickMarkGroup::new(vec![
                     TickMark {
                         position: db_range.to_normal(0.0),
                         tier: TickMarkTier::One,
@@ -333,8 +333,8 @@ impl db_meter::StyleSheet for CustomDBMeterStyle {
         }
     }
 
-    fn tick_mark_style(&self) -> Option<db_meter::TickMarkStyle> {
-        Some(db_meter::TickMarkStyle {
+    fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
+        Some(bar_tick_marks::Style {
             length_tier_1: 4,
             length_tier_2: 3,
             length_tier_3: 2,
@@ -349,7 +349,7 @@ impl db_meter::StyleSheet for CustomDBMeterStyle {
 
             offset: 2,
 
-            placement: db_meter::TickMarkPlacement::Right,
+            placement: bar_tick_marks::Placement::RightOrBottom,
         })
     }
 }

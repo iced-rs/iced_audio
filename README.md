@@ -50,7 +50,7 @@ cargo run --package phase_meter --release
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```
 iced = { version = "0.1", features = ["image"] }
-iced_audio = "0.2"
+iced_audio = "0.3"
 ```
 __Both Iced Audio and [Iced] move fast and the `master` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].

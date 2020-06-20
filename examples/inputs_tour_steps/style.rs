@@ -95,11 +95,11 @@ pub struct HSliderRectStyle;
 impl h_slider::StyleSheet for HSliderRectStyle {
     fn active(&self) -> h_slider::Style {
         h_slider::Style::Rect(h_slider::RectStyle {
-            back_empty_color: EMPTY_COLOR,
-            back_filled_color: FILLED_COLOR,
-            border_color: BORDER_COLOR,
-            border_radius: 2,
-            border_width: 1,
+            back_color: EMPTY_COLOR,
+            back_border_width: 1,
+            back_border_radius: 2,
+            back_border_color: BORDER_COLOR,
+            filled_color: FILLED_COLOR,
             handle_width: 4,
             handle_color: HANDLE_COLOR,
             handle_filled_gap: 1,
@@ -110,7 +110,7 @@ impl h_slider::StyleSheet for HSliderRectStyle {
         let active = self.active();
         if let h_slider::Style::Rect(active) = active {
             h_slider::Style::Rect(h_slider::RectStyle {
-                back_filled_color: FILLED_HOVER_COLOR,
+                filled_color: FILLED_HOVER_COLOR,
                 handle_width: 5,
                 ..active
             })
@@ -128,9 +128,9 @@ impl h_slider::StyleSheet for HSliderRectStyle {
             width: 3,
             offset: 2,
             placement: h_slider::ModRangePlacement::Bottom,
-            color_empty: Some(KNOB_ARC_EMPTY_COLOR),
-            color: KNOB_ARC_COLOR,
-            color_inverse: KNOB_ARC_RIGHT_COLOR,
+            empty_color: Some(KNOB_ARC_EMPTY_COLOR),
+            filled_color: KNOB_ARC_COLOR,
+            filled_inverse_color: KNOB_ARC_RIGHT_COLOR,
         })
     }
 }
@@ -141,13 +141,13 @@ pub struct VSliderRectStyle;
 impl v_slider::StyleSheet for VSliderRectStyle {
     fn active(&self) -> v_slider::Style {
         v_slider::Style::Rect(v_slider::RectStyle {
-            back_empty_color: EMPTY_COLOR,
-            back_filled_color: FILLED_COLOR,
-            border_color: BORDER_COLOR,
-            border_radius: 2,
-            border_width: 1,
-            handle_height: 4,
+            back_color: EMPTY_COLOR,
+            back_border_width: 1,
+            back_border_radius: 2,
+            back_border_color: BORDER_COLOR,
+            filled_color: FILLED_COLOR,
             handle_color: HANDLE_COLOR,
+            handle_height: 4,
             handle_filled_gap: 1,
         })
     }
@@ -156,7 +156,7 @@ impl v_slider::StyleSheet for VSliderRectStyle {
         let active = self.active();
         if let v_slider::Style::Rect(active) = active {
             v_slider::Style::Rect(v_slider::RectStyle {
-                back_filled_color: FILLED_HOVER_COLOR,
+                filled_color: FILLED_HOVER_COLOR,
                 handle_height: 5,
                 ..active
             })
@@ -174,14 +174,14 @@ impl v_slider::StyleSheet for VSliderRectStyle {
             width: 0,
             offset: 10,
             placement: v_slider::ModRangePlacement::Center,
-            color_empty: None,
-            color: Color {
+            empty_color: None,
+            filled_color: Color {
                 r: 0.0,
                 g: 0.7,
                 b: 0.0,
                 a: 0.3,
             },
-            color_inverse: Color {
+            filled_inverse_color: Color {
                 r: 0.0,
                 g: 0.7,
                 b: 0.0,
@@ -197,13 +197,12 @@ pub struct HSliderRectBipolarStyle;
 impl h_slider::StyleSheet for HSliderRectBipolarStyle {
     fn active(&self) -> h_slider::Style {
         h_slider::Style::RectBipolar(h_slider::RectBipolarStyle {
-            back_left_empty_color: EMPTY_COLOR,
-            back_left_filled_color: FILLED_COLOR,
-            back_right_empty_color: EMPTY_COLOR,
-            back_right_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
-            border_color: BORDER_COLOR,
-            border_radius: 2,
-            border_width: 1,
+            back_color: EMPTY_COLOR,
+            back_border_width: 1,
+            back_border_radius: 2,
+            back_border_color: BORDER_COLOR,
+            left_filled_color: FILLED_COLOR,
+            right_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
             handle_width: 4,
             handle_left_color: HANDLE_COLOR,
             handle_right_color: Color::from_rgb(0.0, 0.9, 0.0),
@@ -216,8 +215,8 @@ impl h_slider::StyleSheet for HSliderRectBipolarStyle {
         let active = self.active();
         if let h_slider::Style::RectBipolar(active) = active {
             h_slider::Style::RectBipolar(h_slider::RectBipolarStyle {
-                back_left_filled_color: FILLED_HOVER_COLOR,
-                back_right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
+                left_filled_color: FILLED_HOVER_COLOR,
+                right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
                 handle_width: 5,
                 ..active
             })
@@ -237,17 +236,16 @@ pub struct VSliderRectBipolarStyle;
 impl v_slider::StyleSheet for VSliderRectBipolarStyle {
     fn active(&self) -> v_slider::Style {
         v_slider::Style::RectBipolar(v_slider::RectBipolarStyle {
-            back_bottom_empty_color: EMPTY_COLOR,
-            back_bottom_filled_color: FILLED_COLOR,
-            back_top_empty_color: EMPTY_COLOR,
-            back_top_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
-            border_color: BORDER_COLOR,
-            border_radius: 2,
-            border_width: 1,
-            handle_height: 4,
+            back_color: EMPTY_COLOR,
+            back_border_width: 1,
+            back_border_radius: 2,
+            back_border_color: BORDER_COLOR,
+            bottom_filled_color: FILLED_COLOR,
+            top_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
             handle_bottom_color: HANDLE_COLOR,
             handle_top_color: Color::from_rgb(0.0, 0.9, 0.0),
             handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
+            handle_height: 4,
             handle_filled_gap: 1,
         })
     }
@@ -256,8 +254,8 @@ impl v_slider::StyleSheet for VSliderRectBipolarStyle {
         let active = self.active();
         if let v_slider::Style::RectBipolar(active) = active {
             v_slider::Style::RectBipolar(v_slider::RectBipolarStyle {
-                back_bottom_filled_color: FILLED_HOVER_COLOR,
-                back_top_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
+                bottom_filled_color: FILLED_HOVER_COLOR,
+                top_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
                 handle_height: 5,
                 ..active
             })
@@ -281,7 +279,7 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
                 [0.0, 0.0, 0.0, 0.9].into(),
                 [0.36, 0.36, 0.36, 0.75].into(),
             ),
-            rail_heights: (1, 2),
+            rail_widths: (1, 2),
             texture: self.0.clone(),
             handle_width: 38,
             texture_padding: None,
@@ -298,9 +296,9 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
 
     fn tick_mark_style(&self) -> Option<h_slider::TickMarkStyle> {
         Some(h_slider::TickMarkStyle {
-            scale_tier_1: 0.85,
-            scale_tier_2: 0.8,
-            scale_tier_3: 0.75,
+            length_scale_tier_1: 0.85,
+            length_scale_tier_2: 0.8,
+            length_scale_tier_3: 0.75,
 
             width_tier_1: 2,
             width_tier_2: 1,
@@ -311,7 +309,6 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
             color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
 
             center_offset: 5,
-            handle_offset: 19,
         })
     }
 }
@@ -343,20 +340,19 @@ impl v_slider::StyleSheet for VSliderTextureStyle {
 
     fn tick_mark_style(&self) -> Option<v_slider::TickMarkStyle> {
         Some(v_slider::TickMarkStyle {
-            scale_tier_1: 0.85,
-            scale_tier_2: 0.8,
-            scale_tier_3: 0.75,
+            length_scale_tier_1: 0.85,
+            length_scale_tier_2: 0.8,
+            length_scale_tier_3: 0.75,
 
-            height_tier_1: 2,
-            height_tier_2: 1,
-            height_tier_3: 1,
+            width_tier_1: 2,
+            width_tier_2: 1,
+            width_tier_3: 1,
 
             color_tier_1: [0.56, 0.56, 0.56, 0.75].into(),
             color_tier_2: [0.56, 0.56, 0.56, 0.75].into(),
             color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
 
             center_offset: 5,
-            handle_offset: 19,
         })
     }
 }
@@ -366,10 +362,10 @@ impl v_slider::StyleSheet for VSliderTextureStyle {
 pub struct KnobCustomStyleCircle;
 impl knob::StyleSheet for KnobCustomStyleCircle {
     fn active(&self) -> knob::Style {
-        knob::Style::VectorCircle(knob::VectorCircleStyle {
-            knob_color: KNOB_COLOR,
-            knob_border_width: 3,
-            knob_border_color: KNOB_BORDER_COLOR,
+        knob::Style::ClassicCircle(knob::ClassicCircleStyle {
+            color: KNOB_COLOR,
+            border_width: 3,
+            border_color: KNOB_BORDER_COLOR,
             notch_color: HANDLE_COLOR,
             notch_border_width: 1,
             notch_border_color: FILLED_COLOR,
@@ -381,8 +377,8 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
     #[allow(irrefutable_let_patterns)]
     fn hovered(&self) -> knob::Style {
         let active = self.active();
-        if let knob::Style::VectorCircle(active) = self.active() {
-            knob::Style::VectorCircle(knob::VectorCircleStyle {
+        if let knob::Style::ClassicCircle(active) = self.active() {
+            knob::Style::ClassicCircle(knob::ClassicCircleStyle {
                 notch_color: HANDLE_HOVER_COLOR,
                 notch_border_color: FILLED_HOVER_COLOR,
                 ..active
@@ -400,9 +396,9 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
         Some(knob::ValueRingStyle {
             width: 3.0,
             offset: 1.5,
-            color_empty: KNOB_ARC_EMPTY_COLOR,
-            color_left: KNOB_ARC_COLOR,
-            color_right: None,
+            empty_color: KNOB_ARC_EMPTY_COLOR,
+            left_filled_color: KNOB_ARC_COLOR,
+            right_filled_color: None,
         })
     }
 
@@ -410,9 +406,9 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
         Some(knob::ModRangeRingStyle {
             width: 3.0,
             offset: 6.0,
-            color_empty: Some(KNOB_ARC_EMPTY_COLOR),
-            color: KNOB_ARC_RIGHT_COLOR,
-            color_inverse: KNOB_ARC_RIGHT_COLOR,
+            empty_color: Some(KNOB_ARC_EMPTY_COLOR),
+            filled_color: KNOB_ARC_RIGHT_COLOR,
+            filled_inverse_color: KNOB_ARC_RIGHT_COLOR,
         })
     }
 }
@@ -422,10 +418,10 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
 pub struct KnobCustomStyleLine;
 impl knob::StyleSheet for KnobCustomStyleLine {
     fn active(&self) -> knob::Style {
-        knob::Style::VectorLine(knob::VectorLineStyle {
-            knob_color: KNOB_COLOR,
-            knob_border_width: 0,
-            knob_border_color: KNOB_BORDER_COLOR,
+        knob::Style::ClassicLine(knob::ClassicLineStyle {
+            color: KNOB_COLOR,
+            border_width: 0,
+            border_color: KNOB_BORDER_COLOR,
             notch_color: Color::from_rgb(0.0, 0.82, 0.0),
             notch_width: 3.5,
             notch_scale: 0.35.into(),
@@ -446,9 +442,9 @@ impl knob::StyleSheet for KnobCustomStyleLine {
         Some(knob::ValueRingStyle {
             width: 2.5,
             offset: 2.0,
-            color_empty: KNOB_ARC_EMPTY_COLOR,
-            color_left: KNOB_ARC_COLOR,
-            color_right: Some(KNOB_ARC_RIGHT_COLOR),
+            empty_color: KNOB_ARC_EMPTY_COLOR,
+            left_filled_color: KNOB_ARC_COLOR,
+            right_filled_color: Some(KNOB_ARC_RIGHT_COLOR),
         })
     }
 }
@@ -459,9 +455,9 @@ pub struct KnobCustomArc;
 impl knob::StyleSheet for KnobCustomArc {
     fn active(&self) -> knob::Style {
         knob::Style::Arc(knob::ArcStyle {
-            arc_width: 3.15,
-            arc_empty_color: KNOB_ARC_EMPTY_COLOR,
-            arc_filled_color: KNOB_ARC_COLOR,
+            width: 3.15,
+            empty_color: KNOB_ARC_EMPTY_COLOR,
+            filled_color: KNOB_ARC_COLOR,
             notch: Some(knob::ArcNotch {
                 width: 3.15,
                 length_scale: 0.55.into(),
@@ -486,9 +482,9 @@ impl knob::StyleSheet for KnobCustomArc {
         Some(knob::ModRangeRingStyle {
             width: 3.0,
             offset: 1.5,
-            color_empty: Some(KNOB_ARC_EMPTY_COLOR),
-            color: KNOB_ARC_COLOR,
-            color_inverse: KNOB_ARC_RIGHT_COLOR,
+            empty_color: Some(KNOB_ARC_EMPTY_COLOR),
+            filled_color: KNOB_ARC_COLOR,
+            filled_inverse_color: KNOB_ARC_RIGHT_COLOR,
         })
     }
 }
@@ -499,16 +495,16 @@ pub struct KnobCustomArcBipolar;
 impl knob::StyleSheet for KnobCustomArcBipolar {
     fn active(&self) -> knob::Style {
         knob::Style::ArcBipolar(knob::ArcBipolarStyle {
-            arc_width: 3.15,
-            arc_empty_color: KNOB_ARC_EMPTY_COLOR,
-            arc_left_color: KNOB_ARC_COLOR,
-            arc_right_color: KNOB_ARC_RIGHT_COLOR,
+            width: 3.15,
+            empty_color: KNOB_ARC_EMPTY_COLOR,
+            left_filled_color: KNOB_ARC_COLOR,
+            right_filled_color: KNOB_ARC_RIGHT_COLOR,
             notch: Some(knob::ArcBipolarNotch {
                 width: 3.15,
                 length_scale: 0.55.into(),
-                color_center: EMPTY_COLOR,
-                color_left: KNOB_ARC_COLOR,
-                color_right: KNOB_ARC_RIGHT_COLOR,
+                center_color: EMPTY_COLOR,
+                left_color: KNOB_ARC_COLOR,
+                right_color: KNOB_ARC_RIGHT_COLOR,
             }),
         })
     }
@@ -617,9 +613,9 @@ pub struct RampCustomStyle;
 impl ramp::StyleSheet for RampCustomStyle {
     fn active(&self) -> ramp::Style {
         ramp::Style {
-            background_color: KNOB_COLOR,
-            border_width: 2,
-            border_color: KNOB_BORDER_COLOR,
+            back_color: KNOB_COLOR,
+            back_border_width: 2,
+            back_border_color: KNOB_BORDER_COLOR,
             line_width: 2.0,
             line_center_color: Color::from_rgb(0.7, 0.7, 0.7),
             line_up_color: Color::from_rgb(0.0, 0.9, 0.0),

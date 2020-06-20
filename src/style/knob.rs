@@ -14,10 +14,10 @@ use crate::{KnobAngleRange, Normal};
 #[derive(Debug, Clone)]
 pub enum Style {
     //Texture(TextureStyle),
-    /// a classic vector style with a circle as the notch
-    VectorCircle(VectorCircleStyle),
-    /// a classic vector style with a line as the notch
-    VectorLine(VectorLineStyle),
+    /// a classic circular style with a circle as the notch
+    ClassicCircle(ClassicCircleStyle),
+    /// a classic circular style with a line as the notch
+    ClassicLine(ClassicLineStyle),
     /// a modern arc style with an optional line as the notch
     Arc(ArcStyle),
     /// a modern arc style with an optional line as the notch. It can
@@ -46,18 +46,18 @@ pub struct TextureStyle {
 }
 */
 
-/// a classic vector [`Style`] of a [`Knob`] witch a circle as the notch
+/// a classic circular [`Style`] of a [`Knob`] witch a circle as the notch
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct VectorCircleStyle {
+pub struct ClassicCircleStyle {
     /// the color of the knob
-    pub knob_color: Color,
+    pub color: Color,
     /// the width of the border around the knob
-    pub knob_border_width: u16,
+    pub border_width: u16,
     /// the color of the border around the knob
-    pub knob_border_color: Color,
+    pub border_color: Color,
     /// the color of the notch line
     pub notch_color: Color,
     /// the width of the border around the notch
@@ -75,19 +75,19 @@ pub struct VectorCircleStyle {
     pub notch_offset: Normal,
 }
 
-/// a classic vector [`Style`] of a [`Knob`] with a line as the notch
+/// a classic circular [`Style`] of a [`Knob`] with a line as the notch
 ///
 /// [`Style`]: enum.Style.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 /// [`InnerCircle`]: struct.InnerCircle.html
 #[derive(Debug, Clone)]
-pub struct VectorLineStyle {
+pub struct ClassicLineStyle {
     /// the color of the knob
-    pub knob_color: Color,
+    pub color: Color,
     /// the width of the border around the knob
-    pub knob_border_width: u16,
+    pub border_width: u16,
     /// the color of the border around the knob
-    pub knob_border_color: Color,
+    pub border_color: Color,
     /// the color of the notch line
     pub notch_color: Color,
     /// the width of the notch line
@@ -107,11 +107,11 @@ pub struct VectorLineStyle {
 #[derive(Debug, Clone)]
 pub struct ArcStyle {
     /// the width (thickness) of the arc
-    pub arc_width: f32,
+    pub width: f32,
     /// the color of an empty portion of the arc
-    pub arc_empty_color: Color,
+    pub empty_color: Color,
     /// the color of the filled portion of the arc
-    pub arc_filled_color: Color,
+    pub filled_color: Color,
     /// an option notch to display
     pub notch: Option<ArcNotch>,
 }
@@ -142,13 +142,13 @@ pub struct ArcNotch {
 #[derive(Debug, Clone)]
 pub struct ArcBipolarStyle {
     /// the width (thickness) of the arc
-    pub arc_width: f32,
+    pub width: f32,
     /// the color of an empty portion of the arc
-    pub arc_empty_color: Color,
+    pub empty_color: Color,
     /// the color of the filled portion of the arc left of the center
-    pub arc_left_color: Color,
+    pub left_filled_color: Color,
     /// the color of the filled portion of the arc right of the center
-    pub arc_right_color: Color,
+    pub right_filled_color: Color,
     /// an optional notch to display
     pub notch: Option<ArcBipolarNotch>,
 }
@@ -166,11 +166,11 @@ pub struct ArcBipolarNotch {
     /// [`Knob`]: ../../native/knob/struct.Knob.html
     pub length_scale: Normal,
     /// the color of the notch when it is in the center
-    pub color_center: Color,
+    pub center_color: Color,
     /// the color of the notch when it is left of the center
-    pub color_left: Color,
+    pub left_color: Color,
     /// the color of the notch when it is right of the center
-    pub color_right: Color,
+    pub right_color: Color,
 }
 
 /// The style of a [`TickMarkGroup`] for a [`Knob`]
@@ -180,14 +180,14 @@ pub struct ArcBipolarNotch {
 #[derive(Debug, Copy, Clone)]
 pub enum TickMarkStyle {
     /// A style with circular tick marks.
-    Circle(CircleTickMarks),
+    Circle(CircleTickMarkStyle),
     /// A style with line tick marks.
-    Line(LineTickMarks),
+    Line(LineTickMarkStyle),
 }
 
 impl std::default::Default for TickMarkStyle {
     fn default() -> Self {
-        TickMarkStyle::Circle(CircleTickMarks::default())
+        TickMarkStyle::Circle(CircleTickMarkStyle::default())
     }
 }
 
@@ -196,7 +196,7 @@ impl std::default::Default for TickMarkStyle {
 /// [`TickMarkStyle]: enum.TickMarkStyle.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct CircleTickMarks {
+pub struct CircleTickMarkStyle {
     /// The diameter of a tier 1 tick mark
     pub diameter_tier_1: u16,
     /// The diameter of a tier 2 tick mark
@@ -215,16 +215,16 @@ pub struct CircleTickMarks {
     pub offset: f32,
 }
 
-impl std::default::Default for CircleTickMarks {
+impl std::default::Default for CircleTickMarkStyle {
     fn default() -> Self {
         Self {
             diameter_tier_1: 4,
             diameter_tier_2: 2,
             diameter_tier_3: 2,
 
-            color_tier_1: default_colors::KNOB_TICK_TIER_1,
-            color_tier_2: default_colors::KNOB_TICK_TIER_2,
-            color_tier_3: default_colors::KNOB_TICK_TIER_3,
+            color_tier_1: default_colors::TICK_TIER_1,
+            color_tier_2: default_colors::TICK_TIER_2,
+            color_tier_3: default_colors::TICK_TIER_3,
 
             offset: 4.47,
         }
@@ -236,20 +236,20 @@ impl std::default::Default for CircleTickMarks {
 /// [`TickMarkStyle]: enum.TickMarkStyle.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct LineTickMarks {
-    /// The width (thickness) of a tier 1 tick mark
-    pub width_tier_1: f32,
-    /// The width (thickness) of a tier 2 tick mark
-    pub width_tier_2: f32,
-    /// The width (thickness) of a tier 3 tick mark
-    pub width_tier_3: f32,
-
+pub struct LineTickMarkStyle {
     /// The length of a tier 1 tick mark
     pub length_tier_1: f32,
     /// The length of a tier 2 tick mark
     pub length_tier_2: f32,
     /// The length of a tier 3 tick mark
     pub length_tier_3: f32,
+
+    /// The width (thickness) of a tier 1 tick mark
+    pub width_tier_1: f32,
+    /// The width (thickness) of a tier 2 tick mark
+    pub width_tier_2: f32,
+    /// The width (thickness) of a tier 3 tick mark
+    pub width_tier_3: f32,
 
     /// The color of a tier 1 tick mark
     pub color_tier_1: Color,
@@ -262,20 +262,20 @@ pub struct LineTickMarks {
     pub offset: f32,
 }
 
-impl std::default::Default for LineTickMarks {
+impl std::default::Default for LineTickMarkStyle {
     fn default() -> Self {
         Self {
-            width_tier_1: 2.0,
-            width_tier_2: 1.75,
-            width_tier_3: 1.75,
-
             length_tier_1: 3.5,
             length_tier_2: 2.5,
             length_tier_3: 2.5,
 
-            color_tier_1: default_colors::KNOB_TICK_TIER_1,
-            color_tier_2: default_colors::KNOB_TICK_TIER_2,
-            color_tier_3: default_colors::KNOB_TICK_TIER_3,
+            width_tier_1: 2.0,
+            width_tier_2: 1.75,
+            width_tier_3: 1.75,
+
+            color_tier_1: default_colors::TICK_TIER_1,
+            color_tier_2: default_colors::TICK_TIER_2,
+            color_tier_3: default_colors::TICK_TIER_3,
 
             offset: 2.0,
         }
@@ -292,13 +292,13 @@ pub struct ValueRingStyle {
     /// The offset from the edge of the `Knob`
     pub offset: f32,
     /// The color of an empty portion in the ring
-    pub color_empty: Color,
-    /// The color of a filled portion of the ring. If `color_right` is
+    pub empty_color: Color,
+    /// The color of a filled portion of the ring. If `right_filled_color` is
     /// `Some`, then this will only apply to the left side of the ring.
-    pub color_left: Color,
+    pub left_filled_color: Color,
     /// The color of a filled portion on the right side of the ring.
     /// Set this to `None` for unipolar mode.
-    pub color_right: Option<Color>,
+    pub right_filled_color: Option<Color>,
 }
 
 /// A style for a [`ModulationRange`] ring around a [`Knob`]
@@ -313,12 +313,12 @@ pub struct ModRangeRingStyle {
     pub offset: f32,
     /// The color of an empty portion in the ring.
     /// Set to `None` for no empty portion.
-    pub color_empty: Option<Color>,
+    pub empty_color: Option<Color>,
     /// The color of a filled portion of the ring.
-    pub color: Color,
+    pub filled_color: Color,
     /// The color of a filled portion of the ring when `end` is less than
     /// `start`.
-    pub color_inverse: Color,
+    pub filled_inverse_color: Color,
 }
 
 /// A set of rules that dictate the style of a [`Knob`].
@@ -382,10 +382,10 @@ struct Default;
 
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style::VectorCircle(VectorCircleStyle {
-            knob_color: default_colors::LIGHT_BACK,
-            knob_border_width: 1,
-            knob_border_color: default_colors::BORDER,
+        Style::ClassicCircle(ClassicCircleStyle {
+            color: default_colors::LIGHT_BACK,
+            border_width: 1,
+            border_color: default_colors::BORDER,
             notch_color: default_colors::BORDER,
             notch_border_width: 0,
             notch_border_color: Color::TRANSPARENT,
@@ -397,9 +397,9 @@ impl StyleSheet for Default {
     #[allow(irrefutable_let_patterns)]
     fn hovered(&self) -> Style {
         let active = self.active();
-        if let Style::VectorCircle(active) = self.active() {
-            Style::VectorCircle(VectorCircleStyle {
-                knob_color: default_colors::KNOB_BACK_HOVER,
+        if let Style::ClassicCircle(active) = self.active() {
+            Style::ClassicCircle(ClassicCircleStyle {
+                color: default_colors::KNOB_BACK_HOVER,
                 ..active
             })
         } else {

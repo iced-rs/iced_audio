@@ -7,7 +7,7 @@
 //!
 //! ```
 //! iced = { version = "0.1", features = ["image"] }
-//! iced_audio = "0.2"
+//! iced_audio = "0.3"
 //! ```
 //!
 //! This crate is currently experimental and incomplete. Master branch moves
@@ -249,6 +249,9 @@ mod platform {
         db_meter, h_slider, knob, mod_range_input, phase_meter, ramp,
         reduction_meter, v_slider, xy_pad,
     };
+
+    #[doc(no_inline)]
+    pub use crate::style::bar_tick_marks;
 
     #[doc(no_inline)]
     pub use {

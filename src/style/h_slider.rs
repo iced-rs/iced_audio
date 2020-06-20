@@ -33,8 +33,8 @@ pub enum Style {
 pub struct TextureStyle {
     /// colors of the top and bottom of the rail
     pub rail_colors: (Color, Color),
-    /// height (thickness) of the top and bottom of the rail
-    pub rail_heights: (u16, u16),
+    /// width (thickness) of the top and bottom of the rail
+    pub rail_widths: (u16, u16),
     /// the [`Handle`] to the image texture
     pub texture: image::Handle,
     /// the width of the handle, not including padding
@@ -54,8 +54,8 @@ pub struct TextureStyle {
 pub struct ClassicStyle {
     /// colors of the top and bottom of the rail
     pub rail_colors: (Color, Color),
-    /// height (thickness) of the top and bottom of the rail
-    pub rail_heights: (u16, u16),
+    /// width (thickness) of the top and bottom of the rail
+    pub rail_widths: (u16, u16),
     /// a `ClassicHandle` defining the style of the handle
     pub handle: ClassicHandle,
 }
@@ -70,7 +70,7 @@ pub struct ClassicHandle {
     pub color: Color,
     /// width of the handle
     pub width: u16,
-    /// width of the middle notch
+    /// the width (thickness) of the middle notch
     pub notch_width: u16,
     /// color of the middle notch
     pub notch_color: Color,
@@ -89,16 +89,16 @@ pub struct ClassicHandle {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectStyle {
-    /// color of an unfilled portion in the background rectangle
-    pub back_empty_color: Color,
-    /// color of a filled portion in the background rectangle
-    pub back_filled_color: Color,
-    /// color of the background rectangle border
-    pub border_color: Color,
-    /// radius of the background rectangle
-    pub border_radius: u16,
+    /// color of the background rectangle
+    pub back_color: Color,
     /// width of the background rectangle border
-    pub border_width: u16,
+    pub back_border_width: u16,
+    /// radius of the background rectangle
+    pub back_border_radius: u16,
+    /// color of the background rectangle border
+    pub back_border_color: Color,
+    /// color of a filled portion in the background rectangle
+    pub filled_color: Color,
     /// color of the handle rectangle
     pub handle_color: Color,
     /// width of the handle rectangle
@@ -116,24 +116,20 @@ pub struct RectStyle {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectBipolarStyle {
-    /// color of an unfilled portion in the background
-    /// rectangle on the left side of the center
-    pub back_left_empty_color: Color,
-    /// color of a filled portion in the background
-    /// rectangle on the left side of the center
-    pub back_left_filled_color: Color,
-    /// color of an unfilled portion in the background
-    /// rectangle on the right side of the center
-    pub back_right_empty_color: Color,
-    /// color of a filled portion in the background
-    /// rectangle on the right side of the center
-    pub back_right_filled_color: Color,
-    /// color of the background rectangle border
-    pub border_color: Color,
-    /// radius of the background rectangle
-    pub border_radius: u16,
+    /// color of the background rectangle
+    pub back_color: Color,
     /// width of the background rectangle border
-    pub border_width: u16,
+    pub back_border_width: u16,
+    /// radius of the background rectangle
+    pub back_border_radius: u16,
+    /// color of the background rectangle border
+    pub back_border_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the left side of the center
+    pub left_filled_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the right side of the center
+    pub right_filled_color: Color,
     /// color of the handle rectangle when it is on the
     /// left side of the center
     pub handle_left_color: Color,
@@ -155,12 +151,12 @@ pub struct RectBipolarStyle {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Copy, Clone)]
 pub struct TickMarkStyle {
-    /// The height of a tier 1 tick mark relative to the height of the `HSlider`
-    pub scale_tier_1: f32,
-    /// The height of a tier 2 tick mark relative to the height of the `HSlider`
-    pub scale_tier_2: f32,
-    /// The height of a tier 3 tick mark relative to the height of the `HSlider`
-    pub scale_tier_3: f32,
+    /// The length of a tier 1 tick mark relative to the length of the `HSlider`
+    pub length_scale_tier_1: f32,
+    /// The length of a tier 2 tick mark relative to the length of the `HSlider`
+    pub length_scale_tier_2: f32,
+    /// The length of a tier 3 tick mark relative to the length of the `HSlider`
+    pub length_scale_tier_3: f32,
 
     /// The width (thickness) of a tier 1 tick mark
     pub width_tier_1: u16,
@@ -181,29 +177,24 @@ pub struct TickMarkStyle {
     /// through the the rail, as apposed to a line above and a line below the
     /// rail.
     pub center_offset: u16,
-
-    /// The horizontal offset from the edges of the `HSlider`. This is usually
-    /// half of the width of the handle.
-    pub handle_offset: u16,
 }
 
 impl std::default::Default for TickMarkStyle {
     fn default() -> Self {
         Self {
-            scale_tier_1: 1.5,
-            scale_tier_2: 1.25,
-            scale_tier_3: 1.05,
+            length_scale_tier_1: 1.65,
+            length_scale_tier_2: 1.55,
+            length_scale_tier_3: 1.4,
 
             width_tier_1: 2,
-            width_tier_2: 2,
+            width_tier_2: 1,
             width_tier_3: 1,
 
-            color_tier_1: default_colors::SLIDER_TICK_TIER_1,
-            color_tier_2: default_colors::SLIDER_TICK_TIER_2,
-            color_tier_3: default_colors::SLIDER_TICK_TIER_3,
+            color_tier_1: default_colors::TICK_TIER_1,
+            color_tier_2: default_colors::TICK_TIER_2,
+            color_tier_3: default_colors::TICK_TIER_3,
 
-            center_offset: 1,
-            handle_offset: 17,
+            center_offset: 0,
         }
     }
 }
@@ -238,12 +229,12 @@ pub struct ModRangeStyle {
     pub placement: ModRangePlacement,
     /// The color of an empty portion of the line.
     /// Set to `None` for no empty portion.
-    pub color_empty: Option<Color>,
+    pub empty_color: Option<Color>,
     /// The color of a filled portion of the line.
-    pub color: Color,
+    pub filled_color: Color,
     /// The color of a filled portion of the ring when `end` is less than
     /// `start`.
-    pub color_inverse: Color,
+    pub filled_inverse_color: Color,
 }
 
 /// A set of rules that dictate the style of an [`HSlider`].
@@ -292,7 +283,7 @@ impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style::Classic(ClassicStyle {
             rail_colors: default_colors::SLIDER_RAIL,
-            rail_heights: (1, 1),
+            rail_widths: (1, 1),
             handle: ClassicHandle {
                 color: default_colors::LIGHT_BACK,
                 width: 34,

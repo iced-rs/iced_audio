@@ -64,61 +64,51 @@ impl xy_pad::Renderer for Renderer {
             border_color: style.border_color,
         };
 
-        let handle_x = (bounds_x + (bounds_size * normal_x.value())).round();
-        let handle_y = (bounds_y + (bounds_size * normal_y.value())).round();
+        let handle_x = (bounds_x + (bounds_size * normal_x.value())).floor();
+        let handle_y = (bounds_y + (bounds_size * normal_y.value())).floor();
 
-        let bounds_center = (bounds_size / 2.0).round();
+        let bounds_center = (bounds_size / 2.0).floor();
 
-        let half_center_line_width =
-            (style.center_line_width as f32 / 2.0).floor();
+        let (h_center_line, v_center_line) = if style.center_line_color
+            != Color::TRANSPARENT
+        {
+            let center_line_width = style.center_line_width as f32;
+            let half_center_line_width = (center_line_width / 2.0).floor();
 
-        let draw_center_lines = style.center_line_width != 0
-            && style.center_line_color != Color::TRANSPARENT;
-
-        let draw_rail_lines = style.rail_width != 0;
-
-        let h_center_line = {
-            if draw_center_lines {
+            (
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
                         y: bounds_y + bounds_center - half_center_line_width,
                         width: bounds_size,
-                        height: style.center_line_width as f32,
+                        height: center_line_width,
                     },
                     background: Background::Color(style.center_line_color),
                     border_radius: 0,
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
-                }
-            } else {
-                Primitive::None
-            }
-        };
-
-        let v_center_line = {
-            if draw_center_lines {
+                },
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x + bounds_center - half_center_line_width,
                         y: bounds_y,
-                        width: style.center_line_width as f32,
+                        width: center_line_width,
                         height: bounds_size,
                     },
                     background: Background::Color(style.center_line_color),
                     border_radius: 0,
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
-                }
-            } else {
-                Primitive::None
-            }
+                },
+            )
+        } else {
+            (Primitive::None, Primitive::None)
         };
 
-        let half_rail_width = (style.rail_width as f32 / 2.0).floor();
-
-        let h_rail = {
-            if draw_rail_lines {
+        let (h_rail, v_rail) = if style.rail_width != 0 {
+            let rail_width = style.rail_width as f32;
+            let half_rail_width = (rail_width / 2.0).floor();
+            (
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: bounds_x,
@@ -130,14 +120,7 @@ impl xy_pad::Renderer for Renderer {
                     border_radius: 0,
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
-                }
-            } else {
-                Primitive::None
-            }
-        };
-
-        let v_rail = {
-            if draw_rail_lines {
+                },
                 Primitive::Quad {
                     bounds: Rectangle {
                         x: handle_x - half_rail_width,
@@ -149,22 +132,22 @@ impl xy_pad::Renderer for Renderer {
                     border_radius: 0,
                     border_width: 0,
                     border_color: Color::TRANSPARENT,
-                }
-            } else {
-                Primitive::None
-            }
+                },
+            )
+        } else {
+            (Primitive::None, Primitive::None)
         };
 
         let handle = {
             match style.handle {
                 HandleShape::Circle(circle) => {
                     let diameter = circle.diameter as f32;
-                    let radius = (diameter / 2.0).round();
+                    let radius = diameter / 2.0;
 
                     Primitive::Quad {
                         bounds: Rectangle {
-                            x: handle_x - radius + 1.0,
-                            y: handle_y - radius + 1.0,
+                            x: handle_x - radius,
+                            y: handle_y - radius,
                             width: diameter,
                             height: diameter,
                         },
@@ -176,12 +159,12 @@ impl xy_pad::Renderer for Renderer {
                 }
                 HandleShape::Square(square) => {
                     let size = square.size as f32;
-                    let half_size = (size / 2.0).round();
+                    let half_size = (size / 2.0).floor();
 
                     Primitive::Quad {
                         bounds: Rectangle {
-                            x: handle_x - half_size + 1.0,
-                            y: handle_y - half_size + 1.0,
+                            x: handle_x - half_size,
+                            y: handle_y - half_size,
                             width: size,
                             height: size,
                         },

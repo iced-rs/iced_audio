@@ -4,8 +4,8 @@ use iced::{
 };
 
 use iced_audio::{
-    knob, reduction_meter, DBRange, Knob, ReductionMeter, TickMark,
-    TickMarkGroup, TickMarkTier,
+    bar_tick_marks, knob, reduction_meter, DBRange, Knob, ReductionMeter,
+    TickMark, TickMarkGroup, TickMarkTier,
 };
 
 use std::time::Instant;
@@ -85,7 +85,7 @@ impl Application for ReductionMeterApp {
                     Some(0.0.into()),
                 ),
 
-                tick_marks: TickMarkGroup::from_vec(vec![
+                tick_marks: TickMarkGroup::new(vec![
                     TickMark {
                         position: db_range.to_normal(-1.0),
                         tier: TickMarkTier::One,
@@ -286,8 +286,8 @@ impl reduction_meter::StyleSheet for CustomReductionMeterStyle {
         }
     }
 
-    fn tick_mark_style(&self) -> Option<reduction_meter::TickMarkStyle> {
-        Some(reduction_meter::TickMarkStyle {
+    fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
+        Some(bar_tick_marks::Style {
             length_tier_1: 4,
             length_tier_2: 3,
             length_tier_3: 2,
@@ -302,7 +302,7 @@ impl reduction_meter::StyleSheet for CustomReductionMeterStyle {
 
             offset: 2,
 
-            placement: reduction_meter::TickMarkPlacement::Right,
+            placement: bar_tick_marks::Placement::RightOrBottom,
         })
     }
 }

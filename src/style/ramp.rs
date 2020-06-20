@@ -12,11 +12,11 @@ use crate::style::default_colors;
 #[derive(Debug, Clone)]
 pub struct Style {
     /// The color of the background rectangle
-    pub background_color: Color,
+    pub back_color: Color,
     /// The width of the border of the background rectangle
-    pub border_width: u16,
+    pub back_border_width: u16,
     /// The color of the border of the background rectangle
-    pub border_color: Color,
+    pub back_border_color: Color,
     /// The width of the ramp line,
     pub line_width: f32,
     /// The color of the ramp line when it is in the center (straight) position
@@ -52,9 +52,9 @@ struct Default;
 impl StyleSheet for Default {
     fn active(&self) -> Style {
         Style {
-            background_color: default_colors::LIGHT_BACK,
-            border_width: 1,
-            border_color: default_colors::BORDER,
+            back_color: default_colors::LIGHT_BACK,
+            back_border_width: 1,
+            back_border_color: default_colors::BORDER,
             line_width: 2.0,
             line_center_color: default_colors::BORDER,
             line_up_color: default_colors::BORDER,
@@ -66,7 +66,7 @@ impl StyleSheet for Default {
         let active = self.active();
 
         Style {
-            background_color: default_colors::RAMP_BACK_HOVER,
+            back_color: default_colors::RAMP_BACK_HOVER,
             ..active
         }
     }

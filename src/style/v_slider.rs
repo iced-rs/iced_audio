@@ -70,8 +70,8 @@ pub struct ClassicHandle {
     pub color: Color,
     /// height of the handle
     pub height: u16,
-    /// height of the middle notch
-    pub notch_height: u16,
+    /// the width (thickness) of the middle notch
+    pub notch_width: u16,
     /// color of the middle notch
     pub notch_color: Color,
     /// radius of the background rectangle
@@ -89,16 +89,16 @@ pub struct ClassicHandle {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectStyle {
-    /// color of an unfilled portion in the background rectangle
-    pub back_empty_color: Color,
-    /// color of a filled portion in the background rectangle
-    pub back_filled_color: Color,
-    /// color of the background rectangle border
-    pub border_color: Color,
-    /// radius of the background rectangle
-    pub border_radius: u16,
+    /// color of the background rectangle
+    pub back_color: Color,
     /// width of the background rectangle border
-    pub border_width: u16,
+    pub back_border_width: u16,
+    /// radius of the background rectangle
+    pub back_border_radius: u16,
+    /// color of the background rectangle border
+    pub back_border_color: Color,
+    /// color of a filled portion in the background rectangle
+    pub filled_color: Color,
     /// color of the handle rectangle
     pub handle_color: Color,
     /// height of the handle rectangle
@@ -116,24 +116,20 @@ pub struct RectStyle {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Clone, Copy)]
 pub struct RectBipolarStyle {
-    /// color of an unfilled portion in the background
-    /// rectangle on the bottom side of the center
-    pub back_bottom_empty_color: Color,
-    /// color of a filled portion in the background
-    /// rectangle on the bottom side of the center
-    pub back_bottom_filled_color: Color,
-    /// color of an unfilled portion in the background
-    /// rectangle on the top side of the center
-    pub back_top_empty_color: Color,
-    /// color of a filled portion in the background
-    /// rectangle on the top side of the center
-    pub back_top_filled_color: Color,
-    /// color of the background rectangle border
-    pub border_color: Color,
-    /// radius of the background rectangle
-    pub border_radius: u16,
+    /// color of the background rectangle
+    pub back_color: Color,
     /// width of the background rectangle border
-    pub border_width: u16,
+    pub back_border_width: u16,
+    /// radius of the background rectangle
+    pub back_border_radius: u16,
+    /// color of the background rectangle border
+    pub back_border_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the bottom side of the center
+    pub bottom_filled_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the top side of the center
+    pub top_filled_color: Color,
     /// color of the handle rectangle when it is on the
     /// bottom side of the center
     pub handle_bottom_color: Color,
@@ -155,19 +151,19 @@ pub struct RectBipolarStyle {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Copy, Clone)]
 pub struct TickMarkStyle {
-    /// The width of a tier 1 tick mark relative to the width of the `VSlider`
-    pub scale_tier_1: f32,
-    /// The width of a tier 2 tick mark relative to the width of the `VSlider`
-    pub scale_tier_2: f32,
-    /// The width of a tier 3 tick mark relative to the width of the `VSlider`
-    pub scale_tier_3: f32,
+    /// The length of a tier 1 tick mark relative to the length of the `VSlider`
+    pub length_scale_tier_1: f32,
+    /// The length of a tier 2 tick mark relative to the length of the `VSlider`
+    pub length_scale_tier_2: f32,
+    /// The length of a tier 3 tick mark relative to the length of the `VSlider`
+    pub length_scale_tier_3: f32,
 
-    /// The height (thickness) of a tier 1 tick mark
-    pub height_tier_1: u16,
-    /// The height (thickness) of a tier 2 tick mark
-    pub height_tier_2: u16,
-    /// The height (thickness) of a tier 3 tick mark
-    pub height_tier_3: u16,
+    /// The width (thickness) of a tier 1 tick mark
+    pub width_tier_1: u16,
+    /// The width (thickness) of a tier 2 tick mark
+    pub width_tier_2: u16,
+    /// The width (thickness) of a tier 3 tick mark
+    pub width_tier_3: u16,
 
     /// The color of a tier 1 tick mark
     pub color_tier_1: Color,
@@ -181,29 +177,24 @@ pub struct TickMarkStyle {
     /// through the the rail, as apposed to a line above and a line below the
     /// rail.
     pub center_offset: u16,
-
-    /// The horizontal offset from the edges of the `VSlider`. This is usually
-    /// half of the width of the handle.
-    pub handle_offset: u16,
 }
 
 impl std::default::Default for TickMarkStyle {
     fn default() -> Self {
         Self {
-            scale_tier_1: 1.5,
-            scale_tier_2: 1.25,
-            scale_tier_3: 1.05,
+            length_scale_tier_1: 1.65,
+            length_scale_tier_2: 1.55,
+            length_scale_tier_3: 1.4,
 
-            height_tier_1: 2,
-            height_tier_2: 2,
-            height_tier_3: 1,
+            width_tier_1: 2,
+            width_tier_2: 1,
+            width_tier_3: 1,
 
-            color_tier_1: default_colors::SLIDER_TICK_TIER_1,
-            color_tier_2: default_colors::SLIDER_TICK_TIER_2,
-            color_tier_3: default_colors::SLIDER_TICK_TIER_3,
+            color_tier_1: default_colors::TICK_TIER_1,
+            color_tier_2: default_colors::TICK_TIER_2,
+            color_tier_3: default_colors::TICK_TIER_3,
 
-            center_offset: 1,
-            handle_offset: 17,
+            center_offset: 0,
         }
     }
 }
@@ -238,12 +229,12 @@ pub struct ModRangeStyle {
     pub placement: ModRangePlacement,
     /// The color of an empty portion of the line.
     /// Set to `None` for no empty portion.
-    pub color_empty: Option<Color>,
+    pub empty_color: Option<Color>,
     /// The color of a filled portion of the line.
-    pub color: Color,
+    pub filled_color: Color,
     /// The color of a filled portion of the ring when `end` is less than
     /// `start`.
-    pub color_inverse: Color,
+    pub filled_inverse_color: Color,
 }
 
 /// A set of rules that dictate the style of an [`VSlider`].
@@ -296,7 +287,7 @@ impl StyleSheet for Default {
             handle: ClassicHandle {
                 color: default_colors::LIGHT_BACK,
                 height: 34,
-                notch_height: 4,
+                notch_width: 4,
                 notch_color: default_colors::BORDER,
                 border_radius: 2,
                 border_color: default_colors::BORDER,

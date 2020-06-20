@@ -52,16 +52,17 @@ impl ramp::Renderer for Renderer {
                 width: bounds_width,
                 height: bounds_height,
             },
-            background: Background::Color(style.background_color),
+            background: Background::Color(style.back_color),
             border_radius: 0,
-            border_width: style.border_width,
-            border_color: style.border_color,
+            border_width: style.back_border_width,
+            border_color: style.back_border_color,
         };
 
-        let border_width = style.border_width as f32;
+        let border_width = style.back_border_width as f32;
+        let twice_border_width = border_width * 2.0;
 
-        let range_width = bounds_width - (border_width * 2.0);
-        let range_height = bounds_height - (border_width * 2.0);
+        let range_width = bounds_width - twice_border_width;
+        let range_height = bounds_height - twice_border_width;
 
         let line: Primitive = match direction {
             RampDirection::Up => {

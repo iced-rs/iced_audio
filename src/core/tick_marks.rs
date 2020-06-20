@@ -11,40 +11,107 @@ use crate::core::Normal;
 /// [`TickMark`]: struct.TickMark.html
 #[derive(Debug, Clone)]
 pub struct TickMarkGroup {
-    /// A group of [`TickMark`]s.
-    ///
-    /// [`TickMark`]: struct.TickMark.html
-    pub group: Vec<TickMark>,
+    tier_1_positions: Vec<Normal>,
+    tier_2_positions: Vec<Normal>,
+    tier_3_positions: Vec<Normal>,
+    len: usize,
+    has_tier_1: bool,
+    has_tier_2: bool,
+    has_tier_3: bool,
 }
 
 impl Default for TickMarkGroup {
     fn default() -> Self {
-        vec![TickMark::center(TickMarkTier::One)].into()
+        TickMarkGroup::center(TickMarkTier::One)
     }
 }
 
 impl TickMarkGroup {
-    /// Constructs an empty [`TickMarkGroup`].
-    ///
-    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
-    pub fn new() -> Self {
-        Self { group: Vec::new() }
-    }
-
     /// Constructs a new `TickMarkGroup` from a vector of [`TickMark`]s.
     ///
     /// [`TickMarkGroup`]: struct.TickMarkGroup.html
     /// [`TickMark`]: struct.TickMark.html
-    pub fn from_vec(tick_marks: Vec<TickMark>) -> Self {
-        Self { group: tick_marks }
+    pub fn new(tick_marks: Vec<TickMark>) -> Self {
+        let len = tick_marks.len();
+
+        let mut tier_1_positions: Vec<Normal> = Vec::new();
+        let mut tier_2_positions: Vec<Normal> = Vec::new();
+        let mut tier_3_positions: Vec<Normal> = Vec::new();
+
+        for tick_mark in tick_marks.iter() {
+            match tick_mark.tier {
+                TickMarkTier::One => {
+                    tier_1_positions.push(tick_mark.position);
+                }
+                TickMarkTier::Two => {
+                    tier_2_positions.push(tick_mark.position);
+                }
+                TickMarkTier::Three => {
+                    tier_3_positions.push(tick_mark.position);
+                }
+            }
+        }
+
+        let has_tier_1 = !tier_1_positions.is_empty();
+        let has_tier_2 = !tier_2_positions.is_empty();
+        let has_tier_3 = !tier_3_positions.is_empty();
+
+        Self {
+            tier_1_positions,
+            tier_2_positions,
+            tier_3_positions,
+            len,
+            has_tier_1,
+            has_tier_2,
+            has_tier_3,
+        }
     }
 
-    /// Pushes a new [`TickMark`] into the [`TickMarkGroup`].
+    /// Returns a new [`TickMarkGroup`] with a single [`TickMark`] in
+    /// the center position.
+    ///
+    /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
     /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
     /// [`TickMark`]: struct.TickMark.html
-    pub fn push(&mut self, tick_mark: TickMark) {
-        self.group.push(tick_mark);
+    pub fn center(tier: TickMarkTier) -> Self {
+        let tick_marks = vec![TickMark::center(tier)];
+        Self::new(tick_marks)
+    }
+
+    /// Returns a new [`TickMarkGroup`] with a [`TickMark`] in
+    /// the min (`0.0`) position and max (`1.0`) position.
+    ///
+    /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn min_max(tier: TickMarkTier) -> Self {
+        let tick_marks = vec![TickMark::min(tier), TickMark::max(tier)];
+        Self::new(tick_marks)
+    }
+
+    /// Returns a new [`TickMarkGroup`] with a [`TickMark`] in
+    /// the min (`0.0`), the max (`1.0`), and center (`0.5`) positions.
+    ///
+    /// * `min_max_tier` - a [`TickMarkTier`] representing the size of the `min` and `max` tick marks
+    /// * `center_tier` - a [`TickMarkTier`] representing the size of the `center` tick mark
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn min_max_and_center(
+        min_max_tier: TickMarkTier,
+        center_tier: TickMarkTier,
+    ) -> Self {
+        let tick_marks = vec![
+            TickMark::min(min_max_tier),
+            TickMark::max(min_max_tier),
+            TickMark::center(center_tier),
+        ];
+        Self::new(tick_marks)
     }
 
     /// Creates a group of tick marks by subdividing the range.
@@ -119,13 +186,57 @@ impl TickMarkGroup {
             });
         }
 
-        vec.into()
+        Self::new(vec)
+    }
+
+    /// Returns `true` if the `TickMarkGroup` contains a tier 1 `TickMark`.
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn has_tier_1(&self) -> bool {
+        self.has_tier_1
+    }
+
+    /// Returns `true` if the `TickMarkGroup` contains a tier 2 `TickMark`.
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn has_tier_2(&self) -> bool {
+        self.has_tier_2
+    }
+
+    /// Returns `true` if the `TickMarkGroup` contains a tier 3 `TickMark`.
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn has_tier_3(&self) -> bool {
+        self.has_tier_3
+    }
+
+    /// Returns a vec with the positions of the tier 1 tick marks.
+    pub fn tier_1_positions(&self) -> &Vec<Normal> {
+        &self.tier_1_positions
+    }
+
+    /// Returns a vec with the positions of the tier 2 tick marks.
+    pub fn tier_2_positions(&self) -> &Vec<Normal> {
+        &self.tier_2_positions
+    }
+
+    /// Returns a vec with the positions of the tier 3 tick marks.
+    pub fn tier_3_positions(&self) -> &Vec<Normal> {
+        &self.tier_3_positions
+    }
+
+    /// Returns the total number of tick marks.
+    pub fn len(&self) -> usize {
+        self.len
     }
 }
 
 impl From<Vec<TickMark>> for TickMarkGroup {
     fn from(tick_marks: Vec<TickMark>) -> Self {
-        TickMarkGroup { group: tick_marks }
+        TickMarkGroup::new(tick_marks)
     }
 }
 
@@ -136,7 +247,7 @@ impl From<Vec<TickMark>> for TickMarkGroup {
 /// * Small - small-sized tick mark
 ///
 /// [`TickMark`]: struct.TickMark.html
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TickMarkTier {
     /// large-sized tick mark
     One,
@@ -185,7 +296,7 @@ impl Default for TickMark {
 }
 
 impl TickMark {
-    /// Returns a tick mark at the center position.
+    /// Returns a tick mark at the center (`0.5`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -197,7 +308,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the minimum position.
+    /// Returns a tick mark at the minimum (`0.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -209,7 +320,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the maximum position.
+    /// Returns a tick mark at the maximum (`1.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///

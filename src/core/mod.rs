@@ -66,6 +66,21 @@ impl Normal {
         }
     }
 
+    /// Returns a `Normal` with the value `0.0`.
+    pub fn min() -> Self {
+        Self { value: 0.0 }
+    }
+
+    /// Returns a `Normal` with the value `1.0`.
+    pub fn max() -> Self {
+        Self { value: 1.0 }
+    }
+
+    /// Returns a `Normal` with the value `0.5`.
+    pub fn center() -> Self {
+        Self { value: 0.5 }
+    }
+
     /// Set a value for the `Normal`.
     ///
     /// # Arguments
@@ -92,6 +107,22 @@ impl Normal {
     /// Returns the value of the `Normal`
     pub fn value(&self) -> f32 {
         self.value
+    }
+
+    /// Returns the inverse value (`1.0 - value`) of the `Normal`
+    pub fn inv(&self) -> f32 {
+        1.0 - self.value()
+    }
+
+    /// Returns the value of the `Normal` times the `scalar`
+    pub fn scale(&self, scalar: f32) -> f32 {
+        self.value * scalar
+    }
+
+    /// Returns the inverse value (`1.0 - value`) of the `Normal`
+    /// times the `scalar`
+    pub fn scale_inv(&self, scalar: f32) -> f32 {
+        (1.0 - self.value()) * scalar
     }
 }
 

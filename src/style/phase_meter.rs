@@ -4,7 +4,7 @@
 
 use iced::Color;
 
-use crate::style::default_colors;
+use crate::style::{bar_tick_marks, default_colors};
 
 /// The appearance of a [`PhaseMeter`].
 ///
@@ -39,6 +39,16 @@ pub trait StyleSheet {
     ///
     /// [`PhaseMeter`]: ../../native/phase_meter/struct.PhaseMeter.html
     fn style(&self) -> Style;
+
+    /// The style of a [`TickMarkGroup`] for a [`PhaseMeter`]
+    ///
+    /// For no tick marks, don't override this or set this to return `None`.
+    ///
+    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+    /// [`PhaseMeter`]: ../../native/phase_meter/struct.PhaseMeter.html
+    fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
+        None
+    }
 }
 
 struct Default;
@@ -56,6 +66,10 @@ impl StyleSheet for Default {
             center_line_width: 1,
             center_line_color: default_colors::PHASE_METER_CENTER_LINE,
         }
+    }
+
+    fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
+        Some(bar_tick_marks::Style::default())
     }
 }
 
