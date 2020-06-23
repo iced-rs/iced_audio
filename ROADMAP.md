@@ -1,4 +1,4 @@
-I am currently taking a break from this project. I need to learn more DSP concepts to properly implement the `Oscilliscope` and `Spectrometer`. I will get back to this project once I have done that. I will also keep `iced_audio` updated whenever `iced` is updated to the new version on crates.io. If you need anything please post an issue. Thank you for your patience!
+I am currently taking a break from this project for now. I need to learn more DSP concepts to properly implement the `Oscilliscope` and `Spectrometer`. I will get back to this project once I have done that. I will also keep `iced_audio` updated whenever `iced` is updated to the new version on crates.io. If you need anything please post an issue. Thank you for your patience!
 
 # Roadmap
 
