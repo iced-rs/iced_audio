@@ -1,4 +1,4 @@
-I am currently taking a break from this project for now. I need to learn more DSP concepts to properly implement the `Oscilliscope` and `Spectrometer`. I will get back to this project once I have done that. I will also keep `iced_audio` updated whenever `iced` is updated to the new version on crates.io. If you need anything please post an issue. Thank you for your patience!
+I am currently taking a break from this project for now. I need to learn more DSP concepts to properly implement the `Oscilloscope` and `SpectrumAnalyzer`. I will get back to this project once I have done that. I will also keep `iced_audio` updated whenever `iced` is updated to the new version on crates.io. If you need anything please post an issue. Thank you for your patience!
 
 # Roadmap
 
@@ -15,7 +15,7 @@ I am currently taking a break from this project for now. I need to learn more DS
 ## Widgets I will get to once I learn more DSP concepts
 
 * [ ] `Oscilloscope` - displays oscillations of an audio signal in a given time window
-* [ ] `Spectrometer` - displays the amplitude of a range of frequencies from 20hz to 20000hz.
+* [ ] `SpectrumAnalyzer` - displays the amplitude of a range of frequencies from 20hz to 20000hz.
 
 ## Widgets I will get to at some point
 
