@@ -4,10 +4,14 @@
 //! # Installation
 //!
 //! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
-//!
 //! ```
 //! iced = { version = "0.1", features = ["image"] }
 //! iced_audio = "0.3"
+//! ```
+//! Or to use the GitHub version of `iced`:
+//! ```
+//! iced = { git = "https://github.com/hecrj/iced", features = ["image"] }
+//! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch="iced_git" }
 //! ```
 //!
 //! This crate is currently experimental and incomplete. Master branch moves
