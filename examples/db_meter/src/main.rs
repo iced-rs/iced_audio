@@ -1,6 +1,6 @@
 use iced::{
-    executor, Application, Color, Column, Command, Container, Element, Length,
-    Row, Settings, Subscription, Text, time,
+    executor, time, Application, Color, Column, Command, Container, Element,
+    Length, Row, Settings, Subscription, Text,
 };
 
 use iced_audio::{

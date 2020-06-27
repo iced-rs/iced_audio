@@ -297,7 +297,10 @@ fn draw_value_ring(
     }
 
     Primitive::Translate {
-        translation: Vector::new(bounds_x - frame_offset, bounds_y - frame_offset),
+        translation: Vector::new(
+            bounds_x - frame_offset,
+            bounds_y - frame_offset,
+        ),
         content: Box::new(frame.into_geometry().into_primitive()),
     }
 }
@@ -381,7 +384,10 @@ fn draw_mod_range_ring(
     }
 
     Primitive::Translate {
-        translation: Vector::new(bounds_x - frame_offset, bounds_y - frame_offset),
+        translation: Vector::new(
+            bounds_x - frame_offset,
+            bounds_y - frame_offset,
+        ),
         content: Box::new(frame.into_geometry().into_primitive()),
     }
 }
@@ -961,7 +967,10 @@ fn draw_line_tick_marks(
     }
 
     Primitive::Translate {
-        translation: Vector::new(bounds_x - frame_offset, bounds_y - frame_offset),
+        translation: Vector::new(
+            bounds_x - frame_offset,
+            bounds_y - frame_offset,
+        ),
         content: Box::new(frame.into_geometry().into_primitive()),
     }
 }

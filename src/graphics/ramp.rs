@@ -88,16 +88,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
@@ -122,16 +124,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     } else {
                         let stroke = Stroke {
@@ -149,16 +153,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     }
                 };
@@ -190,16 +196,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
@@ -224,16 +232,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     } else {
                         let stroke = Stroke {
@@ -251,16 +261,18 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         let mut frame =
                             Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(
-                            0.0,
-                            range_height,
-                        ));
+                        frame.translate(Vector::new(0.0, range_height));
 
                         frame.stroke(&path, stroke);
 
                         Primitive::Translate {
-                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
-                            content: Box::new(frame.into_geometry().into_primitive()),
+                            translation: Vector::new(
+                                bounds_x + border_width,
+                                bounds_y + border_width,
+                            ),
+                            content: Box::new(
+                                frame.into_geometry().into_primitive(),
+                            ),
                         }
                     }
                 };
