@@ -48,9 +48,14 @@ cargo run --package phase_meter --release
 
 ## Installation
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
-```
+```toml
 iced = { version = "0.1", features = ["image"] }
 iced_audio = "0.3"
+```
+Or to use the GitHub version of `iced`:
+```toml
+iced = { git = "https://github.com/hecrj/iced", features = ["image"] }
+iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch="iced_git" }
 ```
 __Both Iced Audio and [Iced] move fast and the `master` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
