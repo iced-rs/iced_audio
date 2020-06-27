@@ -6,9 +6,8 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    input::{keyboard, mouse, ButtonState},
-    layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
-    Rectangle, Size, Widget,
+    keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout, Length,
+    Point, Rectangle, Size, Widget,
 };
 
 use std::hash::Hash;
@@ -199,11 +198,65 @@ where
         _clipboard: Option<&dyn Clipboard>,
     ) {
         match event {
-            Event::Mouse(mouse::Event::Input {
-                button: mouse::Button::Left,
-                state,
-            }) => match state {
-                ButtonState::Pressed => {
+            Event::Mouse(mouse_event) => match mouse_event {
+                mouse::Event::CursorMoved { .. } => {
+                    if self.state.is_dragging {
+                        let bounds_size = {
+                            if layout.bounds().width <= layout.bounds().height {
+                                layout.bounds().width
+                            } else {
+                                layout.bounds().height
+                            }
+                        };
+                        if bounds_size != 0.0 {
+                            let mut movement_x = (cursor_position.x
+                                - self.state.prev_drag_x)
+                                / bounds_size;
+
+                            let mut movement_y = (cursor_position.y
+                                - self.state.prev_drag_y)
+                                / bounds_size;
+
+                            if self
+                                .state
+                                .pressed_modifiers
+                                .matches(self.modifier_keys)
+                            {
+                                movement_x *= self.modifier_scalar;
+                                movement_y *= self.modifier_scalar;
+                            }
+
+                            let normal_x =
+                                self.state.continuous_normal_x + movement_x;
+                            let normal_y =
+                                self.state.continuous_normal_y + movement_y;
+
+                            self.state.prev_drag_x = cursor_position.x;
+                            self.state.prev_drag_y = cursor_position.y;
+
+                            if normal_x != self.state.continuous_normal_x {
+                                self.state.continuous_normal_x = normal_x;
+
+                                self.state.param_x.normal = normal_x.into();
+
+                                messages.push((self.on_change)(
+                                    self.state.param_x.id,
+                                ));
+                            }
+
+                            if normal_y != self.state.continuous_normal_y {
+                                self.state.continuous_normal_y = normal_y;
+
+                                self.state.param_y.normal = normal_y.into();
+
+                                messages.push((self.on_change)(
+                                    self.state.param_y.id,
+                                ));
+                            }
+                        }
+                    }
+                }
+                mouse::Event::ButtonPressed(mouse::Button::Left) => {
                     if layout.bounds().contains(cursor_position) {
                         let click = mouse::Click::new(
                             cursor_position,
@@ -274,72 +327,24 @@ where
                         self.state.last_click = Some(click);
                     }
                 }
-                ButtonState::Released => {
+                mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal_x =
                         self.state.param_x.normal.value();
                     self.state.continuous_normal_y =
                         self.state.param_y.normal.value();
                 }
+                _ => {}
             },
-            Event::Mouse(mouse::Event::CursorMoved { .. }) => {
-                if self.state.is_dragging {
-                    let bounds_size = {
-                        if layout.bounds().width <= layout.bounds().height {
-                            layout.bounds().width
-                        } else {
-                            layout.bounds().height
-                        }
-                    };
-                    if bounds_size != 0.0 {
-                        let mut movement_x = (cursor_position.x
-                            - self.state.prev_drag_x)
-                            / bounds_size;
-
-                        let mut movement_y = (cursor_position.y
-                            - self.state.prev_drag_y)
-                            / bounds_size;
-
-                        if self
-                            .state
-                            .pressed_modifiers
-                            .matches(self.modifier_keys)
-                        {
-                            movement_x *= self.modifier_scalar;
-                            movement_y *= self.modifier_scalar;
-                        }
-
-                        let normal_x =
-                            self.state.continuous_normal_x + movement_x;
-                        let normal_y =
-                            self.state.continuous_normal_y + movement_y;
-
-                        self.state.prev_drag_x = cursor_position.x;
-                        self.state.prev_drag_y = cursor_position.y;
-
-                        if normal_x != self.state.continuous_normal_x {
-                            self.state.continuous_normal_x = normal_x;
-
-                            self.state.param_x.normal = normal_x.into();
-
-                            messages
-                                .push((self.on_change)(self.state.param_x.id));
-                        }
-
-                        if normal_y != self.state.continuous_normal_y {
-                            self.state.continuous_normal_y = normal_y;
-
-                            self.state.param_y.normal = normal_y.into();
-
-                            messages
-                                .push((self.on_change)(self.state.param_y.id));
-                        }
-                    }
+            Event::Keyboard(keyboard_event) => match keyboard_event {
+                keyboard::Event::KeyPressed { modifiers, .. } => {
+                    self.state.pressed_modifiers = modifiers;
                 }
-            }
-            Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
-                self.state.pressed_modifiers = modifiers;
-            }
+                keyboard::Event::KeyReleased { modifiers, .. } => {
+                    self.state.pressed_modifiers = modifiers;
+                }
+                _ => {}
+            },
             _ => {}
         }
     }

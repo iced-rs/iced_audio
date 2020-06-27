@@ -1,12 +1,12 @@
-//! wgpu renderer for the [`DBMeter`] widget
+//! `iced_graphics` renderer for the [`DBMeter`] widget
 //!
 //! [`DBMeter`]: ../native/db_meter/struct.DBMeter.html
 
 use crate::core::{Normal, TickMarkGroup};
+use crate::graphics::bar_tick_marks;
 use crate::native::db_meter;
-use crate::wgpu::bar_tick_marks;
-use iced_native::{Background, Color, MouseCursor, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Rectangle};
 
 pub use crate::native::db_meter::{
     BarState, Orientation, State, TierPositions,
@@ -14,10 +14,10 @@ pub use crate::native::db_meter::{
 pub use crate::style::db_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`DBMeter`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
-pub type DBMeter<'a> = db_meter::DBMeter<'a, Renderer>;
+pub type DBMeter<'a, Backend> = db_meter::DBMeter<'a, Renderer<Backend>>;
 
 #[derive(PartialEq)]
 enum DBTier {
@@ -442,7 +442,7 @@ fn h_meter(
     }
 }
 
-impl db_meter::Renderer for Renderer {
+impl<B: Backend> db_meter::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -582,7 +582,7 @@ impl db_meter::Renderer for Renderer {
                                 right_meter,
                             ],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 } else {
                     let bar_width = bounds_width - twice_border_width;
@@ -610,7 +610,7 @@ impl db_meter::Renderer for Renderer {
                                 meter,
                             ],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 }
             }
@@ -716,7 +716,7 @@ impl db_meter::Renderer for Renderer {
                                 right_meter,
                             ],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 } else {
                     let bar_width = bounds_width - twice_border_width;
@@ -744,7 +744,7 @@ impl db_meter::Renderer for Renderer {
                                 meter,
                             ],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 }
             }

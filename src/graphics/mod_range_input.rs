@@ -1,11 +1,11 @@
-//! wgpu renderer for the [`ModRangeInput`] widget
+//! `iced_graphics` renderer for the [`ModRangeInput`] widget
 //!
 //! [`ModRangeInput`]: ../native/mod_range_input/struct.ModRangeInput.html
 
 use crate::native::mod_range_input;
 
-use iced_native::{Background, MouseCursor, Point, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Point, Rectangle};
 
 pub use crate::native::mod_range_input::State;
 pub use crate::style::mod_range_input::{
@@ -13,13 +13,13 @@ pub use crate::style::mod_range_input::{
 };
 
 /// This is an alias of a `crate::native` [`ModRangeInput`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-pub type ModRangeInput<'a, Message, ID> =
-    mod_range_input::ModRangeInput<'a, Message, Renderer, ID>;
+pub type ModRangeInput<'a, Message, ID, Backend> =
+    mod_range_input::ModRangeInput<'a, Message, Renderer<Backend>, ID>;
 
-impl mod_range_input::Renderer for Renderer {
+impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -81,6 +81,6 @@ impl mod_range_input::Renderer for Renderer {
             Style::Invisible => Primitive::None,
         };
 
-        (dot, MouseCursor::default())
+        (dot, mouse::Interaction::default())
     }
 }

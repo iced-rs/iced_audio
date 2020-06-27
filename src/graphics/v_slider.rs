@@ -1,11 +1,11 @@
-//! wgpu renderer for the [`VSlider`] widget
+//! `iced_graphics` renderer for the [`VSlider`] widget
 //!
 //! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
 use crate::core::{ModulationRange, Normal, TickMarkGroup};
 use crate::native::v_slider;
-use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Point, Rectangle};
 
 pub use crate::native::v_slider::State;
 pub use crate::style::v_slider::{
@@ -15,13 +15,13 @@ pub use crate::style::v_slider::{
 };
 
 /// This is an alias of a `crate::native` [`VSlider`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-pub type VSlider<'a, Message, ID> =
-    v_slider::VSlider<'a, Message, Renderer, ID>;
+pub type VSlider<'a, Message, ID, Backend> =
+    v_slider::VSlider<'a, Message, Renderer<Backend>, ID>;
 
-impl v_slider::Renderer for Renderer {
+impl<B: Backend> v_slider::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -128,7 +128,7 @@ impl v_slider::Renderer for Renderer {
             ),
         };
 
-        (primitives, MouseCursor::default())
+        (primitives, mouse::Interaction::default())
     }
 }
 

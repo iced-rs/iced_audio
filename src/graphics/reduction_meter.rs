@@ -1,23 +1,24 @@
-//! wgpu renderer for the [`ReductionMeter`] widget
+//! `iced_graphics` renderer for the [`ReductionMeter`] widget
 //!
 //! [`ReductionMeter`]: ../native/reduction_meter/struct.ReductionMeter.html
 
 use crate::core::{Normal, TickMarkGroup};
+use crate::graphics::bar_tick_marks;
 use crate::native::reduction_meter;
-use crate::wgpu::bar_tick_marks;
-use iced_native::{Background, Color, MouseCursor, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Rectangle};
 
 pub use crate::native::reduction_meter::{Orientation, State};
 pub use crate::style::reduction_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`ReductionMeter`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`ReductionMeter`]: ../../native/reduction_meter/struct.ReductionMeter.html
-pub type ReductionMeter<'a> = reduction_meter::ReductionMeter<'a, Renderer>;
+pub type ReductionMeter<'a, Backend> =
+    reduction_meter::ReductionMeter<'a, Renderer<Backend>>;
 
-impl reduction_meter::Renderer for Renderer {
+impl<B: Backend> reduction_meter::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -130,7 +131,7 @@ impl reduction_meter::Renderer for Renderer {
                     Primitive::Group {
                         primitives: vec![tick_marks, back, bar, peak_line],
                     },
-                    MouseCursor::default(),
+                    mouse::Interaction::default(),
                 )
             }
             Orientation::Horizontal => {
@@ -212,7 +213,7 @@ impl reduction_meter::Renderer for Renderer {
                     Primitive::Group {
                         primitives: vec![tick_marks, back, bar, peak_line],
                     },
-                    MouseCursor::default(),
+                    mouse::Interaction::default(),
                 )
             }
         }

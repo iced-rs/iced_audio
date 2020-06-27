@@ -1,23 +1,24 @@
-//! wgpu renderer for the [`Ramp`] widget
+//! `iced_graphics` renderer for the [`Ramp`] widget
 //!
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced_native::{Background, MouseCursor, Point, Rectangle, Vector};
-use iced_wgpu::widget::canvas::{Frame, LineCap, Path, Stroke};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::canvas::{Frame, LineCap, Path, Stroke};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Point, Rectangle, Size, Vector};
 
 pub use crate::native::ramp::{RampDirection, State};
 pub use crate::style::ramp::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`Ramp`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-pub type Ramp<'a, Message, ID> = ramp::Ramp<'a, Message, Renderer, ID>;
+pub type Ramp<'a, Message, ID, Backend> =
+    ramp::Ramp<'a, Message, Renderer<Backend>, ID>;
 
-impl ramp::Renderer for Renderer {
+impl<B: Backend> ramp::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -84,15 +85,20 @@ impl ramp::Renderer for Renderer {
                         let path =
                             Path::new(|p| p.quadratic_curve_to(control, to));
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -113,15 +119,20 @@ impl ramp::Renderer for Renderer {
                             p.quadratic_curve_to(control, Point::ORIGIN)
                         });
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -135,15 +146,20 @@ impl ramp::Renderer for Renderer {
                             Point::new(range_width, -range_height),
                         );
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     }
                 };
 
@@ -171,15 +187,20 @@ impl ramp::Renderer for Renderer {
                             p.quadratic_curve_to(control, to)
                         });
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     } else if normal.value() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -200,15 +221,20 @@ impl ramp::Renderer for Renderer {
                             p.quadratic_curve_to(control, from)
                         });
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
@@ -222,15 +248,20 @@ impl ramp::Renderer for Renderer {
                             Point::new(range_width, 0.0),
                         );
 
-                        let mut frame = Frame::new(range_width, range_height);
+                        let mut frame =
+                            Frame::new(Size::new(range_width, range_height));
+
                         frame.translate(Vector::new(
-                            bounds_x + border_width,
-                            bounds_y + bounds_height - border_width,
+                            0.0,
+                            range_height,
                         ));
 
                         frame.stroke(&path, stroke);
 
-                        frame.into_primitive()
+                        Primitive::Translate {
+                            translation: Vector::new(bounds_x + border_width, bounds_y + border_width),
+                            content: Box::new(frame.into_geometry().into_primitive()),
+                        }
                     }
                 };
 
@@ -242,7 +273,7 @@ impl ramp::Renderer for Renderer {
             Primitive::Group {
                 primitives: vec![back, line],
             },
-            MouseCursor::default(),
+            mouse::Interaction::default(),
         )
     }
 }

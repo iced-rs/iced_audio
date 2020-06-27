@@ -1,11 +1,11 @@
-//! wgpu renderer for the [`HSlider`] widget
+//! `iced_graphics` renderer for the [`HSlider`] widget
 //!
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
 use crate::core::{ModulationRange, Normal, TickMarkGroup};
 use crate::native::h_slider;
-use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Point, Rectangle};
 
 pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{
@@ -15,13 +15,13 @@ pub use crate::style::h_slider::{
 };
 
 /// This is an alias of a `crate::native` [`HSlider`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-pub type HSlider<'a, Message, ID> =
-    h_slider::HSlider<'a, Message, Renderer, ID>;
+pub type HSlider<'a, Message, ID, Backend> =
+    h_slider::HSlider<'a, Message, Renderer<Backend>, ID>;
 
-impl h_slider::Renderer for Renderer {
+impl<B: Backend> h_slider::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -128,7 +128,7 @@ impl h_slider::Renderer for Renderer {
             ),
         };
 
-        (primitives, MouseCursor::default())
+        (primitives, mouse::Interaction::default())
     }
 }
 

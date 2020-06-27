@@ -1,11 +1,11 @@
-//! wgpu renderer for the [`XYPad`] widget
+//! `iced_graphics` renderer for the [`XYPad`] widget
 //!
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
 use crate::core::Normal;
 use crate::native::xy_pad;
-use iced_native::{Background, Color, MouseCursor, Point, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Point, Rectangle};
 
 pub use crate::native::xy_pad::State;
 pub use crate::style::xy_pad::{
@@ -13,12 +13,13 @@ pub use crate::style::xy_pad::{
 };
 
 /// This is an alias of a `crate::native` [`XYPad`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-pub type XYPad<'a, Message, ID> = xy_pad::XYPad<'a, Message, Renderer, ID>;
+pub type XYPad<'a, Message, ID, Backend> =
+    xy_pad::XYPad<'a, Message, Renderer<Backend>, ID>;
 
-impl xy_pad::Renderer for Renderer {
+impl<B: Backend> xy_pad::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -188,7 +189,7 @@ impl xy_pad::Renderer for Renderer {
                     handle,
                 ],
             },
-            MouseCursor::default(),
+            mouse::Interaction::default(),
         )
     }
 }

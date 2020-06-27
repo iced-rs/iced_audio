@@ -1,9 +1,9 @@
-//! wgpu renderer for tick marks for bar meters
+//! `iced_graphics` renderer for tick marks for bar meters
 
 use crate::core::TickMarkGroup;
 use crate::style::bar_tick_marks::{Placement, Style};
+use iced_graphics::Primitive;
 use iced_native::{Background, Color, Rectangle};
-use iced_wgpu::Primitive;
 
 pub fn draw_vertical_tick_marks(
     bounds_x: f32,

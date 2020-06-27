@@ -235,9 +235,9 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod core;
+pub mod graphics;
 pub mod native;
 pub mod style;
-pub mod wgpu;
 
 #[doc(no_inline)]
 pub use crate::core::*;
@@ -245,7 +245,7 @@ pub use crate::core::*;
 #[cfg(not(target_arch = "wasm32"))]
 mod platform {
     #[doc(no_inline)]
-    pub use crate::wgpu::{
+    pub use crate::graphics::{
         db_meter, h_slider, knob, mod_range_input, phase_meter, ramp,
         reduction_meter, v_slider, xy_pad,
     };

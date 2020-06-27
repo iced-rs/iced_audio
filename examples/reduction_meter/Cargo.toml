@@ -9,6 +9,4 @@ publish = false
 
 [dependencies]
 iced_audio = { path="../../" }
-iced = { version = "0.1", features = ["canvas", "async-std", "debug"] }
-iced_native = { version = "0.2" }
-async-std = { version = "1.6", features = ["unstable"] }
+iced = { git = "https://github.com/hecrj/iced", features=["canvas", "tokio"] }

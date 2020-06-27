@@ -5,9 +5,8 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    input::{keyboard, mouse, ButtonState},
-    layout, Clipboard, Element, Event, Hasher, Layout, Length, Point,
-    Rectangle, Size, Widget,
+    keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout, Length,
+    Point, Rectangle, Size, Widget,
 };
 
 use std::hash::Hash;
@@ -223,11 +222,37 @@ where
         _clipboard: Option<&dyn Clipboard>,
     ) {
         match event {
-            Event::Mouse(mouse::Event::Input {
-                button: mouse::Button::Left,
-                state,
-            }) => match state {
-                ButtonState::Pressed => {
+            Event::Mouse(mouse_event) => match mouse_event {
+                mouse::Event::CursorMoved { .. } => {
+                    if self.state.is_dragging {
+                        let bounds_height = layout.bounds().height;
+                        if bounds_height != 0.0 {
+                            let mut movement_y = (cursor_position.y
+                                - self.state.prev_drag_y)
+                                / bounds_height;
+
+                            if self
+                                .state
+                                .pressed_modifiers
+                                .matches(self.modifier_keys)
+                            {
+                                movement_y *= self.modifier_scalar;
+                            }
+
+                            let normal =
+                                self.state.continuous_normal - movement_y;
+
+                            self.state.continuous_normal = normal;
+                            self.state.prev_drag_y = cursor_position.y;
+
+                            self.state.param.normal = normal.into();
+
+                            messages
+                                .push((self.on_change)(self.state.param.id));
+                        }
+                    }
+                }
+                mouse::Event::ButtonPressed(mouse::Button::Left) => {
                     if layout.bounds().contains(cursor_position) {
                         let click = mouse::Click::new(
                             cursor_position,
@@ -254,42 +279,22 @@ where
                         self.state.last_click = Some(click);
                     }
                 }
-                ButtonState::Released => {
+                mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
                         self.state.param.normal.value();
                 }
+                _ => {}
             },
-            Event::Mouse(mouse::Event::CursorMoved { .. }) => {
-                if self.state.is_dragging {
-                    let bounds_height = layout.bounds().height;
-                    if bounds_height != 0.0 {
-                        let mut movement_y = (cursor_position.y
-                            - self.state.prev_drag_y)
-                            / bounds_height;
-
-                        if self
-                            .state
-                            .pressed_modifiers
-                            .matches(self.modifier_keys)
-                        {
-                            movement_y *= self.modifier_scalar;
-                        }
-
-                        let normal = self.state.continuous_normal - movement_y;
-
-                        self.state.continuous_normal = normal;
-                        self.state.prev_drag_y = cursor_position.y;
-
-                        self.state.param.normal = normal.into();
-
-                        messages.push((self.on_change)(self.state.param.id));
-                    }
+            Event::Keyboard(keyboard_event) => match keyboard_event {
+                keyboard::Event::KeyPressed { modifiers, .. } => {
+                    self.state.pressed_modifiers = modifiers;
                 }
-            }
-            Event::Keyboard(keyboard::Event::Input { modifiers, .. }) => {
-                self.state.pressed_modifiers = modifiers;
-            }
+                keyboard::Event::KeyReleased { modifiers, .. } => {
+                    self.state.pressed_modifiers = modifiers;
+                }
+                _ => {}
+            },
             _ => {}
         }
     }

@@ -36,6 +36,6 @@ members = [
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.1", features = ["canvas"] }
-iced_native = "0.2"
-iced_wgpu = "0.2"
+iced = { git = "https://github.com/hecrj/iced", features=["canvas"] }
+iced_native = { git = "https://github.com/hecrj/iced" }
+iced_graphics = { git = "https://github.com/hecrj/iced", features=["canvas"] }

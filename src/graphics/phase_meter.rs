@@ -1,21 +1,22 @@
-//! wgpu renderer for the [`PhaseMeter`] widget
+//! `iced_graphics` renderer for the [`PhaseMeter`] widget
 //!
 //! [`PhaseMeter`]: ../native/phase_meter/struct.PhaseMeter.html
 
 use crate::core::{Normal, TickMarkGroup};
+use crate::graphics::bar_tick_marks;
 use crate::native::phase_meter;
-use crate::wgpu::bar_tick_marks;
-use iced_native::{Background, Color, MouseCursor, Rectangle};
-use iced_wgpu::{Primitive, Renderer};
+use iced_graphics::{Backend, Primitive, Renderer};
+use iced_native::{mouse, Background, Color, Rectangle};
 
 pub use crate::native::phase_meter::{Orientation, State, TierPositions};
 pub use crate::style::phase_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`PhaseMeter`] with an
-/// `iced_wgpu::Renderer`.
+/// `iced_graphics::Renderer`.
 ///
 /// [`PhaseMeter`]: ../../native/phase_meter/struct.PhaseMeter.html
-pub type PhaseMeter<'a> = phase_meter::PhaseMeter<'a, Renderer>;
+pub type PhaseMeter<'a, Backend> =
+    phase_meter::PhaseMeter<'a, Renderer<Backend>>;
 
 #[derive(PartialEq)]
 enum PhaseTier {
@@ -42,7 +43,7 @@ fn tier(
     }
 }
 
-impl phase_meter::Renderer for Renderer {
+impl<B: Backend> phase_meter::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -170,7 +171,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Poor => {
@@ -196,7 +197,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Okay => {
@@ -222,7 +223,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Good => {
@@ -266,7 +267,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                     }
@@ -275,7 +276,7 @@ impl phase_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![tick_marks, back, center_line],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 }
             }
@@ -370,7 +371,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Poor => {
@@ -396,7 +397,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Okay => {
@@ -422,7 +423,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                         PhaseTier::Good => {
@@ -469,7 +470,7 @@ impl phase_meter::Renderer for Renderer {
                                         center_line,
                                     ],
                                 },
-                                MouseCursor::default(),
+                                mouse::Interaction::default(),
                             )
                         }
                     }
@@ -478,7 +479,7 @@ impl phase_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![tick_marks, back, center_line],
                         },
-                        MouseCursor::default(),
+                        mouse::Interaction::default(),
                     )
                 }
             }
