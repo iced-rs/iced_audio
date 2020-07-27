@@ -5,7 +5,7 @@
 use iced::Color;
 use iced_native::image;
 
-use crate::style::default_colors;
+use crate::style::{bar_text_marks, default_colors};
 use crate::TexturePadding;
 
 /// The appearance of an [`HSlider`].
@@ -275,6 +275,16 @@ pub trait StyleSheet {
     fn mod_range_style(&self) -> Option<ModRangeStyle> {
         None
     }
+
+    /// The style of a [`TextMarkGroup`] for an [`HSlider`]
+    ///
+    /// For no text marks, don't override this or set this to return `None`.
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        None
+    }
 }
 
 struct Default;
@@ -328,6 +338,14 @@ impl StyleSheet for Default {
 
     fn tick_mark_style(&self) -> Option<TickMarkStyle> {
         Some(TickMarkStyle::default())
+    }
+
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        Some(bar_text_marks::Style {
+            placement: bar_text_marks::Placement::RightOrBottom,
+            offset: 5,
+            ..bar_text_marks::Style::default()
+        })
     }
 }
 

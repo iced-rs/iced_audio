@@ -1,5 +1,5 @@
 use iced::{button, image, Background, Color, Vector};
-use iced_audio::{h_slider, knob, mod_range_input, ramp, v_slider, xy_pad};
+use iced_audio::{bar_text_marks, h_slider, knob, mod_range_input, ramp, v_slider, xy_pad};
 
 pub enum Button {
     Primary,
@@ -309,6 +309,18 @@ impl h_slider::StyleSheet for HSliderTextureStyle {
             color_tier_3: [0.56, 0.56, 0.56, 0.75].into(),
 
             center_offset: 5,
+        })
+    }
+
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        Some(bar_text_marks::Style {
+            color: [0.16, 0.16, 0.16, 0.9].into(),
+            offset: 5,
+            text_size: 12,
+            font: Default::default(),
+            bounds_width: 30,
+            bounds_height: 14,
+            placement: bar_text_marks::Placement::RightOrBottom,
         })
     }
 }

@@ -11,7 +11,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{ModulationRange, Normal, Param, TickMarkGroup};
+use crate::core::{ModulationRange, Normal, Param, TickMarkGroup, TextMarkGroup};
 
 static DEFAULT_HEIGHT: u16 = 14;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -35,6 +35,7 @@ where
     height: Length,
     style: Renderer::Style,
     tick_marks: Option<&'a TickMarkGroup>,
+    text_marks: Option<&'a TextMarkGroup>,
 }
 
 impl<'a, Message, Renderer: self::Renderer, ID>
@@ -66,6 +67,7 @@ where
             height: Length::from(Length::Units(DEFAULT_HEIGHT)),
             style: Renderer::Style::default(),
             tick_marks: None,
+            text_marks: None,
         }
     }
 
@@ -130,6 +132,17 @@ where
     /// [`StyleSheet`]: ../../style/h_slider/trait.StyleSheet.html
     pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
         self.tick_marks = Some(tick_marks);
+        self
+    }
+
+    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`StyleSheet`]: ../../style/h_slider/trait.StyleSheet.html
+    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+        self.text_marks = Some(text_marks);
         self
     }
 }
@@ -313,6 +326,7 @@ where
             self.state.is_dragging,
             self.state.modulation_range,
             self.tick_marks,
+            self.text_marks,
             &self.style,
         )
     }
@@ -355,6 +369,7 @@ pub trait Renderer: iced_native::Renderer {
         is_dragging: bool,
         modulation_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

@@ -1,11 +1,11 @@
 //! Display a visualizer that displays average/peak decibel levels. It can be
 //! either mono or stereo.
 
-//mod peak;
-//mod peak_rms;
+mod peak;
+mod peak_rms;
 
-//pub use peak::*;
-//pub use peak_rms::*;
+pub use peak::*;
+pub use peak_rms::*;
 
 use std::fmt::Debug;
 
@@ -16,13 +16,13 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
+use crate::core::{FloatRange, Normal, TextMarkGroup, TickMarkGroup};
 
 static DEFAULT_WIDTH: u16 = 20;
 
-//static DEFAULT_PEAK_FALL_RATE: f32 = 0.7;
-//static DEFAULT_BAR_FALL_RATE: f32 = 0.475;
-//static DEFAULT_PEAK_HOLD_SEC: f32 = 1.75;
+static DEFAULT_PEAK_FALL_RATE: f32 = 0.7;
+static DEFAULT_BAR_FALL_RATE: f32 = 0.475;
+static DEFAULT_PEAK_HOLD_SEC: f32 = 1.75;
 
 /// The orientation of a [`DBMeter`]
 ///
@@ -425,7 +425,6 @@ where
     }
 }
 
-/*
 /// The output of a [`Detector`]
 ///
 /// [`Detector`]: trait.Detector.html
@@ -693,4 +692,3 @@ impl Animator {
         }
     }
 }
-*/

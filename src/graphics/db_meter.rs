@@ -9,14 +9,9 @@ use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{mouse, Background, Color, Rectangle};
 
 pub use crate::native::db_meter::{
-    BarState, Orientation, State, TierPositions,
-};
-/*
-pub use crate::native::db_meter::{
     Animator, BarState, Detector, DetectorOutput, Orientation, PeakDetector,
     PeakRmsDetector, State, TierPositions,
 };
-*/
 pub use crate::style::db_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`DBMeter`] with an
