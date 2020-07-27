@@ -3,12 +3,15 @@
 //! This module holds basic types that can be reused and re-exported in
 //! different runtime implementations.
 
+pub mod math;
 pub mod param;
 pub mod range;
+pub mod text_marks;
 pub mod tick_marks;
 
 pub use param::*;
 pub use range::*;
+pub use text_marks::*;
 pub use tick_marks::*;
 
 /// An `f32` value that is gauranteed to be constrained to the range of

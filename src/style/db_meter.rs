@@ -4,8 +4,8 @@
 
 use iced::Color;
 
-use crate::style::bar_tick_marks;
 use crate::style::default_colors;
+use crate::style::{bar_text_marks, bar_tick_marks};
 
 /// The appearance of a [`DBMeter`].
 ///
@@ -68,6 +68,16 @@ pub trait StyleSheet {
     fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
         None
     }
+
+    /// The style of a [`TextMarkGroup`] for a [`DBMeter`]
+    ///
+    /// For no text marks, don't override this or set this to return `None`.
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`DBMeter`]: ../../native/db_meter/struct.DBMeter.html
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        None
+    }
 }
 
 struct Default;
@@ -94,6 +104,10 @@ impl StyleSheet for Default {
 
     fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
         Some(bar_tick_marks::Style::default())
+    }
+
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        Some(bar_text_marks::Style::default())
     }
 }
 

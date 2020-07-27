@@ -1,6 +1,12 @@
 //! Display a visualizer that displays average/peak decibel levels. It can be
 //! either mono or stereo.
 
+//mod peak;
+//mod peak_rms;
+
+//pub use peak::*;
+//pub use peak_rms::*;
+
 use std::fmt::Debug;
 
 use iced_native::{
@@ -10,9 +16,13 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, TickMarkGroup};
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
 
 static DEFAULT_WIDTH: u16 = 20;
+
+//static DEFAULT_PEAK_FALL_RATE: f32 = 0.7;
+//static DEFAULT_BAR_FALL_RATE: f32 = 0.475;
+//static DEFAULT_PEAK_HOLD_SEC: f32 = 1.75;
 
 /// The orientation of a [`DBMeter`]
 ///
@@ -46,6 +56,7 @@ pub struct DBMeter<'a, Renderer: self::Renderer> {
     style: Renderer::Style,
     orientation: Orientation,
     tick_marks: Option<&'a TickMarkGroup>,
+    text_marks: Option<&'a TextMarkGroup>,
 }
 
 impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
@@ -64,6 +75,7 @@ impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
             style: Renderer::Style::default(),
             orientation: Orientation::Vertical,
             tick_marks: None,
+            text_marks: None,
         }
     }
 
@@ -113,6 +125,17 @@ impl<'a, Renderer: self::Renderer> DBMeter<'a, Renderer> {
     /// [`StyleSheet`]: ../../style/db_meter/trait.StyleSheet.html
     pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
         self.tick_marks = Some(tick_marks);
+        self
+    }
+
+    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`StyleSheet`]: ../../style/db_meter/trait.StyleSheet.html
+    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+        self.text_marks = Some(text_marks);
         self
     }
 }
@@ -341,6 +364,7 @@ where
             self.state.tier_positions,
             &self.orientation,
             self.tick_marks,
+            self.text_marks,
             &self.style,
         )
     }
@@ -373,6 +397,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the positions of each tier of color
     ///   * the orientation of the [`DBMeter`]
     ///   * any tick marks to display
+    ///   * any text marks to display
     ///   * the style of the [`DBMeter`]
     ///
     /// [`DBMeter`]: struct.DBMeter.html
@@ -384,6 +409,7 @@ pub trait Renderer: iced_native::Renderer {
         tier_positions: TierPositions,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }
@@ -398,3 +424,273 @@ where
         Element::new(db_meter)
     }
 }
+
+/*
+/// The output of a [`Detector`]
+///
+/// [`Detector`]: trait.Detector.html
+#[derive(Debug, Copy, Clone)]
+pub struct DetectorOutput {
+    /// The value of the meter bar in decibels (usually represents rms/average value).
+    /// Set this to `None` if there is no update.
+    pub bar_db: Option<f32>,
+    /// The value of the peak line in decibels (usually represents peak value).
+    /// Set this to `None` if there is no update.
+    pub peak_db: Option<f32>,
+    /// The number of samples to discard from the ring buffer
+    pub n_samples_to_discard: usize,
+}
+
+impl DetectorOutput {
+    /// Returns an empty `DetectorOutput` with both values set to `None`
+    pub fn empty() -> Self {
+        Self {
+            bar_db: None,
+            peak_db: None,
+            n_samples_to_discard: 0,
+        }
+    }
+}
+
+/// A DSP processor used to calculate the peak and rms/average levels of a stereo signal
+pub trait Detector {
+    /// Called when initialized and when the audio sample rate changes.
+    fn update_sample_rate(&mut self, sample_rate: f32);
+
+    /// Process new samples from the left/mono audio channel
+    ///
+    /// - `s1` and `s2` are slices of a lock-free ring buffer.
+    /// They contain only the active readable data.
+    /// `s1` is the first slice, and `s2` is the second consecutive slice when the data is wrapped around the ring buffer.
+    /// - The length of `s2` may be `0` if all the readable data in the ring buffer is continous (does not wrap around).
+    fn process_left(&mut self, s1: &[f32], s2: &[f32]) -> DetectorOutput;
+
+    /// Process new samples from the right audio channel
+    ///
+    /// - `s1` and `s2` are slices of a lock-free ring buffer.
+    /// They contain only the active readable data.
+    /// `s1` is the first slice, and `s2` is the second consecutive slice when the data is wrapped around the ring buffer.
+    /// - The length of `s2` may be `0` if all the readable data in the ring buffer is continous (does not wrap around).
+    fn process_right(&mut self, s1: &[f32], s2: &[f32]) -> DetectorOutput;
+
+    /// Clear any buffers / set to 0
+    fn clear(&mut self);
+}
+
+/// Processes audio to animate a [`DBMeter`]
+///
+/// [`DBMeter`]: struct.DBMeter.html
+#[allow(missing_debug_implementations)]
+pub struct Animator {
+    /// The rate at which the peak line will smoothly fall (in range [0, 1] per second)
+    /// * default = 0.7
+    pub peak_fall_rate: f32,
+    /// The rate at which the bar will smoothly rise and fall (in range [0, 1] per second)
+    /// * default = 0.475
+    pub bar_fall_rate: f32,
+    /// The time in seconds the peak line will hold before it falls down
+    /// * default = 1.75
+    pub peak_hold_sec: f32,
+
+    sample_rate: f32,
+
+    detector: Box<dyn Detector>,
+    db_range: FloatRange,
+    left_rb_rx: ringbuf::Consumer<f32>,
+    right_rb_rx: Option<ringbuf::Consumer<f32>>,
+
+    left_peak_normal: Normal,
+    right_peak_normal: Normal,
+    left_bar_normal: Normal,
+    right_bar_normal: Normal,
+
+    left_peak_held_time: f32,
+    right_peak_held_time: f32,
+}
+
+impl Animator {
+    /// Creates a new Animator for a [`DBMeter`]
+    ///
+    /// ## It expects:
+    ///
+    /// * `detector` - A [`Detector`] that detects peak and rms/average values
+    /// * `db_range` - The same db_range that was used to create the [`State`] of the [`DBMeter`]. This is so the output of `detector` can be mapped correctly.
+    /// * `left_rb_rx` - The consumer of the lock-free `RingBuffer` that reads the left channel audio data sent from the audio thread
+    /// * `right_rb_rx` - The consumer of the lock-free `RingBuffer` that reads the right channel audio data sent from the audio thread.
+    /// Set to `None` for no right audio channel (mono mode).
+    ///
+    /// [`State`]: struct.State.html
+    /// [`DBMeter`]: struct.DBMeter.html
+    /// [`Detector`]: trait.Detector.html
+    pub fn new(
+        detector: Box<dyn Detector>,
+        db_range: FloatRange,
+        left_rb_rx: ringbuf::Consumer<f32>,
+        right_rb_rx: Option<ringbuf::Consumer<f32>>,
+        sample_rate: f32,
+    ) -> Self {
+        let mut detector = detector;
+        detector.update_sample_rate(sample_rate);
+
+        Self {
+            peak_fall_rate: DEFAULT_PEAK_FALL_RATE,
+            bar_fall_rate: DEFAULT_BAR_FALL_RATE,
+            peak_hold_sec: DEFAULT_PEAK_HOLD_SEC,
+            sample_rate,
+            detector,
+            db_range,
+            left_rb_rx,
+            right_rb_rx,
+            left_peak_normal: Normal::min(),
+            right_peak_normal: Normal::min(),
+            left_bar_normal: Normal::min(),
+            right_bar_normal: Normal::min(),
+            left_peak_held_time: 0.0,
+            right_peak_held_time: 0.0,
+        }
+    }
+
+    /// Sets the audio sample rate
+    pub fn set_sample_rate(&mut self, sample_rate: f32) {
+        self.detector.update_sample_rate(sample_rate);
+    }
+
+    /// Sets the [`Detector`] to use
+    pub fn set_detector(&mut self, detector: Box<dyn Detector>) {
+        self.detector = detector;
+
+        self.detector.update_sample_rate(self.sample_rate);
+    }
+
+    /// Clears all values to 0
+    pub fn clear(&mut self) {
+        self.detector.clear();
+        self.left_peak_normal = Normal::min();
+        self.right_peak_normal = Normal::min();
+        self.left_bar_normal = Normal::min();
+        self.right_bar_normal = Normal::min();
+        self.left_peak_held_time = 0.0;
+        self.right_peak_held_time = 0.0;
+    }
+
+    fn peak_hold_and_fall(
+        delta_fall: f32,
+        normal: Normal,
+        new_db: Option<f32>,
+        db_range: &FloatRange,
+        peak_held_time: &mut f32,
+        peak_hold_sec: f32,
+    ) -> Normal {
+        if let Some(new_db) = new_db {
+            let new_normal = db_range.to_normal(new_db);
+            if new_normal.value() >= normal.value() {
+                *peak_held_time = 0.0;
+                new_normal
+            } else if *peak_held_time >= peak_hold_sec {
+                if normal.value() - delta_fall <= new_normal.value() {
+                    new_normal
+                } else {
+                    (normal.value() - delta_fall).into()
+                }
+            } else {
+                normal
+            }
+        } else if *peak_held_time >= peak_hold_sec {
+            (normal.value() - delta_fall).into()
+        } else {
+            normal
+        }
+    }
+
+    fn bar_fall(
+        delta_fall: f32,
+        normal: Normal,
+        new_db: Option<f32>,
+        db_range: &FloatRange,
+    ) -> Normal {
+        if let Some(db) = new_db {
+            let new_normal = db_range.to_normal(db);
+
+            if new_normal >= normal {
+                new_normal
+            } else if normal.value() - delta_fall <= new_normal.value() {
+                new_normal
+            } else {
+                (normal.value() - delta_fall).into()
+            }
+        } else {
+            (normal.value() - delta_fall).into()
+        }
+    }
+
+    /// Updates to the next frame. This causes the `RingBuffer` to be polled for new inputs,
+    /// and then the [`State`] of the [`DBMeter`] gets updated accordingly.
+    ///
+    /// * `delta_time` - the elapsed time since the last frame (since update() was last called)
+    /// * `db_meter` - the [`State`] of the [`DBMeter`] to be animated
+    ///
+    /// [`State`]: struct.State.html
+    /// [`DBMeter`]: struct.DBMeter.html
+    pub fn update(&mut self, delta_time: f32, db_meter: &mut State) {
+        let delta_peak_fall = self.peak_fall_rate * delta_time;
+        let delta_bar_fall = self.bar_fall_rate * delta_time;
+
+        self.left_peak_held_time += delta_time;
+        self.right_peak_held_time += delta_time;
+
+        let detector = &mut self.detector;
+
+        let mut left_output = DetectorOutput::empty();
+        self.left_rb_rx.access(|s1: &[f32], s2: &[f32]| {
+            left_output = detector.process_left(s1, s2);
+        });
+        let _ = self.left_rb_rx.discard(left_output.n_samples_to_discard);
+
+        self.left_peak_normal = Self::peak_hold_and_fall(
+            delta_peak_fall,
+            self.left_peak_normal,
+            left_output.peak_db,
+            &self.db_range,
+            &mut self.left_peak_held_time,
+            self.peak_hold_sec,
+        );
+
+        self.left_bar_normal = Self::bar_fall(
+            delta_bar_fall,
+            self.left_bar_normal,
+            left_output.bar_db,
+            &self.db_range,
+        );
+
+        db_meter.set_left(self.left_bar_normal);
+        db_meter.set_left_peak(Some(self.left_peak_normal));
+
+        if let Some(right_rb_rx) = &mut self.right_rb_rx {
+            let mut right_output = DetectorOutput::empty();
+            right_rb_rx.access(|s1: &[f32], s2: &[f32]| {
+                right_output = detector.process_right(s1, s2);
+            });
+            let _ = right_rb_rx.discard(right_output.n_samples_to_discard);
+
+            self.right_peak_normal = Self::peak_hold_and_fall(
+                delta_peak_fall,
+                self.right_peak_normal,
+                right_output.peak_db,
+                &self.db_range,
+                &mut self.right_peak_held_time,
+                self.peak_hold_sec,
+            );
+
+            self.right_bar_normal = Self::bar_fall(
+                delta_bar_fall,
+                self.right_bar_normal,
+                right_output.bar_db,
+                &self.db_range,
+            );
+
+            db_meter.set_right(self.right_bar_normal);
+            db_meter.set_right_peak(self.right_peak_normal);
+        }
+    }
+}
+*/

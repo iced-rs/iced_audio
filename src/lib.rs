@@ -6,7 +6,7 @@
 //! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 //! ```
 //! iced = { version = "0.1", features = ["image"] }
-//! iced_audio = "0.3"
+//! iced_audio = "0.4"
 //! ```
 //! Or to use the GitHub version of `iced`:
 //! ```
@@ -29,8 +29,8 @@
 //! };
 //! // Import iced_audio modules.
 //! use iced_audio::{
-//!     h_slider, knob, v_slider, xy_pad, DBRange, FloatRange, FreqRange, HSlider,
-//!     IntRange, Knob, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
+//!     h_slider, knob, v_slider, xy_pad, FloatRange, FreqRange, HSlider,
+//!     IntRange, Knob, LogDBRange, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
 //! };
 //!
 //! // Create a unique identifier for each parameter. Note you may also use any
@@ -63,14 +63,14 @@
 //!     // * FloatRange - a linear range of f32 values
 //!     // * IntRange - a discrete range of i32 values. This will cause the widget
 //!     // to "step" when moved.
-//!     // * DBRange - a logarithmic range of decibel values. Values around 0 dB
+//!     // * LogDBRange - a logarithmic range of decibel values. Values around 0 dB
 //!     // will increment slower than values farther away from 0 dB.
 //!     // * FreqRange - a logarithmic range of frequency values. Each octave in
 //!     // the 10 octave spectrum (from 20 Hz to 20480 Hz) is spaced evenly.
 //!     //
 //!     float_range: FloatRange,
 //!     int_range: IntRange,
-//!     db_range: DBRange,
+//!     db_range: LogDBRange,
 //!     freq_range: FreqRange,
 //!
 //!     // The states of the widgets that will control the parameters.
@@ -95,7 +95,7 @@
 //!         // Initalize each range:
 //!         let float_range = FloatRange::default_bipolar();
 //!         let int_range = IntRange::new(0, 10);
-//!         let db_range = DBRange::new(-12.0, 12.0, 0.5.into());
+//!         let db_range = LogDBRange::new(-12.0, 12.0, 0.5.into());
 //!         let freq_range = FreqRange::default();
 //!
 //!         App {
@@ -234,9 +234,10 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![deny(unused_results)]
-#![forbid(unsafe_code)]
 #![forbid(rust_2018_idioms)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+
+//extern crate simdeez;
 
 pub mod core;
 pub mod graphics;
@@ -254,6 +255,8 @@ mod platform {
         reduction_meter, v_slider, xy_pad,
     };
 
+    #[doc(no_inline)]
+    pub use crate::style::bar_text_marks;
     #[doc(no_inline)]
     pub use crate::style::bar_tick_marks;
 

@@ -39,3 +39,4 @@ members = [
 iced = { git = "https://github.com/hecrj/iced", features=["canvas"] }
 iced_native = { git = "https://github.com/hecrj/iced" }
 iced_graphics = { git = "https://github.com/hecrj/iced", features=["canvas"] }
+ringbuf = "0.2"

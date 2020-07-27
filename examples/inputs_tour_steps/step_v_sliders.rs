@@ -2,7 +2,7 @@ use iced::{Column, Element, Length, Row, Text};
 use iced_native::image;
 
 use iced_audio::{
-    v_slider, DBRange, FloatRange, FreqRange, IntRange, TickMark,
+    v_slider, FloatRange, FreqRange, IntRange, LogDBRange, TickMark,
     TickMarkGroup, TickMarkTier, VSlider,
 };
 
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct VSliderStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     v_slider_float_state: v_slider::State<VSlidersID>,
@@ -56,7 +56,7 @@ impl Default for VSliderStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -335,7 +335,7 @@ impl VSliderStep {
                     .spacing(10)
                     .push(Text::new("Float Range"))
                     .push(v_slider_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(v_slider_db),
             )
             .push(

@@ -2,7 +2,7 @@ use iced::{Column, Element, Length, Row, Text};
 use iced_native::image;
 
 use iced_audio::{
-    h_slider, DBRange, FloatRange, FreqRange, HSlider, IntRange, TickMark,
+    h_slider, FloatRange, FreqRange, HSlider, IntRange, LogDBRange, TickMark,
     TickMarkGroup, TickMarkTier,
 };
 
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct HSliderStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     h_slider_float_state: h_slider::State<HSlidersID>,
@@ -56,7 +56,7 @@ impl Default for HSliderStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -333,7 +333,7 @@ impl HSliderStep {
                     .spacing(10)
                     .push(Text::new("Float Range"))
                     .push(h_slider_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(h_slider_db)
                     .push(Text::new("Custom Style"))
                     .push(h_slider_rect)

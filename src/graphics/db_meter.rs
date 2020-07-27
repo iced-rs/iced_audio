@@ -2,8 +2,8 @@
 //!
 //! [`DBMeter`]: ../native/db_meter/struct.DBMeter.html
 
-use crate::core::{Normal, TickMarkGroup};
-use crate::graphics::bar_tick_marks;
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
+use crate::graphics::{bar_text_marks, bar_tick_marks};
 use crate::native::db_meter;
 use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{mouse, Background, Color, Rectangle};
@@ -11,6 +11,12 @@ use iced_native::{mouse, Background, Color, Rectangle};
 pub use crate::native::db_meter::{
     BarState, Orientation, State, TierPositions,
 };
+/*
+pub use crate::native::db_meter::{
+    Animator, BarState, Detector, DetectorOutput, Orientation, PeakDetector,
+    PeakRmsDetector, State, TierPositions,
+};
+*/
 pub use crate::style::db_meter::{Style, StyleSheet};
 
 /// This is an alias of a `crate::native` [`DBMeter`] with an
@@ -453,6 +459,7 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
         tier_positions: TierPositions,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let bounds_x = bounds.x.floor();
@@ -493,6 +500,26 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                                 bounds_width,
                                 bar_height,
                                 &tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_vertical_text_marks(
+                                bounds_x,
+                                bar_y,
+                                bounds_width,
+                                bar_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -575,6 +602,7 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 inner_gap,
@@ -605,6 +633,7 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 meter,
@@ -627,6 +656,26 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                                 bar_width,
                                 bounds_height,
                                 &tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_horizontal_text_marks(
+                                bar_x,
+                                bounds_y,
+                                bar_width,
+                                bounds_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -709,6 +758,7 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 inner_gap,
@@ -739,6 +789,7 @@ impl<B: Backend> db_meter::Renderer for Renderer<B> {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 meter,

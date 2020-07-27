@@ -296,7 +296,20 @@ impl Default for TickMark {
 }
 
 impl TickMark {
-    /// Returns a tick mark at the center (`0.5`) position.
+    /// Returns a new tick mark at the center (`0.5`) position.
+    ///
+    /// * `position` - a [`Normal`] value that represents the position of the tick
+    /// mark. For example, a value of `0.0` is at the minimum position, `1.0` is
+    /// at the maximum position, and `0.5` is at the center position.
+    /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    pub fn new(position: Normal, tier: TickMarkTier) -> Self {
+        Self { position, tier }
+    }
+
+    /// Returns a new tick mark at the center (`0.5`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -308,7 +321,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the minimum (`0.0`) position.
+    /// Returns a new tick mark at the minimum (`0.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -320,7 +333,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the maximum (`1.0`) position.
+    /// Returns a new tick mark at the maximum (`1.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///

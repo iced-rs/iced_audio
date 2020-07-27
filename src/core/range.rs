@@ -252,14 +252,18 @@ impl Default for IntRange {
 /// Values around 0 dB (positive and negative) will increment slower per
 /// slider movement than values farther away from 0 dB.
 #[derive(Debug, Copy, Clone)]
-pub struct DBRange {
+pub struct LogDBRange {
     min: f32,
     max: f32,
     zero_position: Normal,
+    min_recip: f32,
+    max_recip: f32,
+    zero_pos_recip: f32,
+    one_min_zero_pos_recip: f32,
 }
 
-impl DBRange {
-    /// Creates a new `DBRange`
+impl LogDBRange {
+    /// Creates a new `LogDBRange`
     ///
     /// # Arguments
     ///
@@ -282,10 +286,30 @@ impl DBRange {
         assert!(max >= 0.0, "max must be 0.0 or positive");
         assert!(min <= 0.0, "min must be 0.0 or negative");
 
+        let min_recip = if min == 0.0 { 0.0 } else { 1.0 / min };
+
+        let max_recip = if max == 0.0 { 0.0 } else { 1.0 / max };
+
+        let zero_pos_recip = if zero_position.value() == 0.0 {
+            0.0
+        } else {
+            1.0 / zero_position.value()
+        };
+
+        let one_min_zero_pos_recip = if zero_position.value() == 0.0 {
+            0.0
+        } else {
+            1.0 / (1.0 - zero_position.value())
+        };
+
         Self {
             min,
             max,
             zero_position,
+            min_recip,
+            max_recip,
+            zero_pos_recip,
+            one_min_zero_pos_recip,
         }
     }
 
@@ -354,7 +378,7 @@ impl DBRange {
             if self.min >= 0.0 {
                 return 0.0.into();
             }
-            let neg_normal = value / self.min;
+            let neg_normal = value * self.min_recip;
 
             let log_normal = 1.0 - neg_normal.sqrt();
 
@@ -363,7 +387,7 @@ impl DBRange {
             if self.max <= 0.0 {
                 return 1.0.into();
             }
-            let pos_normal = value / self.max;
+            let pos_normal = value * self.max_recip;
 
             let log_normal = pos_normal.sqrt();
 
@@ -383,9 +407,9 @@ impl DBRange {
             if self.min >= 0.0 {
                 return self.min;
             }
-            let neg_normal = normal.value() / self.zero_position.value();
+            let neg_normal = 1.0 - (normal.value() * self.zero_pos_recip);
 
-            let log_normal = 1.0 - (1.0 - neg_normal).powi(2);
+            let log_normal = 1.0 - (neg_normal * neg_normal);
 
             (1.0 - log_normal) * self.min
         } else {
@@ -393,18 +417,18 @@ impl DBRange {
                 return self.max;
             }
             let pos_normal = (normal.value() - self.zero_position.value())
-                / (1.0 - self.zero_position.value());
+                * self.one_min_zero_pos_recip;
 
-            let log_normal = pos_normal.powi(2);
+            let log_normal = pos_normal * pos_normal;
 
             log_normal * self.max
         }
     }
 }
 
-impl Default for DBRange {
+impl Default for LogDBRange {
     fn default() -> Self {
-        DBRange::new(-12.0, 12.0, 0.5.into())
+        LogDBRange::new(-12.0, 12.0, 0.5.into())
     }
 }
 
@@ -418,6 +442,7 @@ pub struct FreqRange {
     min: f32,
     max: f32,
     spectrum_normal_span: f32,
+    spectrum_normal_span_recip: f32,
     min_spectrum_normal: Normal,
 }
 
@@ -455,11 +480,14 @@ impl FreqRange {
         let spectrum_normal_span =
             max_spectrum_normal.value() - min_spectrum_normal.value();
 
+        let spectrum_normal_span_recip = 1.0 / spectrum_normal_span;
+
         Self {
             min,
             max,
             spectrum_normal_span,
             min_spectrum_normal,
+            spectrum_normal_span_recip,
         }
     }
 
@@ -524,7 +552,7 @@ impl FreqRange {
         let value = self.constrain(value);
         let spectrum_normal = octave_spectrum_to_normal(value);
         ((spectrum_normal.value() - self.min_spectrum_normal.value())
-            / self.spectrum_normal_span)
+            * self.spectrum_normal_span_recip)
             .into()
     }
 

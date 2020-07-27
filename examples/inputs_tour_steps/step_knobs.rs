@@ -1,7 +1,7 @@
 use iced::{Column, Element, Length, Row, Text};
 
 use iced_audio::{
-    knob, DBRange, FloatRange, FreqRange, IntRange, Knob, TickMark,
+    knob, FloatRange, FreqRange, IntRange, Knob, LogDBRange, TickMark,
     TickMarkGroup, TickMarkTier,
 };
 
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct KnobStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     knob_float_state: knob::State<KnobsID>,
@@ -55,7 +55,7 @@ impl Default for KnobStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -321,7 +321,7 @@ impl KnobStep {
                     .spacing(10)
                     .push(Text::new("Float Range"))
                     .push(knob_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(knob_db)
                     .push(Text::new("Custom Style 1"))
                     .push(knob_style1),

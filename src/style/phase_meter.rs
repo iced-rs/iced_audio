@@ -4,7 +4,7 @@
 
 use iced::Color;
 
-use crate::style::{bar_tick_marks, default_colors};
+use crate::style::{bar_text_marks, bar_tick_marks, default_colors};
 
 /// The appearance of a [`PhaseMeter`].
 ///
@@ -49,6 +49,16 @@ pub trait StyleSheet {
     fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
         None
     }
+
+    /// The style of a [`TextMarkGroup`] for a [`PhaseMeter`]
+    ///
+    /// For no text marks, don't override this or set this to return `None`.
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`PhaseMeter`]: ../../native/phase_meter/struct.PhaseMeter.html
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        None
+    }
 }
 
 struct Default;
@@ -70,6 +80,13 @@ impl StyleSheet for Default {
 
     fn tick_mark_style(&self) -> Option<bar_tick_marks::Style> {
         Some(bar_tick_marks::Style::default())
+    }
+
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        Some(bar_text_marks::Style {
+            placement: bar_text_marks::Placement::RightOrBottom,
+            ..bar_text_marks::Style::default()
+        })
     }
 }
 

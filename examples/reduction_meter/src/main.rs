@@ -4,8 +4,9 @@ use iced::{
 };
 
 use iced_audio::{
-    bar_tick_marks, knob, reduction_meter, DBRange, Knob, ReductionMeter,
-    TickMark, TickMarkGroup, TickMarkTier,
+    bar_text_marks, bar_tick_marks, knob, reduction_meter, FloatRange, Knob,
+    ReductionMeter, TextMark, TextMarkGroup, TickMark, TickMarkGroup,
+    TickMarkTier,
 };
 
 use std::time::Instant;
@@ -33,7 +34,9 @@ enum Message {
 
 struct ReductionMeterApp {
     #[allow(dead_code)]
-    db_range: DBRange,
+    // Not to be confused with `LogDBRange` for use with controls.
+    // Reduction meters usually display decibels linearly.
+    linear_db_range: FloatRange,
 
     main_knob_state: knob::State<ParamID>,
     peak_knob_state: knob::State<ParamID>,
@@ -42,6 +45,7 @@ struct ReductionMeterApp {
     r_meter_custom_state: reduction_meter::State,
 
     tick_marks: TickMarkGroup,
+    text_marks: TextMarkGroup,
 
     current: Instant,
 }
@@ -58,22 +62,20 @@ impl Application for ReductionMeterApp {
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
-        let db_range = DBRange::new(-64.0, 0.0, 1.0.into());
+        // Not to be confused with `LogDBRange` for use with controls.
+        // Reduction meters usually display decibels linearly.
+        let linear_db_range = FloatRange::new(-18.0, 0.0);
 
         (
             ReductionMeterApp {
-                db_range,
+                linear_db_range,
 
-                main_knob_state: knob::State::new(db_range.create_param(
-                    ParamID::MainDB,
-                    -64.0,
-                    -64.0,
-                )),
-                peak_knob_state: knob::State::new(db_range.create_param(
-                    ParamID::PeakDB,
-                    -64.0,
-                    -64.0,
-                )),
+                main_knob_state: knob::State::new(
+                    linear_db_range.create_param(ParamID::MainDB, -18.0, -18.0),
+                ),
+                peak_knob_state: knob::State::new(
+                    linear_db_range.create_param(ParamID::PeakDB, -18.0, -18.0),
+                ),
 
                 r_meter_default_state: reduction_meter::State::new(
                     0.0.into(),
@@ -87,37 +89,49 @@ impl Application for ReductionMeterApp {
 
                 tick_marks: TickMarkGroup::new(vec![
                     TickMark {
-                        position: db_range.to_normal(-1.0),
+                        position: linear_db_range.to_normal(-1.0),
                         tier: TickMarkTier::One,
                     },
                     TickMark {
-                        position: db_range.to_normal(-2.0),
+                        position: linear_db_range.to_normal(-2.0),
                         tier: TickMarkTier::One,
                     },
                     TickMark {
-                        position: db_range.to_normal(-3.0),
+                        position: linear_db_range.to_normal(-3.0),
                         tier: TickMarkTier::Two,
                     },
                     TickMark {
-                        position: db_range.to_normal(-6.0),
+                        position: linear_db_range.to_normal(-4.0),
                         tier: TickMarkTier::Two,
                     },
                     TickMark {
-                        position: db_range.to_normal(-9.0),
+                        position: linear_db_range.to_normal(-5.0),
                         tier: TickMarkTier::Two,
                     },
                     TickMark {
-                        position: db_range.to_normal(-12.0),
+                        position: linear_db_range.to_normal(-6.0),
                         tier: TickMarkTier::Two,
                     },
                     TickMark {
-                        position: db_range.to_normal(-24.0),
+                        position: linear_db_range.to_normal(-9.0),
                         tier: TickMarkTier::Two,
                     },
                     TickMark {
-                        position: db_range.to_normal(-48.0),
+                        position: linear_db_range.to_normal(-12.0),
                         tier: TickMarkTier::Two,
                     },
+                    TickMark {
+                        position: linear_db_range.to_normal(-18.0),
+                        tier: TickMarkTier::Two,
+                    },
+                ]),
+
+                text_marks: TextMarkGroup::new(vec![
+                    TextMark::new("-3", linear_db_range.to_normal(-3.0)),
+                    TextMark::new("-6", linear_db_range.to_normal(-6.0)),
+                    TextMark::new("-9", linear_db_range.to_normal(-9.0)),
+                    TextMark::new("-12", linear_db_range.to_normal(-12.0)),
+                    TextMark::new("-18", linear_db_range.to_normal(-18.0)),
                 ]),
 
                 current: Instant::now(),
@@ -168,13 +182,15 @@ impl Application for ReductionMeterApp {
 
         let r_meter_default =
             ReductionMeter::new(&mut self.r_meter_default_state)
-                .tick_marks(&self.tick_marks);
+                .tick_marks(&self.tick_marks)
+                .text_marks(&self.text_marks);
 
         let r_meter_custom =
             ReductionMeter::new(&mut self.r_meter_custom_state)
                 .orientation(reduction_meter::Orientation::Horizontal)
                 .style(CustomReductionMeterStyle)
-                .tick_marks(&self.tick_marks);
+                .tick_marks(&self.tick_marks)
+                .text_marks(&self.text_marks);
 
         let row = Row::new()
             .width(Length::Fill)
@@ -267,6 +283,18 @@ impl reduction_meter::StyleSheet for CustomReductionMeterStyle {
             offset: 2,
 
             placement: bar_tick_marks::Placement::RightOrBottom,
+        })
+    }
+
+    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+        Some(bar_text_marks::Style {
+            color: BORDER_COLOR,
+            offset: 8,
+            text_size: 12,
+            font: Default::default(),
+            bounds_width: 30,
+            bounds_height: 14,
+            placement: bar_text_marks::Placement::RightOrBottom,
         })
     }
 }
