@@ -437,6 +437,17 @@ impl knob::StyleSheet for KnobCustomStyleCircle {
             filled_inverse_color: KNOB_ARC_RIGHT_COLOR,
         })
     }
+
+    fn text_mark_style(&self) -> Option<knob::TextMarkStyle> {
+        Some(knob::TextMarkStyle {
+            color: [0.16, 0.16, 0.16, 0.9].into(),
+            offset: 15.0,
+            text_size: 11,
+            font: Default::default(),
+            bounds_width: 20,
+            bounds_height: 20,
+        })
+    }
 }
 
 // Custom style for the Knob

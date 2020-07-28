@@ -66,7 +66,8 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
         };
 
         let handle_x = (bounds_x + (bounds_size * normal_x.value())).floor();
-        let handle_y = (bounds_y + (bounds_size * (1.0 - normal_y.value()))).floor();
+        let handle_y =
+            (bounds_y + (bounds_size * (1.0 - normal_y.value()))).floor();
 
         let bounds_center = (bounds_size / 2.0).floor();
 

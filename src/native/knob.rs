@@ -11,7 +11,9 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{ModulationRange, Normal, Param, TickMarkGroup};
+use crate::core::{
+    ModulationRange, Normal, Param, TextMarkGroup, TickMarkGroup,
+};
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.008;
@@ -33,6 +35,7 @@ where
     modifier_keys: keyboard::ModifiersState,
     style: Renderer::Style,
     tick_marks: Option<&'a TickMarkGroup>,
+    text_marks: Option<&'a TextMarkGroup>,
 }
 
 impl<'a, Message, Renderer: self::Renderer, ID> Knob<'a, Message, Renderer, ID>
@@ -63,6 +66,7 @@ where
             },
             style: Renderer::Style::default(),
             tick_marks: None,
+            text_marks: None,
         }
     }
 
@@ -132,6 +136,17 @@ where
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
     pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
         self.tick_marks = Some(tick_marks);
+        self
+    }
+
+    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
+    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+        self.text_marks = Some(text_marks);
         self
     }
 }
@@ -317,6 +332,7 @@ where
             self.state.is_dragging,
             self.state.modulation_range,
             self.tick_marks,
+            self.text_marks,
             &self.style,
         )
     }
@@ -347,6 +363,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the current normal of the [`Knob`]
     ///   * whether the knob is currently being dragged
     ///   * any tick marks to display
+    ///   * any text marks to display
     ///   * the style of the [`Knob`]
     ///
     /// [`Knob`]: struct.Knob.html
@@ -358,6 +375,7 @@ pub trait Renderer: iced_native::Renderer {
         is_dragging: bool,
         modulation_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

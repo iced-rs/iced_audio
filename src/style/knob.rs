@@ -2,7 +2,7 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use iced::Color;
+use iced::{Color, Font};
 //use iced_native::image;
 
 use crate::style::default_colors;
@@ -321,6 +321,39 @@ pub struct ModRangeRingStyle {
     pub filled_inverse_color: Color,
 }
 
+/// A style of a [`TextMarkGroup`] around a [`Knob`]
+///
+/// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+#[derive(Debug, Copy, Clone)]
+pub struct TextMarkStyle {
+    /// The color of the text
+    pub color: Color,
+    /// The offset of the text marks from the edge of the `Knob`
+    pub offset: f32,
+    /// The size of the text
+    pub text_size: u16,
+    /// The font of the text
+    pub font: Font,
+    /// The width of the text bounds
+    pub bounds_width: u16,
+    /// The height of the text bounds
+    pub bounds_height: u16,
+}
+
+impl std::default::Default for TextMarkStyle {
+    fn default() -> TextMarkStyle {
+        TextMarkStyle {
+            color: default_colors::TEXT_MARK,
+            offset: 15.0,
+            text_size: 11,
+            font: Font::default(),
+            bounds_width: 20,
+            bounds_height: 20,
+        }
+    }
+}
+
 /// A set of rules that dictate the style of a [`Knob`].
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
@@ -376,6 +409,16 @@ pub trait StyleSheet {
     fn mod_range_ring_style(&self) -> Option<ModRangeRingStyle> {
         None
     }
+
+    /// The style of a [`TextMarkGroup`] around a [`Knob`]
+    ///
+    /// For no text marks, don't override this or set this to return `None`.
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    fn text_mark_style(&self) -> Option<TextMarkStyle> {
+        None
+    }
 }
 
 struct Default;
@@ -413,6 +456,10 @@ impl StyleSheet for Default {
 
     fn tick_mark_style(&self) -> Option<TickMarkStyle> {
         Some(TickMarkStyle::default())
+    }
+
+    fn text_mark_style(&self) -> Option<TextMarkStyle> {
+        Some(TextMarkStyle::default())
     }
 }
 

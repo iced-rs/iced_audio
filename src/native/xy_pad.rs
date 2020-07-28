@@ -283,9 +283,9 @@ where
                                     - layout.bounds().x)
                                     / bounds_size;
 
-                                let normal_y = 1.0 - ((cursor_position.y
-                                    - layout.bounds().y)
-                                    / bounds_size);
+                                let normal_y = 1.0
+                                    - ((cursor_position.y - layout.bounds().y)
+                                        / bounds_size);
 
                                 if normal_x != self.state.continuous_normal_x {
                                     self.state.continuous_normal_x = normal_x;
