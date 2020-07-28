@@ -2,7 +2,8 @@
 //!
 //! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
-use crate::core::{ModulationRange, Normal, TickMarkGroup};
+use crate::core::{ModulationRange, Normal, TextMarkGroup, TickMarkGroup};
+use crate::graphics::bar_text_marks;
 use crate::native::v_slider;
 use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{mouse, Background, Color, Point, Rectangle};
@@ -32,6 +33,7 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
         is_dragging: bool,
         mod_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
@@ -45,6 +47,7 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
         };
 
         let tick_mark_style = style_sheet.tick_mark_style();
+        let text_mark_style = style_sheet.text_mark_style();
 
         let bounds_x = bounds.x.floor();
         let bounds_y = bounds.y.floor();
@@ -86,7 +89,9 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
                 bounds_width,
                 bounds_height,
                 tick_marks,
+                text_marks,
                 &tick_mark_style,
+                &text_mark_style,
                 style,
                 mod_range_line,
             ),
@@ -98,7 +103,9 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
                 bounds_width,
                 bounds_height,
                 tick_marks,
+                text_marks,
                 &tick_mark_style,
+                &text_mark_style,
                 &style,
                 mod_range_line,
             ),
@@ -110,7 +117,9 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
                 bounds_width,
                 bounds_height,
                 tick_marks,
+                text_marks,
                 &tick_mark_style,
+                &text_mark_style,
                 &style,
                 mod_range_line,
             ),
@@ -122,7 +131,9 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
                 bounds_width,
                 bounds_height,
                 tick_marks,
+                text_marks,
                 &tick_mark_style,
+                &text_mark_style,
                 &style,
                 mod_range_line,
             ),
@@ -225,22 +236,47 @@ fn draw_texture_style(
     bounds_width: f32,
     bounds_height: f32,
     tick_marks: Option<&TickMarkGroup>,
+    text_marks: Option<&TextMarkGroup>,
     tick_mark_style: &Option<TickMarkStyle>,
+    text_mark_style: &Option<crate::style::bar_text_marks::Style>,
     style: TextureStyle,
     mod_range_line: Primitive,
 ) -> Primitive {
     let handle_height = style.handle_height as f32;
+
+    let bar_y = (bounds_y + (handle_height / 2.0)).floor();
+    let bar_height = bounds_height - handle_height;
 
     let tick_marks: Primitive = {
         if let Some(tick_marks) = tick_marks {
             if let Some(style) = tick_mark_style {
                 draw_tick_marks(
                     rail_x,
-                    (bounds_y + (handle_height / 2.0)).floor(),
+                    bar_y,
                     bounds_width,
-                    bounds_height - handle_height,
+                    bar_height,
                     tick_marks,
                     &style,
+                )
+            } else {
+                Primitive::None
+            }
+        } else {
+            Primitive::None
+        }
+    };
+
+    let text_marks: Primitive = {
+        if let Some(text_marks) = text_marks {
+            if let Some(style) = text_mark_style {
+                bar_text_marks::draw_vertical_text_marks(
+                    bounds_x,
+                    bar_y,
+                    bounds_width,
+                    bar_height,
+                    &text_marks,
+                    style,
+                    false,
                 )
             } else {
                 Primitive::None
@@ -291,6 +327,7 @@ fn draw_texture_style(
     Primitive::Group {
         primitives: vec![
             tick_marks,
+            text_marks,
             top_rail,
             bottom_rail,
             handle,
@@ -307,22 +344,47 @@ fn draw_classic_style(
     bounds_width: f32,
     bounds_height: f32,
     tick_marks: Option<&TickMarkGroup>,
+    text_marks: Option<&TextMarkGroup>,
     tick_mark_style: &Option<TickMarkStyle>,
+    text_mark_style: &Option<crate::style::bar_text_marks::Style>,
     style: &ClassicStyle,
     mod_range_line: Primitive,
 ) -> Primitive {
     let handle_height = style.handle.height as f32;
+
+    let bar_y = (bounds_y + (handle_height / 2.0)).floor();
+    let bar_height = bounds_height - handle_height;
 
     let tick_marks: Primitive = {
         if let Some(tick_marks) = tick_marks {
             if let Some(style) = tick_mark_style {
                 draw_tick_marks(
                     rail_x,
-                    (bounds_y + (handle_height / 2.0)).floor(),
+                    bar_y,
                     bounds_width,
-                    bounds_height - handle_height,
+                    bar_height,
                     tick_marks,
                     &style,
+                )
+            } else {
+                Primitive::None
+            }
+        } else {
+            Primitive::None
+        }
+    };
+
+    let text_marks: Primitive = {
+        if let Some(text_marks) = text_marks {
+            if let Some(style) = text_mark_style {
+                bar_text_marks::draw_vertical_text_marks(
+                    bounds_x,
+                    bar_y,
+                    bounds_width,
+                    bar_height,
+                    &text_marks,
+                    style,
+                    false,
                 )
             } else {
                 Primitive::None
@@ -387,6 +449,7 @@ fn draw_classic_style(
     Primitive::Group {
         primitives: vec![
             tick_marks,
+            text_marks,
             top_rail,
             bottom_rail,
             handle,
@@ -404,22 +467,47 @@ fn draw_rect_style(
     bounds_width: f32,
     bounds_height: f32,
     tick_marks: Option<&TickMarkGroup>,
+    text_marks: Option<&TextMarkGroup>,
     tick_mark_style: &Option<TickMarkStyle>,
+    text_mark_style: &Option<crate::style::bar_text_marks::Style>,
     style: &RectStyle,
     mod_range_line: Primitive,
 ) -> Primitive {
     let handle_height = style.handle_height as f32;
+
+    let bar_y = (bounds_y + (handle_height / 2.0)).floor();
+    let bar_height = bounds_height - handle_height;
 
     let tick_marks: Primitive = {
         if let Some(tick_marks) = tick_marks {
             if let Some(style) = tick_mark_style {
                 draw_tick_marks(
                     rail_x,
-                    (bounds_y + (handle_height / 2.0)).floor(),
+                    bar_y,
                     bounds_width,
-                    bounds_height - handle_height,
+                    bar_height,
                     tick_marks,
                     &style,
+                )
+            } else {
+                Primitive::None
+            }
+        } else {
+            Primitive::None
+        }
+    };
+
+    let text_marks: Primitive = {
+        if let Some(text_marks) = text_marks {
+            if let Some(style) = text_mark_style {
+                bar_text_marks::draw_vertical_text_marks(
+                    bounds_x,
+                    bar_y,
+                    bounds_width,
+                    bar_height,
+                    &text_marks,
+                    style,
+                    false,
                 )
             } else {
                 Primitive::None
@@ -481,6 +569,7 @@ fn draw_rect_style(
 
     Primitive::Group {
         primitives: vec![
+            text_marks,
             empty_rect,
             tick_marks,
             filled_rect,
@@ -498,22 +587,47 @@ fn draw_rect_bipolar_style(
     bounds_width: f32,
     bounds_height: f32,
     tick_marks: Option<&TickMarkGroup>,
+    text_marks: Option<&TextMarkGroup>,
     tick_mark_style: &Option<TickMarkStyle>,
+    text_mark_style: &Option<crate::style::bar_text_marks::Style>,
     style: &RectBipolarStyle,
     mod_range_line: Primitive,
 ) -> Primitive {
     let handle_height = style.handle_height as f32;
+
+    let bar_y = (bounds_y + (handle_height / 2.0)).floor();
+    let bar_height = bounds_height - handle_height;
 
     let tick_marks: Primitive = {
         if let Some(tick_marks) = tick_marks {
             if let Some(style) = tick_mark_style {
                 draw_tick_marks(
                     rail_x,
-                    (bounds_y + (handle_height / 2.0)).floor(),
+                    bar_y,
                     bounds_width,
-                    bounds_height - handle_height,
+                    bar_height,
                     tick_marks,
                     &style,
+                )
+            } else {
+                Primitive::None
+            }
+        } else {
+            Primitive::None
+        }
+    };
+
+    let text_marks: Primitive = {
+        if let Some(text_marks) = text_marks {
+            if let Some(style) = text_mark_style {
+                bar_text_marks::draw_vertical_text_marks(
+                    bounds_x,
+                    bar_y,
+                    bounds_width,
+                    bar_height,
+                    &text_marks,
+                    style,
+                    false,
                 )
             } else {
                 Primitive::None
@@ -633,6 +747,7 @@ fn draw_rect_bipolar_style(
 
         Primitive::Group {
             primitives: vec![
+                text_marks,
                 empty_rect,
                 tick_marks,
                 filled_rect,

@@ -109,6 +109,34 @@ impl TextMarkGroup {
 
         Self::new(vec)
     }
+
+    /// Creates a group of evenly spaced text marks
+    ///
+    /// * `text` - a group of strings to be displayed
+    pub fn evenly_spaced(text: Vec<&str>) -> Self {
+        let mut vec: Vec<TextMark> = Vec::new();
+        vec.reserve_exact(text.len());
+
+        if text.len() == 1 {
+            vec.push(TextMark::min(text[0]));
+        } else if text.len() != 0 {
+            let len_min_1 = text.len() - 1;
+            let span = 1.0 / len_min_1 as f32;
+
+            for i in 0..len_min_1 {
+                let pos = i as f32 * span;
+
+                vec.push(TextMark {
+                    position: pos.into(),
+                    text: String::from(text[i]),
+                });
+            }
+
+            vec.push(TextMark::max(text[len_min_1]));
+        }
+
+        Self::new(vec)
+    }
 }
 
 /// Data of a text mark

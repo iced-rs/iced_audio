@@ -2,9 +2,9 @@
 //!
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
-use crate::core::{ModulationRange, Normal, TickMarkGroup, TextMarkGroup};
-use crate::native::h_slider;
+use crate::core::{ModulationRange, Normal, TextMarkGroup, TickMarkGroup};
 use crate::graphics::bar_text_marks;
+use crate::native::h_slider;
 use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{mouse, Background, Color, Point, Rectangle};
 
@@ -496,7 +496,7 @@ fn draw_rect_style(
             Primitive::None
         }
     };
-    
+
     let text_marks: Primitive = {
         if let Some(text_marks) = text_marks {
             if let Some(style) = text_mark_style {

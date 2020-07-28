@@ -11,7 +11,9 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{ModulationRange, Normal, Param, TickMarkGroup, TextMarkGroup};
+use crate::core::{
+    ModulationRange, Normal, Param, TextMarkGroup, TickMarkGroup,
+};
 
 static DEFAULT_HEIGHT: u16 = 14;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -358,6 +360,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the current normal of the [`HSlider`]
     ///   * whether the slider is currently being dragged
     ///   * any tick marks to display
+    ///   * any text marks to display
     ///   * the style of the [`HSlider`]
     ///
     /// [`HSlider`]: struct.HSlider.html

@@ -189,6 +189,39 @@ impl TickMarkGroup {
         Self::new(vec)
     }
 
+    /// Creates a [`TickMarkGroup`] of evenly spaced [`TickMark`]s
+    ///
+    /// * `len` - the number of tick marks
+    /// * `tier` - the [`TickMarkTier`] of the tick marks
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn evenly_spaced(len: usize, tier: TickMarkTier) -> Self {
+        let mut vec: Vec<TickMark> = Vec::new();
+        vec.reserve_exact(len);
+
+        if len == 1 {
+            vec.push(TickMark::min(tier));
+        } else if len != 0 {
+            let len_min_1 = len - 1;
+            let span = 1.0 / len_min_1 as f32;
+
+            for i in 0..len_min_1 {
+                let pos = i as f32 * span;
+
+                vec.push(TickMark {
+                    position: pos.into(),
+                    tier,
+                });
+            }
+
+            vec.push(TickMark::max(tier));
+        }
+
+        Self::new(vec)
+    }
+
     /// Returns `true` if the `TickMarkGroup` contains a tier 1 `TickMark`.
     ///
     /// [`TickMarkGroup`]: struct.TickMarkGroup.html

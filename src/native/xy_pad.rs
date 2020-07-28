@@ -229,7 +229,7 @@ where
                             let normal_x =
                                 self.state.continuous_normal_x + movement_x;
                             let normal_y =
-                                self.state.continuous_normal_y + movement_y;
+                                self.state.continuous_normal_y - movement_y;
 
                             self.state.prev_drag_x = cursor_position.x;
                             self.state.prev_drag_y = cursor_position.y;
@@ -283,9 +283,9 @@ where
                                     - layout.bounds().x)
                                     / bounds_size;
 
-                                let normal_y = (cursor_position.y
+                                let normal_y = 1.0 - ((cursor_position.y
                                     - layout.bounds().y)
-                                    / bounds_size;
+                                    / bounds_size);
 
                                 if normal_x != self.state.continuous_normal_x {
                                     self.state.continuous_normal_x = normal_x;
