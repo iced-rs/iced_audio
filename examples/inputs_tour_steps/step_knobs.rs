@@ -1,8 +1,8 @@
 use iced::{Column, Element, Length, Row, Text};
 
 use iced_audio::{
-    knob, DBRange, FloatRange, FreqRange, IntRange, Knob, TickMark,
-    TickMarkGroup, TickMarkTier,
+    knob, FloatRange, FreqRange, IntRange, Knob, LogDBRange, TextMark,
+    TextMarkGroup, TickMark, TickMarkGroup, TickMarkTier,
 };
 
 use crate::{style, Step};
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct KnobStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     knob_float_state: knob::State<KnobsID>,
@@ -46,6 +46,11 @@ pub struct KnobStep {
     db_tick_marks: TickMarkGroup,
     freq_tick_marks: TickMarkGroup,
 
+    float_text_marks: TextMarkGroup,
+    int_text_marks: TextMarkGroup,
+    db_text_marks: TextMarkGroup,
+    freq_text_marks: TextMarkGroup,
+
     output_text: String,
 }
 
@@ -55,7 +60,7 @@ impl Default for KnobStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -79,9 +84,11 @@ impl Default for KnobStep {
                 db_range.create_param_default(KnobsID::DB),
             ),
 
-            knob_freq_state: knob::State::new(
-                freq_range.create_param_default(KnobsID::Freq),
-            ),
+            knob_freq_state: knob::State::new(freq_range.create_param(
+                KnobsID::Freq,
+                1000.0,
+                1000.0,
+            )),
 
             knob_style1_state: knob::State::new(
                 float_range.create_param_default(KnobsID::Style1),
@@ -106,12 +113,7 @@ impl Default for KnobStep {
                 Some(TickMarkTier::Two),
             ),
 
-            int_tick_marks: TickMarkGroup::subdivided(
-                0,
-                4,
-                0,
-                Some(TickMarkTier::Two),
-            ),
+            int_tick_marks: TickMarkGroup::evenly_spaced(6, TickMarkTier::Two),
 
             db_tick_marks: vec![
                 TickMark {
@@ -164,7 +166,7 @@ impl Default for KnobStep {
                 },
                 TickMark {
                     position: freq_range.to_normal(100.0),
-                    tier: TickMarkTier::One,
+                    tier: TickMarkTier::Two,
                 },
                 TickMark {
                     position: freq_range.to_normal(200.0),
@@ -176,7 +178,7 @@ impl Default for KnobStep {
                 },
                 TickMark {
                     position: freq_range.to_normal(1000.0),
-                    tier: TickMarkTier::One,
+                    tier: TickMarkTier::Two,
                 },
                 TickMark {
                     position: freq_range.to_normal(2000.0),
@@ -188,7 +190,7 @@ impl Default for KnobStep {
                 },
                 TickMark {
                     position: freq_range.to_normal(10000.0),
-                    tier: TickMarkTier::One,
+                    tier: TickMarkTier::Two,
                 },
                 TickMark {
                     position: freq_range.to_normal(20000.0),
@@ -196,6 +198,19 @@ impl Default for KnobStep {
                 },
             ]
             .into(),
+
+            float_text_marks: TextMarkGroup::min_max_and_center(
+                "-1", "+1", "0",
+            ),
+            int_text_marks: TextMarkGroup::evenly_spaced(vec![
+                "A", "B", "C", "D", "E", "F",
+            ]),
+            db_text_marks: TextMarkGroup::min_max_and_center("-12", "+12", "0"),
+            freq_text_marks: TextMarkGroup::new(vec![
+                TextMark::new("100", freq_range.to_normal(100.0)),
+                TextMark::new("1k", freq_range.to_normal(1000.0)),
+                TextMark::new("10k", freq_range.to_normal(10000.0)),
+            ]),
 
             output_text: String::from("Move a widget"),
         }
@@ -284,21 +299,26 @@ impl KnobStep {
 
         let knob_float =
             Knob::new(&mut self.knob_float_state, Message::KnobMoved)
-                .tick_marks(&self.float_tick_marks);
+                .tick_marks(&self.float_tick_marks)
+                .text_marks(&self.float_text_marks);
 
         let knob_int = Knob::new(&mut self.knob_int_state, Message::KnobMoved)
-            .tick_marks(&self.int_tick_marks);
+            .tick_marks(&self.int_tick_marks)
+            .text_marks(&self.int_text_marks);
 
         let knob_db = Knob::new(&mut self.knob_db_state, Message::KnobMoved)
-            .tick_marks(&self.db_tick_marks);
+            .tick_marks(&self.db_tick_marks)
+            .text_marks(&self.db_text_marks);
 
         let knob_freq =
             Knob::new(&mut self.knob_freq_state, Message::KnobMoved)
-                .tick_marks(&self.freq_tick_marks);
+                .tick_marks(&self.freq_tick_marks)
+                .text_marks(&self.freq_text_marks);
 
         let knob_style1 =
             Knob::new(&mut self.knob_style1_state, Message::KnobMoved)
-                .style(style::KnobCustomStyleCircle);
+                .style(style::KnobCustomStyleCircle)
+                .text_marks(&self.float_text_marks);
 
         let knob_style2 =
             Knob::new(&mut self.knob_style2_state, Message::KnobMoved)
@@ -318,10 +338,10 @@ impl KnobStep {
             .push(
                 Column::new()
                     .width(Length::Fill)
-                    .spacing(10)
+                    .spacing(20)
                     .push(Text::new("Float Range"))
                     .push(knob_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(knob_db)
                     .push(Text::new("Custom Style 1"))
                     .push(knob_style1),
@@ -329,7 +349,7 @@ impl KnobStep {
             .push(
                 Column::new()
                     .width(Length::Fill)
-                    .spacing(10)
+                    .spacing(20)
                     .push(Text::new("Int Range"))
                     .push(knob_int)
                     .push(Text::new("Freq Range"))
@@ -340,7 +360,7 @@ impl KnobStep {
             .push(
                 Column::new()
                     .width(Length::Fill)
-                    .spacing(10)
+                    .spacing(20)
                     .push(Text::new("Custom Style 3"))
                     .push(knob_style3)
                     .push(Text::new("Custom Bipolar Style 4"))

@@ -4,8 +4,8 @@ use iced::{
 };
 
 use iced_audio::{
-    knob, phase_meter, FloatRange, Knob, PhaseMeter, TickMarkGroup,
-    TickMarkTier,
+    knob, phase_meter, FloatRange, Knob, PhaseMeter, TextMarkGroup,
+    TickMarkGroup, TickMarkTier,
 };
 
 use std::time::Instant;
@@ -40,6 +40,7 @@ struct PhaseMeterApp {
     phase_meter_custom_state: phase_meter::State,
 
     tick_marks: TickMarkGroup,
+    text_marks: TextMarkGroup,
 
     current: Instant,
 }
@@ -83,6 +84,8 @@ impl Application for PhaseMeterApp {
                     Some(TickMarkTier::Two),
                 ),
 
+                text_marks: TextMarkGroup::min_max_and_center("-1", "+1", "0"),
+
                 current: Instant::now(),
             },
             Command::none(),
@@ -124,7 +127,8 @@ impl Application for PhaseMeterApp {
 
         let phase_meter_default =
             PhaseMeter::new(&mut self.phase_meter_default_state)
-                .tick_marks(&self.tick_marks);
+                .tick_marks(&self.tick_marks)
+                .text_marks(&self.text_marks);
 
         let phase_meter_custom =
             PhaseMeter::new(&mut self.phase_meter_custom_state)

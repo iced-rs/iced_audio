@@ -1,4 +1,4 @@
-//! wgpu renderer for the [`ModRangeInput`] widget
+//! `iced_wgpu` renderer for the [`ModRangeInput`] widget
 //!
 //! [`ModRangeInput`]: ../native/mod_range_input/struct.ModRangeInput.html
 

@@ -1,10 +1,10 @@
-//! wgpu renderer for the [`PhaseMeter`] widget
+//! `iced_wgpu` renderer for the [`PhaseMeter`] widget
 //!
 //! [`PhaseMeter`]: ../native/phase_meter/struct.PhaseMeter.html
 
-use crate::core::{Normal, TickMarkGroup};
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
 use crate::native::phase_meter;
-use crate::wgpu::bar_tick_marks;
+use crate::wgpu::{bar_text_marks, bar_tick_marks};
 use iced_native::{Background, Color, MouseCursor, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
@@ -52,6 +52,7 @@ impl phase_meter::Renderer for Renderer {
         tier_positions: TierPositions,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let bounds_x = bounds.x.floor();
@@ -63,6 +64,7 @@ impl phase_meter::Renderer for Renderer {
         let style = style_sheet.style();
 
         let border_width = style.back_border_width as f32;
+        let twice_border_width = border_width * 2.0;
 
         let back = Primitive::Quad {
             bounds: Rectangle {
@@ -84,17 +86,40 @@ impl phase_meter::Renderer for Renderer {
                 let h_center = (bounds_width / 2.0).floor();
 
                 let bar_y = bounds_y + border_width;
-                let bar_height = bounds_height - (border_width * 2.0);
+                let bar_height = bounds_height - twice_border_width;
+
+                let bar_x = bounds_x + border_width;
+                let bar_width = bounds_width - twice_border_width;
 
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
                             bar_tick_marks::draw_horizontal_tick_marks(
-                                bounds_x + border_width,
+                                bar_x,
                                 bounds_y,
-                                bounds_width - (border_width * 2.0),
+                                bar_width,
                                 bounds_height,
                                 tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_horizontal_text_marks(
+                                bar_x,
+                                bounds_y,
+                                bar_width,
+                                bounds_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -121,7 +146,7 @@ impl phase_meter::Renderer for Renderer {
                 };
 
                 if normal.value() < 0.499 || normal.value() > 0.501 {
-                    let meter_span = bounds_width - (border_width * 2.0);
+                    let meter_span = bounds_width - twice_border_width;
 
                     let normal_offset =
                         ((normal.value() * meter_span) + border_width).floor();
@@ -164,6 +189,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         bad_bar,
                                         poor_bar,
@@ -191,6 +217,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         poor_bar,
                                         center_line,
@@ -217,6 +244,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         okay_bar,
                                         center_line,
@@ -260,6 +288,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         okay_bar,
                                         good_bar,
@@ -273,7 +302,12 @@ impl phase_meter::Renderer for Renderer {
                 } else {
                     (
                         Primitive::Group {
-                            primitives: vec![tick_marks, back, center_line],
+                            primitives: vec![
+                                tick_marks,
+                                text_marks,
+                                back,
+                                center_line,
+                            ],
                         },
                         MouseCursor::default(),
                     )
@@ -283,17 +317,40 @@ impl phase_meter::Renderer for Renderer {
                 let v_center = (bounds_height / 2.0).floor();
 
                 let bar_x = bounds_x + border_width;
-                let bar_width = bounds_width - (border_width * 2.0);
+                let bar_width = bounds_width - twice_border_width;
+
+                let bar_y = bounds_y + border_width;
+                let bar_height = bounds_height - twice_border_width;
 
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
                             bar_tick_marks::draw_vertical_tick_marks(
                                 bounds_x,
-                                bounds_y + border_width,
+                                bar_y,
                                 bounds_width,
-                                bounds_height - (border_width * 2.0),
+                                bar_height,
                                 tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_vertical_text_marks(
+                                bounds_x,
+                                bar_y,
+                                bounds_width,
+                                bar_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -320,7 +377,7 @@ impl phase_meter::Renderer for Renderer {
                 };
 
                 if normal.value() < 0.499 || normal.value() > 0.501 {
-                    let meter_span = bounds_height - (border_width * 2.0);
+                    let meter_span = bounds_height - twice_border_width;
 
                     let normal_offset = (((1.0 - normal.value()) * meter_span)
                         + border_width)
@@ -364,6 +421,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         poor_bar,
                                         bad_bar,
@@ -391,6 +449,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         poor_bar,
                                         center_line,
@@ -417,6 +476,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         okay_bar,
                                         center_line,
@@ -463,6 +523,7 @@ impl phase_meter::Renderer for Renderer {
                                 Primitive::Group {
                                     primitives: vec![
                                         tick_marks,
+                                        text_marks,
                                         back,
                                         okay_bar,
                                         good_bar,
@@ -476,7 +537,12 @@ impl phase_meter::Renderer for Renderer {
                 } else {
                     (
                         Primitive::Group {
-                            primitives: vec![tick_marks, back, center_line],
+                            primitives: vec![
+                                tick_marks,
+                                text_marks,
+                                back,
+                                center_line,
+                            ],
                         },
                         MouseCursor::default(),
                     )

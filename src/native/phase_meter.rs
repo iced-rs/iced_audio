@@ -9,7 +9,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, TickMarkGroup};
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
 
 static DEFAULT_HEIGHT: u16 = 8;
 
@@ -44,6 +44,7 @@ pub struct PhaseMeter<'a, Renderer: self::Renderer> {
     style: Renderer::Style,
     orientation: Orientation,
     tick_marks: Option<&'a TickMarkGroup>,
+    text_marks: Option<&'a TextMarkGroup>,
 }
 
 impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
@@ -62,6 +63,7 @@ impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
             style: Renderer::Style::default(),
             orientation: Orientation::Horizontal,
             tick_marks: None,
+            text_marks: None,
         }
     }
 
@@ -111,6 +113,17 @@ impl<'a, Renderer: self::Renderer> PhaseMeter<'a, Renderer> {
     /// [`StyleSheet`]: ../../style/phase_meter/trait.StyleSheet.html
     pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
         self.tick_marks = Some(tick_marks);
+        self
+    }
+
+    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
+    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// them to display (which the default style does).
+    ///
+    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
+    /// [`StyleSheet`]: ../../style/phase_meter/trait.StyleSheet.html
+    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+        self.text_marks = Some(text_marks);
         self
     }
 }
@@ -228,6 +241,7 @@ where
             self.state.tier_positions,
             &self.orientation,
             self.tick_marks,
+            self.text_marks,
             &self.style,
         )
     }
@@ -259,6 +273,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the positions of each tier of color
     ///   * the orientation of the [`PhaseMeter`]
     ///   * any tick marks to display
+    ///   * any text marks to display
     ///   * the style of the [`PhaseMeter`]
     ///
     /// [`Normal`]: ../../core/struct.Normal.html
@@ -270,6 +285,7 @@ pub trait Renderer: iced_native::Renderer {
         tier_positions: TierPositions,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style: &Self::Style,
     ) -> Self::Output;
 }

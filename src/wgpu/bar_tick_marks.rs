@@ -1,4 +1,4 @@
-//! wgpu renderer for tick marks for bar meters
+//! `iced_wgpu` renderer for tick marks for bar meters
 
 use crate::core::TickMarkGroup;
 use crate::style::bar_tick_marks::{Placement, Style};

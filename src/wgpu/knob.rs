@@ -1,18 +1,21 @@
-//! wgpu renderer for the [`Knob`] widget
+//! `iced_wgpu` renderer for the [`Knob`] widget
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use crate::core::{ModulationRange, Normal, TickMarkGroup};
+use crate::core::{ModulationRange, Normal, TextMarkGroup, TickMarkGroup};
 use crate::native::knob;
-use iced_native::{Background, Color, MouseCursor, Point, Rectangle, Vector};
-use iced_wgpu::widget::canvas::{path::Arc, Frame, LineCap, Path, Stroke};
+use iced_native::{
+    Background, Color, HorizontalAlignment, MouseCursor, Point, Rectangle,
+    Vector, VerticalAlignment,
+};
+use iced_wgpu::canvas::{path::Arc, Frame, LineCap, Path, Stroke};
 use iced_wgpu::{Primitive, Renderer};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
     ArcBipolarNotch, ArcBipolarStyle, ArcNotch, ArcStyle, CircleTickMarkStyle,
     ClassicCircleStyle, ClassicLineStyle, LineTickMarkStyle, ModRangeRingStyle,
-    Style, StyleSheet, TickMarkStyle, ValueRingStyle,
+    Style, StyleSheet, TextMarkStyle, TickMarkStyle, ValueRingStyle,
 };
 
 /// This is an alias of a `crate::native` [`Knob`] with an
@@ -32,6 +35,7 @@ impl knob::Renderer for Renderer {
         is_dragging: bool,
         mod_range: Option<ModulationRange>,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
@@ -53,9 +57,9 @@ impl knob::Renderer for Renderer {
 
         let radius = bounds_size / 2.0;
 
-        let mut angle_start = angle_range.min() + std::f32::consts::FRAC_PI_2;
-        if angle_start >= crate::TAU {
-            angle_start -= crate::TAU
+        let mut start_angle = angle_range.min() + std::f32::consts::FRAC_PI_2;
+        if start_angle >= crate::TAU {
+            start_angle -= crate::TAU
         }
 
         let angle_span = angle_range.max() - angle_range.min();
@@ -63,7 +67,7 @@ impl knob::Renderer for Renderer {
         let value_ring: Primitive = {
             if let Some(style) = style_sheet.value_ring_style() {
                 draw_value_ring(
-                    angle_start,
+                    start_angle,
                     angle_span,
                     normal,
                     bounds_x,
@@ -82,7 +86,7 @@ impl knob::Renderer for Renderer {
                 if mod_range.visible {
                     if let Some(style) = style_sheet.mod_range_ring_style() {
                         draw_mod_range_ring(
-                            angle_start,
+                            start_angle,
                             angle_span,
                             bounds_x,
                             bounds_y,
@@ -107,7 +111,7 @@ impl knob::Renderer for Renderer {
                 if let Some(style) = style_sheet.tick_mark_style() {
                     match style {
                         TickMarkStyle::Circle(style) => draw_circle_tick_marks(
-                            angle_start,
+                            start_angle,
                             angle_span,
                             radius,
                             bounds_x,
@@ -116,7 +120,7 @@ impl knob::Renderer for Renderer {
                             &style,
                         ),
                         TickMarkStyle::Line(style) => draw_line_tick_marks(
-                            angle_start,
+                            start_angle,
                             angle_span,
                             radius,
                             bounds_x,
@@ -134,82 +138,18 @@ impl knob::Renderer for Renderer {
             }
         };
 
-        (
-            match style {
-                Style::ClassicCircle(style) => draw_classic_circle_style(
-                    angle_start,
-                    angle_span,
-                    bounds_x,
-                    bounds_y,
-                    bounds_size,
-                    radius,
-                    normal,
-                    &style,
-                    value_ring,
-                    mod_range_ring,
-                    tick_marks,
-                ),
-                Style::ClassicLine(style) => draw_classic_line_style(
-                    angle_start,
-                    angle_span,
-                    bounds_x,
-                    bounds_y,
-                    bounds_size,
-                    radius,
-                    normal,
-                    &style,
-                    value_ring,
-                    mod_range_ring,
-                    tick_marks,
-                ),
-                Style::Arc(style) => draw_arc_style(
-                    angle_start,
-                    angle_span,
-                    bounds_x,
-                    bounds_y,
-                    bounds_size,
-                    radius,
-                    normal,
-                    &style,
-                    value_ring,
-                    mod_range_ring,
-                    tick_marks,
-                ),
-                Style::ArcBipolar(style) => draw_arc_bipolar_style(
-                    angle_start,
-                    angle_span,
-                    bounds_x,
-                    bounds_y,
-                    bounds_size,
-                    radius,
-                    normal,
-                    &style,
-                    value_ring,
-                    mod_range_ring,
-                    tick_marks,
-                ),
-            },
-            MouseCursor::default(),
-        )
-
-        /*
-        let tick_marks: Primitive = {
-            if let Some(tick_marks) = tick_marks {
-                if let Some(style) = style_sheet.tick_mark_style() {
-                    match style {
-                        TickMarkStyle::Circle(style) => {
-                            draw_circle_tick_marks(
-                                radius,
-                                bounds_x,
-                                bounds_y,
-                                &angle_range,
-                                tick_marks,
-                                &style
-                            )
-                        }
-                        TickMarkStyle::Line(style) => {
-
-                    }
+        let text_marks: Primitive = {
+            if let Some(text_marks) = text_marks {
+                if let Some(style) = style_sheet.text_mark_style() {
+                    draw_text_marks(
+                        &style,
+                        bounds_x,
+                        bounds_y,
+                        radius,
+                        start_angle,
+                        angle_span,
+                        text_marks,
+                    )
                 } else {
                     Primitive::None
                 }
@@ -217,7 +157,68 @@ impl knob::Renderer for Renderer {
                 Primitive::None
             }
         };
-        */
+
+        (
+            match style {
+                Style::ClassicCircle(style) => draw_classic_circle_style(
+                    start_angle,
+                    angle_span,
+                    bounds_x,
+                    bounds_y,
+                    bounds_size,
+                    radius,
+                    normal,
+                    &style,
+                    value_ring,
+                    mod_range_ring,
+                    tick_marks,
+                    text_marks,
+                ),
+                Style::ClassicLine(style) => draw_classic_line_style(
+                    start_angle,
+                    angle_span,
+                    bounds_x,
+                    bounds_y,
+                    bounds_size,
+                    radius,
+                    normal,
+                    &style,
+                    value_ring,
+                    mod_range_ring,
+                    tick_marks,
+                    text_marks,
+                ),
+                Style::Arc(style) => draw_arc_style(
+                    start_angle,
+                    angle_span,
+                    bounds_x,
+                    bounds_y,
+                    bounds_size,
+                    radius,
+                    normal,
+                    &style,
+                    value_ring,
+                    mod_range_ring,
+                    tick_marks,
+                    text_marks,
+                ),
+                Style::ArcBipolar(style) => draw_arc_bipolar_style(
+                    start_angle,
+                    angle_span,
+                    bounds_x,
+                    bounds_y,
+                    bounds_size,
+                    radius,
+                    normal,
+                    &style,
+                    value_ring,
+                    mod_range_ring,
+                    tick_marks,
+                    text_marks,
+                ),
+            },
+            MouseCursor::default(),
+        )
     }
 }
 
@@ -422,7 +423,7 @@ fn draw_mod_range_ring(
 }
 
 fn draw_classic_circle_style(
-    angle_start: f32,
+    start_angle: f32,
     angle_span: f32,
     bounds_x: f32,
     bounds_y: f32,
@@ -433,8 +434,9 @@ fn draw_classic_circle_style(
     value_ring: Primitive,
     mod_range_ring: Primitive,
     tick_marks: Primitive,
+    text_marks: Primitive,
 ) -> Primitive {
-    let angle_start = angle_start + std::f32::consts::FRAC_PI_2;
+    let start_angle = start_angle + std::f32::consts::FRAC_PI_2;
 
     let knob_back = Primitive::Quad {
         bounds: Rectangle {
@@ -449,7 +451,7 @@ fn draw_classic_circle_style(
         border_color: style.border_color,
     };
 
-    let angle = (angle_span * normal.value()) + angle_start;
+    let angle = (angle_span * normal.value()) + start_angle;
 
     let (dx, dy) = {
         if angle < -0.001 || angle > 0.001 {
@@ -485,6 +487,7 @@ fn draw_classic_circle_style(
     Primitive::Group {
         primitives: vec![
             tick_marks,
+            text_marks,
             value_ring,
             mod_range_ring,
             knob_back,
@@ -505,6 +508,7 @@ fn draw_classic_line_style(
     value_ring: Primitive,
     mod_range_ring: Primitive,
     tick_marks: Primitive,
+    text_marks: Primitive,
 ) -> Primitive {
     let angle_start = angle_start + std::f32::consts::FRAC_PI_2;
 
@@ -554,6 +558,7 @@ fn draw_classic_line_style(
     Primitive::Group {
         primitives: vec![
             tick_marks,
+            text_marks,
             value_ring,
             mod_range_ring,
             knob_back,
@@ -574,6 +579,7 @@ fn draw_arc_style(
     value_ring: Primitive,
     mod_range_ring: Primitive,
     tick_marks: Primitive,
+    text_marks: Primitive,
 ) -> Primitive {
     let fill_angle_span = angle_span * normal.value();
 
@@ -651,7 +657,13 @@ fn draw_arc_style(
     };
 
     Primitive::Group {
-        primitives: vec![tick_marks, value_ring, mod_range_ring, arc],
+        primitives: vec![
+            tick_marks,
+            text_marks,
+            value_ring,
+            mod_range_ring,
+            arc,
+        ],
     }
 }
 
@@ -667,6 +679,7 @@ fn draw_arc_bipolar_style(
     value_ring: Primitive,
     mod_range_ring: Primitive,
     tick_marks: Primitive,
+    text_marks: Primitive,
 ) -> Primitive {
     let fill_angle_span = angle_span * normal.value();
     let half_angle_span = angle_span / 2.0;
@@ -776,7 +789,13 @@ fn draw_arc_bipolar_style(
     };
 
     Primitive::Group {
-        primitives: vec![tick_marks, value_ring, mod_range_ring, arc],
+        primitives: vec![
+            tick_marks,
+            text_marks,
+            value_ring,
+            mod_range_ring,
+            arc,
+        ],
     }
 }
 
@@ -785,7 +804,7 @@ fn draw_circle_tick_mark_tier(
     tick_mark_positions: &Vec<Normal>,
     diameter: f32,
     color: &Color,
-    angle_start: f32,
+    start_angle: f32,
     angle_span: f32,
     center_x: f32,
     center_y: f32,
@@ -796,7 +815,7 @@ fn draw_circle_tick_mark_tier(
     let color = Background::Color(*color);
 
     for tick_mark_position in tick_mark_positions.iter() {
-        let angle = (angle_span * tick_mark_position.value()) + angle_start;
+        let angle = (angle_span * tick_mark_position.value()) + start_angle;
 
         let (dx, dy) = {
             if angle < -0.001 || angle > 0.001 {
@@ -822,7 +841,7 @@ fn draw_circle_tick_mark_tier(
 }
 
 fn draw_circle_tick_marks(
-    angle_start: f32,
+    start_angle: f32,
     angle_span: f32,
     radius: f32,
     bounds_x: f32,
@@ -830,7 +849,7 @@ fn draw_circle_tick_marks(
     tick_marks: &TickMarkGroup,
     style: &CircleTickMarkStyle,
 ) -> Primitive {
-    let angle_start = angle_start + std::f32::consts::FRAC_PI_2;
+    let start_angle = start_angle + std::f32::consts::FRAC_PI_2;
 
     let mut primitives: Vec<Primitive> = Vec::new();
     primitives.reserve_exact(tick_marks.len());
@@ -846,7 +865,7 @@ fn draw_circle_tick_marks(
             &tick_marks.tier_1_positions(),
             style.diameter_tier_1 as f32,
             &style.color_tier_1,
-            angle_start,
+            start_angle,
             angle_span,
             center_x,
             center_y,
@@ -859,7 +878,7 @@ fn draw_circle_tick_marks(
             &tick_marks.tier_2_positions(),
             style.diameter_tier_2 as f32,
             &style.color_tier_2,
-            angle_start,
+            start_angle,
             angle_span,
             center_x,
             center_y,
@@ -872,7 +891,7 @@ fn draw_circle_tick_marks(
             &tick_marks.tier_3_positions(),
             style.diameter_tier_3 as f32,
             &style.color_tier_3,
-            angle_start,
+            start_angle,
             angle_span,
             center_x,
             center_y,
@@ -978,4 +997,58 @@ fn draw_line_tick_marks(
     }
 
     frame.into_primitive()
+}
+
+fn draw_text_marks(
+    style: &TextMarkStyle,
+    bounds_x: f32,
+    bounds_y: f32,
+    radius: f32,
+    start_angle: f32,
+    angle_span: f32,
+    text_marks: &TextMarkGroup,
+) -> Primitive {
+    let mut primitives: Vec<Primitive> = Vec::new();
+
+    let color = style.color;
+    let font = style.font;
+    let text_size = style.text_size as f32;
+    let text_bounds_width = style.bounds_width as f32;
+    let text_bounds_height = style.bounds_height as f32;
+
+    let text_mark_radius = radius + (style.offset as f32);
+
+    let center_x = bounds_x + radius;
+    let center_y = bounds_y + radius;
+
+    let start_angle = start_angle + std::f32::consts::FRAC_PI_2;
+
+    for text_mark in text_marks.group.iter() {
+        let angle = (angle_span * text_mark.position.value()) + start_angle;
+
+        let (dx, dy) = {
+            if angle < -0.001 || angle > 0.001 {
+                angle.sin_cos()
+            } else {
+                (0.0, -1.0)
+            }
+        };
+
+        primitives.push(Primitive::Text {
+            content: text_mark.text.clone(),
+            size: text_size,
+            bounds: Rectangle {
+                x: (center_x + (dx * text_mark_radius)).round(),
+                y: (center_y - (dy * text_mark_radius)).round(),
+                width: text_bounds_width,
+                height: text_bounds_height,
+            },
+            color,
+            font,
+            horizontal_alignment: HorizontalAlignment::Center,
+            vertical_alignment: VerticalAlignment::Center,
+        });
+    }
+
+    Primitive::Group { primitives }
 }

@@ -1,5 +1,6 @@
 //! A wgpu renderer for Iced Audio widgets
 
+mod bar_text_marks;
 mod bar_tick_marks;
 
 pub mod h_slider;

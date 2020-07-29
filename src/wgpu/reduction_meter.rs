@@ -1,10 +1,10 @@
-//! wgpu renderer for the [`ReductionMeter`] widget
+//! `iced_wgpu` renderer for the [`ReductionMeter`] widget
 //!
 //! [`ReductionMeter`]: ../native/reduction_meter/struct.ReductionMeter.html
 
-use crate::core::{Normal, TickMarkGroup};
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
 use crate::native::reduction_meter;
-use crate::wgpu::bar_tick_marks;
+use crate::wgpu::{bar_text_marks, bar_tick_marks};
 use iced_native::{Background, Color, MouseCursor, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
@@ -27,6 +27,7 @@ impl reduction_meter::Renderer for Renderer {
         peak_normal: Option<Normal>,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let bounds_x = bounds.x.floor();
@@ -38,6 +39,7 @@ impl reduction_meter::Renderer for Renderer {
         let style = style_sheet.style();
 
         let border_width = style.back_border_width as f32;
+        let twice_border_width = border_width * 2.0;
 
         let back = Primitive::Quad {
             bounds: Rectangle {
@@ -54,15 +56,38 @@ impl reduction_meter::Renderer for Renderer {
 
         match orientation {
             Orientation::Vertical => {
+                let bar_y = bounds_y + border_width;
+                let bar_height = bounds_height - twice_border_width;
+
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
                             bar_tick_marks::draw_vertical_tick_marks(
                                 bounds_x,
-                                bounds_y + border_width,
+                                bar_y,
                                 bounds_width,
-                                bounds_height - (border_width * 2.0),
+                                bar_height,
                                 tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_vertical_text_marks(
+                                bounds_x,
+                                bar_y,
+                                bounds_width,
+                                bar_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -128,21 +153,46 @@ impl reduction_meter::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, back, bar, peak_line],
+                        primitives: vec![
+                            tick_marks, text_marks, back, bar, peak_line,
+                        ],
                     },
                     MouseCursor::default(),
                 )
             }
             Orientation::Horizontal => {
+                let bar_x = bounds_x + border_width;
+                let bar_width = bounds_width - twice_border_width;
+
                 let tick_marks: Primitive = {
                     if let Some(tick_marks) = tick_marks {
                         if let Some(style) = style_sheet.tick_mark_style() {
                             bar_tick_marks::draw_horizontal_tick_marks(
-                                bounds_x + border_width,
+                                bar_x,
                                 bounds_y,
-                                bounds_width - (border_width * 2.0),
+                                bar_width,
                                 bounds_height,
                                 tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_horizontal_text_marks(
+                                bar_x,
+                                bounds_y,
+                                bar_width,
+                                bounds_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -210,7 +260,9 @@ impl reduction_meter::Renderer for Renderer {
 
                 (
                     Primitive::Group {
-                        primitives: vec![tick_marks, back, bar, peak_line],
+                        primitives: vec![
+                            tick_marks, text_marks, back, bar, peak_line,
+                        ],
                     },
                     MouseCursor::default(),
                 )

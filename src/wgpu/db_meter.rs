@@ -1,10 +1,10 @@
-//! wgpu renderer for the [`DBMeter`] widget
+//! `iced_wgpu` renderer for the [`DBMeter`] widget
 //!
 //! [`DBMeter`]: ../native/db_meter/struct.DBMeter.html
 
-use crate::core::{Normal, TickMarkGroup};
+use crate::core::{Normal, TextMarkGroup, TickMarkGroup};
 use crate::native::db_meter;
-use crate::wgpu::bar_tick_marks;
+use crate::wgpu::{bar_text_marks, bar_tick_marks};
 use iced_native::{Background, Color, MouseCursor, Rectangle};
 use iced_wgpu::{Primitive, Renderer};
 
@@ -453,6 +453,7 @@ impl db_meter::Renderer for Renderer {
         tier_positions: TierPositions,
         orientation: &Orientation,
         tick_marks: Option<&TickMarkGroup>,
+        text_marks: Option<&TextMarkGroup>,
         style_sheet: &Self::Style,
     ) -> Self::Output {
         let bounds_x = bounds.x.floor();
@@ -493,6 +494,26 @@ impl db_meter::Renderer for Renderer {
                                 bounds_width,
                                 bar_height,
                                 &tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_vertical_text_marks(
+                                bounds_x,
+                                bar_y,
+                                bounds_width,
+                                bar_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -575,6 +596,7 @@ impl db_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 inner_gap,
@@ -605,6 +627,7 @@ impl db_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 meter,
@@ -627,6 +650,26 @@ impl db_meter::Renderer for Renderer {
                                 bar_width,
                                 bounds_height,
                                 &tick_marks,
+                                &style,
+                                false,
+                            )
+                        } else {
+                            Primitive::None
+                        }
+                    } else {
+                        Primitive::None
+                    }
+                };
+
+                let text_marks: Primitive = {
+                    if let Some(text_marks) = text_marks {
+                        if let Some(style) = style_sheet.text_mark_style() {
+                            bar_text_marks::draw_horizontal_text_marks(
+                                bar_x,
+                                bounds_y,
+                                bar_width,
+                                bounds_height,
+                                &text_marks,
                                 &style,
                                 false,
                             )
@@ -709,6 +752,7 @@ impl db_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 inner_gap,
@@ -739,6 +783,7 @@ impl db_meter::Renderer for Renderer {
                         Primitive::Group {
                             primitives: vec![
                                 tick_marks,
+                                text_marks,
                                 back,
                                 clip_marker,
                                 meter,

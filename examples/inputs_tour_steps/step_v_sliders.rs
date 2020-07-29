@@ -2,8 +2,8 @@ use iced::{Column, Element, Length, Row, Text};
 use iced_native::image;
 
 use iced_audio::{
-    v_slider, DBRange, FloatRange, FreqRange, IntRange, TickMark,
-    TickMarkGroup, TickMarkTier, VSlider,
+    v_slider, FloatRange, FreqRange, IntRange, LogDBRange, TextMark,
+    TextMarkGroup, TickMark, TickMarkGroup, TickMarkTier, VSlider,
 };
 
 use crate::{style, Step};
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct VSliderStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     v_slider_float_state: v_slider::State<VSlidersID>,
@@ -47,6 +47,11 @@ pub struct VSliderStep {
     db_tick_marks: TickMarkGroup,
     freq_tick_marks: TickMarkGroup,
 
+    float_text_marks: TextMarkGroup,
+    int_text_marks: TextMarkGroup,
+    db_text_marks: TextMarkGroup,
+    freq_text_marks: TextMarkGroup,
+
     output_text: String,
 }
 
@@ -56,7 +61,7 @@ impl Default for VSliderStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -80,9 +85,11 @@ impl Default for VSliderStep {
                 db_range.create_param_default(VSlidersID::DB),
             ),
 
-            v_slider_freq_state: v_slider::State::new(
-                freq_range.create_param_default(VSlidersID::Freq),
-            ),
+            v_slider_freq_state: v_slider::State::new(freq_range.create_param(
+                VSlidersID::Freq,
+                1000.0,
+                1000.0,
+            )),
 
             v_slider_rect_state: v_slider::State::new(
                 float_range.create_param_default(VSlidersID::RectStyle),
@@ -109,12 +116,7 @@ impl Default for VSliderStep {
                 Some(TickMarkTier::Two),
             ),
 
-            int_tick_marks: TickMarkGroup::subdivided(
-                0,
-                4,
-                0,
-                Some(TickMarkTier::Two),
-            ),
+            int_tick_marks: TickMarkGroup::evenly_spaced(6, TickMarkTier::Two),
 
             db_tick_marks: vec![
                 TickMark {
@@ -199,6 +201,19 @@ impl Default for VSliderStep {
                 },
             ]
             .into(),
+
+            float_text_marks: TextMarkGroup::min_max_and_center(
+                "-1", "+1", "0",
+            ),
+            int_text_marks: TextMarkGroup::evenly_spaced(vec![
+                "A", "B", "C", "D", "E", "F",
+            ]),
+            db_text_marks: TextMarkGroup::min_max_and_center("-12", "+12", "0"),
+            freq_text_marks: TextMarkGroup::new(vec![
+                TextMark::new("100", freq_range.to_normal(100.0)),
+                TextMark::new("1k", freq_range.to_normal(1000.0)),
+                TextMark::new("10k", freq_range.to_normal(10000.0)),
+            ]),
 
             output_text: String::from("Move a widget"),
         }
@@ -286,19 +301,23 @@ impl VSliderStep {
 
         let v_slider_float =
             VSlider::new(&mut self.v_slider_float_state, Message::VSliderMoved)
-                .tick_marks(&self.float_tick_marks);
+                .tick_marks(&self.float_tick_marks)
+                .text_marks(&self.float_text_marks);
 
         let v_slider_int =
             VSlider::new(&mut self.v_slider_int_state, Message::VSliderMoved)
-                .tick_marks(&self.int_tick_marks);
+                .tick_marks(&self.int_tick_marks)
+                .text_marks(&self.int_text_marks);
 
         let v_slider_db =
             VSlider::new(&mut self.v_slider_db_state, Message::VSliderMoved)
-                .tick_marks(&self.db_tick_marks);
+                .tick_marks(&self.db_tick_marks)
+                .text_marks(&self.db_text_marks);
 
         let v_slider_freq =
             VSlider::new(&mut self.v_slider_freq_state, Message::VSliderMoved)
-                .tick_marks(&self.freq_tick_marks);
+                .tick_marks(&self.freq_tick_marks)
+                .text_marks(&self.freq_text_marks);
 
         let v_slider_rect =
             VSlider::new(&mut self.v_slider_rect_state, Message::VSliderMoved)
@@ -317,6 +336,7 @@ impl VSliderStep {
             Message::VSliderMoved,
         )
         .tick_marks(&self.float_tick_marks)
+        .text_marks(&self.float_text_marks)
         // the width of the texture
         .width(Length::from(Length::Units(20)))
         .style(style::VSliderTextureStyle(
@@ -335,7 +355,7 @@ impl VSliderStep {
                     .spacing(10)
                     .push(Text::new("Float Range"))
                     .push(v_slider_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(v_slider_db),
             )
             .push(

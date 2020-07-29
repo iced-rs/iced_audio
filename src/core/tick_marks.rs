@@ -189,6 +189,39 @@ impl TickMarkGroup {
         Self::new(vec)
     }
 
+    /// Creates a [`TickMarkGroup`] of evenly spaced [`TickMark`]s
+    ///
+    /// * `len` - the number of tick marks
+    /// * `tier` - the [`TickMarkTier`] of the tick marks
+    ///
+    /// [`TickMarkGroup`]: struct.TickMarkGroup.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    /// [`TickMark`]: struct.TickMark.html
+    pub fn evenly_spaced(len: usize, tier: TickMarkTier) -> Self {
+        let mut vec: Vec<TickMark> = Vec::new();
+        vec.reserve_exact(len);
+
+        if len == 1 {
+            vec.push(TickMark::min(tier));
+        } else if len != 0 {
+            let len_min_1 = len - 1;
+            let span = 1.0 / len_min_1 as f32;
+
+            for i in 0..len_min_1 {
+                let pos = i as f32 * span;
+
+                vec.push(TickMark {
+                    position: pos.into(),
+                    tier,
+                });
+            }
+
+            vec.push(TickMark::max(tier));
+        }
+
+        Self::new(vec)
+    }
+
     /// Returns `true` if the `TickMarkGroup` contains a tier 1 `TickMark`.
     ///
     /// [`TickMarkGroup`]: struct.TickMarkGroup.html
@@ -296,7 +329,20 @@ impl Default for TickMark {
 }
 
 impl TickMark {
-    /// Returns a tick mark at the center (`0.5`) position.
+    /// Returns a new tick mark at the center (`0.5`) position.
+    ///
+    /// * `position` - a [`Normal`] value that represents the position of the tick
+    /// mark. For example, a value of `0.0` is at the minimum position, `1.0` is
+    /// at the maximum position, and `0.5` is at the center position.
+    /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    /// [`TickMarkTier`]: enum.TickMarkTier.html
+    pub fn new(position: Normal, tier: TickMarkTier) -> Self {
+        Self { position, tier }
+    }
+
+    /// Returns a new tick mark at the center (`0.5`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -308,7 +354,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the minimum (`0.0`) position.
+    /// Returns a new tick mark at the minimum (`0.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///
@@ -320,7 +366,7 @@ impl TickMark {
         }
     }
 
-    /// Returns a tick mark at the maximum (`1.0`) position.
+    /// Returns a new tick mark at the maximum (`1.0`) position.
     ///
     /// * `tier` - a [`TickMarkTier`] representing the size of the tick mark
     ///

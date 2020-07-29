@@ -2,8 +2,8 @@ use iced::{Column, Element, Length, Row, Text};
 use iced_native::image;
 
 use iced_audio::{
-    h_slider, DBRange, FloatRange, FreqRange, HSlider, IntRange, TickMark,
-    TickMarkGroup, TickMarkTier,
+    h_slider, FloatRange, FreqRange, HSlider, IntRange, LogDBRange, TextMark,
+    TextMarkGroup, TickMark, TickMarkGroup, TickMarkTier,
 };
 
 use crate::{style, Step};
@@ -29,7 +29,7 @@ pub enum Message {
 pub struct HSliderStep {
     float_range: FloatRange,
     int_range: IntRange,
-    db_range: DBRange,
+    db_range: LogDBRange,
     freq_range: FreqRange,
 
     h_slider_float_state: h_slider::State<HSlidersID>,
@@ -47,6 +47,11 @@ pub struct HSliderStep {
     db_tick_marks: TickMarkGroup,
     freq_tick_marks: TickMarkGroup,
 
+    float_text_marks: TextMarkGroup,
+    int_text_marks: TextMarkGroup,
+    db_text_marks: TextMarkGroup,
+    freq_text_marks: TextMarkGroup,
+
     output_text: String,
 }
 
@@ -56,7 +61,7 @@ impl Default for HSliderStep {
 
         let float_range = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
-        let db_range = DBRange::default();
+        let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
 
         // create application
@@ -80,9 +85,11 @@ impl Default for HSliderStep {
                 db_range.create_param_default(HSlidersID::DB),
             ),
 
-            h_slider_freq_state: h_slider::State::new(
-                freq_range.create_param_default(HSlidersID::Freq),
-            ),
+            h_slider_freq_state: h_slider::State::new(freq_range.create_param(
+                HSlidersID::Freq,
+                1000.0,
+                1000.0,
+            )),
 
             h_slider_rect_state: h_slider::State::new(
                 float_range.create_param_default(HSlidersID::RectStyle),
@@ -109,12 +116,7 @@ impl Default for HSliderStep {
                 Some(TickMarkTier::Two),
             ),
 
-            int_tick_marks: TickMarkGroup::subdivided(
-                0,
-                4,
-                0,
-                Some(TickMarkTier::Two),
-            ),
+            int_tick_marks: TickMarkGroup::evenly_spaced(6, TickMarkTier::Two),
 
             db_tick_marks: vec![
                 TickMark {
@@ -199,6 +201,19 @@ impl Default for HSliderStep {
                 },
             ]
             .into(),
+
+            float_text_marks: TextMarkGroup::min_max_and_center(
+                "-1", "+1", "0",
+            ),
+            int_text_marks: TextMarkGroup::evenly_spaced(vec![
+                "A", "B", "C", "D", "E", "F",
+            ]),
+            db_text_marks: TextMarkGroup::min_max_and_center("-12", "+12", "0"),
+            freq_text_marks: TextMarkGroup::new(vec![
+                TextMark::new("100", freq_range.to_normal(100.0)),
+                TextMark::new("1k", freq_range.to_normal(1000.0)),
+                TextMark::new("10k", freq_range.to_normal(10000.0)),
+            ]),
 
             output_text: String::from("Move a widget"),
         }
@@ -286,19 +301,23 @@ impl HSliderStep {
 
         let h_slider_float =
             HSlider::new(&mut self.h_slider_float_state, Message::HSliderMoved)
-                .tick_marks(&self.float_tick_marks);
+                .tick_marks(&self.float_tick_marks)
+                .text_marks(&self.float_text_marks);
 
         let h_slider_int =
             HSlider::new(&mut self.h_slider_int_state, Message::HSliderMoved)
-                .tick_marks(&self.int_tick_marks);
+                .tick_marks(&self.int_tick_marks)
+                .text_marks(&self.int_text_marks);
 
         let h_slider_db =
             HSlider::new(&mut self.h_slider_db_state, Message::HSliderMoved)
-                .tick_marks(&self.db_tick_marks);
+                .tick_marks(&self.db_tick_marks)
+                .text_marks(&self.db_text_marks);
 
         let h_slider_freq =
             HSlider::new(&mut self.h_slider_freq_state, Message::HSliderMoved)
-                .tick_marks(&self.freq_tick_marks);
+                .tick_marks(&self.freq_tick_marks)
+                .text_marks(&self.freq_text_marks);
 
         let h_slider_rect =
             HSlider::new(&mut self.h_slider_rect_state, Message::HSliderMoved)
@@ -317,6 +336,7 @@ impl HSliderStep {
             Message::HSliderMoved,
         )
         .tick_marks(&self.float_tick_marks)
+        .text_marks(&self.float_text_marks)
         // the height of the texture
         .height(Length::from(Length::Units(20)))
         .style(style::HSliderTextureStyle(
@@ -326,14 +346,14 @@ impl HSliderStep {
 
         // push the widgets into rows
         let h_slider_row = Row::new()
-            .spacing(20)
+            .spacing(16)
             .push(
                 Column::new()
                     .width(Length::Fill)
-                    .spacing(10)
+                    .spacing(20)
                     .push(Text::new("Float Range"))
                     .push(h_slider_float)
-                    .push(Text::new("DB Range"))
+                    .push(Text::new("Log DB Range"))
                     .push(h_slider_db)
                     .push(Text::new("Custom Style"))
                     .push(h_slider_rect)
@@ -343,7 +363,7 @@ impl HSliderStep {
             .push(
                 Column::new()
                     .width(Length::Fill)
-                    .spacing(10)
+                    .spacing(20)
                     .push(Text::new("Int Range"))
                     .push(h_slider_int)
                     .push(Text::new("Freq Range"))

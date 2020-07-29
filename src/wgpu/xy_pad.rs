@@ -1,4 +1,4 @@
-//! wgpu renderer for the [`XYPad`] widget
+//! `iced_wgpu` renderer for the [`XYPad`] widget
 //!
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
@@ -65,7 +65,8 @@ impl xy_pad::Renderer for Renderer {
         };
 
         let handle_x = (bounds_x + (bounds_size * normal_x.value())).floor();
-        let handle_y = (bounds_y + (bounds_size * normal_y.value())).floor();
+        let handle_y =
+            (bounds_y + (bounds_size * (1.0 - normal_y.value()))).floor();
 
         let bounds_center = (bounds_size / 2.0).floor();
 

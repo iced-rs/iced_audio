@@ -41,6 +41,13 @@ pub static TICK_TIER_3: Color = Color {
     a: 0.65,
 };
 
+pub static TEXT_MARK: Color = Color {
+    r: 0.26,
+    g: 0.26,
+    b: 0.26,
+    a: 0.93,
+};
+
 pub static KNOB_BACK_HOVER: Color = Color::from_rgb(0.96, 0.96, 0.96);
 
 pub static RAMP_BACK_HOVER: Color = Color::from_rgb(0.95, 0.95, 0.95);
