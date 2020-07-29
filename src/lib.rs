@@ -29,8 +29,8 @@
 //! };
 //! // Import iced_audio modules.
 //! use iced_audio::{
-//!     h_slider, knob, v_slider, xy_pad, LogDBRange, FloatRange, FreqRange, HSlider,
-//!     IntRange, Knob, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
+//!     h_slider, knob, v_slider, xy_pad, FloatRange, FreqRange, HSlider,
+//!     IntRange, Knob, LogDBRange, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
 //! };
 //!
 //! // Create a unique identifier for each parameter. Note you may also use any
