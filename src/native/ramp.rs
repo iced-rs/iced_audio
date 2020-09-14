@@ -16,7 +16,7 @@ use crate::core::{Normal, Param};
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
-static DEFAULT_SCALAR: f32 = 0.008;
+static DEFAULT_SCALAR: f32 = 0.004;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// The direction of a [`Ramp`] widget.

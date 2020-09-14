@@ -16,7 +16,7 @@ use crate::core::{
 };
 
 static DEFAULT_SIZE: u16 = 30;
-static DEFAULT_SCALAR: f32 = 0.008;
+static DEFAULT_SCALAR: f32 = 0.004;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A rotating knob GUI widget that controls a [`Param`]
