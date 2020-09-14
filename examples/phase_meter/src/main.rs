@@ -21,7 +21,7 @@ pub fn main() {
     PhaseMeterApp::run(Settings {
         antialiasing: true,
         ..Settings::default()
-    })
+    });
 }
 
 #[derive(Debug, Clone, Copy)]

@@ -17,7 +17,7 @@ pub fn main() {
     InputsTour::run(Settings {
         antialiasing: true,
         ..Settings::default()
-    })
+    });
 }
 
 pub struct InputsTour {

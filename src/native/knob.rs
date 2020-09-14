@@ -201,6 +201,14 @@ impl<ID: Debug + Copy + Clone> State<ID> {
         self.modulation_range = Some(modulation_range);
         self
     }
+
+    /// Returns the [`Normal`] value of the [`Param`]
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    /// [`Param`]: ../../core/param/struct.Param.html
+    pub fn normal(&mut self) -> &mut Normal {
+        &mut self.param.normal
+    }
 }
 
 impl<'a, Message, Renderer, ID> Widget<Message, Renderer>

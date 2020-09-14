@@ -154,6 +154,22 @@ impl<ID: Debug + Copy + Clone> State<ID> {
             last_click: None,
         }
     }
+
+    /// Returns the [`Normal`] value of the x [`Param`]
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    /// [`Param`]: ../../core/param/struct.Param.html
+    pub fn x_normal(&mut self) -> &mut Normal {
+        &mut self.param_x.normal
+    }
+
+    /// Returns the [`Normal`] value of the y [`Param`]
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    /// [`Param`]: ../../core/param/struct.Param.html
+    pub fn y_normal(&mut self) -> &mut Normal {
+        &mut self.param_y.normal
+    }
 }
 
 impl<'a, Message, Renderer, ID> Widget<Message, Renderer>

@@ -23,7 +23,7 @@ pub fn main() {
     ReductionMeterApp::run(Settings {
         antialiasing: true,
         ..Settings::default()
-    })
+    });
 }
 
 #[derive(Debug, Clone, Copy)]

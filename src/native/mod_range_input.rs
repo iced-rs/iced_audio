@@ -11,7 +11,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::Param;
+use crate::core::{Param, Normal};
 
 static DEFAULT_SIZE: u16 = 10;
 static DEFAULT_SCALAR: f32 = 0.004;
@@ -157,6 +157,14 @@ impl<ID: Debug + Copy + Clone> State<ID> {
             pressed_modifiers: Default::default(),
             last_click: None,
         }
+    }
+
+    /// Returns the [`Normal`] value of the [`Param`]
+    ///
+    /// [`Normal`]: ../../core/struct.Normal.html
+    /// [`Param`]: ../../core/param/struct.Param.html
+    pub fn normal(&mut self) -> &mut Normal {
+        &mut self.param.normal
     }
 }
 

@@ -24,7 +24,7 @@ pub fn main() {
     DBMeterApp::run(Settings {
         antialiasing: true,
         ..Settings::default()
-    })
+    });
 }
 
 #[derive(Debug, Clone, Copy)]

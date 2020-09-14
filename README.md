@@ -91,7 +91,7 @@ pub enum Message {
 }
 
 pub fn main() {
-    App::run(Settings::default())
+    App::run(Settings::default());
 }
 
 pub struct App {
@@ -189,35 +189,35 @@ impl Sandbox for App {
                         // Integer ranges must be snapped to make the widget "step"
                         // when moved.
                         self.int_range
-                            .snap_normal(&mut self.h_slider_state.param.normal);
+                            .snap_normal(self.h_slider_state.normal());
 
                         let value = self
                             .int_range
-                            .to_value(self.h_slider_state.param.normal);
+                            .to_value(*self.h_slider_state.normal());
                         self.output_text = format!("{:?}: {}", id, value);
                     }
                     ParamID::VSliderDB => {
                         let value = self
                             .db_range
-                            .to_value(self.v_slider_state.param.normal);
+                            .to_value(*self.v_slider_state.normal());
                         self.output_text = format!("{:?}: {:.3}", id, value);
                     }
                     ParamID::KnobFreq => {
                         let value = self
                             .freq_range
-                            .to_value(self.knob_state.param.normal);
+                            .to_value(*self.knob_state.normal());
                         self.output_text = format!("{:?}: {:.3}", id, value);
                     }
                     ParamID::XYPadFloatX => {
                         let value = self
                             .float_range
-                            .to_value(self.xy_pad_state.param_x.normal);
+                            .to_value(*self.xy_pad_state.x_normal());
                         self.output_text = format!("{:?}: {:.3}", id, value);
                     }
                     ParamID::XYPadFloatY => {
                         let value = self
                             .float_range
-                            .to_value(self.xy_pad_state.param_y.normal);
+                            .to_value(*self.xy_pad_state.y_normal());
                         self.output_text = format!("{:?}: {:.3}", id, value);
                     }
                 }
