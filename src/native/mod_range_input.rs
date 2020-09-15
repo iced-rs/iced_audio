@@ -14,7 +14,7 @@ use std::hash::Hash;
 use crate::core::{Param, Normal};
 
 static DEFAULT_SIZE: u16 = 10;
-static DEFAULT_SCALAR: f32 = 0.004;
+static DEFAULT_SCALAR: f32 = 0.005;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// An interactive dot that controls an [`Param`]
@@ -85,7 +85,7 @@ where
     /// Sets how much the [`Normal`] value will change for the [`ModRangeInput`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.008`
+    /// The default value is `0.005`
     ///
     /// [`ModRangeInput`]: struct.ModRangeInput.html
     /// [`Normal`]: ../../core/struct.Normal.html

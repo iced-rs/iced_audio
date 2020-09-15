@@ -16,7 +16,7 @@ use crate::core::{
 };
 
 static DEFAULT_SIZE: u16 = 30;
-static DEFAULT_SCALAR: f32 = 0.004;
+static DEFAULT_SCALAR: f32 = 0.005;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A rotating knob GUI widget that controls a [`Param`]
@@ -90,7 +90,7 @@ where
     /// Sets how much the [`Normal`] value will change for the [`Knob`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.008`
+    /// The default value is `0.005`
     ///
     /// [`Knob`]: struct.Knob.html
     /// [`Normal`]: ../../core/struct.Normal.html

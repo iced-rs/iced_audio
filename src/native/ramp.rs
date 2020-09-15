@@ -16,7 +16,7 @@ use crate::core::{Normal, Param};
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
-static DEFAULT_SCALAR: f32 = 0.004;
+static DEFAULT_SCALAR: f32 = 0.005;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// The direction of a [`Ramp`] widget.
@@ -124,7 +124,7 @@ where
     /// Sets how much the [`Normal`] value will change for the [`Ramp`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.008`
+    /// The default value is `0.005`
     ///
     /// [`Ramp`]: struct.Ramp.html
     /// [`Normal`]: ../../core/struct.Normal.html
