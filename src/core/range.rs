@@ -1,5 +1,5 @@
 //! Ranges of parameter values that map to a [`Normal`]
-use crate::core::param::Param;
+use crate::core::normal_param::NormalParam;
 ///
 /// [`Normal`]: ../struct.Normal.html
 use crate::core::Normal;
@@ -61,54 +61,35 @@ impl FloatRange {
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range.
     ///
-    /// [`Param`]: ../param/struct.Param.html
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
     ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn create_param<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-        value: f32,
-        default_value: f32,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(value),
-            default_normal: self.to_normal(default_value),
+    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(value),
+            default: self.map_to_normal(default),
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range where `value` and `default_value` is `0.0`.
     ///
-    /// [`Param`]: ../param/struct.Param.html
-    ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
-    pub fn create_param_default<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(0.0),
-            default_normal: self.to_normal(0.0),
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
+    pub fn default_normal_param(&self) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(0.0),
+            default: self.map_to_normal(0.0),
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_normal(&self, value: f32) -> Normal {
+    pub fn map_to_normal(&self, value: f32) -> Normal {
         let value = self.constrain(value);
         ((value - self.min) * self.span_recip).into()
     }
@@ -116,8 +97,8 @@ impl FloatRange {
     /// Returns the corresponding value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_value(&self, normal: Normal) -> f32 {
-        (normal.value() * self.span) + self.min
+    pub fn unmap_to_value(&self, normal: Normal) -> f32 {
+        (normal.as_f32() * self.span) + self.min
     }
 }
 
@@ -171,47 +152,28 @@ impl IntRange {
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range.
     ///
-    /// [`Param`]: ../param/struct.Param.html
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
     ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn create_param<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-        value: i32,
-        default_value: i32,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(value),
-            default_normal: self.to_normal(default_value),
+    pub fn normal_param(&self, value: i32, default: i32) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(value),
+            default: self.map_to_normal(default),
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range where `value` and `default_value` is `0`.
     ///
-    /// [`Param`]: ../param/struct.Param.html
-    ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
-    pub fn create_param_default<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(0),
-            default_normal: self.to_normal(0),
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
+    pub fn default_normal_param(&self) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(0),
+            default: self.map_to_normal(0),
         }
     }
 
@@ -219,15 +181,15 @@ impl IntRange {
     /// range.
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn snap_normal(&self, normal: &mut Normal) {
-        let value = self.to_value(*normal);
-        *normal = self.to_normal(value);
+    pub fn snap(&self, normal: &mut Normal) {
+        let value_int = self.unmap_to_value(*normal);
+        *normal = self.map_to_normal(value_int);
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_normal(&self, value: i32) -> Normal {
+    pub fn map_to_normal(&self, value: i32) -> Normal {
         let value = self.constrain(value);
         ((value - self.min) as f32 * self.span_recip).into()
     }
@@ -235,8 +197,8 @@ impl IntRange {
     /// Returns the corresponding value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_value(&self, normal: Normal) -> i32 {
-        (normal.value() * self.span).round() as i32 + self.min
+    pub fn unmap_to_value(&self, normal: Normal) -> i32 {
+        (normal.as_f32() * self.span).round() as i32 + self.min
     }
 }
 
@@ -290,16 +252,16 @@ impl LogDBRange {
 
         let max_recip = if max == 0.0 { 0.0 } else { 1.0 / max };
 
-        let zero_pos_recip = if zero_position.value() == 0.0 {
+        let zero_pos_recip = if zero_position.as_f32() == 0.0 {
             0.0
         } else {
-            1.0 / zero_position.value()
+            1.0 / zero_position.as_f32()
         };
 
-        let one_min_zero_pos_recip = if zero_position.value() == 0.0 {
+        let one_min_zero_pos_recip = if zero_position.as_f32() == 0.0 {
             0.0
         } else {
-            1.0 / (1.0 - zero_position.value())
+            1.0 / (1.0 - zero_position.as_f32())
         };
 
         Self {
@@ -323,54 +285,35 @@ impl LogDBRange {
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range.
     ///
-    /// [`Param`]: ../param/struct.Param.html
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
     ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn create_param<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-        value: f32,
-        default_value: f32,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(value),
-            default_normal: self.to_normal(default_value),
+    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(value),
+            default: self.map_to_normal(default),
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range where `value` and `default_value` is `0.0`.
     ///
-    /// [`Param`]: ../param/struct.Param.html
-    ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
-    pub fn create_param_default<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(0.0),
-            default_normal: self.to_normal(0.0),
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
+    pub fn default_normal_param(&self) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(0.0),
+            default: self.map_to_normal(0.0),
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied `value`
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_normal(&self, value: f32) -> Normal {
+    pub fn map_to_normal(&self, value: f32) -> Normal {
         let value = self.constrain(value);
         if value == 0.0 {
             self.zero_position
@@ -382,7 +325,7 @@ impl LogDBRange {
 
             let log_normal = 1.0 - neg_normal.sqrt();
 
-            (log_normal * self.zero_position.value()).into()
+            (log_normal * self.zero_position.as_f32()).into()
         } else {
             if self.max <= 0.0 {
                 return 1.0.into();
@@ -391,8 +334,8 @@ impl LogDBRange {
 
             let log_normal = pos_normal.sqrt();
 
-            ((log_normal * (1.0 - self.zero_position.value()))
-                + self.zero_position.value())
+            ((log_normal * (1.0 - self.zero_position.as_f32()))
+                + self.zero_position.as_f32())
             .into()
         }
     }
@@ -400,23 +343,23 @@ impl LogDBRange {
     /// Returns the corresponding dB value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_value(&self, normal: Normal) -> f32 {
+    pub fn unmap_to_value(&self, normal: Normal) -> f32 {
         if normal == self.zero_position {
             0.0
         } else if normal < self.zero_position {
             if self.min >= 0.0 {
                 return self.min;
             }
-            let neg_normal = 1.0 - (normal.value() * self.zero_pos_recip);
+            let neg_normal = 1.0 - (normal.as_f32() * self.zero_pos_recip);
 
             let log_normal = 1.0 - (neg_normal * neg_normal);
 
             (1.0 - log_normal) * self.min
         } else {
-            if self.zero_position.value() == 1.0 || self.max <= 0.0 {
+            if self.zero_position.as_f32() == 1.0 || self.max <= 0.0 {
                 return self.max;
             }
-            let pos_normal = (normal.value() - self.zero_position.value())
+            let pos_normal = (normal.as_f32() - self.zero_position.as_f32())
                 * self.one_min_zero_pos_recip;
 
             let log_normal = pos_normal * pos_normal;
@@ -432,7 +375,7 @@ impl Default for LogDBRange {
     }
 }
 
-/// A [`Param`] that defines a continuous logarithmic range of `f32` frequency
+/// A [`NormalParam`] that defines a continuous logarithmic range of `f32` frequency
 /// values, with each octave in the 10 octave spectrum spaced evenly.
 ///
 /// Smaller frequencies will increment slower per slider movement than larger
@@ -447,7 +390,7 @@ pub struct FreqRange {
 }
 
 impl FreqRange {
-    /// Creates a new `OctaveParam`
+    /// Creates a new `OctaveNormalParam`
     ///
     /// # Arguments
     ///
@@ -474,11 +417,11 @@ impl FreqRange {
             max = 20480.0;
         }
 
-        let min_spectrum_normal = octave_spectrum_to_normal(min);
-        let max_spectrum_normal = octave_spectrum_to_normal(max);
+        let min_spectrum_normal = octave_spectrum_map_to_normal(min);
+        let max_spectrum_normal = octave_spectrum_map_to_normal(max);
 
         let spectrum_normal_span =
-            max_spectrum_normal.value() - min_spectrum_normal.value();
+            max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
 
         let spectrum_normal_span_recip = 1.0 / spectrum_normal_span;
 
@@ -501,57 +444,38 @@ impl FreqRange {
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range.
     ///
-    /// [`Param`]: ../param/struct.Param.html
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
     ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn create_param<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-        value: f32,
-        default_value: f32,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(value),
-            default_normal: self.to_normal(default_value),
+    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(value),
+            default: self.map_to_normal(default),
         }
     }
 
-    /// Creates a new [`Param`] with values mapped
+    /// Creates a new [`NormalParam`] with values mapped
     /// from this range where `value` and `default_value` is `20480.0`.
     ///
-    /// [`Param`]: ../param/struct.Param.html
-    ///
-    /// * `id` - A unique user-defined identifier for the
-    /// parameter. This can be an enum, i32, u32, String, etc.
-    /// Each parameter must have a unique `ID`
-    /// value!
-    pub fn create_param_default<ID: Debug + Copy + Clone>(
-        &self,
-        id: ID,
-    ) -> Param<ID> {
-        Param {
-            id,
-            normal: self.to_normal(20_480.0),
-            default_normal: self.to_normal(20_480.0),
+    /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
+    pub fn default_normal_param(&self) -> NormalParam {
+        NormalParam {
+            value: self.map_to_normal(20_480.0),
+            default: self.map_to_normal(20_480.0),
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied frequency value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_normal(&self, value: f32) -> Normal {
+    pub fn map_to_normal(&self, value: f32) -> Normal {
         let value = self.constrain(value);
-        let spectrum_normal = octave_spectrum_to_normal(value);
-        ((spectrum_normal.value() - self.min_spectrum_normal.value())
+        let spectrum_normal = octave_spectrum_map_to_normal(value);
+        ((spectrum_normal.as_f32() - self.min_spectrum_normal.as_f32())
             * self.spectrum_normal_span_recip)
             .into()
     }
@@ -559,10 +483,10 @@ impl FreqRange {
     /// Returns the corresponding frequency value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn to_value(&self, normal: Normal) -> f32 {
+    pub fn unmap_to_value(&self, normal: Normal) -> f32 {
         let spectrum_normal = Normal::new(
-            normal.value() * self.spectrum_normal_span
-                + self.min_spectrum_normal.value(),
+            normal.as_f32() * self.spectrum_normal_span
+                + self.min_spectrum_normal.as_f32(),
         );
 
         octave_normal_to_spectrum(spectrum_normal)
@@ -577,14 +501,16 @@ impl Default for FreqRange {
 
 /// Returns the corresponding frequency for the whole 10 octave spectrum
 /// (between 20 Hz and 20480 Hz)
-fn octave_normal_to_spectrum(normal: Normal) -> f32 {
-    40.0 * 2.0_f32.powf((10.0 * normal.value()) - 1.0)
+#[inline]
+fn octave_normal_to_spectrum(value: Normal) -> f32 {
+    40.0 * 2.0_f32.powf((10.0 * value.as_f32()) - 1.0)
 }
 
 /// Returns the corresponding [`Normal`] for a frequency in the whole
 /// 10 octave spectrum (between 20 Hz and 20480 Hz)
 ///
 /// [`Normal`]: ../struct.Normal.html
-fn octave_spectrum_to_normal(freq: f32) -> Normal {
+#[inline]
+fn octave_spectrum_map_to_normal(freq: f32) -> Normal {
     (((freq / 40.0).log2() + 1.0) * 0.1).into()
 }

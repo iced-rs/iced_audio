@@ -1,14 +1,13 @@
 //! Various styles for the [`VSlider`] widget
 //!
-//! [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+//! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
-use iced::Color;
-use iced_native::image;
+use iced_native::{image, Color, Rectangle};
 
-use crate::style::{bar_text_marks, default_colors};
-use crate::TexturePadding;
+use crate::core::Offset;
+use crate::style::{default_colors, text_marks, tick_marks};
 
-/// The appearance of an [`VSlider`].
+/// The appearance of a [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Clone)]
@@ -19,48 +18,54 @@ pub enum Style {
     Classic(ClassicStyle),
     /// a modern style with a line inside a filled rectangle
     Rect(RectStyle),
-    /// same as `Rect` but can have different colors for bottom,
-    /// top, and center positions
+    /// same as `Rect` but can have different colors for left,
+    /// right, and center positions
     RectBipolar(RectBipolarStyle),
 }
 
-/// A [`Style`] for an [`VSlider`] that uses an image texture for the handle
+/// A classic line rail style
+#[derive(Debug, Clone)]
+pub struct ClassicRail {
+    /// Colors of the left and right of the rail
+    pub rail_colors: (Color, Color),
+    /// Width (thickness) of the left and right of the rail
+    pub rail_widths: (u16, u16),
+    /// The padding from the rail to the top and bottom edges of the widget
+    pub rail_padding: u16,
+}
+
+/// A [`Style`] for a [`VSlider`] that uses an image texture for the handle
 ///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
-    /// colors of the left and right of the rail
-    pub rail_colors: (Color, Color),
-    /// width (thickness) of the left and right of the rail
-    pub rail_widths: (u16, u16),
-    /// the [`Handle`] to the image texture
-    pub texture: image::Handle,
-    /// the height of the handle, not including padding
+    /// The rail style
+    pub rail: ClassicRail,
+    /// The [`Handle`] to the image texture
+    pub image_handle: image::Handle,
+    /// The effective height of the handle (not including any padding on the texture)
     pub handle_height: u16,
-    /// the texture padding around the handle bounding
-    /// rectangle. This is useful when the texture is of a glowing handle or has
-    /// a drop shadow, etc.
-    pub texture_padding: Option<TexturePadding>,
+    /// The bounds of the image texture, where the origin is in the
+    /// center of the handle.
+    pub image_bounds: Rectangle,
 }
 
-/// A classic [`Style`] for an [`VSlider`], modeled after hardware sliders
+/// A classic [`Style`] for a [`VSlider`], modeled after hardware sliders
 ///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`ClassicHandle`]: struct.ClassicHandle.html
 #[derive(Debug, Clone)]
 pub struct ClassicStyle {
-    /// colors of the left and right of the rail
-    pub rail_colors: (Color, Color),
-    /// width (thickness) of the left and right of the rail
-    pub rail_widths: (u16, u16),
+    /// The rail style
+    pub rail: ClassicRail,
     /// a `ClassicHandle` defining the style of the handle
     pub handle: ClassicHandle,
 }
 
-/// The [`ClassicStyle`] appearance of the handle of an [`VSlider`]
+/// The [`ClassicStyle`] appearance of the handle of a [`VSlider`]
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`ClassicStyle`]: struct.ClassicStyle.html
@@ -82,7 +87,7 @@ pub struct ClassicHandle {
     pub border_color: Color,
 }
 
-/// A modern [`Style`] for an [`VSlider`]. It is composed of a background
+/// A modern [`Style`] for a [`VSlider`]. It is composed of a background
 /// rectangle and a rectangular handle.
 ///
 /// [`Style`]: enum.Style.html
@@ -103,13 +108,13 @@ pub struct RectStyle {
     pub handle_color: Color,
     /// height of the handle rectangle
     pub handle_height: u16,
-    /// width of the gap between the handle and the filled
+    /// height of the gap between the handle and the filled
     /// portion of the background rectangle
     pub handle_filled_gap: u16,
 }
 
-/// A modern [`Style`] for an [`VSlider`]. It is composed of a background
-/// rectangle and a rectangular handle. It has different colors for bottom, top,
+/// A modern [`Style`] for a [`VSlider`]. It is composed of a background
+/// rectangle and a rectangular handle. It has different colors for left, right,
 /// and center values.
 ///
 /// [`Style`]: enum.Style.html
@@ -125,17 +130,17 @@ pub struct RectBipolarStyle {
     /// color of the background rectangle border
     pub back_border_color: Color,
     /// color of a filled portion in the background
-    /// rectangle on the bottom side of the center
-    pub bottom_filled_color: Color,
-    /// color of a filled portion in the background
     /// rectangle on the top side of the center
     pub top_filled_color: Color,
-    /// color of the handle rectangle when it is on the
-    /// bottom side of the center
-    pub handle_bottom_color: Color,
+    /// color of a filled portion in the background
+    /// rectangle on the bottom side of the center
+    pub bottom_filled_color: Color,
     /// color of the handle rectangle when it is on the
     /// top side of the center
     pub handle_top_color: Color,
+    /// color of the handle rectangle when it is on the
+    /// bottom side of the center
+    pub handle_bottom_color: Color,
     /// color of the handle rectangle when it is in the center
     pub handle_center_color: Color,
     /// height of the handle rectangle
@@ -145,99 +150,88 @@ pub struct RectBipolarStyle {
     pub handle_filled_gap: u16,
 }
 
-/// The style of a [`TickMarkGroup`] for a [`VSlider`]
-///
-/// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
-/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-#[derive(Debug, Copy, Clone)]
-pub struct TickMarkStyle {
-    /// The length of a tier 1 tick mark relative to the length of the `VSlider`
-    pub length_scale_tier_1: f32,
-    /// The length of a tier 2 tick mark relative to the length of the `VSlider`
-    pub length_scale_tier_2: f32,
-    /// The length of a tier 3 tick mark relative to the length of the `VSlider`
-    pub length_scale_tier_3: f32,
-
-    /// The width (thickness) of a tier 1 tick mark
-    pub width_tier_1: u16,
-    /// The width (thickness) of a tier 2 tick mark
-    pub width_tier_2: u16,
-    /// The width (thickness) of a tier 3 tick mark
-    pub width_tier_3: u16,
-
-    /// The color of a tier 1 tick mark
-    pub color_tier_1: Color,
-    /// The color of a tier 2 tick mark
-    pub color_tier_2: Color,
-    /// The color of a tier 3 tick mark
-    pub color_tier_3: Color,
-
-    /// The vertical distance from the center rail to a tick mark. Setting this
-    /// to `0` will cause each tick mark to be a single continous line going
-    /// through the the rail, as apposed to a line above and a line below the
-    /// rail.
-    pub center_offset: u16,
-}
-
-impl std::default::Default for TickMarkStyle {
-    fn default() -> Self {
-        Self {
-            length_scale_tier_1: 1.65,
-            length_scale_tier_2: 1.55,
-            length_scale_tier_3: 1.4,
-
-            width_tier_1: 2,
-            width_tier_2: 1,
-            width_tier_3: 1,
-
-            color_tier_1: default_colors::TICK_TIER_1,
-            color_tier_2: default_colors::TICK_TIER_2,
-            color_tier_3: default_colors::TICK_TIER_3,
-
-            center_offset: 0,
-        }
-    }
-}
-
 /// The position of a [`ModRangeStyle`] ring for a [`VSlider`]
 ///
 /// [`ModRangeStyle`]: struct.ModRangeStyle.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum ModRangePlacement {
     /// In the center of the widget
-    Center,
+    Center {
+        /// The width of the mod range.
+        width: u16,
+        /// The offset from the center of the widget.
+        offset: i16,
+    },
+    /// In the center of the widget while filling the width
+    /// of the widget.
+    CenterFilled {
+        /// The padding from the left and right edges of the widget.
+        edge_padding: u16,
+    },
     /// To the left of the widget
-    Left,
+    Left {
+        /// The width of the mod range.
+        width: u16,
+        /// The offset from the left edge of the widget.
+        offset: i16,
+    },
     /// To the right of the widget
-    Right,
+    Right {
+        /// The width of the mod range.
+        width: u16,
+        /// The offset from the right edge of the widget.
+        offset: i16,
+    },
 }
 
-/// A style for a [`ModulationRange`] ring for a [`VSlider`]
+/// A style for a [`ModulationRange`] line for a [`VSlider`]
 ///
 /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct ModRangeStyle {
-    /// The width of the line
-    pub width: u16,
-    /// The offset of the line from the edge of the widget.
-    /// If `placement` is `ModRangePlacement::center`, then
-    /// this will be the padding from the edge of the widget.
-    pub offset: i32,
     /// The placement of the line relative to the widget
     pub placement: ModRangePlacement,
-    /// The color of an empty portion of the line.
-    /// Set to `None` for no empty portion.
-    pub empty_color: Option<Color>,
+    /// The width of the background border.
+    pub back_border_width: u16,
+    /// The radius of the background border.
+    pub back_border_radius: u16,
+    /// The color of the background border.
+    pub back_border_color: Color,
+    /// The color of the background.
+    /// Set to `None` for no background.
+    pub back_color: Option<Color>,
     /// The color of a filled portion of the line.
     pub filled_color: Color,
-    /// The color of a filled portion of the ring when `end` is less than
+    /// The color of a filled portion of the line when `end` is less than
     /// `start`.
     pub filled_inverse_color: Color,
 }
 
-/// A set of rules that dictate the style of an [`VSlider`].
+/// Style of tick marks for a [`VSlider`].
+///
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+#[derive(Debug, Clone)]
+pub struct TickMarksStyle {
+    /// The style of the tick marks
+    pub style: tick_marks::Style,
+    /// The placement of the tick marks
+    pub placement: tick_marks::Placement,
+}
+
+/// Style of text marks for a [`VSlider`].
+///
+/// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+#[derive(Debug, Clone)]
+pub struct TextMarksStyle {
+    /// The style of the text marks
+    pub style: text_marks::Style,
+    /// The placement of the text marks
+    pub placement: text_marks::Placement,
+}
+
+/// A set of rules that dictate the style of a [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 pub trait StyleSheet {
@@ -251,18 +245,17 @@ pub trait StyleSheet {
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
     fn hovered(&self) -> Style;
 
-    /// Produces the style of an [`VSlider`] that is being dragged.
+    /// Produces the style of a [`VSlider`] that is being dragged.
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
     fn dragging(&self) -> Style;
 
-    /// The style of a [`TickMarkGroup`] for a [`VSlider`]
+    /// The style of tick marks for a [`VSlider`]
     ///
     /// For no tick marks, don't override this or set this to return `None`.
     ///
-    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
+    fn tick_marks_style(&self) -> Option<TickMarksStyle> {
         None
     }
 
@@ -276,72 +269,104 @@ pub trait StyleSheet {
         None
     }
 
-    /// The style of a [`TextMarkGroup`] for an [`VSlider`]
+    /// The style of a second [`ModulationRange`] line for a [`VSlider`]
+    ///
+    /// For no second modulation range line, don't override this or set this to return `None`.
+    ///
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+    fn mod_range_style_2(&self) -> Option<ModRangeStyle> {
+        None
+    }
+
+    /// The style of text marks for a [`VSlider`]
     ///
     /// For no text marks, don't override this or set this to return `None`.
     ///
-    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
+    fn text_marks_style(&self) -> Option<TextMarksStyle> {
         None
     }
 }
 
 struct Default;
-
-impl StyleSheet for Default {
-    fn active(&self) -> Style {
-        Style::Classic(ClassicStyle {
+impl Default {
+    const ACTIVE_STYLE: ClassicStyle = ClassicStyle {
+        rail: ClassicRail {
             rail_colors: default_colors::SLIDER_RAIL,
             rail_widths: (1, 1),
+            rail_padding: 12,
+        },
+        handle: ClassicHandle {
+            color: default_colors::LIGHT_BACK,
+            height: 34,
+            notch_width: 4,
+            notch_color: default_colors::BORDER,
+            border_radius: 2,
+            border_color: default_colors::BORDER,
+            border_width: 1,
+        },
+    };
+}
+impl StyleSheet for Default {
+    fn active(&self) -> Style {
+        Style::Classic(Self::ACTIVE_STYLE)
+    }
+
+    fn hovered(&self) -> Style {
+        Style::Classic(ClassicStyle {
             handle: ClassicHandle {
-                color: default_colors::LIGHT_BACK,
-                height: 34,
-                notch_width: 4,
-                notch_color: default_colors::BORDER,
-                border_radius: 2,
-                border_color: default_colors::BORDER,
-                border_width: 1,
+                color: default_colors::LIGHT_BACK_HOVER,
+                ..Self::ACTIVE_STYLE.handle
+            },
+            ..Self::ACTIVE_STYLE
+        })
+    }
+
+    fn dragging(&self) -> Style {
+        Style::Classic(ClassicStyle {
+            handle: ClassicHandle {
+                color: default_colors::LIGHT_BACK_DRAG,
+                ..Self::ACTIVE_STYLE.handle
+            },
+            ..Self::ACTIVE_STYLE
+        })
+    }
+
+    fn tick_marks_style(&self) -> Option<TickMarksStyle> {
+        Some(TickMarksStyle {
+            style: tick_marks::Style {
+                tier_1: tick_marks::Shape::Line {
+                    length: 24,
+                    width: 2,
+                    color: default_colors::TICK_TIER_1,
+                },
+                tier_2: tick_marks::Shape::Line {
+                    length: 22,
+                    width: 1,
+                    color: default_colors::TICK_TIER_2,
+                },
+                tier_3: tick_marks::Shape::Line {
+                    length: 18,
+                    width: 1,
+                    color: default_colors::TICK_TIER_3,
+                },
+            },
+            placement: tick_marks::Placement::Center {
+                offset: Offset::ZERO,
+                fill_length: false,
             },
         })
     }
 
-    fn hovered(&self) -> Style {
-        let active = self.active();
-        if let Style::Classic(active) = self.active() {
-            Style::Classic(ClassicStyle {
-                handle: ClassicHandle {
-                    color: default_colors::LIGHT_BACK_HOVER,
-                    ..active.handle
-                },
-                ..active
-            })
-        } else {
-            active
-        }
-    }
-
-    fn dragging(&self) -> Style {
-        let active = self.active();
-        if let Style::Classic(active) = self.active() {
-            Style::Classic(ClassicStyle {
-                handle: ClassicHandle {
-                    color: default_colors::LIGHT_BACK_DRAG,
-                    ..active.handle
-                },
-                ..active
-            })
-        } else {
-            active
-        }
-    }
-
-    fn tick_mark_style(&self) -> Option<TickMarkStyle> {
-        Some(TickMarkStyle::default())
-    }
-
-    fn text_mark_style(&self) -> Option<bar_text_marks::Style> {
-        Some(bar_text_marks::Style::default())
+    fn text_marks_style(&self) -> Option<TextMarksStyle> {
+        Some(TextMarksStyle {
+            style: text_marks::Style::default(),
+            placement: text_marks::Placement::LeftOrTop {
+                inside: false,
+                offset: Offset { x: -7, y: 0 },
+            },
+        })
     }
 }
 

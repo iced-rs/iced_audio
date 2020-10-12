@@ -1,6 +1,6 @@
-//! Display an interactive rotating knob that controls a [`Param`]
+//! Display an interactive rotating knob that controls a [`NormalParam`]
 //!
-//! [`Param`]: ../core/param/struct.Param.html
+//! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use std::fmt::Debug;
 
@@ -11,37 +11,32 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{
-    ModulationRange, Normal, Param, TextMarkGroup, TickMarkGroup,
-};
+use crate::core::{ModulationRange, Normal, NormalParam};
+use crate::native::{text_marks, tick_marks};
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.005;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// A rotating knob GUI widget that controls a [`Param`]
+/// A rotating knob GUI widget that controls a [`NormalParam`]
 ///
-/// [`Param`]: ../../core/param/struct.Param.html
+/// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
-pub struct Knob<'a, Message, Renderer: self::Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
-    state: &'a mut State<ID>,
+pub struct Knob<'a, Message, Renderer: self::Renderer> {
+    state: &'a mut State,
     size: Length,
-    on_change: Box<dyn Fn(ID) -> Message>,
+    on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     style: Renderer::Style,
-    tick_marks: Option<&'a TickMarkGroup>,
-    text_marks: Option<&'a TextMarkGroup>,
+    tick_marks: Option<&'a tick_marks::Group>,
+    text_marks: Option<&'a text_marks::Group>,
+    mod_range_1: Option<&'a ModulationRange>,
+    mod_range_2: Option<&'a ModulationRange>,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID> Knob<'a, Message, Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
+impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     /// Creates a new [`Knob`].
     ///
     /// It expects:
@@ -50,9 +45,9 @@ where
     ///
     /// [`State`]: struct.State.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
+    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
     where
-        F: 'static + Fn(ID) -> Message,
+        F: 'static + Fn(Normal) -> Message,
     {
         Knob {
             state,
@@ -67,6 +62,8 @@ where
             style: Renderer::Style::default(),
             tick_marks: None,
             text_marks: None,
+            mod_range_1: None,
+            mod_range_2: None,
         }
     }
 
@@ -128,25 +125,45 @@ where
         self
     }
 
-    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
-    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
+    /// Sets the tick marks to display. Note your [`StyleSheet`] must
+    /// also implement `tick_marks_style(&self) -> Option<tick_marks::Style>` for
     /// them to display (which the default style does).
     ///
-    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
+    pub fn tick_marks(mut self, tick_marks: &'a tick_marks::Group) -> Self {
         self.tick_marks = Some(tick_marks);
         self
     }
 
-    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
-    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// Sets the text marks to display. Note your [`StyleSheet`] must
+    /// also implement `text_marks_style(&self) -> Option<text_marks::Style>` for
     /// them to display (which the default style does).
     ///
-    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+    pub fn text_marks(mut self, text_marks: &'a text_marks::Group) -> Self {
         self.text_marks = Some(text_marks);
+        self
+    }
+
+    /// Sets a [`ModulationRange`] to display. Note your [`StyleSheet`] must
+    /// also implement `mod_range_style(&self) -> Option<ModRangeStyle>` for
+    /// them to display.
+    ///
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
+    pub fn mod_range(mut self, mod_range: &'a ModulationRange) -> Self {
+        self.mod_range_1 = Some(mod_range);
+        self
+    }
+
+    /// Sets a second [`ModulationRange`] to display. Note your [`StyleSheet`] must
+    /// also implement `mod_range_style_2(&self) -> Option<ModRangeStyle>` for
+    /// them to display.
+    ///
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
+    pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
+        self.mod_range_1 = Some(mod_range);
         self
     }
 }
@@ -154,16 +171,12 @@ where
 /// The local state of a [`Knob`].
 ///
 /// [`Knob`]: struct.Knob.html
-#[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    /// The [`Param`] assigned to this widget
+#[derive(Debug, Clone)]
+pub struct State {
+    /// The [`NormalParam`] assigned to this widget
     ///
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub param: Param<ID>,
-    /// An optional [`ModulationRange`] to assign to this widget
-    ///
-    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
-    pub modulation_range: Option<ModulationRange>,
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    pub normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -171,51 +184,30 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`Knob`] state.
     ///
     /// It expects:
-    /// * a [`Param`] to assign to this widget
+    /// * a [`NormalParam`] to assign to this widget
     ///
-    /// [`Param`]: ../../core/param/struct.Param.html
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new(param: Param<ID>) -> Self {
+    pub fn new(normal_param: NormalParam) -> Self {
         Self {
-            param,
-            modulation_range: None,
+            normal_param,
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: param.normal.value(),
+            continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
     }
-
-    /// Assigns an [`ModulationRange`] to this widget
-    ///
-    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
-    pub fn modulation_range(
-        mut self,
-        modulation_range: ModulationRange,
-    ) -> Self {
-        self.modulation_range = Some(modulation_range);
-        self
-    }
-
-    /// Returns the [`Normal`] value of the [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn normal(&mut self) -> &mut Normal {
-        &mut self.param.normal
-    }
 }
 
-impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for Knob<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for Knob<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
-    ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
         self.size
@@ -274,9 +266,11 @@ where
                         self.state.continuous_normal = normal;
                         self.state.prev_drag_y = cursor_position.y;
 
-                        self.state.param.normal = normal.into();
+                        self.state.normal_param.value = normal.into();
 
-                        messages.push((self.on_change)(self.state.param.id));
+                        messages.push((self.on_change)(
+                            self.state.normal_param.value,
+                        ));
                     }
                 }
                 mouse::Event::ButtonPressed(mouse::Button::Left) => {
@@ -294,11 +288,11 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                self.state.param.normal =
-                                    self.state.param.default_normal;
+                                self.state.normal_param.value =
+                                    self.state.normal_param.default;
 
                                 messages.push((self.on_change)(
-                                    self.state.param.id,
+                                    self.state.normal_param.value,
                                 ));
                             }
                         }
@@ -309,7 +303,7 @@ where
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
-                        self.state.param.normal.value();
+                        self.state.normal_param.value.as_f32();
                 }
                 _ => {}
             },
@@ -336,9 +330,10 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.param.normal,
+            self.state.normal_param.value,
             self.state.is_dragging,
-            self.state.modulation_range,
+            self.mod_range_1,
+            self.mod_range_2,
             self.tick_marks,
             self.text_marks,
             &self.style,
@@ -381,22 +376,22 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        modulation_range: Option<ModulationRange>,
-        tick_marks: Option<&TickMarkGroup>,
-        text_marks: Option<&TextMarkGroup>,
+        mod_range_1: Option<&ModulationRange>,
+        mod_range_2: Option<&ModulationRange>,
+        tick_marks: Option<&tick_marks::Group>,
+        text_marks: Option<&text_marks::Group>,
         style: &Self::Style,
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<Knob<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer> From<Knob<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        knob: Knob<'a, Message, Renderer, ID>,
+        knob: Knob<'a, Message, Renderer>,
     ) -> Element<'a, Message, Renderer> {
         Element::new(knob)
     }

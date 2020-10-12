@@ -1,6 +1,6 @@
-//! `iced_graphics` renderer for the [`ModRangeInput`] widget
+//! Display an interactive dot that controls an [`Param`]
 //!
-//! [`ModRangeInput`]: ../native/mod_range_input/struct.ModRangeInput.html
+//! [`Param`]: ../core/param/struct.Param.html
 
 use crate::native::mod_range_input;
 
@@ -12,12 +12,11 @@ pub use crate::style::mod_range_input::{
     CircleStyle, DefaultInvisible, SquareStyle, Style, StyleSheet,
 };
 
-/// This is an alias of a `crate::native` [`ModRangeInput`] with an
-/// `iced_graphics::Renderer`.
+/// An interactive dot that controls an [`Param`]
 ///
-/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-pub type ModRangeInput<'a, Message, ID, Backend> =
-    mod_range_input::ModRangeInput<'a, Message, Renderer<Backend>, ID>;
+/// [`Param`]: ../core/param/struct.Param.html
+pub type ModRangeInput<'a, Message, Backend> =
+    mod_range_input::ModRangeInput<'a, Message, Renderer<Backend>>;
 
 impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;

@@ -1,6 +1,6 @@
-//! Display an interactive horizontal slider that controls a [`Param`]
+//! Display an interactive horizontal slider that controls a [`NormalParam`]
 //!
-//! [`Param`]: ../core/param/trait.Param.html
+//! [`NormalParam`]: ../core/normal_param/struct.Param.html
 
 use std::fmt::Debug;
 
@@ -11,40 +11,36 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{
-    ModulationRange, Normal, Param, TextMarkGroup, TickMarkGroup,
-};
+use crate::core::{ModulationRange, Normal, NormalParam};
+use crate::native::{text_marks, tick_marks};
 
 static DEFAULT_HEIGHT: u16 = 14;
+static DEFAULT_SCALAR: f32 = 0.98;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// A horizontal slider GUI widget that controls a [`Param`]
+/// A horizontal slider GUI widget that controls a [`NormalParam`]
 ///
-/// An [`HSlider`] will try to fill the horizontal space of its container.
+/// an [`HSlider`] will try to fill the horizontal space of its container.
 ///
-/// [`Param`]: ../../core/param/trait.Param.html
+/// [`NormalParam`]: ../../core/normal_param/struct.Param.html
 /// [`HSlider`]: struct.HSlider.html
 #[allow(missing_debug_implementations)]
-pub struct HSlider<'a, Message, Renderer: self::Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
-    state: &'a mut State<ID>,
-    on_change: Box<dyn Fn(ID) -> Message>,
+pub struct HSlider<'a, Message, Renderer: self::Renderer> {
+    state: &'a mut State,
+    on_change: Box<dyn Fn(Normal) -> Message>,
+    scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     width: Length,
     height: Length,
     style: Renderer::Style,
-    tick_marks: Option<&'a TickMarkGroup>,
-    text_marks: Option<&'a TextMarkGroup>,
+    tick_marks: Option<&'a tick_marks::Group>,
+    text_marks: Option<&'a text_marks::Group>,
+    mod_range_1: Option<&'a ModulationRange>,
+    mod_range_2: Option<&'a ModulationRange>,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID>
-    HSlider<'a, Message, Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
+impl<'a, Message, Renderer: self::Renderer> HSlider<'a, Message, Renderer> {
     /// Creates a new [`HSlider`].
     ///
     /// It expects:
@@ -53,13 +49,14 @@ where
     ///
     /// [`State`]: struct.State.html
     /// [`HSlider`]: struct.HSlider.html
-    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
+    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
     where
-        F: 'static + Fn(ID) -> Message,
+        F: 'static + Fn(Normal) -> Message,
     {
         HSlider {
             state,
             on_change: Box::new(on_change),
+            scalar: DEFAULT_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::ModifiersState {
                 control: true,
@@ -70,11 +67,14 @@ where
             style: Renderer::Style::default(),
             tick_marks: None,
             text_marks: None,
+            mod_range_1: None,
+            mod_range_2: None,
         }
     }
 
     /// Sets the width of the [`HSlider`].
-    /// The default width is `Length::Fill`.
+    ///
+    /// The default height is `Length::Fill`.
     ///
     /// [`HSlider`]: struct.HSlider.html
     pub fn width(mut self, width: Length) -> Self {
@@ -83,7 +83,8 @@ where
     }
 
     /// Sets the height of the [`HSlider`].
-    /// The default height is `Length::from(Length::Units(16))`.
+    ///
+    /// The default height is `Length::Units(14)`.
     ///
     /// [`HSlider`]: struct.HSlider.html
     pub fn height(mut self, height: Length) -> Self {
@@ -112,6 +113,19 @@ where
         self
     }
 
+    /// Sets the scalar to use when the user drags the slider per pixel.
+    ///
+    /// For example, a scalar of `0.5` will cause the slider to move half a
+    /// pixel for every pixel the mouse moves.
+    ///
+    /// The default scalar is `0.98`.
+    ///
+    /// [`HSlider`]: struct.HSlider.html
+    pub fn scalar(mut self, scalar: f32) -> Self {
+        self.scalar = scalar;
+        self
+    }
+
     /// Sets the scalar to use when the user drags the slider while holding down
     /// the modifier key.
     ///
@@ -126,25 +140,45 @@ where
         self
     }
 
-    /// Sets the [`TickMarkGroup`] to display. Note your [`StyleSheet`] must
-    /// also implement `tick_mark_style(&self) -> Option<TickMarkStyle>` for
+    /// Sets the tick marks to display. Note your [`StyleSheet`] must
+    /// also implement `tick_marks_style(&self) -> Option<tick_marks::Style>` for
     /// them to display (which the default style does).
     ///
-    /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`StyleSheet`]: ../../style/h_slider/trait.StyleSheet.html
-    pub fn tick_marks(mut self, tick_marks: &'a TickMarkGroup) -> Self {
+    pub fn tick_marks(mut self, tick_marks: &'a tick_marks::Group) -> Self {
         self.tick_marks = Some(tick_marks);
         self
     }
 
-    /// Sets the [`TextMarkGroup`] to display. Note your [`StyleSheet`] must
-    /// also implement `text_mark_style(&self) -> Option<TextMarkStyle>` for
+    /// Sets the text marks to display. Note your [`StyleSheet`] must
+    /// also implement `text_marks_style(&self) -> Option<text_marks::Style>` for
     /// them to display (which the default style does).
     ///
-    /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`StyleSheet`]: ../../style/h_slider/trait.StyleSheet.html
-    pub fn text_marks(mut self, text_marks: &'a TextMarkGroup) -> Self {
+    pub fn text_marks(mut self, text_marks: &'a text_marks::Group) -> Self {
         self.text_marks = Some(text_marks);
+        self
+    }
+
+    /// Sets a [`ModulationRange`] to display. Note your [`StyleSheet`] must
+    /// also implement `mod_range_style(&self) -> Option<ModRangeStyle>` for
+    /// them to display.
+    ///
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
+    pub fn mod_range(mut self, mod_range: &'a ModulationRange) -> Self {
+        self.mod_range_1 = Some(mod_range);
+        self
+    }
+
+    /// Sets a second [`ModulationRange`] to display. Note your [`StyleSheet`] must
+    /// also implement `mod_range_style_2(&self) -> Option<ModRangeStyle>` for
+    /// them to display.
+    ///
+    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
+    /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
+    pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
+        self.mod_range_1 = Some(mod_range);
         self
     }
 }
@@ -152,16 +186,12 @@ where
 /// The local state of an [`HSlider`].
 ///
 /// [`HSlider`]: struct.HSlider.html
-#[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    /// The [`Param`] assigned to this widget
+#[derive(Debug, Clone)]
+pub struct State {
+    /// The [`NormalParam`] assigned to this widget
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
-    pub param: Param<ID>,
-    /// An optional [`ModulationRange`] to assign to this widget
-    ///
-    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
-    pub modulation_range: Option<ModulationRange>,
+    /// [`NormalParam`]: ../../core/normal_param/struct.Param.html
+    pub normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_x: f32,
     continuous_normal: f32,
@@ -169,54 +199,33 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`HSlider`] state.
     ///
     /// It expects:
-    /// * a [`Param`] to assign to this widget
+    /// * a [`NormalParam`] to assign to this widget
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`NormalParam`]: ../../core/normal_param/struct.Param.html
     /// [`HSlider`]: struct.HSlider.html
-    pub fn new(param: Param<ID>) -> Self {
+    pub fn new(normal_param: NormalParam) -> Self {
         Self {
-            param,
-            modulation_range: None,
+            normal_param,
             is_dragging: false,
             prev_drag_x: 0.0,
-            continuous_normal: param.normal.value(),
+            continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
     }
-
-    /// Assigns an [`ModulationRange`] to this widget
-    ///
-    /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
-    pub fn modulation_range(
-        mut self,
-        modulation_range: ModulationRange,
-    ) -> Self {
-        self.modulation_range = Some(modulation_range);
-        self
-    }
-
-    /// Returns the [`Normal`] value of the [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn normal(&mut self) -> &mut Normal {
-        &mut self.param.normal
-    }
 }
 
-impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for HSlider<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for HSlider<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
-    ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
-        self.width
+        Length::Shrink
     }
 
     fn height(&self) -> Length {
@@ -249,7 +258,8 @@ where
                 mouse::Event::CursorMoved { .. } => {
                     if self.state.is_dragging {
                         let bounds_width = layout.bounds().width;
-                        if bounds_width != 0.0 {
+
+                        if bounds_width > 0.0 {
                             let mut movement_x = (cursor_position.x
                                 - self.state.prev_drag_x)
                                 / bounds_width;
@@ -260,6 +270,8 @@ where
                                 .matches(self.modifier_keys)
                             {
                                 movement_x *= self.modifier_scalar;
+                            } else {
+                                movement_x *= self.scalar;
                             }
 
                             let normal =
@@ -268,10 +280,11 @@ where
                             self.state.continuous_normal = normal;
                             self.state.prev_drag_x = cursor_position.x;
 
-                            self.state.param.normal = normal.into();
+                            self.state.normal_param.value = normal.into();
 
-                            messages
-                                .push((self.on_change)(self.state.param.id));
+                            messages.push((self.on_change)(
+                                self.state.normal_param.value,
+                            ));
                         }
                     }
                 }
@@ -290,11 +303,11 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                self.state.param.normal =
-                                    self.state.param.default_normal;
+                                self.state.normal_param.value =
+                                    self.state.normal_param.default;
 
                                 messages.push((self.on_change)(
-                                    self.state.param.id,
+                                    self.state.normal_param.value,
                                 ));
                             }
                         }
@@ -305,7 +318,7 @@ where
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
-                        self.state.param.normal.value();
+                        self.state.normal_param.value.as_f32();
                 }
                 _ => {}
             },
@@ -332,9 +345,10 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.param.normal,
+            self.state.normal_param.value,
             self.state.is_dragging,
-            self.state.modulation_range,
+            self.mod_range_1,
+            self.mod_range_2,
             self.tick_marks,
             self.text_marks,
             &self.style,
@@ -366,6 +380,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the bounds of the [`HSlider`]
     ///   * the current cursor position
     ///   * the current normal of the [`HSlider`]
+    ///   * the height of the handle in pixels
     ///   * whether the slider is currently being dragged
     ///   * any tick marks to display
     ///   * any text marks to display
@@ -378,22 +393,22 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        modulation_range: Option<ModulationRange>,
-        tick_marks: Option<&TickMarkGroup>,
-        text_marks: Option<&TextMarkGroup>,
+        mod_range_1: Option<&ModulationRange>,
+        mod_range_2: Option<&ModulationRange>,
+        tick_marks: Option<&tick_marks::Group>,
+        text_marks: Option<&text_marks::Group>,
         style: &Self::Style,
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<HSlider<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer> From<HSlider<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        h_slider: HSlider<'a, Message, Renderer, ID>,
+        h_slider: HSlider<'a, Message, Renderer>,
     ) -> Element<'a, Message, Renderer> {
         Element::new(h_slider)
     }

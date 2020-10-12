@@ -1,6 +1,7 @@
-//! `iced_graphics` renderer for the [`XYPad`] widget
+//! Display an interactive 2D XY Pad that controls two [`Param`] parameters at
+//! once. One in the `x` coordinate and one in the `y` coordinate.
 //!
-//! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
+//! [`Param`]: ../core/param/trait.Param.html
 
 use crate::core::Normal;
 use crate::native::xy_pad;
@@ -12,12 +13,16 @@ pub use crate::style::xy_pad::{
     HandleCircle, HandleShape, HandleSquare, Style, StyleSheet,
 };
 
-/// This is an alias of a `crate::native` [`XYPad`] with an
-/// `iced_graphics::Renderer`.
+/// A 2D XY pad GUI widget that controls two [`Param`] parameters at
+/// once. One in the `x` coordinate and one in the `y` coordinate.
 ///
-/// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-pub type XYPad<'a, Message, ID, Backend> =
-    xy_pad::XYPad<'a, Message, Renderer<Backend>, ID>;
+/// an [`XYPad`] will try to fill the space of its container while keeping a
+/// square aspect ratio.
+///
+/// [`Param`]: ../../core/param/trait.Param.html
+/// [`XYPad`]: struct.XYPad.html
+pub type XYPad<'a, Message, Backend> =
+    xy_pad::XYPad<'a, Message, Renderer<Backend>>;
 
 impl<B: Backend> xy_pad::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
@@ -65,9 +70,9 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
             border_color: style.border_color,
         };
 
-        let handle_x = (bounds_x + (bounds_size * normal_x.value())).floor();
+        let handle_x = (bounds_x + (bounds_size * normal_x.as_f32())).floor();
         let handle_y =
-            (bounds_y + (bounds_size * (1.0 - normal_y.value()))).floor();
+            (bounds_y + (bounds_size * (1.0 - normal_y.as_f32()))).floor();
 
         let bounds_center = (bounds_size / 2.0).floor();
 

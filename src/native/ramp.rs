@@ -1,7 +1,7 @@
-//! Display a ramp control that controls a [`Param`]. It is usually used to
+//! Display a ramp control that controls a [`NormalParam`]. It is usually used to
 //! represent the easing of a parameter between two points in time.
 //!
-//! [`Param`]: ../core/param/trait.Param.html
+//! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use std::fmt::Debug;
 
@@ -12,7 +12,7 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param};
+use crate::core::{Normal, NormalParam};
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
@@ -34,18 +34,15 @@ impl Default for RampDirection {
     }
 }
 
-/// A ramp GUI widget that controls a [`Param`]. It is usually used to
+/// A ramp GUI widget that controls a [`NormalParam`]. It is usually used to
 /// represent the easing of a parameter between two points in time.
 ///
-/// [`Param`]: ../../core/param/trait.Param.html
+/// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`Ramp`]: struct.Ramp.html
 #[allow(missing_debug_implementations)]
-pub struct Ramp<'a, Message, Renderer: self::Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
-    state: &'a mut State<ID>,
-    on_change: Box<dyn Fn(ID) -> Message>,
+pub struct Ramp<'a, Message, Renderer: self::Renderer> {
+    state: &'a mut State,
+    on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
@@ -55,10 +52,7 @@ where
     direction: RampDirection,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID> Ramp<'a, Message, Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
+impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
     /// Creates a new [`Ramp`].
     ///
     /// It expects:
@@ -72,12 +66,12 @@ where
     /// [`State`]: struct.State.html
     /// [`Ramp`]: struct.Ramp.html
     pub fn new<F>(
-        state: &'a mut State<ID>,
+        state: &'a mut State,
         on_change: F,
         direction: RampDirection,
     ) -> Self
     where
-        F: 'static + Fn(ID) -> Message,
+        F: 'static + Fn(Normal) -> Message,
     {
         Ramp {
             state,
@@ -167,11 +161,11 @@ where
 ///
 /// [`Ramp`]: struct.Ramp.html
 #[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    /// The [`Param`] assigned to this widget
+pub struct State {
+    /// The [`NormalParam`] assigned to this widget
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
-    pub param: Param<ID>,
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    pub normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -179,42 +173,33 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`Ramp`] state.
     ///
     /// It expects:
-    /// * a [`Param`] to assign to this widget. A [`Param`] with a [`Normal`]
+    /// * a [`NormalParam`] to assign to this widget. A [`NormalParam`] with a [`Normal`]
     /// value of `0.5` represents a straight line, `0.0` is curved downward all
     /// the way, and `1.0` is curved upward all the way.
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
     /// [`Normal`]: ../../core/struct.Normal.html
     /// [`Ramp`]: struct.Ramp.html
-    pub fn new(param: Param<ID>) -> Self {
+    pub fn new(normal_param: NormalParam) -> Self {
         Self {
-            param,
+            normal_param,
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: param.normal.value(),
+            continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
     }
-
-    /// Returns the [`Normal`] value of the [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn normal(&mut self) -> &mut Normal {
-        &mut self.param.normal
-    }
 }
 
-impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for Ramp<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for Ramp<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
-    ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
         self.width
@@ -273,9 +258,11 @@ where
                         self.state.continuous_normal = normal;
                         self.state.prev_drag_y = cursor_position.y;
 
-                        self.state.param.normal = normal.into();
+                        self.state.normal_param.value = normal.into();
 
-                        messages.push((self.on_change)(self.state.param.id));
+                        messages.push((self.on_change)(
+                            self.state.normal_param.value,
+                        ));
                     }
                 }
                 mouse::Event::ButtonPressed(mouse::Button::Left) => {
@@ -293,11 +280,11 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                self.state.param.normal =
-                                    self.state.param.default_normal;
+                                self.state.normal_param.value =
+                                    self.state.normal_param.default;
 
                                 messages.push((self.on_change)(
-                                    self.state.param.id,
+                                    self.state.normal_param.value,
                                 ));
                             }
                         }
@@ -308,7 +295,7 @@ where
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
-                        self.state.param.normal.value();
+                        self.state.normal_param.value.as_f32();
                 }
                 _ => {}
             },
@@ -335,7 +322,7 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.param.normal,
+            self.state.normal_param.value,
             self.state.is_dragging,
             &self.style,
             self.direction,
@@ -383,15 +370,14 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<Ramp<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer> From<Ramp<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        ramp: Ramp<'a, Message, Renderer, ID>,
+        ramp: Ramp<'a, Message, Renderer>,
     ) -> Element<'a, Message, Renderer> {
         Element::new(ramp)
     }

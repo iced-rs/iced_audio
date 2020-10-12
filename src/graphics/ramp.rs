@@ -1,6 +1,7 @@
-//! `iced_graphics` renderer for the [`Ramp`] widget
+//! Display a ramp control that controls a [`Param`]. It is usually used to
+//! represent the easing of a parameter between two points in time.
 //!
-//! [`Ramp`]: ../native/ramp/struct.Ramp.html
+//! [`Param`]: ../core/param/trait.Param.html
 
 use crate::core::Normal;
 use crate::native::ramp;
@@ -11,12 +12,13 @@ use iced_native::{mouse, Background, Point, Rectangle, Size, Vector};
 pub use crate::native::ramp::{RampDirection, State};
 pub use crate::style::ramp::{Style, StyleSheet};
 
-/// This is an alias of a `crate::native` [`Ramp`] with an
-/// `iced_graphics::Renderer`.
+/// A ramp GUI widget that controls a [`Param`]. It is usually used to
+/// represent the easing of a parameter between two points in time.
 ///
-/// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-pub type Ramp<'a, Message, ID, Backend> =
-    ramp::Ramp<'a, Message, Renderer<Backend>, ID>;
+/// [`Param`]: ../../core/param/trait.Param.html
+/// [`Ramp`]: struct.Ramp.html
+pub type Ramp<'a, Message, Backend> =
+    ramp::Ramp<'a, Message, Renderer<Backend>>;
 
 impl<B: Backend> ramp::Renderer for Renderer<B> {
     type Style = Box<dyn StyleSheet>;
@@ -68,7 +70,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
         let line: Primitive = match direction {
             RampDirection::Up => {
                 let primitive = {
-                    if normal.value() < 0.449 {
+                    if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
                             color: style.line_down_color,
@@ -77,7 +79,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         };
 
                         let control = Point::new(
-                            range_width * (1.0 - (normal.value() * 2.0)),
+                            range_width * (1.0 - (normal.as_f32() * 2.0)),
                             0.0,
                         );
                         let to = Point::new(range_width, -range_height);
@@ -101,7 +103,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                                 frame.into_geometry().into_primitive(),
                             ),
                         }
-                    } else if normal.value() > 0.501 {
+                    } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
                             color: style.line_up_color,
@@ -111,7 +113,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
 
                         let control = Point::new(
                             range_width
-                                * (1.0 - ((normal.value() - 0.5) * 2.0)),
+                                * (1.0 - ((normal.as_f32() - 0.5) * 2.0)),
                             -range_height,
                         );
                         let to = Point::new(range_width, -range_height);
@@ -173,7 +175,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
             }
             RampDirection::Down => {
                 let primitive = {
-                    if normal.value() < 0.449 {
+                    if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
                             color: style.line_down_color,
@@ -182,7 +184,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         };
 
                         let control = Point::new(
-                            range_width * (normal.value() * 2.0),
+                            range_width * (normal.as_f32() * 2.0),
                             0.0,
                         );
                         let from = Point::new(0.0, -range_height);
@@ -209,7 +211,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                                 frame.into_geometry().into_primitive(),
                             ),
                         }
-                    } else if normal.value() > 0.501 {
+                    } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
                             color: style.line_up_color,
@@ -218,7 +220,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                         };
 
                         let control = Point::new(
-                            range_width * ((normal.value() - 0.5) * 2.0),
+                            range_width * ((normal.as_f32() - 0.5) * 2.0),
                             -range_height,
                         );
                         let from = Point::new(0.0, -range_height);

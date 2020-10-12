@@ -2,7 +2,7 @@
 //!
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
-use iced::Color;
+use iced_native::Color;
 
 use crate::style::default_colors;
 
@@ -48,26 +48,26 @@ pub trait StyleSheet {
 }
 
 struct Default;
-
+impl Default {
+    const ACTIVE_STYLE: Style = Style {
+        back_color: default_colors::LIGHT_BACK,
+        back_border_width: 1,
+        back_border_color: default_colors::BORDER,
+        line_width: 2.0,
+        line_center_color: default_colors::BORDER,
+        line_up_color: default_colors::BORDER,
+        line_down_color: default_colors::BORDER,
+    };
+}
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style {
-            back_color: default_colors::LIGHT_BACK,
-            back_border_width: 1,
-            back_border_color: default_colors::BORDER,
-            line_width: 2.0,
-            line_center_color: default_colors::BORDER,
-            line_up_color: default_colors::BORDER,
-            line_down_color: default_colors::BORDER,
-        }
+        Self::ACTIVE_STYLE
     }
 
     fn hovered(&self) -> Style {
-        let active = self.active();
-
         Style {
             back_color: default_colors::RAMP_BACK_HOVER,
-            ..active
+            ..Self::ACTIVE_STYLE
         }
     }
 

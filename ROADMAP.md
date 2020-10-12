@@ -5,10 +5,11 @@
 * [x] `Knob` - a rotating knob with optional tick marks. Texture style may have optional highlight and shadow layers.
 * [x] `XYPad` - a draggable point in a 2D square used to control 2 parameters at once
 * [x] `Ramp` - a line that curves up and down while being dragged. It is used to represent the easing of a parameter between two points in time.
-* [x] `DBMeter` - a meter that displays peak loudness of a signal. This can have optional colors for good headroom (green), low headroom (yellow), and peaking (red). It can be either vertical or horizontal. It can also have an optional line showing the peak loudness.
 * [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles for visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
-* [x] `ReductionMeter` - a meter that displays the reduction of loudness in a signal. It can be either vertical or horizontal. It can also have an optional line showing the average loudness.
-* [x] `PhaseMeter` - a meter that displays the phase correlation of an audio signal. It can be horizontal or vertical.
+
+## Widgets I plan on creating
+
+* [ ] `BarMeter` - a generic animated bar meter that can be used to meter a value.
 * [ ] `Oscilloscope` - displays oscillations of an audio signal in a given time window
 * [ ] `SpectrumAnalyzer` - displays the amplitude of a range of frequencies from 20hz to 20000hz.
 * [ ] `EnvelopeEditor` - adjustable points connected by lines that represent automation / envelopes / lfo`s. Lines can be straight or curved. Extra points can be added or removed.

@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
@@ -15,28 +15,18 @@ readme = "README.md"
 [badges]
 maintenance = { status = "actively-developed" }
 
-[features]
-default = ["image"]
-image = ["iced/image"]
-svg = ["iced/svg"]
-
-[[example]]
-name = "inputs_tour"
-[[example]]
-name = "simple"
-
 [workspace]
 members = [
-    "examples/db_meter",
-    "examples/reduction_meter",
-    "examples/phase_meter",
+    "examples/simple",
+    "examples/inputs_tour",
 ]
 
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dev-dependencies]
 iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["canvas"] }
+
+[dependencies]
 iced_native = { git = "https://github.com/hecrj/iced", branch = "master" }
 iced_graphics = { git = "https://github.com/hecrj/iced", branch = "master", features=["canvas"] }
-ringbuf = "0.2"

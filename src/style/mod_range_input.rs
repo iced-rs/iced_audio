@@ -2,7 +2,7 @@
 //!
 //! [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 
-use iced::Color;
+use iced_native::Color;
 
 use crate::style::default_colors;
 
@@ -74,26 +74,23 @@ pub trait StyleSheet {
 }
 
 struct Default;
-
+impl Default {
+    const ACTIVE_STYLE: CircleStyle = CircleStyle {
+        color: default_colors::LIGHT_BACK,
+        border_width: 1,
+        border_color: default_colors::BORDER,
+    };
+}
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style::Circle(CircleStyle {
-            color: default_colors::LIGHT_BACK,
-            border_width: 1,
-            border_color: default_colors::BORDER,
-        })
+        Style::Circle(Self::ACTIVE_STYLE)
     }
 
     fn hovered(&self) -> Style {
-        let active = self.active();
-        if let Style::Circle(active) = self.active() {
-            Style::Circle(CircleStyle {
-                color: default_colors::KNOB_BACK_HOVER,
-                ..active
-            })
-        } else {
-            active
-        }
+        Style::Circle(CircleStyle {
+            color: default_colors::KNOB_BACK_HOVER,
+            ..Self::ACTIVE_STYLE
+        })
     }
 
     fn dragging(&self) -> Style {

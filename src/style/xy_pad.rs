@@ -2,7 +2,7 @@
 //!
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
-use iced::Color;
+use iced_native::Color;
 
 use crate::style::default_colors;
 
@@ -101,52 +101,48 @@ pub trait StyleSheet {
 }
 
 struct Default;
-
+impl Default {
+    const ACTIVE_HANDLE: HandleCircle = HandleCircle {
+        color: default_colors::LIGHT_BACK,
+        diameter: 11,
+        border_width: 2,
+        border_color: default_colors::BORDER,
+    };
+    const ACTIVE_STYLE: Style = Style {
+        rail_width: 2,
+        h_rail_color: default_colors::XY_PAD_RAIL,
+        v_rail_color: default_colors::XY_PAD_RAIL,
+        handle: HandleShape::Circle(Self::ACTIVE_HANDLE),
+        back_color: default_colors::LIGHT_BACK,
+        border_width: 1,
+        border_color: default_colors::BORDER,
+        center_line_width: 1,
+        center_line_color: default_colors::XY_PAD_CENTER_LINE,
+    };
+}
 impl StyleSheet for Default {
     fn active(&self) -> Style {
-        Style {
-            rail_width: 2,
-            h_rail_color: default_colors::XY_PAD_RAIL,
-            v_rail_color: default_colors::XY_PAD_RAIL,
-            handle: HandleShape::Circle(HandleCircle {
-                color: default_colors::LIGHT_BACK,
-                diameter: 11,
-                border_width: 2,
-                border_color: default_colors::BORDER,
-            }),
-            back_color: default_colors::LIGHT_BACK,
-            border_width: 1,
-            border_color: default_colors::BORDER,
-            center_line_width: 1,
-            center_line_color: default_colors::XY_PAD_CENTER_LINE,
-        }
+        Self::ACTIVE_STYLE
     }
 
     fn hovered(&self) -> Style {
-        let active = self.active();
-
         Style {
             handle: HandleShape::Circle(HandleCircle {
                 color: default_colors::LIGHT_BACK_HOVER,
-                diameter: 11,
-                border_width: 2,
-                border_color: default_colors::BORDER,
+                ..Self::ACTIVE_HANDLE
             }),
-            ..active
+            ..Self::ACTIVE_STYLE
         }
     }
 
     fn dragging(&self) -> Style {
-        let active = self.active();
-
         Style {
             handle: HandleShape::Circle(HandleCircle {
                 color: default_colors::LIGHT_BACK_DRAG,
                 diameter: 9,
-                border_width: 2,
-                border_color: default_colors::BORDER,
+                ..Self::ACTIVE_HANDLE
             }),
-            ..active
+            ..Self::ACTIVE_STYLE
         }
     }
 }

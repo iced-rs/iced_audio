@@ -1,5 +1,4 @@
 # Iced Audio
-[![Documentation](https://docs.rs/iced_audio/badge.svg)][documentation]
 [![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
 [![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
@@ -9,7 +8,7 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 <div align="center">
     <img src="/screenshots/HSliders.png">
     <img src="/screenshots/Modulation_Ranges.png">
-    <img src="/screenshots/DB_Meter.png">
+    <img src="/screenshots/XYPads.png">
 </div>
 
 [more screenshots]
@@ -22,11 +21,6 @@ An extension to the [Iced] GUI library with useful widgets for audio application
 * [x] `Ramp` - Ramp used to control the easing between two points in time
 * [x] `XYPad`- XY Pad for controlling two parameters at once
 * [x] `ModRangeInput` - A dot used to control the range of modulation for a parameter. Styles that add visual feedback of the modulation range exist for the `HSlider`, `VSlider`, and `Knob` widgets.
-### Visualizers
-Note that these visualizers do not contain any DSP or animation. That must be done manually.
-* [x] `DBMeter` - A decibel meter.
-* [x] `ReductionMeter` - a meter that displays the reduction of loudness in a signal.
-* [x] `PhaseMeter` - a meter that displays the phase correlation of an audio signal.
 
 Take a look at the [roadmap] for a list of planned widgets.
 
@@ -39,25 +33,20 @@ Take a look at the [roadmap] for a list of planned widgets.
 ## Run examples with
 
 ```
-cargo run --example inputs_tour --release
-cargo run --example simple --release
-cargo run --package db_meter --release
-cargo run --package reduction_meter --release
-cargo run --package phase_meter --release
+cargo run --package inputs_tour --release
+cargo run --package simple --release
 ```
 
 ## Installation
+
+### Please note that the Crates.io version of `iced_audio` is outdated and not supported at the moment. Please refer to the docs by running `cargo doc` locally on your computer.
+
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```toml
-iced = { version = "0.1", features = ["image"] }
-iced_audio = "0.4"
-```
-Or to use the GitHub version of `iced`:
-```toml
-iced = { git = "https://github.com/hecrj/iced", features = ["image"] }
+iced = { git = "https://github.com/hecrj/iced", features = ["canvas", "image"] }
 iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch="iced_git" }
 ```
-__Both Iced Audio and [Iced] move fast and the `master` branch can contain breaking changes!__ If
+__Both Iced Audio and [Iced] move fast and the `master` and `iced_git` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
 
 ## Simple Usage Example
@@ -69,36 +58,28 @@ use iced::{
 };
 // Import iced_audio modules.
 use iced_audio::{
-    h_slider, knob, v_slider, xy_pad, FloatRange, FreqRange, HSlider,
-    IntRange, Knob, LogDBRange, TickMark, TickMarkGroup, TickMarkTier, VSlider, XYPad,
+    h_slider, knob, tick_marks, v_slider, xy_pad, FloatRange, FreqRange,
+    HSlider, IntRange, Knob, LogDBRange, Normal, VSlider, XYPad,
 };
-
-// Create a unique identifier for each parameter. Note you may also use any
-// type you want such as u32, i32, Strings, etc.
-#[derive(Debug, Copy, Clone)]
-pub enum ParamID {
-    HSliderInt,
-    VSliderDB,
-    KnobFreq,
-    XYPadFloatX,
-    XYPadFloatY,
-}
 
 // The message when a parameter widget is moved by the user
 #[derive(Debug, Clone)]
 pub enum Message {
-    ParamMoved(ParamID),
+    HSliderInt(Normal),
+    VSliderDB(Normal),
+    KnobFreq(Normal),
+    XYPadFloat(Normal, Normal),
 }
 
 pub fn main() {
-    App::run(Settings::default());
+    App::run(Settings::default()).unwrap();
 }
 
 pub struct App {
     // The ranges handle converting the input/output of a parameter to and from
     // a usable value.
     //
-    // There are 4 options available for a range:
+    // There are 4 built-in options available for a range:
     //
     // * FloatRange - a linear range of f32 values
     // * IntRange - a discrete range of i32 values. This will cause the widget
@@ -114,16 +95,13 @@ pub struct App {
     freq_range: FreqRange,
 
     // The states of the widgets that will control the parameters.
-    //
-    // The `ID` can be any user-defined type such as an enum, i32, u32, String, etc.
-    //
-    h_slider_state: h_slider::State<ParamID>,
-    v_slider_state: v_slider::State<ParamID>,
-    knob_state: knob::State<ParamID>,
-    xy_pad_state: xy_pad::State<ParamID>,
+    h_slider_state: h_slider::State,
+    v_slider_state: v_slider::State,
+    knob_state: knob::State,
+    xy_pad_state: xy_pad::State,
 
     // A group of tick marks with their size and position.
-    center_tick_mark: TickMarkGroup,
+    center_tick_mark: tick_marks::Group,
 
     output_text: String,
 }
@@ -145,28 +123,22 @@ impl Sandbox for App {
             db_range,
             freq_range,
 
-            // Initialize the state of the widgets with a parameter that has an ID, value,
-            // and default value.
-            h_slider_state: h_slider::State::new(int_range.create_param(
-                ParamID::HSliderInt,
-                5,
-                5,
-            )),
+            // Initialize the state of the widgets with a normalized parameter
+            // that has a value and a default value.
+            h_slider_state: h_slider::State::new(int_range.normal_param(5, 5)),
             v_slider_state: v_slider::State::new(
-                db_range.create_param_default(ParamID::VSliderDB),
+                db_range.default_normal_param(),
             ),
-            knob_state: knob::State::new(freq_range.create_param(
-                ParamID::KnobFreq,
-                1000.0,
-                1000.0,
-            )),
+            knob_state: knob::State::new(
+                freq_range.normal_param(1000.0, 1000.0),
+            ),
             xy_pad_state: xy_pad::State::new(
-                float_range.create_param_default(ParamID::XYPadFloatX),
-                float_range.create_param_default(ParamID::XYPadFloatY),
+                float_range.default_normal_param(),
+                float_range.default_normal_param(),
             ),
 
             // Add a tick mark at the center position with the tier 2 size
-            center_tick_mark: vec![TickMark::center(TickMarkTier::Two)].into(),
+            center_tick_mark: tick_marks::Group::center(tick_marks::Tier::Two),
 
             output_text: "Move a widget!".into(),
         }
@@ -178,49 +150,31 @@ impl Sandbox for App {
 
     fn update(&mut self, event: Message) {
         match event {
-            Message::ParamMoved(id) => {
-                // Retrieve the value by mapping the normal of the parameter
-                // to the corresponding range.
-                //
-                // Now do something useful with that value!
-                //
-                match id {
-                    ParamID::HSliderInt => {
-                        // Integer ranges must be snapped to make the widget "step"
-                        // when moved.
-                        self.int_range
-                            .snap_normal(self.h_slider_state.normal());
+            // Retrieve the value by mapping the normalized value of the parameter
+            // to the corresponding range.
+            //
+            // Now do something useful with that value!
+            Message::HSliderInt(normal) => {
+                // Integer ranges must be snapped to make the widget "step" when moved.
+                self.int_range
+                    .snap(&mut self.h_slider_state.normal_param.value);
 
-                        let value = self
-                            .int_range
-                            .to_value(*self.h_slider_state.normal());
-                        self.output_text = format!("{:?}: {}", id, value);
-                    }
-                    ParamID::VSliderDB => {
-                        let value = self
-                            .db_range
-                            .to_value(*self.v_slider_state.normal());
-                        self.output_text = format!("{:?}: {:.3}", id, value);
-                    }
-                    ParamID::KnobFreq => {
-                        let value = self
-                            .freq_range
-                            .to_value(*self.knob_state.normal());
-                        self.output_text = format!("{:?}: {:.3}", id, value);
-                    }
-                    ParamID::XYPadFloatX => {
-                        let value = self
-                            .float_range
-                            .to_value(*self.xy_pad_state.x_normal());
-                        self.output_text = format!("{:?}: {:.3}", id, value);
-                    }
-                    ParamID::XYPadFloatY => {
-                        let value = self
-                            .float_range
-                            .to_value(*self.xy_pad_state.y_normal());
-                        self.output_text = format!("{:?}: {:.3}", id, value);
-                    }
-                }
+                let value = self.int_range.unmap_to_value(normal);
+                self.output_text = format!("HSliderInt: {}", value);
+            }
+            Message::VSliderDB(normal) => {
+                let value = self.db_range.unmap_to_value(normal);
+                self.output_text = format!("VSliderDB: {:.3}", value);
+            }
+            Message::KnobFreq(normal) => {
+                let value = self.freq_range.unmap_to_value(normal);
+                self.output_text = format!("KnobFreq: {:.2}", value);
+            }
+            Message::XYPadFloat(normal_x, normal_y) => {
+                let value_x = self.float_range.unmap_to_value(normal_x);
+                let value_y = self.float_range.unmap_to_value(normal_y);
+                self.output_text =
+                    format!("XYPadFloat: x: {:.2}, y: {:.2}", value_x, value_y);
             }
         }
     }
@@ -228,23 +182,23 @@ impl Sandbox for App {
     fn view(&mut self) -> Element<Message> {
         // Create each parameter widget, passing in the current state of the widget.
         let h_slider_widget =
-            HSlider::new(&mut self.h_slider_state, Message::ParamMoved)
+            HSlider::new(&mut self.h_slider_state, Message::HSliderInt)
                 // Add the tick mark group to this widget.
                 .tick_marks(&self.center_tick_mark);
 
         let v_slider_widget =
-            VSlider::new(&mut self.v_slider_state, Message::ParamMoved)
+            VSlider::new(&mut self.v_slider_state, Message::VSliderDB)
                 .tick_marks(&self.center_tick_mark);
 
-        let knob_widget = Knob::new(&mut self.knob_state, Message::ParamMoved);
+        let knob_widget = Knob::new(&mut self.knob_state, Message::KnobFreq);
 
         let xy_pad_widget =
-            XYPad::new(&mut self.xy_pad_state, Message::ParamMoved);
+            XYPad::new(&mut self.xy_pad_state, Message::XYPadFloat);
 
         // Push the widgets into the iced DOM
         let content: Element<_> = Column::new()
-            .max_width(250)
-            .max_height(400)
+            .max_width(300)
+            .max_height(500)
             .spacing(20)
             .padding(20)
             .align_items(Align::Center)
@@ -266,6 +220,7 @@ impl Sandbox for App {
             .into()
     }
 }
+
 
 ```
 

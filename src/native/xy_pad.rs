@@ -1,7 +1,7 @@
-//! Display an interactive 2D XY Pad that controls two [`Param`] parameters at
+//! Display an interactive 2D XY Pad that controls two [`NormalParam`] parameters at
 //! once. One in the `x` coordinate and one in the `y` coordinate.
 //!
-//! [`Param`]: ../core/param/trait.Param.html
+//! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use std::fmt::Debug;
 
@@ -12,35 +12,29 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Normal, Param};
+use crate::core::{Normal, NormalParam};
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// A 2D XY pad GUI widget that controls two [`Param`] parameters at
+/// A 2D XY pad GUI widget that controls two [`NormalParam`] parameters at
 /// once. One in the `x` coordinate and one in the `y` coordinate.
 ///
 /// an [`XYPad`] will try to fill the space of its container while keeping a
 /// square aspect ratio.
 ///
-/// [`Param`]: ../../core/param/trait.Param.html
+/// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`XYPad`]: struct.XYPad.html
 #[allow(missing_debug_implementations)]
-pub struct XYPad<'a, Message, Renderer: self::Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
-    state: &'a mut State<ID>,
-    on_change: Box<dyn Fn(ID) -> Message>,
+pub struct XYPad<'a, Message, Renderer: self::Renderer> {
+    state: &'a mut State,
+    on_change: Box<dyn Fn(Normal, Normal) -> Message>,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     size: Length,
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID> XYPad<'a, Message, Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
+impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
     /// Creates a new [`XYPad`].
     ///
     /// It expects:
@@ -49,9 +43,9 @@ where
     ///
     /// [`State`]: struct.State.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
+    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
     where
-        F: 'static + Fn(ID) -> Message,
+        F: 'static + Fn(Normal, Normal) -> Message,
     {
         XYPad {
             state,
@@ -114,15 +108,15 @@ where
 ///
 /// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    /// The [`Param`] assigned to this widget's x axis
+pub struct State {
+    /// The [`NormalParam`] assigned to this widget's x axis
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
-    pub param_x: Param<ID>,
-    /// The [`Param`] assigned to this widget's y axis
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    pub normal_param_x: NormalParam,
+    /// The [`NormalParam`] assigned to this widget's y axis
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
-    pub param_y: Param<ID>,
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    pub normal_param_y: NormalParam,
     is_dragging: bool,
     prev_drag_x: f32,
     prev_drag_y: f32,
@@ -132,51 +126,37 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`XYPad`] state.
     ///
     /// It expects:
-    /// * a [`Param`] to assign to this widget's x axis
-    /// * a [`Param`] to assign to this widget's y axis
+    /// * a [`NormalParam`] to assign to this widget's x axis
+    /// * a [`NormalParam`] to assign to this widget's y axis
     ///
-    /// [`Param`]: ../../core/param/trait.Param.html
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new(param_x: Param<ID>, param_y: Param<ID>) -> Self {
+    pub fn new(
+        normal_param_x: NormalParam,
+        normal_param_y: NormalParam,
+    ) -> Self {
         Self {
-            param_x,
-            param_y,
+            normal_param_x,
+            normal_param_y,
             is_dragging: false,
             prev_drag_x: 0.0,
             prev_drag_y: 0.0,
-            continuous_normal_x: param_x.normal.value(),
-            continuous_normal_y: param_y.normal.value(),
+            continuous_normal_x: normal_param_x.value.as_f32(),
+            continuous_normal_y: normal_param_y.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
     }
-
-    /// Returns the [`Normal`] value of the x [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn x_normal(&mut self) -> &mut Normal {
-        &mut self.param_x.normal
-    }
-
-    /// Returns the [`Normal`] value of the y [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn y_normal(&mut self) -> &mut Normal {
-        &mut self.param_y.normal
-    }
 }
 
-impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for XYPad<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for XYPad<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
-    ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
         self.size
@@ -250,25 +230,16 @@ where
                             self.state.prev_drag_x = cursor_position.x;
                             self.state.prev_drag_y = cursor_position.y;
 
-                            if normal_x != self.state.continuous_normal_x {
-                                self.state.continuous_normal_x = normal_x;
+                            self.state.continuous_normal_x = normal_x;
+                            self.state.normal_param_x.value = normal_x.into();
 
-                                self.state.param_x.normal = normal_x.into();
+                            self.state.continuous_normal_y = normal_y;
+                            self.state.normal_param_y.value = normal_y.into();
 
-                                messages.push((self.on_change)(
-                                    self.state.param_x.id,
-                                ));
-                            }
-
-                            if normal_y != self.state.continuous_normal_y {
-                                self.state.continuous_normal_y = normal_y;
-
-                                self.state.param_y.normal = normal_y.into();
-
-                                messages.push((self.on_change)(
-                                    self.state.param_y.id,
-                                ));
-                            }
+                            messages.push((self.on_change)(
+                                self.state.normal_param_x.value,
+                                self.state.normal_param_y.value,
+                            ));
                         }
                     }
                 }
@@ -303,39 +274,30 @@ where
                                     - ((cursor_position.y - layout.bounds().y)
                                         / bounds_size);
 
-                                if normal_x != self.state.continuous_normal_x {
-                                    self.state.continuous_normal_x = normal_x;
+                                self.state.continuous_normal_x = normal_x;
+                                self.state.normal_param_x.value =
+                                    normal_x.into();
 
-                                    self.state.param_x.normal = normal_x.into();
+                                self.state.continuous_normal_y = normal_y;
+                                self.state.normal_param_y.value =
+                                    normal_y.into();
 
-                                    messages.push((self.on_change)(
-                                        self.state.param_x.id,
-                                    ));
-                                }
-
-                                if normal_y != self.state.continuous_normal_y {
-                                    self.state.continuous_normal_y = normal_y;
-
-                                    self.state.param_y.normal = normal_y.into();
-
-                                    messages.push((self.on_change)(
-                                        self.state.param_y.id,
-                                    ));
-                                }
+                                messages.push((self.on_change)(
+                                    self.state.normal_param_x.value,
+                                    self.state.normal_param_y.value,
+                                ));
                             }
                             _ => {
                                 self.state.is_dragging = false;
 
-                                self.state.param_x.normal =
-                                    self.state.param_x.default_normal;
-                                self.state.param_y.normal =
-                                    self.state.param_y.default_normal;
+                                self.state.normal_param_x.value =
+                                    self.state.normal_param_x.default;
+                                self.state.normal_param_y.value =
+                                    self.state.normal_param_y.default;
 
                                 messages.push((self.on_change)(
-                                    self.state.param_x.id,
-                                ));
-                                messages.push((self.on_change)(
-                                    self.state.param_y.id,
+                                    self.state.normal_param_x.value,
+                                    self.state.normal_param_y.value,
                                 ));
                             }
                         }
@@ -346,9 +308,9 @@ where
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal_x =
-                        self.state.param_x.normal.value();
+                        self.state.normal_param_x.value.as_f32();
                     self.state.continuous_normal_y =
-                        self.state.param_y.normal.value();
+                        self.state.normal_param_y.value.as_f32();
                 }
                 _ => {}
             },
@@ -375,8 +337,8 @@ where
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.param_x.normal,
-            self.state.param_y.normal,
+            self.state.normal_param_x.value,
+            self.state.normal_param_y.value,
             self.state.is_dragging,
             &self.style,
         )
@@ -422,15 +384,14 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<XYPad<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer> From<XYPad<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        xy_pad: XYPad<'a, Message, Renderer, ID>,
+        xy_pad: XYPad<'a, Message, Renderer>,
     ) -> Element<'a, Message, Renderer> {
         Element::new(xy_pad)
     }

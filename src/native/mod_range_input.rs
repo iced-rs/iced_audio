@@ -1,6 +1,6 @@
-//! Display an interactive dot that controls an [`Param`]
+//! Display an interactive dot that controls an [`NormalParam`]
 //!
-//! [`Param`]: ../core/param/struct.Param.html
+//! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use std::fmt::Debug;
 
@@ -11,33 +11,28 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{Param, Normal};
+use crate::core::{Normal, NormalParam};
 
 static DEFAULT_SIZE: u16 = 10;
-static DEFAULT_SCALAR: f32 = 0.005;
+static DEFAULT_SCALAR: f32 = 0.005 / 2.0;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
-/// An interactive dot that controls an [`Param`]
+/// An interactive dot that controls an [`NormalParam`]
 ///
-/// [`Param`]: ../core/param/struct.Param.html
+/// [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
-pub struct ModRangeInput<'a, Message, Renderer: self::Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
-{
-    state: &'a mut State<ID>,
+pub struct ModRangeInput<'a, Message, Renderer: self::Renderer> {
+    state: &'a mut State,
     size: Length,
-    on_change: Box<dyn Fn(ID) -> Message>,
+    on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::ModifiersState,
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer, ID>
-    ModRangeInput<'a, Message, Renderer, ID>
-where
-    ID: Debug + Copy + Clone,
+impl<'a, Message, Renderer: self::Renderer>
+    ModRangeInput<'a, Message, Renderer>
 {
     /// Creates a new [`ModRangeInput`].
     ///
@@ -47,9 +42,9 @@ where
     ///
     /// [`State`]: struct.State.html
     /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn new<F>(state: &'a mut State<ID>, on_change: F) -> Self
+    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
     where
-        F: 'static + Fn(ID) -> Message,
+        F: 'static + Fn(Normal) -> Message,
     {
         ModRangeInput {
             state,
@@ -128,11 +123,11 @@ where
 ///
 /// [`ModRangeInput`]: struct.ModRangeInput.html
 #[derive(Debug, Copy, Clone)]
-pub struct State<ID: Debug + Copy + Clone> {
-    /// The [`Param`] assigned to this widget
+pub struct State {
+    /// The [`NormalParam`] assigned to this widget
     ///
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub param: Param<ID>,
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    pub normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -140,39 +135,30 @@ pub struct State<ID: Debug + Copy + Clone> {
     last_click: Option<mouse::Click>,
 }
 
-impl<ID: Debug + Copy + Clone> State<ID> {
+impl State {
     /// Creates a new [`ModRangeInput`] state.
     ///
     /// It expects:
-    /// * a [`Param`] to assign to this widget
+    /// * a [`NormalParam`] to assign to this widget
     ///
-    /// [`Param`]: ../../core/param/struct.Param.html
+    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
     /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn new(param: Param<ID>) -> Self {
+    pub fn new(normal_param: NormalParam) -> Self {
         Self {
-            param,
+            normal_param,
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: param.normal.value(),
+            continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
     }
-
-    /// Returns the [`Normal`] value of the [`Param`]
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Param`]: ../../core/param/struct.Param.html
-    pub fn normal(&mut self) -> &mut Normal {
-        &mut self.param.normal
-    }
 }
 
-impl<'a, Message, Renderer, ID> Widget<Message, Renderer>
-    for ModRangeInput<'a, Message, Renderer, ID>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for ModRangeInput<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
-    ID: Debug + Copy + Clone,
 {
     fn width(&self) -> Length {
         self.size
@@ -231,9 +217,11 @@ where
                         self.state.continuous_normal = normal;
                         self.state.prev_drag_y = cursor_position.y;
 
-                        self.state.param.normal = normal.into();
+                        self.state.normal_param.value = normal.into();
 
-                        messages.push((self.on_change)(self.state.param.id));
+                        messages.push((self.on_change)(
+                            self.state.normal_param.value,
+                        ));
                     }
                 }
                 mouse::Event::ButtonPressed(mouse::Button::Left) => {
@@ -251,11 +239,11 @@ where
                             _ => {
                                 self.state.is_dragging = false;
 
-                                self.state.param.normal =
-                                    self.state.param.default_normal;
+                                self.state.normal_param.value =
+                                    self.state.normal_param.default;
 
                                 messages.push((self.on_change)(
-                                    self.state.param.id,
+                                    self.state.normal_param.value,
                                 ));
                             }
                         }
@@ -266,7 +254,7 @@ where
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
-                        self.state.param.normal.value();
+                        self.state.normal_param.value.as_f32();
                 }
                 _ => {}
             },
@@ -334,15 +322,14 @@ pub trait Renderer: iced_native::Renderer {
     ) -> Self::Output;
 }
 
-impl<'a, Message, Renderer, ID> From<ModRangeInput<'a, Message, Renderer, ID>>
+impl<'a, Message, Renderer> From<ModRangeInput<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
     Renderer: 'a + self::Renderer,
     Message: 'a,
-    ID: 'a + Debug + Copy + Clone,
 {
     fn from(
-        mod_range_input: ModRangeInput<'a, Message, Renderer, ID>,
+        mod_range_input: ModRangeInput<'a, Message, Renderer>,
     ) -> Element<'a, Message, Renderer> {
         Element::new(mod_range_input)
     }
