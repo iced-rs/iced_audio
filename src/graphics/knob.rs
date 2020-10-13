@@ -113,11 +113,12 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
 
         let radius = bounds.width / 2.0;
 
-        let start_angle = if angle_range.min() >= crate::THREE_HALVES_PI {
-            angle_range.min() - crate::THREE_HALVES_PI
-        } else {
-            angle_range.min() + std::f32::consts::FRAC_PI_2
-        };
+        let start_angle =
+            if angle_range.min() >= crate::core::math::THREE_HALVES_PI {
+                angle_range.min() - crate::core::math::THREE_HALVES_PI
+            } else {
+                angle_range.min() + std::f32::consts::FRAC_PI_2
+            };
         let angle_span = angle_range.max() - angle_range.min();
         let value_angle = start_angle + (normal.scale(angle_span));
 
