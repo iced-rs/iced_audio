@@ -14,7 +14,7 @@ pub use range::*;
 
 /// An `f32` value that is gauranteed to be constrained to the range of
 ///
-/// `0.0 >= value >= 1.0`
+/// `0.0 >= value <= 1.0`
 ///
 /// # Example
 ///
@@ -144,7 +144,8 @@ impl From<Normal> for f32 {
     }
 }
 
-static PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
+/// pi / 180.0
+pub static PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
 /// 2.0 * pi
 pub static TWO_PI: f32 = std::f32::consts::PI * 2.0;
 /// pi * (3.0 / 2.0)
