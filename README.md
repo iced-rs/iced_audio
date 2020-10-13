@@ -39,7 +39,7 @@ cargo run --package simple --release
 
 ## Installation
 
-### Please note that the Crates.io version of `iced_audio` is outdated and not supported at the moment. Please refer to the docs by running `cargo doc` locally on your computer.
+***Please note that the Crates.io version of `iced_audio` is outdated and not supported at the moment. Please refer to the docs by running `cargo doc` locally on your computer.***
 
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```toml
