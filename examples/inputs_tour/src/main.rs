@@ -285,7 +285,7 @@ impl<'a> Step {
     }
 }
 
-fn button<'a, Message>(
+fn button<'a, Message: Clone>(
     state: &'a mut button::State,
     label: &str,
 ) -> Button<'a, Message> {
