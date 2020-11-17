@@ -467,7 +467,7 @@ fn draw_circle_notch(knob_info: &KnobInfo, style: &CircleNotch) -> Primitive {
 }
 
 fn draw_line_notch(knob_info: &KnobInfo, style: &LineNotch) -> Primitive {
-    let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
+    let value_angle = -(knob_info.value_angle + std::f32::consts::FRAC_PI_2);
 
     let stroke = Stroke {
         width: style.width.from_knob_diameter(knob_info.bounds.width),
