@@ -6,8 +6,8 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout, Length,
-    Point, Rectangle, Size, Widget,
+    event, keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout,
+    Length, Point, Rectangle, Size, Widget,
 };
 
 use std::hash::Hash;
@@ -192,7 +192,7 @@ where
         messages: &mut Vec<Message>,
         _renderer: &Renderer,
         _clipboard: Option<&dyn Clipboard>,
-    ) {
+    ) -> event::Status {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 mouse::Event::CursorMoved { .. } => {
@@ -240,6 +240,8 @@ where
                                 self.state.normal_param_x.value,
                                 self.state.normal_param_y.value,
                             ));
+
+                            return event::Status::Captured;
                         }
                     }
                 }
@@ -303,6 +305,8 @@ where
                         }
 
                         self.state.last_click = Some(click);
+
+                        return event::Status::Captured;
                     }
                 }
                 mouse::Event::ButtonReleased(mouse::Button::Left) => {
@@ -311,20 +315,28 @@ where
                         self.state.normal_param_x.value.as_f32();
                     self.state.continuous_normal_y =
                         self.state.normal_param_y.value.as_f32();
+
+                    return event::Status::Captured;
                 }
                 _ => {}
             },
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
                     self.state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
                     self.state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
                 }
                 _ => {}
             },
             _ => {}
         }
+
+        event::Status::Ignored
     }
 
     fn draw(
