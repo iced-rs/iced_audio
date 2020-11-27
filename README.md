@@ -57,9 +57,9 @@ you want to learn about a specific release, check out [the release list].
 ## VST / LV2 / AU Plugins
 If you wish to use `iced_audio` for audio plugins, check out my other repos.
 
-__Please not these are experimental and currently lacking many features.__
+__Please note these are experimental and currently lacking many features.__
 * [`iced_baseview`] - Run [Iced] using [`baseview`] as a backend.
-* [`iced-baseplug-examples`] - Example audio plugins using [`baseplug`] as a plugin wrapper, [`iced_baseview`] as a GUI backend, and `iced_audio` widgets.
+* [`iced-baseplug-examples`] - Example audio plugins using [`baseplug`] as a plugin wrapper, [`iced_baseview`] as a GUI backend, and iced_audio widgets.
 
 ## Simple Usage Example
 This crate assumes you know the basics of how to use [Iced]. If you haven't alreay, please check it out [here].
