@@ -460,14 +460,14 @@ fn draw_circle_notch(knob_info: &KnobInfo, style: &CircleNotch) -> Primitive {
             height: notch_diameter,
         },
         background: Background::Color(style.color),
-        border_radius: notch_radius as u16,
+        border_radius: notch_radius,
         border_width: style.border_width,
         border_color: style.border_color,
     }
 }
 
 fn draw_line_notch(knob_info: &KnobInfo, style: &LineNotch) -> Primitive {
-    let value_angle = -(knob_info.value_angle + std::f32::consts::FRAC_PI_2);
+    let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
     let stroke = Stroke {
         width: style.width.from_knob_diameter(knob_info.bounds.width),
@@ -520,7 +520,7 @@ fn draw_circle_style<'a>(
     let knob_back = Primitive::Quad {
         bounds: knob_info.bounds,
         background: Background::Color(style.color),
-        border_radius: knob_info.radius as u16,
+        border_radius: knob_info.radius,
         border_width: style.border_width,
         border_color: style.border_color,
     };

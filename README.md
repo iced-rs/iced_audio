@@ -39,14 +39,18 @@ cargo run --package simple --release
 
 ## Installation
 
-***Please note that the Crates.io version of `iced_audio` is outdated and not supported at the moment. Please refer to the docs by running `cargo doc` locally on your computer.***
-
 Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 ```toml
-iced = { git = "https://github.com/hecrj/iced", features = ["canvas", "image"] }
-iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch="iced_git" }
+iced = { version = "0.2", features = ["image"] }
+iced_audio = "0.5"
 ```
-__Both Iced Audio and [Iced] move fast and the `master` and `iced_git` branch can contain breaking changes!__ If
+Or if you want to use the GitHub version of `iced`:
+```toml
+iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["image"] }
+iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
+```
+You may emit `features = ["image"]` if you do not plan on using images.
+__Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
 
 ## Simple Usage Example
@@ -224,6 +228,12 @@ impl Sandbox for App {
 
 ```
 
+## VST / LV2 / AU Plugins
+If you wish to use `iced_audio` for audio plugins, check out my other repos.
+__Please not these are experimental and currently lacking many features.__
+* [`iced_baseview`] - Run [Iced] using [`baseview`] as a backend.
+* [`iced-baseplug-examples`] - Example audio plugins using [`baseplug`] as a plugin wrapper, [`iced_baseview`] as a GUI backend, and `iced_audio` widgets.
+
 ## Contributing / Feedback
 Contributions are greatly appreciated! If you want to contribute, please
 read the official [Iced] [contributing guidelines] for more details.
@@ -242,3 +252,6 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [the release list]: https://github.com/BillyDM/iced_audio/releases
 [more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots
 [roadmap]: https://github.com/BillyDM/iced_audio/tree/master/ROADMAP.md
+[`iced_baseview`]: https://github.com/BillyDM/iced_baseview
+[`baseview`]: https://github.com/RustAudio/baseview
+[`baseplug`]: https://github.com/wrl/baseplug

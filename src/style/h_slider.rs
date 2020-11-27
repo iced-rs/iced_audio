@@ -29,9 +29,9 @@ pub struct ClassicRail {
     /// Colors of the top and bottom of the rail
     pub rail_colors: (Color, Color),
     /// Width (thickness) of the top and bottom of the rail
-    pub rail_widths: (u16, u16),
+    pub rail_widths: (f32, f32),
     /// The padding from the rail to the left and right edges of the widget
-    pub rail_padding: u16,
+    pub rail_padding: f32,
 }
 
 /// A [`Style`] for an [`HSlider`] that uses an image texture for the handle
@@ -76,13 +76,13 @@ pub struct ClassicHandle {
     /// width of the handle
     pub width: u16,
     /// the width (thickness) of the middle notch
-    pub notch_width: u16,
+    pub notch_width: f32,
     /// color of the middle notch
     pub notch_color: Color,
     /// radius of the background rectangle
-    pub border_radius: u16,
+    pub border_radius: f32,
     /// width of the background rectangle
-    pub border_width: u16,
+    pub border_width: f32,
     /// color of the background rectangle border
     pub border_color: Color,
 }
@@ -97,9 +97,9 @@ pub struct RectStyle {
     /// color of the background rectangle
     pub back_color: Color,
     /// width of the background rectangle border
-    pub back_border_width: u16,
+    pub back_border_width: f32,
     /// radius of the background rectangle
-    pub back_border_radius: u16,
+    pub back_border_radius: f32,
     /// color of the background rectangle border
     pub back_border_color: Color,
     /// color of a filled portion in the background rectangle
@@ -110,7 +110,7 @@ pub struct RectStyle {
     pub handle_width: u16,
     /// width of the gap between the handle and the filled
     /// portion of the background rectangle
-    pub handle_filled_gap: u16,
+    pub handle_filled_gap: f32,
 }
 
 /// A modern [`Style`] for an [`HSlider`]. It is composed of a background
@@ -124,9 +124,9 @@ pub struct RectBipolarStyle {
     /// color of the background rectangle
     pub back_color: Color,
     /// width of the background rectangle border
-    pub back_border_width: u16,
+    pub back_border_width: f32,
     /// radius of the background rectangle
-    pub back_border_radius: u16,
+    pub back_border_radius: f32,
     /// color of the background rectangle border
     pub back_border_color: Color,
     /// color of a filled portion in the background
@@ -147,7 +147,7 @@ pub struct RectBipolarStyle {
     pub handle_width: u16,
     /// width of the gap between the handle and the filled
     /// portion of the background rectangle
-    pub handle_filled_gap: u16,
+    pub handle_filled_gap: f32,
 }
 
 /// The position of a [`ModRangeStyle`] ring for an [`HSlider`]
@@ -159,29 +159,29 @@ pub enum ModRangePlacement {
     /// In the center of the widget
     Center {
         /// The height of the mod range.
-        height: u16,
+        height: f32,
         /// The offset from the center of the widget.
-        offset: i16,
+        offset: f32,
     },
     /// In the center of the widget while filling the height
     /// of the widget.
     CenterFilled {
         /// The padding from the top and bottom edges of the widget.
-        edge_padding: u16,
+        edge_padding: f32,
     },
     /// Above the widget
     Top {
         /// The height of the mod range.
-        height: u16,
+        height: f32,
         /// The offset from the top of the widget.
-        offset: i16,
+        offset: f32,
     },
     /// Below the widget
     Bottom {
         /// The height of the mod range.
-        height: u16,
+        height: f32,
         /// The offset from the bottom of the widget.
-        offset: i16,
+        offset: f32,
     },
 }
 
@@ -194,9 +194,9 @@ pub struct ModRangeStyle {
     /// The placement of the line relative to the widget
     pub placement: ModRangePlacement,
     /// The width of the background border.
-    pub back_border_width: u16,
+    pub back_border_width: f32,
     /// The radius of the background border.
-    pub back_border_radius: u16,
+    pub back_border_radius: f32,
     /// The color of the background border.
     pub back_border_color: Color,
     /// The color of the background.
@@ -293,17 +293,17 @@ impl Default {
     const ACTIVE_STYLE: ClassicStyle = ClassicStyle {
         rail: ClassicRail {
             rail_colors: default_colors::SLIDER_RAIL,
-            rail_widths: (1, 1),
-            rail_padding: 12,
+            rail_widths: (1.0, 1.0),
+            rail_padding: 12.0,
         },
         handle: ClassicHandle {
             color: default_colors::LIGHT_BACK,
             width: 34,
-            notch_width: 4,
+            notch_width: 4.0,
             notch_color: default_colors::BORDER,
-            border_radius: 2,
+            border_radius: 2.0,
             border_color: default_colors::BORDER,
-            border_width: 1,
+            border_width: 1.0,
         },
     };
 }
@@ -336,18 +336,18 @@ impl StyleSheet for Default {
         Some(TickMarksStyle {
             style: tick_marks::Style {
                 tier_1: tick_marks::Shape::Line {
-                    length: 24,
-                    width: 2,
+                    length: 24.0,
+                    width: 2.0,
                     color: default_colors::TICK_TIER_1,
                 },
                 tier_2: tick_marks::Shape::Line {
-                    length: 22,
-                    width: 1,
+                    length: 22.0,
+                    width: 1.0,
                     color: default_colors::TICK_TIER_2,
                 },
                 tier_3: tick_marks::Shape::Line {
-                    length: 18,
-                    width: 1,
+                    length: 18.0,
+                    width: 1.0,
                     color: default_colors::TICK_TIER_3,
                 },
             },
@@ -363,7 +363,7 @@ impl StyleSheet for Default {
             style: text_marks::Style::default(),
             placement: text_marks::Placement::RightOrBottom {
                 inside: false,
-                offset: Offset { x: 0, y: 7 },
+                offset: Offset { x: 0.0, y: 7.0 },
             },
         })
     }

@@ -29,7 +29,7 @@ pub struct XYPad<'a, Message, Renderer: self::Renderer> {
     state: &'a mut State,
     on_change: Box<dyn Fn(Normal, Normal) -> Message>,
     modifier_scalar: f32,
-    modifier_keys: keyboard::ModifiersState,
+    modifier_keys: keyboard::Modifiers,
     size: Length,
     style: Renderer::Style,
 }
@@ -51,7 +51,7 @@ impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
             state,
             on_change: Box::new(on_change),
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::ModifiersState {
+            modifier_keys: keyboard::Modifiers {
                 control: true,
                 ..Default::default()
             },
@@ -81,10 +81,7 @@ impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
     /// The default modifier key is `Ctrl`.
     ///
     /// [`XYPad`]: struct.XYPad.html
-    pub fn modifier_keys(
-        mut self,
-        modifier_keys: keyboard::ModifiersState,
-    ) -> Self {
+    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
         self.modifier_keys = modifier_keys;
         self
     }
@@ -122,7 +119,7 @@ pub struct State {
     prev_drag_y: f32,
     continuous_normal_x: f32,
     continuous_normal_y: f32,
-    pressed_modifiers: keyboard::ModifiersState,
+    pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
 }
 

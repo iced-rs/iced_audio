@@ -10,7 +10,7 @@ impl CustomStyle {
     const ACTIVE_STYLE: mod_range_input::CircleStyle =
         mod_range_input::CircleStyle {
             color: colors::KNOB_ARC_RIGHT,
-            border_width: 2,
+            border_width: 2.0,
             border_color: Color::from_rgb(0.0, 0.6, 0.0),
         };
 }
@@ -21,7 +21,7 @@ impl mod_range_input::StyleSheet for CustomStyle {
 
     fn hovered(&self) -> mod_range_input::Style {
         mod_range_input::Style::Circle(mod_range_input::CircleStyle {
-            border_width: 1,
+            border_width: 1.0,
             ..Self::ACTIVE_STYLE
         })
     }

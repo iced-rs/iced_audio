@@ -45,7 +45,7 @@ pub struct Ramp<'a, Message, Renderer: self::Renderer> {
     on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
-    modifier_keys: keyboard::ModifiersState,
+    modifier_keys: keyboard::Modifiers,
     width: Length,
     height: Length,
     style: Renderer::Style,
@@ -78,7 +78,7 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::ModifiersState {
+            modifier_keys: keyboard::Modifiers {
                 control: true,
                 ..Default::default()
             },
@@ -132,10 +132,7 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
     /// The default modifier key is `Ctrl`.
     ///
     /// [`Ramp`]: struct.Ramp.html
-    pub fn modifier_keys(
-        mut self,
-        modifier_keys: keyboard::ModifiersState,
-    ) -> Self {
+    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
         self.modifier_keys = modifier_keys;
         self
     }
@@ -169,7 +166,7 @@ pub struct State {
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
-    pressed_modifiers: keyboard::ModifiersState,
+    pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
 }
 

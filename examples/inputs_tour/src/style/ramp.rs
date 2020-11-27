@@ -9,7 +9,7 @@ pub struct CustomStyle;
 impl CustomStyle {
     const ACTIVE_STYLE: ramp::Style = ramp::Style {
         back_color: colors::KNOB,
-        back_border_width: 2,
+        back_border_width: 2.0,
         back_border_color: colors::KNOB_BORDER,
         line_width: 2.0,
         line_center_color: Color::from_rgb(0.7, 0.7, 0.7),

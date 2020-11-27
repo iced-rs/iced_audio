@@ -9,14 +9,14 @@ pub struct CustomStyleCircle;
 impl CustomStyleCircle {
     const ACTIVE_CIRCLE_NOTCH: knob::CircleNotch = knob::CircleNotch {
         color: colors::HANDLE,
-        border_width: 1,
+        border_width: 1.0,
         border_color: colors::FILLED,
         diameter: knob::StyleLength::Scaled(0.21),
         offset: knob::StyleLength::Scaled(0.21),
     };
     const ACTIVE_CIRCLE_STYLE: knob::CircleStyle = knob::CircleStyle {
         color: colors::KNOB,
-        border_width: 3,
+        border_width: 3.0,
         border_color: colors::KNOB_BORDER,
         notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
     };
@@ -92,7 +92,7 @@ impl CustomStyleLine {
     };
     const ACTIVE_CIRCLE_STYLE: knob::CircleStyle = knob::CircleStyle {
         color: colors::KNOB,
-        border_width: 0,
+        border_width: 0.0,
         border_color: Color::TRANSPARENT,
         notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
     };

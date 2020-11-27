@@ -56,7 +56,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                 height: bounds_height,
             },
             background: Background::Color(style.back_color),
-            border_radius: 0,
+            border_radius: 0.0,
             border_width: style.back_border_width,
             border_color: style.back_border_color,
         };

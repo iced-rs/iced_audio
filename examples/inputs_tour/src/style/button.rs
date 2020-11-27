@@ -14,7 +14,7 @@ impl button::StyleSheet for Button {
                 Button::Primary => colors::BUTTON_PRIMARY,
                 Button::Secondary => colors::BUTTON_SECONDARY,
             })),
-            border_radius: 12,
+            border_radius: 12.0,
             shadow_offset: Vector::new(1.0, 1.0),
             text_color: Color::from_rgb8(0xEE, 0xEE, 0xEE),
             ..button::Style::default()
