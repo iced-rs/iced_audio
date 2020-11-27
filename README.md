@@ -230,7 +230,7 @@ impl Sandbox for App {
 ```
 
 ## VST / LV2 / AU Plugins
-If you wish to use `iced_audio` for audio plugins, check out my other repos.
+If you wish to use iced_audio for audio plugins, check out my other repos.
 
 __Please note these are experimental and currently lacking many features.__
 * [`iced_baseview`] - Run [Iced] using [`baseview`] as a backend.
