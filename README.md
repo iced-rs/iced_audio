@@ -54,13 +54,6 @@ You may emit `features = ["image"]` if you do not plan on using images.
 __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
 
-## VST / LV2 / AU Plugins
-If you wish to use `iced_audio` for audio plugins, check out my other repos.
-
-__Please note these are experimental and currently lacking many features.__
-* [`iced_baseview`] - Run [Iced] using [`baseview`] as a backend.
-* [`iced-baseplug-examples`] - Example audio plugins using [`baseplug`] as a plugin wrapper, [`iced_baseview`] as a GUI backend, and iced_audio widgets.
-
 ## Simple Usage Example
 This crate assumes you know the basics of how to use [Iced]. If you haven't alreay, please check it out [here].
 ```rust
@@ -235,6 +228,13 @@ impl Sandbox for App {
 
 
 ```
+
+## VST / LV2 / AU Plugins
+If you wish to use `iced_audio` for audio plugins, check out my other repos.
+
+__Please note these are experimental and currently lacking many features.__
+* [`iced_baseview`] - Run [Iced] using [`baseview`] as a backend.
+* [`iced-baseplug-examples`] - Example audio plugins using [`baseplug`] as a plugin wrapper, [`iced_baseview`] as a GUI backend, and iced_audio widgets.
 
 ## Contributing / Feedback
 Contributions are greatly appreciated! If you want to contribute, please
