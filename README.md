@@ -255,6 +255,6 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots
 [roadmap]: https://github.com/BillyDM/iced_audio/tree/master/ROADMAP.md
 [`iced_baseview`]: https://github.com/BillyDM/iced_baseview
-[`iced_baseplug_examples`]: https://github.com/BillyDM/iced-baseplug-examples
+[`iced-baseplug-examples`]: https://github.com/BillyDM/iced-baseplug-examples
 [`baseview`]: https://github.com/RustAudio/baseview
 [`baseplug`]: https://github.com/wrl/baseplug
