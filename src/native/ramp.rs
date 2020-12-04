@@ -191,6 +191,13 @@ impl State {
             last_click: None,
         }
     }
+
+    /// Is the [`Ramp`] currently in the dragging state?
+    ///
+    /// [`Ramp`]: struct.Ramp.html
+    pub fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer>

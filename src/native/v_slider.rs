@@ -211,6 +211,13 @@ impl State {
             last_click: None,
         }
     }
+
+    /// Is the [`VSlider`] currently in the dragging state?
+    ///
+    /// [`VSlider`]: struct.VSlider.html
+    pub fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer>

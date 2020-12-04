@@ -148,6 +148,13 @@ impl State {
             last_click: None,
         }
     }
+
+    /// Is the [`XYPad`] currently in the dragging state?
+    ///
+    /// [`XYPad`]: struct.XYPad.html
+    pub fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer>
