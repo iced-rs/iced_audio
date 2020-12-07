@@ -15,7 +15,7 @@ use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
 
 static DEFAULT_SIZE: u16 = 30;
-static DEFAULT_SCALAR: f32 = 0.005;
+static DEFAULT_SCALAR: f32 = 0.00385;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A rotating knob GUI widget that controls a [`NormalParam`]
@@ -87,7 +87,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     /// Sets how much the [`Normal`] value will change for the [`Knob`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.005`
+    /// The default value is `0.00385`
     ///
     /// [`Knob`]: struct.Knob.html
     /// [`Normal`]: ../../core/struct.Normal.html
@@ -108,7 +108,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
 
     /// Sets the scalar to use when the user drags the knobs while holding down
     /// the modifier key. This is multiplied to the value set by
-    /// `Knob::scalar()` (which the default is `0.008`).
+    /// `Knob::scalar()` (which the default is `0.00385`).
     ///
     /// For example, a `modifier_scalar` of `0.5` will cause the knob to turn
     /// half as fast when the modifier key is down.

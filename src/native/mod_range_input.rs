@@ -14,7 +14,7 @@ use std::hash::Hash;
 use crate::core::{Normal, NormalParam};
 
 static DEFAULT_SIZE: u16 = 10;
-static DEFAULT_SCALAR: f32 = 0.005 / 2.0;
+static DEFAULT_SCALAR: f32 = 0.00385 / 2.0;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// An interactive dot that controls an [`NormalParam`]
@@ -80,7 +80,7 @@ impl<'a, Message, Renderer: self::Renderer>
     /// Sets how much the [`Normal`] value will change for the [`ModRangeInput`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.005`
+    /// The default value is `0.001925`
     ///
     /// [`ModRangeInput`]: struct.ModRangeInput.html
     /// [`Normal`]: ../../core/struct.Normal.html
@@ -101,7 +101,7 @@ impl<'a, Message, Renderer: self::Renderer>
 
     /// Sets the scalar to use when the user drags the ModRangeInputs while holding down
     /// the modifier key. This is multiplied to the value set by
-    /// `ModRangeInput::scalar()` (which the default is `0.008`).
+    /// `ModRangeInput::scalar()` (which the default is `0.001925`).
     ///
     /// For example, a `modifier_scalar` of `0.5` will cause the ModRangeInput to turn
     /// half as fast when the modifier key is down.

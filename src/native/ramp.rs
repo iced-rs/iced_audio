@@ -16,7 +16,7 @@ use crate::core::{Normal, NormalParam};
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
-static DEFAULT_SCALAR: f32 = 0.005;
+static DEFAULT_SCALAR: f32 = 0.00385;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// The direction of a [`Ramp`] widget.
@@ -118,7 +118,7 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
     /// Sets how much the [`Normal`] value will change for the [`Ramp`] per `y`
     /// pixel movement of the mouse.
     ///
-    /// The default value is `0.005`
+    /// The default value is `0.00385`
     ///
     /// [`Ramp`]: struct.Ramp.html
     /// [`Normal`]: ../../core/struct.Normal.html
@@ -139,7 +139,7 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
 
     /// Sets the scalar to use when the user drags the Ramps while holding down
     /// the modifier key. This is multiplied to the value set by
-    /// `Ramp::scalar()` (which the default is `0.008`).
+    /// `Ramp::scalar()` (which the default is `0.00385`).
     ///
     /// For example, a `modifier_scalar` of `0.5` will cause the ramp to move
     /// half as fast when the modifier key is down.
