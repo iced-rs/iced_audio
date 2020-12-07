@@ -74,7 +74,7 @@ pub struct CircleNotch {
     /// The color of the circle
     pub color: Color,
     /// The width of the border
-    pub border_width: u16,
+    pub border_width: f32,
     /// The color of the border
     pub border_color: Color,
     /// The diameter of the circle
@@ -118,7 +118,7 @@ pub struct CircleStyle {
     /// The color of the knob
     pub color: Color,
     /// The width of the border around the knob
-    pub border_width: u16,
+    pub border_width: f32,
     /// The color of the border around the knob
     pub border_color: Color,
     /// The shape of the notch
@@ -336,11 +336,11 @@ struct Default;
 impl Default {
     const ACTIVE_CIRCLE_STYLE: CircleStyle = CircleStyle {
         color: default_colors::LIGHT_BACK,
-        border_width: 1,
+        border_width: 1.0,
         border_color: default_colors::BORDER,
         notch: NotchShape::Circle(CircleNotch {
             color: default_colors::BORDER,
-            border_width: 0,
+            border_width: 0.0,
             border_color: Color::TRANSPARENT,
             diameter: StyleLength::Scaled(0.17),
             offset: StyleLength::Scaled(0.15),
@@ -368,15 +368,15 @@ impl StyleSheet for Default {
         Some(TickMarksStyle {
             style: tick_marks::Style {
                 tier_1: tick_marks::Shape::Circle {
-                    diameter: 4,
+                    diameter: 4.0,
                     color: default_colors::TICK_TIER_1,
                 },
                 tier_2: tick_marks::Shape::Circle {
-                    diameter: 2,
+                    diameter: 2.0,
                     color: default_colors::TICK_TIER_2,
                 },
                 tier_3: tick_marks::Shape::Circle {
-                    diameter: 2,
+                    diameter: 2.0,
                     color: default_colors::TICK_TIER_3,
                 },
             },

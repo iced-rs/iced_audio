@@ -28,7 +28,7 @@ pub struct Knob<'a, Message, Renderer: self::Renderer> {
     on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
     modifier_scalar: f32,
-    modifier_keys: keyboard::ModifiersState,
+    modifier_keys: keyboard::Modifiers,
     style: Renderer::Style,
     tick_marks: Option<&'a tick_marks::Group>,
     text_marks: Option<&'a text_marks::Group>,
@@ -55,7 +55,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::ModifiersState {
+            modifier_keys: keyboard::Modifiers {
                 control: true,
                 ..Default::default()
             },
@@ -101,10 +101,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     /// The default modifier key is `Ctrl`.
     ///
     /// [`Knob`]: struct.Knob.html
-    pub fn modifier_keys(
-        mut self,
-        modifier_keys: keyboard::ModifiersState,
-    ) -> Self {
+    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
         self.modifier_keys = modifier_keys;
         self
     }
@@ -180,7 +177,7 @@ pub struct State {
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
-    pressed_modifiers: keyboard::ModifiersState,
+    pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
 }
 
@@ -201,6 +198,13 @@ impl State {
             pressed_modifiers: Default::default(),
             last_click: None,
         }
+    }
+
+    /// Is the [`Knob`] currently in the dragging state?
+    ///
+    /// [`Knob`]: struct.Knob.html
+    pub fn is_dragging(&self) -> bool {
+        self.is_dragging
     }
 }
 

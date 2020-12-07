@@ -14,7 +14,7 @@ pub struct Style {
     /// The color of the background rectangle
     pub back_color: Color,
     /// The width of the border of the background rectangle
-    pub back_border_width: u16,
+    pub back_border_width: f32,
     /// The color of the border of the background rectangle
     pub back_border_color: Color,
     /// The width of the ramp line,
@@ -51,7 +51,7 @@ struct Default;
 impl Default {
     const ACTIVE_STYLE: Style = Style {
         back_color: default_colors::LIGHT_BACK,
-        back_border_width: 1,
+        back_border_width: 1.0,
         back_border_color: default_colors::BORDER,
         line_width: 2.0,
         line_center_color: default_colors::BORDER,

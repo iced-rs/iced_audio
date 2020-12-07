@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.4.0"
+version = "0.5.2"
 authors = ["Billy Messenger <https://github.com/BillyDM>"]
 license = "MIT"
 edition = "2018"
@@ -25,8 +25,8 @@ members = [
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dev-dependencies]
-iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["canvas"] }
+iced = "0.2"
 
 [dependencies]
-iced_native = { git = "https://github.com/hecrj/iced", branch = "master" }
-iced_graphics = { git = "https://github.com/hecrj/iced", branch = "master", features=["canvas"] }
+iced_native = "0.3"
+iced_graphics = { version = "0.1", features = ["canvas"] }

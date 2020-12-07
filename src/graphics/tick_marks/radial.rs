@@ -181,19 +181,19 @@ fn draw_tier(
 
 fn max_length(style: &Style) -> f32 {
     let length_1 = match style.tier_1 {
-        Shape::None => 0,
+        Shape::None => 0.0,
         Shape::Line { length, .. } => length,
         Shape::Circle { diameter, .. } => diameter,
     };
 
     let length_2 = match style.tier_1 {
-        Shape::None => 0,
+        Shape::None => 0.0,
         Shape::Line { length, .. } => length,
         Shape::Circle { diameter, .. } => diameter,
     };
 
     let length_3 = match style.tier_1 {
-        Shape::None => 0,
+        Shape::None => 0.0,
         Shape::Line { length, .. } => length,
         Shape::Circle { diameter, .. } => diameter,
     };

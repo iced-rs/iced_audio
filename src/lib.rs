@@ -5,12 +5,17 @@
 //!
 //! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
 //! ```toml
-//! iced = { git = "https://github.com/hecrj/iced", features = ["canvas", "image"] }
-//! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch="iced_git" }
+//! iced = { version = "0.2", features = ["image"] }
+//! iced_audio = "0.5"
 //! ```
-//!
-//! This crate is currently experimental and incomplete. Master branch moves
-//! fast and may contain breaking changes!
+//! Or if you want to use the GitHub version of `iced`:
+//! ```toml
+//! iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["image"] }
+//! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
+//! ```
+//! You may emit `features = ["image"]` if you do not plan on using images.
+//! __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
+//! you want to learn about a specific release, check out [the release list].
 //!
 //! # Simple Usage Example
 //!

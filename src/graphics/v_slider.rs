@@ -346,7 +346,7 @@ fn draw_classic_style<'a>(
         border_color: style.handle.border_color,
     };
 
-    let handle_notch: Primitive = if style.handle.notch_width != 0 {
+    let handle_notch: Primitive = if style.handle.notch_width != 0.0 {
         Primitive::Quad {
             bounds: Rectangle {
                 x: bounds.x,
@@ -357,8 +357,8 @@ fn draw_classic_style<'a>(
                 height: notch_width,
             },
             background: Background::Color(style.handle.notch_color),
-            border_radius: 0,
-            border_width: 0,
+            border_radius: 0.0,
+            border_width: 0.0,
             border_color: Color::TRANSPARENT,
         }
     } else {
@@ -593,8 +593,8 @@ fn draw_classic_rail(
                 height,
             },
             background: Background::Color(left_color),
-            border_radius: 0,
-            border_width: 0,
+            border_radius: 0.0,
+            border_width: 0.0,
             border_color: Color::TRANSPARENT,
         },
         Primitive::Quad {
@@ -605,8 +605,8 @@ fn draw_classic_rail(
                 height,
             },
             background: Background::Color(right_color),
-            border_radius: 0,
-            border_width: 0,
+            border_radius: 0.0,
+            border_width: 0.0,
             border_color: Color::TRANSPARENT,
         },
     )

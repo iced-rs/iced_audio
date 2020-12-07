@@ -54,7 +54,7 @@ impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
                         height: bounds_size,
                     },
                     background: Background::Color(style.color),
-                    border_radius: radius as u16,
+                    border_radius: radius,
                     border_width: style.border_width,
                     border_color: style.border_color,
                 }

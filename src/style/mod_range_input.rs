@@ -32,7 +32,7 @@ pub struct CircleStyle {
     /// Color of the circle
     pub color: Color,
     /// Width of the border
-    pub border_width: u16,
+    pub border_width: f32,
     /// Color of the border
     pub border_color: Color,
 }
@@ -46,9 +46,9 @@ pub struct SquareStyle {
     /// Color of the square
     pub color: Color,
     /// Width of the border
-    pub border_width: u16,
+    pub border_width: f32,
     /// Radius of the border
-    pub border_radius: u16,
+    pub border_radius: f32,
     /// Color of the border
     pub border_color: Color,
 }
@@ -77,7 +77,7 @@ struct Default;
 impl Default {
     const ACTIVE_STYLE: CircleStyle = CircleStyle {
         color: default_colors::LIGHT_BACK,
-        border_width: 1,
+        border_width: 1.0,
         border_color: default_colors::BORDER,
     };
 }

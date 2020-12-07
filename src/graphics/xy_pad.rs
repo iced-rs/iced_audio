@@ -65,7 +65,7 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                 height: bounds_size,
             },
             background: Background::Color(style.back_color),
-            border_radius: 0,
+            border_radius: 0.0,
             border_width: style.border_width,
             border_color: style.border_color,
         };
@@ -91,8 +91,8 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                         height: center_line_width,
                     },
                     background: Background::Color(style.center_line_color),
-                    border_radius: 0,
-                    border_width: 0,
+                    border_radius: 0.0,
+                    border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
                 Primitive::Quad {
@@ -103,8 +103,8 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                         height: bounds_size,
                     },
                     background: Background::Color(style.center_line_color),
-                    border_radius: 0,
-                    border_width: 0,
+                    border_radius: 0.0,
+                    border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
             )
@@ -112,7 +112,7 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
             (Primitive::None, Primitive::None)
         };
 
-        let (h_rail, v_rail) = if style.rail_width != 0 {
+        let (h_rail, v_rail) = if style.rail_width != 0.0 {
             let rail_width = style.rail_width as f32;
             let half_rail_width = (rail_width / 2.0).floor();
             (
@@ -124,8 +124,8 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                         height: style.rail_width as f32,
                     },
                     background: Background::Color(style.h_rail_color),
-                    border_radius: 0,
-                    border_width: 0,
+                    border_radius: 0.0,
+                    border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
                 Primitive::Quad {
@@ -136,8 +136,8 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                         height: bounds_size,
                     },
                     background: Background::Color(style.v_rail_color),
-                    border_radius: 0,
-                    border_width: 0,
+                    border_radius: 0.0,
+                    border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
             )
@@ -159,7 +159,7 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
                             height: diameter,
                         },
                         background: Background::Color(circle.color),
-                        border_radius: radius as u16,
+                        border_radius: radius,
                         border_width: circle.border_width,
                         border_color: circle.border_color,
                     }

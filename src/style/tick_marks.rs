@@ -52,7 +52,7 @@ pub enum Placement {
         fill_length: bool,
         /// The gap between the split tick marks. This has no effect if `fill_length`
         /// is true.
-        gap: u16,
+        gap: f32,
     },
 }
 
@@ -84,10 +84,10 @@ pub enum Shape {
     /// Line shape
     Line {
         /// The length of the tick mark.
-        length: u16,
+        length: f32,
 
         /// The width (thickness) of the tick mark.
-        width: u16,
+        width: f32,
 
         /// The color of the tick mark.
         color: Color,
@@ -95,7 +95,7 @@ pub enum Shape {
     /// Circle shape
     Circle {
         /// The diameter of the tick mark.
-        diameter: u16,
+        diameter: f32,
 
         /// The color of the tick mark.
         color: Color,
@@ -106,18 +106,18 @@ impl std::default::Default for Style {
     fn default() -> Self {
         Self {
             tier_1: Shape::Line {
-                length: 4,
-                width: 2,
+                length: 4.0,
+                width: 2.0,
                 color: default_colors::TICK_TIER_1,
             },
             tier_2: Shape::Line {
-                length: 3,
-                width: 2,
+                length: 3.0,
+                width: 2.0,
                 color: default_colors::TICK_TIER_2,
             },
             tier_3: Shape::Line {
-                length: 2,
-                width: 1,
+                length: 2.0,
+                width: 1.0,
                 color: default_colors::TICK_TIER_3,
             },
         }

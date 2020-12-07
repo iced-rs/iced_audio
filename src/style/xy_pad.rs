@@ -13,7 +13,7 @@ use crate::style::default_colors;
 #[derive(Debug, Clone)]
 pub struct Style {
     /// the width of the horizontal and vertical rail lines
-    pub rail_width: u16,
+    pub rail_width: f32,
     /// color of the horizontal rail line
     pub h_rail_color: Color,
     /// color of the vertical rail line
@@ -25,11 +25,11 @@ pub struct Style {
     /// the color of the background square
     pub back_color: Color,
     /// the width of the border of the background square
-    pub border_width: u16,
+    pub border_width: f32,
     /// the color of the border of the background square
     pub border_color: Color,
     /// the width of the center line markings
-    pub center_line_width: u16,
+    pub center_line_width: f32,
     /// the color of the center line markings
     pub center_line_color: Color,
 }
@@ -55,9 +55,9 @@ pub struct HandleCircle {
     /// the color of the circle
     pub color: Color,
     /// the diameter of the circle
-    pub diameter: u16,
+    pub diameter: f32,
     /// the width of the border of the circle
-    pub border_width: u16,
+    pub border_width: f32,
     /// the color of the border of the circle
     pub border_color: Color,
 }
@@ -73,9 +73,9 @@ pub struct HandleSquare {
     /// the size of the square
     pub size: u16,
     /// the width of the border of the square
-    pub border_width: u16,
+    pub border_width: f32,
     /// the radius of the corners of the square
-    pub border_radius: u16,
+    pub border_radius: f32,
     /// the color of the border of the square
     pub border_color: Color,
 }
@@ -104,19 +104,19 @@ struct Default;
 impl Default {
     const ACTIVE_HANDLE: HandleCircle = HandleCircle {
         color: default_colors::LIGHT_BACK,
-        diameter: 11,
-        border_width: 2,
+        diameter: 11.0,
+        border_width: 2.0,
         border_color: default_colors::BORDER,
     };
     const ACTIVE_STYLE: Style = Style {
-        rail_width: 2,
+        rail_width: 2.0,
         h_rail_color: default_colors::XY_PAD_RAIL,
         v_rail_color: default_colors::XY_PAD_RAIL,
         handle: HandleShape::Circle(Self::ACTIVE_HANDLE),
         back_color: default_colors::LIGHT_BACK,
-        border_width: 1,
+        border_width: 1.0,
         border_color: default_colors::BORDER,
-        center_line_width: 1,
+        center_line_width: 1.0,
         center_line_color: default_colors::XY_PAD_CENTER_LINE,
     };
 }
@@ -139,7 +139,7 @@ impl StyleSheet for Default {
         Style {
             handle: HandleShape::Circle(HandleCircle {
                 color: default_colors::LIGHT_BACK_DRAG,
-                diameter: 9,
+                diameter: 9.0,
                 ..Self::ACTIVE_HANDLE
             }),
             ..Self::ACTIVE_STYLE

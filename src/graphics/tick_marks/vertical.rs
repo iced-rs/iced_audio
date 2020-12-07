@@ -11,8 +11,8 @@ fn draw_vertical_lines(
     bounds_y: f32,
     bounds_height: f32,
     x: f32,
-    width: u16,
-    length: u16,
+    width: f32,
+    length: f32,
     color: Color,
     inverse: bool,
 ) {
@@ -24,13 +24,13 @@ fn draw_vertical_lines(
             primitives.push(Primitive::Quad {
                 bounds: Rectangle {
                     x,
-                    y: (start_y + tick_mark.scale(bounds_height)).round(),
+                    y: (start_y + tick_mark.scale(bounds_height)),
                     width: f32::from(length),
                     height: f32::from(width),
                 },
                 background: back_color,
-                border_radius: 0,
-                border_width: 0,
+                border_radius: 0.0,
+                border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
         }
@@ -39,13 +39,13 @@ fn draw_vertical_lines(
             primitives.push(Primitive::Quad {
                 bounds: Rectangle {
                     x,
-                    y: (start_y + tick_mark.scale_inv(bounds_height)).round(),
+                    y: (start_y + tick_mark.scale_inv(bounds_height)),
                     width: f32::from(length),
                     height: f32::from(width),
                 },
                 background: back_color,
-                border_radius: 0,
-                border_width: 0,
+                border_radius: 0.0,
+                border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
         }
@@ -58,12 +58,12 @@ fn draw_vertical_circles(
     bounds_y: f32,
     bounds_height: f32,
     x: f32,
-    diameter: u16,
+    diameter: f32,
     color: Color,
     inverse: bool,
 ) {
     let diameter = f32::from(diameter);
-    let radius = (diameter / 2.0).round() as u16;
+    let radius = diameter / 2.0;
     let start_y = bounds_y - f32::from(radius);
     let back_color = Background::Color(color);
 
@@ -72,13 +72,13 @@ fn draw_vertical_circles(
             primitives.push(Primitive::Quad {
                 bounds: Rectangle {
                     x,
-                    y: (start_y + tick_mark.scale(bounds_height)).round(),
+                    y: (start_y + tick_mark.scale(bounds_height)),
                     width: diameter,
                     height: diameter,
                 },
                 background: back_color,
                 border_radius: radius,
-                border_width: 0,
+                border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
         }
@@ -87,13 +87,13 @@ fn draw_vertical_circles(
             primitives.push(Primitive::Quad {
                 bounds: Rectangle {
                     x,
-                    y: (start_y + tick_mark.scale_inv(bounds_height)).round(),
+                    y: (start_y + tick_mark.scale_inv(bounds_height)),
                     width: diameter,
                     height: diameter,
                 },
                 background: back_color,
                 border_radius: radius,
-                border_width: 0,
+                border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
         }
@@ -279,10 +279,10 @@ fn draw_vertical_center_aligned_tier(
                 let (x, length) = if fill_length {
                     (
                         bounds.x + f32::from(*length),
-                        (bounds.width - (f32::from(*length) * 2.0)) as u16,
+                        bounds.width - (f32::from(*length) * 2.0),
                     )
                 } else {
-                    ((x - (f32::from(*length) / 2.0)).round(), *length)
+                    (x - (*length / 2.0), *length)
                 };
 
                 draw_vertical_lines(
@@ -301,10 +301,10 @@ fn draw_vertical_center_aligned_tier(
                 let (x, diameter) = if fill_length {
                     (
                         bounds.x + f32::from(*diameter),
-                        (bounds.width - (f32::from(*diameter) * 2.0)) as u16,
+                        bounds.width - (f32::from(*diameter) * 2.0),
                     )
                 } else {
-                    ((x - (f32::from(*diameter) / 2.0)).round(), *diameter)
+                    (x - (*diameter / 2.0), *diameter)
                 };
 
                 draw_vertical_circles(
@@ -380,15 +380,13 @@ fn draw_vertical_center_aligned_split_tier(
                 color,
             } => {
                 let (left_x, length) = if fill_length {
-                    let length = (f32::from(*length)
-                        + ((bounds.width + gap) / 2.0))
-                        .round();
-                    ((x - length - (gap / 2.0)).round(), length as u16)
+                    let length = *length + ((bounds.width + gap) / 2.0);
+                    (x - length - (gap / 2.0), length)
                 } else {
-                    ((x - f32::from(*length) - (gap / 2.0)).round(), *length)
+                    (x - *length - (gap / 2.0), *length)
                 };
 
-                let right_x = (x + (gap / 2.0)).round();
+                let right_x = x + (gap / 2.0);
 
                 draw_vertical_lines(
                     primitives,
@@ -417,17 +415,13 @@ fn draw_vertical_center_aligned_split_tier(
                 let (left_x, diameter) = if fill_length {
                     (
                         bounds.x - f32::from(*diameter),
-                        (f32::from(*diameter) + ((bounds.width + gap) / 2.0))
-                            .round() as u16,
+                        *diameter + ((bounds.width + gap) / 2.0),
                     )
                 } else {
-                    (
-                        (x - f32::from(*diameter) - (gap / 2.0)).round(),
-                        *diameter,
-                    )
+                    (x - *diameter - (gap / 2.0), *diameter)
                 };
 
-                let right_x = (x + (gap / 2.0)).round();
+                let right_x = x + (gap / 2.0);
 
                 draw_vertical_circles(
                     primitives,
@@ -624,7 +618,7 @@ pub fn draw_vertical_tick_marks(
             draw_vertical_center_aligned(
                 &mut primitives,
                 &bounds,
-                bounds.center_x().round(),
+                bounds.center_x(),
                 tick_marks,
                 style,
                 *fill_length,
@@ -646,7 +640,7 @@ pub fn draw_vertical_tick_marks(
             draw_vertical_center_aligned_split(
                 &mut primitives,
                 &bounds,
-                bounds.center_x().round(),
+                bounds.center_x(),
                 tick_marks,
                 style,
                 *fill_length,
