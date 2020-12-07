@@ -15,7 +15,7 @@ use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
 
 static DEFAULT_WIDTH: u16 = 14;
-static DEFAULT_SCALAR: f32 = 0.98;
+static DEFAULT_SCALAR: f32 = 0.9575;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A vertical slider GUI widget that controls a [`NormalParam`]
@@ -113,7 +113,7 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
     /// For example, a scalar of `0.5` will cause the slider to move half a
     /// pixel for every pixel the mouse moves.
     ///
-    /// The default scalar is `0.98`.
+    /// The default scalar is `0.9575`.
     ///
     /// [`VSlider`]: struct.VSlider.html
     pub fn scalar(mut self, scalar: f32) -> Self {
