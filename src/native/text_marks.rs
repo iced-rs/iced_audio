@@ -86,14 +86,12 @@ impl Group {
     ) -> Self {
         let mut vec: Vec<(Normal, String)> = Vec::with_capacity(text.len() + 2);
 
-        let ranges = text.len() + 1;
+        let span = 1.0 / (text.len() + 1) as f32;
 
-        let span = 1.0 / ranges as f32;
-
-        for i in 0..ranges {
+        for (i, text) in text.iter().enumerate() {
             let pos = (i as f32 * span) + span;
 
-            vec.push((pos.into(), String::from(text[i])));
+            vec.push((pos.into(), String::from(*text)));
         }
 
         if let Some(min_text) = min {
