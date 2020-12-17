@@ -18,7 +18,7 @@ pub enum Align {
 }
 
 /// The placement of text marks relative to the widget
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Placement {
     /// Text marks on both sides of the widget.
     BothSides {
@@ -77,6 +77,28 @@ pub struct Style {
     pub bounds_width: u16,
     /// The height of the text bounds.
     pub bounds_height: u16,
+}
+
+impl std::cmp::PartialEq for Style {
+    fn eq(&self, rhs: &Style) -> bool {
+        self.color == rhs.color
+            && self.text_size == rhs.text_size
+            && self.bounds_width == rhs.bounds_width
+            && self.bounds_height == rhs.bounds_width
+            && match self.font {
+                Font::Default => match rhs.font {
+                    Font::Default => true,
+                    _ => false,
+                },
+                Font::External { name, .. } => {
+                    let self_name = name;
+                    match rhs.font {
+                        Font::Default => false,
+                        Font::External { name, .. } => self_name == name,
+                    }
+                }
+            }
+    }
 }
 
 impl std::default::Default for Style {

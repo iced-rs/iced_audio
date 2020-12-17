@@ -13,6 +13,7 @@ pub struct Group {
     tier_2_positions: Vec<Normal>,
     tier_3_positions: Vec<Normal>,
     len: usize,
+    hashed: u64,
 }
 
 impl Default for Group {
@@ -26,6 +27,10 @@ impl Group {
     ///
     /// [`Group`]: struct.Group.html
     pub fn from_normalized(tick_marks: &[(Normal, Tier)]) -> Self {
+        use std::hash::{Hash, Hasher};
+        let mut hasher = iced_native::Hasher::default();
+        tick_marks.len().hash(&mut hasher);
+
         let len = tick_marks.len();
 
         let mut tier_1_positions: Vec<Normal> = Vec::new();
@@ -33,6 +38,10 @@ impl Group {
         let mut tier_3_positions: Vec<Normal> = Vec::new();
 
         for tick_mark in tick_marks.iter() {
+            tick_mark.1.hash(&mut hasher);
+            // Rust can't hash an f32 value.
+            ((tick_mark.0.as_f32() * 10000000.0) as u64).hash(&mut hasher);
+
             match tick_mark.1 {
                 Tier::One => {
                     tier_1_positions.push(tick_mark.0);
@@ -51,6 +60,7 @@ impl Group {
             tier_2_positions,
             tier_3_positions,
             len,
+            hashed: hasher.finish(),
         }
     }
 
@@ -218,6 +228,11 @@ impl Group {
     pub fn len(&self) -> usize {
         self.len
     }
+
+    /// Returns the hashed value of the internal data.
+    pub(crate) fn hashed(&self) -> u64 {
+        self.hashed
+    }
 }
 
 impl From<Vec<(Normal, Tier)>> for Group {
@@ -237,7 +252,7 @@ impl From<&[(Normal, Tier)]> for Group {
 /// * One - large-sized tick mark
 /// * Two - medium-sized tick mark
 /// * Small - small-sized tick mark
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, std::hash::Hash)]
 pub enum Tier {
     /// large-sized tick mark
     One,

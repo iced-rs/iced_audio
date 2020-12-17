@@ -1,3 +1,4 @@
+use super::PrimitiveCache;
 use crate::native::text_marks;
 use crate::style::text_marks::{Align, Placement, Style};
 
@@ -72,161 +73,171 @@ pub fn draw_vertical_text_marks(
     style: &Style,
     placement: &Placement,
     inverse: bool,
+    cache: &PrimitiveCache,
 ) -> Primitive {
-    let primitives = match placement {
-        Placement::BothSides { inside, offset } => {
-            let bounds = offset.offset_rect(bounds);
+    cache.cached_linear(
+        *bounds,
+        text_marks,
+        *style,
+        *placement,
+        inverse,
+        || {
+            let primitives = match placement {
+                Placement::BothSides { inside, offset } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(text_marks.group.len() * 2);
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(text_marks.group.len() * 2);
 
-            if *inside {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Left,
-                );
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Right,
-                );
-            } else {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Right,
-                );
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Left,
-                );
-            }
+                    if *inside {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Left,
+                        );
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Right,
+                        );
+                    } else {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Right,
+                        );
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Left,
+                        );
+                    }
 
-            primitives
-        }
-        Placement::LeftOrTop { inside, offset } => {
-            let bounds = offset.offset_rect(bounds);
-
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(text_marks.group.len());
-
-            if *inside {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Left,
-                );
-            } else {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Right,
-                );
-            }
-
-            primitives
-        }
-        Placement::RightOrBottom { inside, offset } => {
-            let bounds = offset.offset_rect(bounds);
-
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(text_marks.group.len());
-
-            if *inside {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Right,
-                );
-            } else {
-                draw_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    text_marks,
-                    style,
-                    inverse,
-                    HorizontalAlignment::Left,
-                );
-            }
-
-            primitives
-        }
-        Placement::Center { align, offset } => {
-            let bounds = offset.offset_rect(bounds);
-
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(text_marks.group.len());
-
-            match align {
-                Align::Start => {
-                    draw_aligned(
-                        &mut primitives,
-                        &bounds,
-                        bounds.center_x(),
-                        text_marks,
-                        style,
-                        inverse,
-                        HorizontalAlignment::Left,
-                    );
+                    primitives
                 }
-                Align::End => {
-                    draw_aligned(
-                        &mut primitives,
-                        &bounds,
-                        bounds.center_x(),
-                        text_marks,
-                        style,
-                        inverse,
-                        HorizontalAlignment::Right,
-                    );
-                }
-                Align::Center => {
-                    draw_aligned(
-                        &mut primitives,
-                        &bounds,
-                        bounds.center_x(),
-                        text_marks,
-                        style,
-                        inverse,
-                        HorizontalAlignment::Center,
-                    );
-                }
-            }
+                Placement::LeftOrTop { inside, offset } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            primitives
-        }
-    };
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(text_marks.group.len());
 
-    Primitive::Group { primitives }
+                    if *inside {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Left,
+                        );
+                    } else {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Right,
+                        );
+                    }
+
+                    primitives
+                }
+                Placement::RightOrBottom { inside, offset } => {
+                    let bounds = offset.offset_rect(bounds);
+
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(text_marks.group.len());
+
+                    if *inside {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Right,
+                        );
+                    } else {
+                        draw_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            text_marks,
+                            style,
+                            inverse,
+                            HorizontalAlignment::Left,
+                        );
+                    }
+
+                    primitives
+                }
+                Placement::Center { align, offset } => {
+                    let bounds = offset.offset_rect(bounds);
+
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(text_marks.group.len());
+
+                    match align {
+                        Align::Start => {
+                            draw_aligned(
+                                &mut primitives,
+                                &bounds,
+                                bounds.center_x(),
+                                text_marks,
+                                style,
+                                inverse,
+                                HorizontalAlignment::Left,
+                            );
+                        }
+                        Align::End => {
+                            draw_aligned(
+                                &mut primitives,
+                                &bounds,
+                                bounds.center_x(),
+                                text_marks,
+                                style,
+                                inverse,
+                                HorizontalAlignment::Right,
+                            );
+                        }
+                        Align::Center => {
+                            draw_aligned(
+                                &mut primitives,
+                                &bounds,
+                                bounds.center_x(),
+                                text_marks,
+                                style,
+                                inverse,
+                                HorizontalAlignment::Center,
+                            );
+                        }
+                    }
+
+                    primitives
+                }
+            };
+
+            Primitive::Group { primitives }
+        },
+    )
 }

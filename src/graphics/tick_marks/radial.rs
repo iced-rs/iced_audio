@@ -2,6 +2,7 @@ use iced_graphics::canvas::{Fill, Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Color, Point, Size, Vector};
 
+use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
 use crate::style::tick_marks::{Shape, Style};
@@ -222,55 +223,68 @@ pub fn draw_radial_tick_marks(
     tick_marks: &tick_marks::Group,
     style: &Style,
     inverse: bool,
+    cache: &PrimitiveCache,
 ) -> Primitive {
-    let frame_radius = if inside {
-        radius
-    } else {
-        radius + max_length(style)
-    };
-
-    let frame_size = frame_radius * 2.0;
-
-    let mut frame = Frame::new(Size::new(frame_size, frame_size));
-
-    frame.translate(Vector::new(frame_radius, frame_radius));
-
-    draw_tier(
-        &mut frame,
+    cache.cached_radial(
+        center,
         radius,
         start_angle,
         angle_span,
-        tick_marks.tier_1(),
-        &style.tier_1,
         inside,
+        tick_marks,
+        *style,
         inverse,
-    );
-    draw_tier(
-        &mut frame,
-        radius,
-        start_angle,
-        angle_span,
-        tick_marks.tier_2(),
-        &style.tier_2,
-        inside,
-        inverse,
-    );
-    draw_tier(
-        &mut frame,
-        radius,
-        start_angle,
-        angle_span,
-        tick_marks.tier_3(),
-        &style.tier_3,
-        inside,
-        inverse,
-    );
+        || {
+            let frame_radius = if inside {
+                radius
+            } else {
+                radius + max_length(style)
+            };
 
-    Primitive::Translate {
-        translation: Vector::new(
-            center.x - frame_radius,
-            center.y - frame_radius,
-        ),
-        content: Box::new(frame.into_geometry().into_primitive()),
-    }
+            let frame_size = frame_radius * 2.0;
+
+            let mut frame = Frame::new(Size::new(frame_size, frame_size));
+
+            frame.translate(Vector::new(frame_radius, frame_radius));
+
+            draw_tier(
+                &mut frame,
+                radius,
+                start_angle,
+                angle_span,
+                tick_marks.tier_1(),
+                &style.tier_1,
+                inside,
+                inverse,
+            );
+            draw_tier(
+                &mut frame,
+                radius,
+                start_angle,
+                angle_span,
+                tick_marks.tier_2(),
+                &style.tier_2,
+                inside,
+                inverse,
+            );
+            draw_tier(
+                &mut frame,
+                radius,
+                start_angle,
+                angle_span,
+                tick_marks.tier_3(),
+                &style.tier_3,
+                inside,
+                inverse,
+            );
+
+            Primitive::Translate {
+                translation: Vector::new(
+                    center.x - frame_radius,
+                    center.y - frame_radius,
+                ),
+                content: Box::new(frame.into_geometry().into_primitive()),
+            }
+        },
+    )
 }

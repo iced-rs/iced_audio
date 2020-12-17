@@ -192,6 +192,8 @@ pub struct State {
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
+    tick_marks_cache: crate::graphics::tick_marks::PrimitiveCache,
+    text_marks_cache: crate::graphics::text_marks::PrimitiveCache,
 }
 
 impl State {
@@ -209,6 +211,8 @@ impl State {
             continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
+            tick_marks_cache: Default::default(),
+            text_marks_cache: Default::default(),
         }
     }
 
@@ -366,6 +370,8 @@ where
             self.tick_marks,
             self.text_marks,
             &self.style,
+            &self.state.tick_marks_cache,
+            &self.state.text_marks_cache,
         )
     }
 
@@ -412,6 +418,8 @@ pub trait Renderer: iced_native::Renderer {
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
         style: &Self::Style,
+        tick_marks_cache: &crate::tick_marks::PrimitiveCache,
+        text_marks_cache: &crate::text_marks::PrimitiveCache,
     ) -> Self::Output;
 }
 
