@@ -22,7 +22,7 @@
 //! This crate assumes you know the basics of how to use [`Iced`]. If you
 //! haven't alreay, please check it out [`here`].
 //!
-//! ```
+//! ```no_run
 // Import iced modules.
 //! use iced::{
 //!     Align, Column, Container, Element, Length, Sandbox, Settings, Text,
