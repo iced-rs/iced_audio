@@ -253,8 +253,8 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [Zulip server]: https://iced.zulipchat.com/
 [Rust Community Discord]: https://bit.ly/rust-community
 [the release list]: https://github.com/BillyDM/iced_audio/releases
-[more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots
-[roadmap]: https://github.com/BillyDM/iced_audio/tree/master/ROADMAP.md
+[more screenshots]: https://github.com/BillyDM/iced_audio/tree/main/screenshots
+[roadmap]: https://github.com/BillyDM/iced_audio/tree/main/ROADMAP.md
 [`iced_baseview`]: https://github.com/BillyDM/iced_baseview
 [`iced-baseplug-examples`]: https://github.com/BillyDM/iced-baseplug-examples
 [`baseview`]: https://github.com/RustAudio/baseview
