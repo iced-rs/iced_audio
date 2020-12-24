@@ -204,6 +204,12 @@ impl State {
         }
     }
 
+    /// Set the value of the knob.
+    pub fn set(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
     /// Is the [`Knob`] currently in the dragging state?
     ///
     /// [`Knob`]: struct.Knob.html
