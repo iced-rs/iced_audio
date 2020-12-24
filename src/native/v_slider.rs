@@ -216,6 +216,12 @@ impl State {
         }
     }
 
+    /// Set the `normal_param.value` of the [`VSlider`].
+    pub fn set(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
     /// Is the [`VSlider`] currently in the dragging state?
     ///
     /// [`VSlider`]: struct.VSlider.html

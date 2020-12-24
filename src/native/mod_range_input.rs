@@ -151,6 +151,12 @@ impl State {
         }
     }
 
+    /// Set the `normal_param.value` of the [`ModRangeInput`].
+    pub fn set(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
     /// Is the [`ModRangeInput`] currently in the dragging state?
     ///
     /// [`ModRangeInput`]: struct.ModRangeInput.html

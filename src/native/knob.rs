@@ -204,7 +204,7 @@ impl State {
         }
     }
 
-    /// Set the value of the knob.
+    /// Set the `normal_param.value` of the [`Knob`].
     pub fn set(&mut self, normal: Normal) {
         self.normal_param.value = normal;
         self.continuous_normal = normal.into();
