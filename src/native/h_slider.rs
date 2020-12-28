@@ -219,6 +219,12 @@ impl State {
         }
     }
 
+    /// Set the `normal_param.value` of the [`HSlider`].
+    pub fn set(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
     /// Is the [`HSlider`] currently in the dragging state?
     ///
     /// [`HSlider`]: struct.HSlider.html

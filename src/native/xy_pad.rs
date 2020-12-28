@@ -149,6 +149,18 @@ impl State {
         }
     }
 
+    /// Set the `normal_param_x.value` of the [`XYPad`].
+    pub fn set_x(&mut self, normal: Normal) {
+        self.normal_param_x.value = normal;
+        self.continuous_normal_x = normal.into();
+    }
+
+    /// Set the `normal_param_y.value` of the [`XYPad`].
+    pub fn set_y(&mut self, normal: Normal) {
+        self.normal_param_y.value = normal;
+        self.continuous_normal_y = normal.into();
+    }
+
     /// Is the [`XYPad`] currently in the dragging state?
     ///
     /// [`XYPad`]: struct.XYPad.html

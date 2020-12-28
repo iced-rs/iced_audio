@@ -192,6 +192,12 @@ impl State {
         }
     }
 
+    /// Set the `normal_param.value` of the [`Ramp`].
+    pub fn set(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
     /// Is the [`Ramp`] currently in the dragging state?
     ///
     /// [`Ramp`]: struct.Ramp.html
