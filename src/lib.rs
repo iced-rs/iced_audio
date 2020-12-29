@@ -11,7 +11,6 @@
 //! ```toml
 //! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
 //! ```
-//! You may emit `features = ["image"]` if you do not plan on using images.
 //! __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 //! you want to learn about a specific release, check out [the release list].
 //!
