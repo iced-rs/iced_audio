@@ -11,8 +11,11 @@ use iced_native::{
 
 use std::hash::Hash;
 
-use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
+use crate::{
+    core::{ModulationRange, Normal, NormalParam},
+    IntRange,
+};
 
 static DEFAULT_HEIGHT: u16 = 14;
 static DEFAULT_SCALAR: f32 = 0.9575;
@@ -185,10 +188,7 @@ impl<'a, Message, Renderer: self::Renderer> HSlider<'a, Message, Renderer> {
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone)]
 pub struct State {
-    /// The [`NormalParam`] assigned to this widget
-    ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.Param.html
-    pub normal_param: NormalParam,
+    normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_x: f32,
     continuous_normal: f32,
@@ -219,10 +219,43 @@ impl State {
         }
     }
 
-    /// Set the `normal_param.value` of the [`HSlider`].
-    pub fn set(&mut self, normal: Normal) {
+    /// Set the normalized value of the [`HSlider`].
+    pub fn set_normal(&mut self, normal: Normal) {
         self.normal_param.value = normal;
         self.continuous_normal = normal.into();
+    }
+
+    /// Get the normalized value of the [`HSlider`].
+    pub fn normal(&self) -> Normal {
+        self.normal_param.value
+    }
+
+    /// Set the normalized default value of the [`HSlider`].
+    pub fn set_default(&mut self, normal: Normal) {
+        self.normal_param.default = normal;
+    }
+
+    /// Get the normalized default value of the [`HSlider`].
+    pub fn default(&self) -> Normal {
+        self.normal_param.default
+    }
+
+    /// Snap the visible value of the [`HSlider`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{h_slider, IntRange};
+    ///
+    /// let mut state = h_slider::State::new(Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_to(&mut self, range: &IntRange) {
+        self.normal_param.value = range.snapped(self.normal_param.value);
     }
 
     /// Is the [`HSlider`] currently in the dragging state?

@@ -173,10 +173,8 @@ impl HSliderStep {
                 );
             }
             Message::Int(normal) => {
-                // Integer parameters must be snapped for the widget to
-                // "step" when moved.
-                self.int_range
-                    .snap(&mut self.h_slider_int_state.normal_param.value);
+                // Integer parameters must be snapped to make the widget "step" when moved.
+                self.h_slider_int_state.snap_visible_to(&self.int_range);
 
                 self.output_text = crate::info_text_i32(
                     "HSliderInt",

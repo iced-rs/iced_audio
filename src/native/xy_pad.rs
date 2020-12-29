@@ -13,6 +13,7 @@ use iced_native::{
 use std::hash::Hash;
 
 use crate::core::{Normal, NormalParam};
+use crate::IntRange;
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
@@ -106,14 +107,8 @@ impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
 /// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
 pub struct State {
-    /// The [`NormalParam`] assigned to this widget's x axis
-    ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
-    pub normal_param_x: NormalParam,
-    /// The [`NormalParam`] assigned to this widget's y axis
-    ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
-    pub normal_param_y: NormalParam,
+    normal_param_x: NormalParam,
+    normal_param_y: NormalParam,
     is_dragging: bool,
     prev_drag_x: f32,
     prev_drag_y: f32,
@@ -149,16 +144,82 @@ impl State {
         }
     }
 
-    /// Set the `normal_param_x.value` of the [`XYPad`].
-    pub fn set_x(&mut self, normal: Normal) {
+    /// Set the normalized value of the x axis of the [`XYPad`].
+    pub fn set_normal_x(&mut self, normal: Normal) {
         self.normal_param_x.value = normal;
         self.continuous_normal_x = normal.into();
     }
 
-    /// Set the `normal_param_y.value` of the [`XYPad`].
-    pub fn set_y(&mut self, normal: Normal) {
+    /// Set the normalized value of the y axis of the [`XYPad`].
+    pub fn set_normal_y(&mut self, normal: Normal) {
         self.normal_param_y.value = normal;
         self.continuous_normal_y = normal.into();
+    }
+
+    /// Get the normalized value of the x axis of the [`XYPad`].
+    pub fn normal_x(&self) -> Normal {
+        self.normal_param_x.value
+    }
+
+    /// Get the normalized value of the y axis of the [`XYPad`].
+    pub fn normal_y(&self) -> Normal {
+        self.normal_param_y.value
+    }
+
+    /// Set the normalized default value of the x axis of the [`XYPad`].
+    pub fn set_default_x(&mut self, normal: Normal) {
+        self.normal_param_x.default = normal;
+    }
+
+    /// Set the normalized default value of the y axis of the [`XYPad`].
+    pub fn set_default_y(&mut self, normal: Normal) {
+        self.normal_param_y.default = normal;
+    }
+
+    /// Get the normalized default value of the x axis of the [`XYPad`].
+    pub fn default_x(&self) -> Normal {
+        self.normal_param_x.default
+    }
+
+    /// Get the normalized default value of the y axis of the [`XYPad`].
+    pub fn default_y(&self) -> Normal {
+        self.normal_param_y.default
+    }
+
+    /// Snap the visible value of the x axis of the [`XYPad`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{xy_pad, IntRange};
+    ///
+    /// let mut state = xy_pad::State::new(Default::default(), Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_x_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_x_to(&mut self, range: &IntRange) {
+        self.normal_param_x.value = range.snapped(self.normal_param_x.value);
+    }
+
+    /// Snap the visible value of the y axis of the [`XYPad`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{xy_pad, IntRange};
+    ///
+    /// let mut state = xy_pad::State::new(Default::default(), Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_y_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_y_to(&mut self, range: &IntRange) {
+        self.normal_param_y.value = range.snapped(self.normal_param_y.value);
     }
 
     /// Is the [`XYPad`] currently in the dragging state?

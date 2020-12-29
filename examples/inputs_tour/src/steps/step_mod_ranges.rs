@@ -156,7 +156,7 @@ impl ModRanges {
 
                 let mod_value = self
                     .float_range_bipolar
-                    .unmap_to_value(self.auto_input1_state.normal_param.value);
+                    .unmap_to_value(self.auto_input1_state.normal());
 
                 self.knob_auto1_mod_range.start = normal;
                 self.knob_auto1_mod_range.end =
@@ -181,7 +181,7 @@ impl ModRanges {
 
                 let mod_value = self
                     .float_range_bipolar
-                    .unmap_to_value(self.auto_input2_state.normal_param.value);
+                    .unmap_to_value(self.auto_input2_state.normal());
 
                 self.knob_auto2_mod_range.start = normal;
                 self.knob_auto2_mod_range.end =

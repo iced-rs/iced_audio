@@ -23,3 +23,12 @@ pub struct NormalParam {
     /// [`Normal`]: ../struct.Normal.html
     pub default: Normal,
 }
+
+impl Default for NormalParam {
+    fn default() -> Self {
+        Self {
+            value: Normal::min(),
+            default: Normal::min(),
+        }
+    }
+}

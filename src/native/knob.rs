@@ -13,6 +13,7 @@ use std::hash::Hash;
 
 use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
+use crate::IntRange;
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.00385;
@@ -204,10 +205,43 @@ impl State {
         }
     }
 
-    /// Set the `normal_param.value` of the [`Knob`].
-    pub fn set(&mut self, normal: Normal) {
+    /// Set the normalized value of the [`Knob`].
+    pub fn set_normal(&mut self, normal: Normal) {
         self.normal_param.value = normal;
         self.continuous_normal = normal.into();
+    }
+
+    /// Get the normalized value of the [`Knob`].
+    pub fn normal(&self) -> Normal {
+        self.normal_param.value
+    }
+
+    /// Set the normalized default value of the [`Knob`].
+    pub fn set_default(&mut self, normal: Normal) {
+        self.normal_param.default = normal;
+    }
+
+    /// Get the normalized default value of the [`Knob`].
+    pub fn default(&self) -> Normal {
+        self.normal_param.default
+    }
+
+    /// Snap the visible value of the [`Knob`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{knob, IntRange};
+    ///
+    /// let mut state = knob::State::new(Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_to(&mut self, range: &IntRange) {
+        self.normal_param.value = range.snapped(self.normal_param.value);
     }
 
     /// Is the [`Knob`] currently in the dragging state?
