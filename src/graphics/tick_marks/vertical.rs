@@ -1,5 +1,6 @@
 //! `iced_graphics` renderer for tick marks
 
+use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
 use crate::style::tick_marks::{Placement, Shape, Style};
@@ -504,153 +505,163 @@ pub fn draw_vertical_tick_marks(
     style: &Style,
     placement: &Placement,
     inverse: bool,
+    cache: &PrimitiveCache,
 ) -> Primitive {
-    let primitives = match placement {
-        Placement::BothSides { offset, inside } => {
-            let bounds = offset.offset_rect(bounds);
+    cache.cached_linear(
+        *bounds,
+        tick_marks,
+        *style,
+        *placement,
+        inverse,
+        || {
+            let primitives = match placement {
+                Placement::BothSides { offset, inside } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(tick_marks.len() * 2);
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(tick_marks.len() * 2);
 
-            if *inside {
-                draw_vertical_left_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-                draw_vertical_right_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            } else {
-                draw_vertical_right_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-                draw_vertical_left_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            }
+                    if *inside {
+                        draw_vertical_left_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                        draw_vertical_right_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    } else {
+                        draw_vertical_right_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                        draw_vertical_left_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    }
 
-            primitives
-        }
-        Placement::LeftOrTop { offset, inside } => {
-            let bounds = offset.offset_rect(bounds);
+                    primitives
+                }
+                Placement::LeftOrTop { offset, inside } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(tick_marks.len());
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(tick_marks.len());
 
-            if *inside {
-                draw_vertical_left_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            } else {
-                draw_vertical_right_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            }
+                    if *inside {
+                        draw_vertical_left_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    } else {
+                        draw_vertical_right_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    }
 
-            primitives
-        }
-        Placement::RightOrBottom { offset, inside } => {
-            let bounds = offset.offset_rect(bounds);
+                    primitives
+                }
+                Placement::RightOrBottom { offset, inside } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(tick_marks.len());
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(tick_marks.len());
 
-            if *inside {
-                draw_vertical_right_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            } else {
-                draw_vertical_left_aligned(
-                    &mut primitives,
-                    &bounds,
-                    bounds.x + bounds.width,
-                    tick_marks,
-                    style,
-                    inverse,
-                );
-            }
+                    if *inside {
+                        draw_vertical_right_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    } else {
+                        draw_vertical_left_aligned(
+                            &mut primitives,
+                            &bounds,
+                            bounds.x + bounds.width,
+                            tick_marks,
+                            style,
+                            inverse,
+                        );
+                    }
 
-            primitives
-        }
-        Placement::Center {
-            offset,
-            fill_length,
-        } => {
-            let bounds = offset.offset_rect(bounds);
+                    primitives
+                }
+                Placement::Center {
+                    offset,
+                    fill_length,
+                } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(tick_marks.len());
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(tick_marks.len());
 
-            draw_vertical_center_aligned(
-                &mut primitives,
-                &bounds,
-                bounds.center_x(),
-                tick_marks,
-                style,
-                *fill_length,
-                inverse,
-            );
+                    draw_vertical_center_aligned(
+                        &mut primitives,
+                        &bounds,
+                        bounds.center_x(),
+                        tick_marks,
+                        style,
+                        *fill_length,
+                        inverse,
+                    );
 
-            primitives
-        }
-        Placement::CenterSplit {
-            offset,
-            fill_length,
-            gap,
-        } => {
-            let bounds = offset.offset_rect(bounds);
+                    primitives
+                }
+                Placement::CenterSplit {
+                    offset,
+                    fill_length,
+                    gap,
+                } => {
+                    let bounds = offset.offset_rect(bounds);
 
-            let mut primitives: Vec<Primitive> =
-                Vec::with_capacity(tick_marks.len() * 2);
+                    let mut primitives: Vec<Primitive> =
+                        Vec::with_capacity(tick_marks.len() * 2);
 
-            draw_vertical_center_aligned_split(
-                &mut primitives,
-                &bounds,
-                bounds.center_x(),
-                tick_marks,
-                style,
-                *fill_length,
-                f32::from(*gap),
-                inverse,
-            );
+                    draw_vertical_center_aligned_split(
+                        &mut primitives,
+                        &bounds,
+                        bounds.center_x(),
+                        tick_marks,
+                        style,
+                        *fill_length,
+                        f32::from(*gap),
+                        inverse,
+                    );
 
-            primitives
-        }
-    };
+                    primitives
+                }
+            };
 
-    Primitive::Group { primitives }
+            Primitive::Group { primitives }
+        },
+    )
 }

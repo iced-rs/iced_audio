@@ -9,6 +9,7 @@ use crate::core::Normal;
 pub struct Group {
     /// The group of text marks.
     pub group: Vec<(Normal, String)>,
+    hashed: u64,
 }
 
 impl Group {
@@ -22,7 +23,29 @@ impl Group {
         for text_mark in text_marks {
             group.push((text_mark.0, String::from(text_mark.1)));
         }
-        Self { group }
+
+        Self::from_string(group)
+    }
+
+    /// Constructs a new `Group` from a vector of [`TextMark`]s.
+    ///
+    /// [`Group`]: struct.Group.html
+    /// [`TextMark`]: struct.TextMark.html
+    fn from_string(group: Vec<(Normal, String)>) -> Self {
+        use std::hash::{Hash, Hasher};
+        let mut hasher = iced_native::Hasher::default();
+        group.len().hash(&mut hasher);
+
+        for text_mark in &group {
+            text_mark.1.hash(&mut hasher);
+            // Rust can't hash an f32 value.
+            ((text_mark.0.as_f32() * 10000000.0) as u64).hash(&mut hasher);
+        }
+
+        Self {
+            group,
+            hashed: hasher.finish(),
+        }
     }
 
     /// Returns a new [`Group`] with a single [`TextMark`] in
@@ -128,6 +151,11 @@ impl Group {
 
         vec.into()
     }
+
+    /// Returns the hashed value of the internal data.
+    pub(crate) fn hashed(&self) -> u64 {
+        self.hashed
+    }
 }
 
 impl From<&[(Normal, &str)]> for Group {
@@ -150,6 +178,6 @@ impl From<Vec<(Normal, &str)>> for Group {
 
 impl From<Vec<(Normal, String)>> for Group {
     fn from(vec: Vec<(Normal, String)>) -> Self {
-        Self { group: vec }
+        Self::from_string(vec)
     }
 }

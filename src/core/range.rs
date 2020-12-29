@@ -177,13 +177,13 @@ impl IntRange {
         }
     }
 
-    /// Snaps a [`Normal`] to the closest integer value in this
-    /// range.
+    /// Returns a [`Normal`] that is snapped to the closest integer
+    /// value in this range.
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn snap(&self, normal: &mut Normal) {
-        let value_int = self.unmap_to_value(*normal);
-        *normal = self.map_to_normal(value_int);
+    pub fn snapped(&self, normal: Normal) -> Normal {
+        let value_int = self.unmap_to_value(normal);
+        self.map_to_normal(value_int)
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value

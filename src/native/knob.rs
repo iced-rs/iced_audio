@@ -13,6 +13,7 @@ use std::hash::Hash;
 
 use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
+use crate::IntRange;
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.00385;
@@ -179,6 +180,8 @@ pub struct State {
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
+    tick_marks_cache: crate::graphics::tick_marks::PrimitiveCache,
+    text_marks_cache: crate::graphics::text_marks::PrimitiveCache,
 }
 
 impl State {
@@ -197,7 +200,48 @@ impl State {
             continuous_normal: normal_param.value.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
+            tick_marks_cache: Default::default(),
+            text_marks_cache: Default::default(),
         }
+    }
+
+    /// Set the normalized value of the [`Knob`].
+    pub fn set_normal(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
+    /// Get the normalized value of the [`Knob`].
+    pub fn normal(&self) -> Normal {
+        self.normal_param.value
+    }
+
+    /// Set the normalized default value of the [`Knob`].
+    pub fn set_default(&mut self, normal: Normal) {
+        self.normal_param.default = normal;
+    }
+
+    /// Get the normalized default value of the [`Knob`].
+    pub fn default(&self) -> Normal {
+        self.normal_param.default
+    }
+
+    /// Snap the visible value of the [`Knob`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{knob, IntRange};
+    ///
+    /// let mut state = knob::State::new(Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_to(&mut self, range: &IntRange) {
+        self.normal_param.value = range.snapped(self.normal_param.value);
     }
 
     /// Is the [`Knob`] currently in the dragging state?
@@ -354,6 +398,8 @@ where
             self.tick_marks,
             self.text_marks,
             &self.style,
+            &self.state.tick_marks_cache,
+            &self.state.text_marks_cache,
         )
     }
 
@@ -398,6 +444,8 @@ pub trait Renderer: iced_native::Renderer {
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
         style: &Self::Style,
+        tick_marks_cache: &crate::tick_marks::PrimitiveCache,
+        text_marks_cache: &crate::text_marks::PrimitiveCache,
     ) -> Self::Output;
 }
 

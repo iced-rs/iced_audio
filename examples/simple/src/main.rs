@@ -101,9 +101,8 @@ impl Sandbox for App {
             //
             // Now do something useful with that value!
             Message::HSliderInt(normal) => {
-                // Integer ranges must be snapped to make the widget "step" when moved.
-                self.int_range
-                    .snap(&mut self.h_slider_state.normal_param.value);
+                // Integer parameters must be snapped to make the widget "step" when moved.
+                self.h_slider_state.snap_visible_to(&self.int_range);
 
                 let value = self.int_range.unmap_to_value(normal);
                 self.output_text = format!("HSliderInt: {}", value);

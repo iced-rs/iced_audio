@@ -3,17 +3,14 @@
 //!
 //! # Installation
 //!
-//! Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
+//! Add `iced_audio` as dependency in your `Cargo.toml`:
 //! ```toml
-//! iced = { version = "0.2", features = ["image"] }
-//! iced_audio = "0.5"
+//! iced_audio = "0.6"
 //! ```
 //! Or if you want to use the GitHub version of `iced`:
 //! ```toml
-//! iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["image"] }
 //! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
 //! ```
-//! You may emit `features = ["image"]` if you do not plan on using images.
 //! __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 //! you want to learn about a specific release, check out [the release list].
 //!
@@ -22,7 +19,7 @@
 //! This crate assumes you know the basics of how to use [`Iced`]. If you
 //! haven't alreay, please check it out [`here`].
 //!
-//! ```
+//! ```no_run
 // Import iced modules.
 //! use iced::{
 //!     Align, Column, Container, Element, Length, Sandbox, Settings, Text,
@@ -126,9 +123,8 @@
 //!             //
 //!             // Now do something useful with that value!
 //!             Message::HSliderInt(normal) => {
-//!                 // Integer ranges must be snapped to make the widget "step" when moved.
-//!                 self.int_range
-//!                     .snap(&mut self.h_slider_state.normal_param.value);
+//!                 // Integer parameters must be snapped to make the widget "step" when moved.
+//!                 self.h_slider_state.snap_visible_to(&self.int_range);
 //!
 //!                 let value = self.int_range.unmap_to_value(normal);
 //!                 self.output_text = format!("HSliderInt: {}", value);

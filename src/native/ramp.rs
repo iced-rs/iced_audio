@@ -13,6 +13,7 @@ use iced_native::{
 use std::hash::Hash;
 
 use crate::core::{Normal, NormalParam};
+use crate::IntRange;
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
@@ -159,10 +160,7 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
 /// [`Ramp`]: struct.Ramp.html
 #[derive(Debug, Copy, Clone)]
 pub struct State {
-    /// The [`NormalParam`] assigned to this widget
-    ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
-    pub normal_param: NormalParam,
+    normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -190,6 +188,45 @@ impl State {
             pressed_modifiers: Default::default(),
             last_click: None,
         }
+    }
+
+    /// Set the normalized value of the [`Ramp`].
+    pub fn set_normal(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
+    /// Get the normalized value of the [`Ramp`].
+    pub fn normal(&self) -> Normal {
+        self.normal_param.value
+    }
+
+    /// Set the normalized default value of the [`Ramp`].
+    pub fn set_default(&mut self, normal: Normal) {
+        self.normal_param.default = normal;
+    }
+
+    /// Get the normalized default value of the [`Ramp`].
+    pub fn default(&self) -> Normal {
+        self.normal_param.default
+    }
+
+    /// Snap the visible value of the [`Ramp`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{ramp, IntRange};
+    ///
+    /// let mut state = ramp::State::new(Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_to(&mut self, range: &IntRange) {
+        self.normal_param.value = range.snapped(self.normal_param.value);
     }
 
     /// Is the [`Ramp`] currently in the dragging state?

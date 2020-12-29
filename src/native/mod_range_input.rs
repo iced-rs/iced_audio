@@ -12,6 +12,7 @@ use iced_native::{
 use std::hash::Hash;
 
 use crate::core::{Normal, NormalParam};
+use crate::IntRange;
 
 static DEFAULT_SIZE: u16 = 10;
 static DEFAULT_SCALAR: f32 = 0.00385 / 2.0;
@@ -121,10 +122,7 @@ impl<'a, Message, Renderer: self::Renderer>
 /// [`ModRangeInput`]: struct.ModRangeInput.html
 #[derive(Debug, Copy, Clone)]
 pub struct State {
-    /// The [`NormalParam`] assigned to this widget
-    ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
-    pub normal_param: NormalParam,
+    normal_param: NormalParam,
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -149,6 +147,45 @@ impl State {
             pressed_modifiers: Default::default(),
             last_click: None,
         }
+    }
+
+    /// Set the normalized value of the [`ModRangeInput`].
+    pub fn set_normal(&mut self, normal: Normal) {
+        self.normal_param.value = normal;
+        self.continuous_normal = normal.into();
+    }
+
+    /// Get the normalized value of the [`ModRangeInput`].
+    pub fn normal(&self) -> Normal {
+        self.normal_param.value
+    }
+
+    /// Set the normalized default value of the [`ModRangeInput`].
+    pub fn set_default(&mut self, normal: Normal) {
+        self.normal_param.default = normal;
+    }
+
+    /// Get the normalized default value of the [`ModRangeInput`].
+    pub fn default(&self) -> Normal {
+        self.normal_param.default
+    }
+
+    /// Snap the visible value of the [`ModRangeInput`] to the nearest value
+    /// in the integer range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iced_audio::{mod_range_input, IntRange};
+    ///
+    /// let mut state = mod_range_input::State::new(Default::default());
+    /// let int_range = IntRange::new(0, 10);
+    ///
+    /// state.snap_visible_to(&int_range);
+    ///
+    /// ```
+    pub fn snap_visible_to(&mut self, range: &IntRange) {
+        self.normal_param.value = range.snapped(self.normal_param.value);
     }
 
     /// Is the [`ModRangeInput`] currently in the dragging state?

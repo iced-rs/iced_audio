@@ -49,6 +49,8 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
         style_sheet: &Self::Style,
+        tick_marks_cache: &tick_marks::PrimitiveCache,
+        text_marks_cache: &text_marks::PrimitiveCache,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
 
@@ -79,18 +81,38 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
         };
 
         let primitives = match style {
-            Style::Texture(style) => {
-                draw_texture_style(normal, &bounds, style, &value_markers)
-            }
-            Style::Classic(style) => {
-                draw_classic_style(normal, &bounds, &style, &value_markers)
-            }
-            Style::Rect(style) => {
-                draw_rect_style(normal, &bounds, &style, &value_markers)
-            }
-            Style::RectBipolar(style) => {
-                draw_rect_bipolar_style(normal, &bounds, &style, &value_markers)
-            }
+            Style::Texture(style) => draw_texture_style(
+                normal,
+                &bounds,
+                style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+            Style::Classic(style) => draw_classic_style(
+                normal,
+                &bounds,
+                &style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+            Style::Rect(style) => draw_rect_style(
+                normal,
+                &bounds,
+                &style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+            Style::RectBipolar(style) => draw_rect_bipolar_style(
+                normal,
+                &bounds,
+                &style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
         };
 
         (primitives, mouse::Interaction::default())
@@ -101,17 +123,21 @@ fn draw_value_markers<'a>(
     mark_bounds: &Rectangle,
     mod_bounds: &Rectangle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> (Primitive, Primitive, Primitive, Primitive) {
     (
         draw_tick_marks(
             mark_bounds,
             value_markers.tick_marks,
             &value_markers.tick_marks_style,
+            tick_marks_cache,
         ),
         draw_text_marks(
             mark_bounds,
             value_markers.text_marks,
             &value_markers.text_marks_style,
+            text_marks_cache,
         ),
         draw_mod_range(
             mod_bounds,
@@ -130,6 +156,7 @@ fn draw_tick_marks(
     bounds: &Rectangle,
     tick_marks: Option<&tick_marks::Group>,
     tick_marks_style: &Option<TickMarksStyle>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(tick_marks) = tick_marks {
         if let Some(style) = tick_marks_style {
@@ -139,6 +166,7 @@ fn draw_tick_marks(
                 &style.style,
                 &style.placement,
                 false,
+                tick_marks_cache,
             )
         } else {
             Primitive::None
@@ -152,6 +180,7 @@ fn draw_text_marks(
     bounds: &Rectangle,
     text_marks: Option<&text_marks::Group>,
     text_marks_style: &Option<TextMarksStyle>,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(text_marks) = text_marks {
         if let Some(style) = text_marks_style {
@@ -161,6 +190,7 @@ fn draw_text_marks(
                 &style.style,
                 &style.placement,
                 false,
+                text_marks_cache,
             )
         } else {
             Primitive::None
@@ -270,6 +300,8 @@ fn draw_texture_style<'a>(
     bounds: &Rectangle,
     style: TextureStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let value_bounds = Rectangle {
         x: bounds.x,
@@ -278,8 +310,13 @@ fn draw_texture_style<'a>(
         height: bounds.height - f32::from(style.handle_height),
     };
 
-    let (tick_marks, text_marks, mod_range_1, mod_range_2) =
-        draw_value_markers(&value_bounds, &value_bounds, value_markers);
+    let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
+        &value_bounds,
+        &value_bounds,
+        value_markers,
+        tick_marks_cache,
+        text_marks_cache,
+    );
 
     let (left_rail, right_rail) = draw_classic_rail(&bounds, &style.rail);
 
@@ -314,6 +351,8 @@ fn draw_classic_style<'a>(
     bounds: &Rectangle,
     style: &ClassicStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let handle_height = f32::from(style.handle.height);
 
@@ -324,8 +363,13 @@ fn draw_classic_style<'a>(
         height: bounds.height - handle_height,
     };
 
-    let (tick_marks, text_marks, mod_range_1, mod_range_2) =
-        draw_value_markers(&value_bounds, &value_bounds, value_markers);
+    let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
+        &value_bounds,
+        &value_bounds,
+        value_markers,
+        tick_marks_cache,
+        text_marks_cache,
+    );
 
     let (left_rail, right_rail) = draw_classic_rail(&bounds, &style.rail);
 
@@ -384,6 +428,8 @@ fn draw_rect_style<'a>(
     bounds: &Rectangle,
     style: &RectStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let handle_height = f32::from(style.handle_height);
 
@@ -397,8 +443,13 @@ fn draw_rect_style<'a>(
         height: bounds.height - handle_height,
     };
 
-    let (tick_marks, text_marks, mod_range_1, mod_range_2) =
-        draw_value_markers(&value_bounds, &bounds, value_markers);
+    let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
+        &value_bounds,
+        &bounds,
+        value_markers,
+        tick_marks_cache,
+        text_marks_cache,
+    );
 
     let empty_rect = Primitive::Quad {
         bounds: Rectangle {
@@ -463,6 +514,8 @@ fn draw_rect_bipolar_style<'a>(
     bounds: &Rectangle,
     style: &RectBipolarStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let handle_height = f32::from(style.handle_height);
 
@@ -476,8 +529,13 @@ fn draw_rect_bipolar_style<'a>(
         height: bounds.height - handle_height,
     };
 
-    let (tick_marks, text_marks, mod_range_1, mod_range_2) =
-        draw_value_markers(&value_bounds, &bounds, value_markers);
+    let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
+        &value_bounds,
+        &bounds,
+        value_markers,
+        tick_marks_cache,
+        text_marks_cache,
+    );
 
     let empty_rect = Primitive::Quad {
         bounds: Rectangle {

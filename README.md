@@ -1,6 +1,7 @@
 # Iced Audio
+[![Documentation](https://docs.rs/iced_audio/badge.svg)][documentation]
 [![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
-[![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/master/LICENSE)
+[![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/main/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
 
 An extension to the [Iced] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
@@ -39,17 +40,14 @@ cargo run --package simple --release
 
 ## Installation
 
-Add `iced` and `iced_audio` as dependencies in your `Cargo.toml`:
+Add `iced_audio` as a dependency in your `Cargo.toml`:
 ```toml
-iced = { version = "0.2", features = ["image"] }
-iced_audio = "0.5"
+iced_audio = "0.6"
 ```
 Or if you want to use the GitHub version of `iced`:
 ```toml
-iced = { git = "https://github.com/hecrj/iced", branch = "master", features=["image"] }
 iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
 ```
-You may emit `features = ["image"]` if you do not plan on using images.
 
 __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 you want to learn about a specific release, check out [the release list].
@@ -160,9 +158,8 @@ impl Sandbox for App {
             //
             // Now do something useful with that value!
             Message::HSliderInt(normal) => {
-                // Integer ranges must be snapped to make the widget "step" when moved.
-                self.int_range
-                    .snap(&mut self.h_slider_state.normal_param.value);
+                // Integer parameters must be snapped to make the widget "step" when moved.
+                self.h_slider_state.snap_visible_to(&self.int_range);
 
                 let value = self.int_range.unmap_to_value(normal);
                 self.output_text = format!("HSliderInt: {}", value);
@@ -252,8 +249,8 @@ the [Rust Community Discord]. I go by `BillyDM#3892` there.
 [Zulip server]: https://iced.zulipchat.com/
 [Rust Community Discord]: https://bit.ly/rust-community
 [the release list]: https://github.com/BillyDM/iced_audio/releases
-[more screenshots]: https://github.com/BillyDM/iced_audio/tree/master/screenshots
-[roadmap]: https://github.com/BillyDM/iced_audio/tree/master/ROADMAP.md
+[more screenshots]: https://github.com/BillyDM/iced_audio/tree/main/screenshots
+[roadmap]: https://github.com/BillyDM/iced_audio/tree/main/ROADMAP.md
 [`iced_baseview`]: https://github.com/BillyDM/iced_baseview
 [`iced-baseplug-examples`]: https://github.com/BillyDM/iced-baseplug-examples
 [`baseview`]: https://github.com/RustAudio/baseview

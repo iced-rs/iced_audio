@@ -57,6 +57,8 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
         style_sheet: &Self::Style,
+        tick_marks_cache: &tick_marks::PrimitiveCache,
+        text_marks_cache: &text_marks::PrimitiveCache,
     ) -> Self::Output {
         let is_mouse_over = bounds.contains(cursor_position);
 
@@ -133,15 +135,27 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
 
         (
             match style {
-                Style::Circle(style) => {
-                    draw_circle_style(&knob_info, style, &value_markers)
-                }
-                Style::Arc(style) => {
-                    draw_arc_style(&knob_info, style, &value_markers)
-                }
-                Style::ArcBipolar(style) => {
-                    draw_arc_bipolar_style(&knob_info, style, &value_markers)
-                }
+                Style::Circle(style) => draw_circle_style(
+                    &knob_info,
+                    style,
+                    &value_markers,
+                    tick_marks_cache,
+                    text_marks_cache,
+                ),
+                Style::Arc(style) => draw_arc_style(
+                    &knob_info,
+                    style,
+                    &value_markers,
+                    tick_marks_cache,
+                    text_marks_cache,
+                ),
+                Style::ArcBipolar(style) => draw_arc_bipolar_style(
+                    &knob_info,
+                    style,
+                    &value_markers,
+                    tick_marks_cache,
+                    text_marks_cache,
+                ),
             },
             mouse::Interaction::default(),
         )
@@ -151,17 +165,21 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
 fn draw_value_markers<'a>(
     knob_info: &KnobInfo,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> (Primitive, Primitive, Primitive, Primitive, Primitive) {
     (
         draw_tick_marks(
             knob_info,
             value_markers.tick_marks,
             &value_markers.tick_marks_style,
+            tick_marks_cache,
         ),
         draw_text_marks(
             knob_info,
             value_markers.text_marks,
             &value_markers.text_marks_style,
+            text_marks_cache,
         ),
         draw_value_arc(knob_info, &value_markers.value_arc_style),
         draw_mod_range_arc(
@@ -181,6 +199,7 @@ fn draw_tick_marks(
     knob_info: &KnobInfo,
     tick_marks: Option<&tick_marks::Group>,
     style: &Option<TickMarksStyle>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(tick_marks) = tick_marks {
         if let Some(style) = style {
@@ -193,6 +212,7 @@ fn draw_tick_marks(
                 tick_marks,
                 &style.style,
                 false,
+                tick_marks_cache,
             )
         } else {
             Primitive::None
@@ -206,6 +226,7 @@ fn draw_text_marks(
     knob_info: &KnobInfo,
     text_marks: Option<&text_marks::Group>,
     style: &Option<TextMarksStyle>,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(text_marks) = text_marks {
         if let Some(style) = style {
@@ -221,6 +242,7 @@ fn draw_text_marks(
                 &style.style,
                 style.h_char_offset,
                 false,
+                text_marks_cache,
             )
         } else {
             Primitive::None
@@ -513,9 +535,16 @@ fn draw_circle_style<'a>(
     knob_info: &KnobInfo,
     style: CircleStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
-        draw_value_markers(knob_info, value_markers);
+        draw_value_markers(
+            knob_info,
+            value_markers,
+            tick_marks_cache,
+            text_marks_cache,
+        );
 
     let knob_back = Primitive::Quad {
         bounds: knob_info.bounds,
@@ -544,9 +573,16 @@ fn draw_arc_style<'a>(
     knob_info: &KnobInfo,
     style: ArcStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
-        draw_value_markers(knob_info, value_markers);
+        draw_value_markers(
+            knob_info,
+            value_markers,
+            tick_marks_cache,
+            text_marks_cache,
+        );
 
     let arc: Primitive = {
         let width = style.width.from_knob_diameter(knob_info.bounds.width);
@@ -638,9 +674,16 @@ fn draw_arc_bipolar_style<'a>(
     knob_info: &KnobInfo,
     style: ArcBipolarStyle,
     value_markers: &ValueMarkers<'a>,
+    tick_marks_cache: &tick_marks::PrimitiveCache,
+    text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
-        draw_value_markers(knob_info, value_markers);
+        draw_value_markers(
+            knob_info,
+            value_markers,
+            tick_marks_cache,
+            text_marks_cache,
+        );
 
     let bipolar_state = BipolarState::from_knob_value(knob_info.value);
 

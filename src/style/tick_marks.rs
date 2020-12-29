@@ -7,7 +7,7 @@ use crate::core::Offset;
 use crate::style::default_colors;
 
 /// The placement of tick marks relative to the widget
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Placement {
     /// Tick marks on both sides of the widget.
     BothSides {
@@ -66,7 +66,7 @@ impl std::default::Default for Placement {
 }
 
 /// The style of a tick mark
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Style {
     /// The style of a tier 1 tick mark.
     pub tier_1: Shape,
@@ -77,7 +77,7 @@ pub struct Style {
 }
 
 /// The shape of a tick mark
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Shape {
     /// No shape
     None,
