@@ -17,6 +17,7 @@ use crate::IntRange;
 
 static DEFAULT_WIDTH: u16 = 14;
 static DEFAULT_SCALAR: f32 = 0.9575;
+static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A vertical slider GUI widget that controls a [`NormalParam`]
@@ -30,6 +31,7 @@ pub struct VSlider<'a, Message, Renderer: self::Renderer> {
     state: &'a mut State,
     on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
+    wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     width: Length,
@@ -58,6 +60,7 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
             state,
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
+            wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers {
                 control: true,
@@ -122,6 +125,20 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
         self
     }
 
+    /// Sets how much the [`Normal`] value will change for the [`VSlider`] per line scrolled
+    /// by the mouse wheel.
+    ///
+    /// This can be set to `0.0` to disable the scroll wheel from moving the parameter.
+    ///
+    /// The default value is `0.01`
+    ///
+    /// [`VSlider`]: struct.VSlider.html
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn wheel_scalar(mut self, wheel_scalar: f32) -> Self {
+        self.wheel_scalar = wheel_scalar;
+        self
+    }
+
     /// Sets the scalar to use when the user drags the slider while holding down
     /// the modifier key.
     ///
@@ -176,6 +193,30 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
     pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
         self.mod_range_1 = Some(mod_range);
         self
+    }
+
+    fn move_virtual_slider(
+        &mut self,
+        messages: &mut Vec<Message>,
+        mut normal_delta: f32,
+    ) {
+        if self.state.pressed_modifiers.matches(self.modifier_keys) {
+            normal_delta *= self.modifier_scalar;
+        }
+
+        let mut normal = self.state.continuous_normal - normal_delta;
+
+        if normal < 0.0 {
+            normal = 0.0;
+        } else if normal > 1.0 {
+            normal = 1.0;
+        }
+
+        self.state.continuous_normal = normal;
+
+        self.state.normal_param.value = normal.into();
+
+        messages.push((self.on_change)(self.state.normal_param.value));
     }
 }
 
@@ -302,31 +343,48 @@ where
                         let bounds_height = layout.bounds().height;
 
                         if bounds_height > 0.0 {
-                            let mut movement_y = (cursor_position.y
+                            let normal_delta = (cursor_position.y
                                 - self.state.prev_drag_y)
-                                / bounds_height;
+                                / bounds_height
+                                * self.scalar;
 
-                            if self
-                                .state
-                                .pressed_modifiers
-                                .matches(self.modifier_keys)
-                            {
-                                movement_y *= self.modifier_scalar;
-                            } else {
-                                movement_y *= self.scalar;
-                            }
-
-                            let normal =
-                                self.state.continuous_normal - movement_y;
-
-                            self.state.continuous_normal = normal;
                             self.state.prev_drag_y = cursor_position.y;
 
-                            self.state.normal_param.value = normal.into();
+                            self.move_virtual_slider(messages, normal_delta);
 
-                            messages.push((self.on_change)(
-                                self.state.normal_param.value,
-                            ));
+                            return event::Status::Captured;
+                        }
+                    }
+                }
+                mouse::Event::WheelScrolled { delta } => {
+                    if self.wheel_scalar == 0.0 {
+                        return event::Status::Ignored;
+                    }
+
+                    if layout.bounds().contains(cursor_position) {
+                        let lines = match delta {
+                            iced_native::mouse::ScrollDelta::Lines {
+                                y,
+                                ..
+                            } => y,
+                            iced_native::mouse::ScrollDelta::Pixels {
+                                y,
+                                ..
+                            } => {
+                                if y > 0.0 {
+                                    1.0
+                                } else if y < 0.0 {
+                                    -1.0
+                                } else {
+                                    0.0
+                                }
+                            }
+                        };
+
+                        if lines != 0.0 {
+                            let normal_delta = -lines * self.wheel_scalar;
+
+                            self.move_virtual_slider(messages, normal_delta);
 
                             return event::Status::Captured;
                         }

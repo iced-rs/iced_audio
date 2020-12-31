@@ -17,6 +17,7 @@ use crate::IntRange;
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.00385;
+static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A rotating knob GUI widget that controls a [`NormalParam`]
@@ -28,6 +29,7 @@ pub struct Knob<'a, Message, Renderer: self::Renderer> {
     size: Length,
     on_change: Box<dyn Fn(Normal) -> Message>,
     scalar: f32,
+    wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     style: Renderer::Style,
@@ -55,6 +57,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
+            wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers {
                 control: true,
@@ -94,6 +97,20 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     /// [`Normal`]: ../../core/struct.Normal.html
     pub fn scalar(mut self, scalar: f32) -> Self {
         self.scalar = scalar;
+        self
+    }
+
+    /// Sets how much the [`Normal`] value will change for the [`Knob`] per line scrolled
+    /// by the mouse wheel.
+    ///
+    /// This can be set to `0.0` to disable the scroll wheel from moving the parameter.
+    ///
+    /// The default value is `0.01`
+    ///
+    /// [`Knob`]: struct.Knob.html
+    /// [`Normal`]: ../../core/struct.Normal.html
+    pub fn wheel_scalar(mut self, wheel_scalar: f32) -> Self {
+        self.wheel_scalar = wheel_scalar;
         self
     }
 
@@ -163,6 +180,30 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
         self.mod_range_1 = Some(mod_range);
         self
+    }
+
+    fn move_virtual_slider(
+        &mut self,
+        messages: &mut Vec<Message>,
+        mut normal_delta: f32,
+    ) {
+        if self.state.pressed_modifiers.matches(self.modifier_keys) {
+            normal_delta *= self.modifier_scalar;
+        }
+
+        let mut normal = self.state.continuous_normal - normal_delta;
+
+        if normal < 0.0 {
+            normal = 0.0;
+        } else if normal > 1.0 {
+            normal = 1.0;
+        }
+
+        self.state.continuous_normal = normal;
+
+        self.state.normal_param.value = normal.into();
+
+        messages.push((self.on_change)(self.state.normal_param.value));
     }
 }
 
@@ -289,38 +330,50 @@ where
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 mouse::Event::CursorMoved { .. } => {
-                    if self.state.is_dragging && cursor_position.y != -1.0 {
-                        let mut movement_y = (cursor_position.y
+                    if self.state.is_dragging {
+                        let normal_delta = (cursor_position.y
                             - self.state.prev_drag_y)
                             * self.scalar;
 
-                        if self
-                            .state
-                            .pressed_modifiers
-                            .matches(self.modifier_keys)
-                        {
-                            movement_y *= self.modifier_scalar;
-                        }
-
-                        let mut normal =
-                            self.state.continuous_normal - movement_y;
-
-                        if normal < 0.0 {
-                            normal = 0.0;
-                        } else if normal > 1.0 {
-                            normal = 1.0;
-                        }
-
-                        self.state.continuous_normal = normal;
                         self.state.prev_drag_y = cursor_position.y;
 
-                        self.state.normal_param.value = normal.into();
-
-                        messages.push((self.on_change)(
-                            self.state.normal_param.value,
-                        ));
+                        self.move_virtual_slider(messages, normal_delta);
 
                         return event::Status::Captured;
+                    }
+                }
+                mouse::Event::WheelScrolled { delta } => {
+                    if self.wheel_scalar == 0.0 {
+                        return event::Status::Ignored;
+                    }
+
+                    if layout.bounds().contains(cursor_position) {
+                        let lines = match delta {
+                            iced_native::mouse::ScrollDelta::Lines {
+                                y,
+                                ..
+                            } => y,
+                            iced_native::mouse::ScrollDelta::Pixels {
+                                y,
+                                ..
+                            } => {
+                                if y > 0.0 {
+                                    1.0
+                                } else if y < 0.0 {
+                                    -1.0
+                                } else {
+                                    0.0
+                                }
+                            }
+                        };
+
+                        if lines != 0.0 {
+                            let normal_delta = -lines * self.wheel_scalar;
+
+                            self.move_virtual_slider(messages, normal_delta);
+
+                            return event::Status::Captured;
+                        }
                     }
                 }
                 mouse::Event::ButtonPressed(mouse::Button::Left) => {
