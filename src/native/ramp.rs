@@ -308,20 +308,17 @@ where
         event: Event,
         layout: Layout<'_>,
         cursor_position: Point,
-        messages: &mut Vec<Message>,
         _renderer: &Renderer,
-        _clipboard: Option<&dyn Clipboard>,
+        _clipboard: &mut dyn Clipboard,
+        messages: &mut Vec<Message>,
     ) -> event::Status {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 mouse::Event::CursorMoved { .. } => {
                     if self.state.is_dragging {
-                        let bounds_height = layout.bounds().height;
-
-                        if bounds_height > 0.0 {
+                        if self.state.is_dragging {
                             let normal_delta = (cursor_position.y
                                 - self.state.prev_drag_y)
-                                / bounds_height
                                 * self.scalar;
 
                             self.state.prev_drag_y = cursor_position.y;
