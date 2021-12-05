@@ -6,7 +6,7 @@ use std::fmt::Debug;
 
 use iced_native::{
     event, keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout,
-    Length, Point, Rectangle, Size, Widget,
+    Length, Point, Rectangle, Shell, Size, Widget,
 };
 
 use std::hash::Hash;
@@ -62,10 +62,7 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers {
-                control: true,
-                ..Default::default()
-            },
+            modifier_keys: keyboard::Modifiers::CTRL,
             width: Length::from(Length::Units(DEFAULT_WIDTH)),
             height: Length::Fill,
             style: Renderer::Style::default(),
@@ -197,10 +194,10 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
 
     fn move_virtual_slider(
         &mut self,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_, Message>,
         mut normal_delta: f32,
     ) {
-        if self.state.pressed_modifiers.matches(self.modifier_keys) {
+        if self.state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
 
@@ -216,7 +213,7 @@ impl<'a, Message, Renderer: self::Renderer> VSlider<'a, Message, Renderer> {
 
         self.state.normal_param.value = normal.into();
 
-        messages.push((self.on_change)(self.state.normal_param.value));
+        messages.publish((self.on_change)(self.state.normal_param.value));
     }
 }
 
@@ -334,7 +331,7 @@ where
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_, Message>,
     ) -> event::Status {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
@@ -408,7 +405,7 @@ where
                                 self.state.normal_param.value =
                                     self.state.normal_param.default;
 
-                                messages.push((self.on_change)(
+                                messages.publish((self.on_change)(
                                     self.state.normal_param.value,
                                 ));
                             }
@@ -450,11 +447,11 @@ where
     fn draw(
         &self,
         renderer: &mut Renderer,
-        _defaults: &Renderer::Defaults,
+        _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
-    ) -> Renderer::Output {
+    ) {
         renderer.draw(
             layout.bounds(),
             cursor_position,
@@ -515,7 +512,7 @@ pub trait Renderer: iced_native::Renderer {
         style: &Self::Style,
         tick_marks_cache: &crate::tick_marks::PrimitiveCache,
         text_marks_cache: &crate::text_marks::PrimitiveCache,
-    ) -> Self::Output;
+    );
 }
 
 impl<'a, Message, Renderer> From<VSlider<'a, Message, Renderer>>

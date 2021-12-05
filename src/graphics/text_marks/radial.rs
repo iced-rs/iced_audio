@@ -3,7 +3,7 @@ use crate::native::text_marks;
 use crate::style::text_marks::Style;
 
 use iced_graphics::{
-    HorizontalAlignment, Point, Primitive, Rectangle, VerticalAlignment,
+    alignment::Horizontal, alignment::Vertical, Point, Primitive, Rectangle,
 };
 
 /// Draws text marks around an arc.
@@ -82,8 +82,8 @@ pub fn draw_radial_text_marks(
                     },
                     color,
                     font,
-                    horizontal_alignment: HorizontalAlignment::Center,
-                    vertical_alignment: VerticalAlignment::Center,
+                    horizontal_alignment: Horizontal::Center,
+                    vertical_alignment: Vertical::Center,
                 });
             }
 

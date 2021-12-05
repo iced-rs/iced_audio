@@ -11,6 +11,7 @@ homepage = "https://github.com/BillyDM/iced_audio"
 documentation = "https://docs.rs/iced_audio"
 repository = "https://github.com/BillyDM/iced_audio"
 readme = "README.md"
+resolver = "2"
 
 [badges]
 maintenance = { status = "actively-developed" }

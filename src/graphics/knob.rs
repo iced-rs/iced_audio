@@ -7,7 +7,7 @@ use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
 use iced_graphics::canvas::{path::Arc, Frame, Path, Stroke};
 use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{mouse, Background, Point, Rectangle, Size, Vector};
+use iced_native::{Background, Point, Rectangle, Size, Vector};
 
 pub use crate::native::knob::State;
 pub use crate::style::knob::{
@@ -59,7 +59,7 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
         style_sheet: &Self::Style,
         tick_marks_cache: &tick_marks::PrimitiveCache,
         text_marks_cache: &text_marks::PrimitiveCache,
-    ) -> Self::Output {
+    ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
         let angle_range = style_sheet.angle_range();
@@ -133,32 +133,29 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
             value_angle,
         };
 
-        (
-            match style {
-                Style::Circle(style) => draw_circle_style(
-                    &knob_info,
-                    style,
-                    &value_markers,
-                    tick_marks_cache,
-                    text_marks_cache,
-                ),
-                Style::Arc(style) => draw_arc_style(
-                    &knob_info,
-                    style,
-                    &value_markers,
-                    tick_marks_cache,
-                    text_marks_cache,
-                ),
-                Style::ArcBipolar(style) => draw_arc_bipolar_style(
-                    &knob_info,
-                    style,
-                    &value_markers,
-                    tick_marks_cache,
-                    text_marks_cache,
-                ),
-            },
-            mouse::Interaction::default(),
-        )
+        self.draw_primitive(match style {
+            Style::Circle(style) => draw_circle_style(
+                &knob_info,
+                style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+            Style::Arc(style) => draw_arc_style(
+                &knob_info,
+                style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+            Style::ArcBipolar(style) => draw_arc_bipolar_style(
+                &knob_info,
+                style,
+                &value_markers,
+                tick_marks_cache,
+                text_marks_cache,
+            ),
+        })
     }
 }
 
