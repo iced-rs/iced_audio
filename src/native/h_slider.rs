@@ -441,6 +441,11 @@ where
 
                     return event::Status::Captured;
                 }
+                keyboard::Event::ModifiersChanged(modifiers) => {
+                    self.state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
                 _ => {}
             },
             _ => {}
