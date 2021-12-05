@@ -6,7 +6,7 @@
 use crate::core::Normal;
 use crate::native::xy_pad;
 use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{mouse, Background, Color, Point, Rectangle};
+use iced_native::{Background, Color, Point, Rectangle};
 
 pub use crate::native::xy_pad::State;
 pub use crate::style::xy_pad::{
@@ -35,7 +35,7 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
         normal_y: Normal,
         is_dragging: bool,
         style_sheet: &Self::Style,
-    ) -> Self::Output {
+    ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
         let style = if is_dragging {
@@ -184,18 +184,15 @@ impl<B: Backend> xy_pad::Renderer for Renderer<B> {
             }
         };
 
-        (
-            Primitive::Group {
-                primitives: vec![
-                    back,
-                    h_center_line,
-                    v_center_line,
-                    h_rail,
-                    v_rail,
-                    handle,
-                ],
-            },
-            mouse::Interaction::default(),
-        )
+        self.draw_primitive(Primitive::Group {
+            primitives: vec![
+                back,
+                h_center_line,
+                v_center_line,
+                h_rail,
+                v_rail,
+                handle,
+            ],
+        })
     }
 }

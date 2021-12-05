@@ -1,4 +1,4 @@
-use iced::{Align, Checkbox, Column, Element, Length, Row, Text};
+use iced::{Alignment, Checkbox, Column, Element, Length, Row, Text};
 
 use iced_audio::{
     h_slider, knob, mod_range_input, v_slider, FloatRange, HSlider, Knob,
@@ -277,7 +277,7 @@ impl ModRanges {
                 Column::new()
                     .max_width(130)
                     .max_height(250)
-                    .align_items(Align::Center)
+                    .align_items(Alignment::Center)
                     .spacing(20)
                     .push(knob1)
                     .push(h_slider1)
@@ -291,7 +291,7 @@ impl ModRanges {
                         Column::new()
                             .width(Length::Fill)
                             .spacing(14)
-                            .align_items(Align::Center)
+                            .align_items(Alignment::Center)
                             .push(Text::new("Custom Style with ModRangeInput"))
                             .push(auto_input1)
                             .push(knob_auto1),
@@ -300,7 +300,7 @@ impl ModRanges {
                         Column::new()
                             .width(Length::Fill)
                             .spacing(0)
-                            .align_items(Align::Center)
+                            .align_items(Alignment::Center)
                             .push(Text::new(
                                 "Custom Style with invisible ModRangeInput",
                             ))

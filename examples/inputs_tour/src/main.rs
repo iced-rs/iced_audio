@@ -3,8 +3,8 @@ mod style;
 use steps::*;
 
 use iced::{
-    button, scrollable, Button, Color, Column, Container, Element,
-    HorizontalAlignment, Length, Row, Sandbox, Scrollable, Settings, Space,
+    alignment::Horizontal, button, scrollable, Button, Color, Column,
+    Container, Element, Length, Row, Sandbox, Scrollable, Settings, Space,
     Text,
 };
 
@@ -291,7 +291,7 @@ fn button<'a, Message: Clone>(
 ) -> Button<'a, Message> {
     Button::new(
         state,
-        Text::new(label).horizontal_alignment(HorizontalAlignment::Center),
+        Text::new(label).horizontal_alignment(Horizontal::Center),
     )
     .padding(12)
     .min_width(100)
