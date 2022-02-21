@@ -28,6 +28,8 @@ pub struct Knob<'a, Message, Renderer: self::Renderer> {
     state: &'a mut State,
     size: Length,
     on_change: Box<dyn Fn(Normal) -> Message>,
+    on_drag_start: Box<dyn Fn() -> Option<Message>>,
+    on_drag_end: Box<dyn Fn() -> Option<Message>>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -48,14 +50,23 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     ///
     /// [`State`]: struct.State.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
+    pub fn new<F, G, H>(
+        state: &'a mut State,
+        on_change: F,
+        on_drag_start: G,
+        on_drag_end: H,
+    ) -> Self
     where
         F: 'static + Fn(Normal) -> Message,
+        G: 'static + Fn() -> Option<Message>,
+        H: 'static + Fn() -> Option<Message>,
     {
         Knob {
             state,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
+            on_drag_start: Box::new(on_drag_start),
+            on_drag_end: Box::new(on_drag_end),
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
@@ -384,6 +395,10 @@ where
                             mouse::click::Kind::Single => {
                                 self.state.is_dragging = true;
                                 self.state.prev_drag_y = cursor_position.y;
+
+                                if let Some(message) = (self.on_drag_start)() {
+                                    messages.publish(message);
+                                }
                             }
                             _ => {
                                 self.state.is_dragging = false;
@@ -406,6 +421,10 @@ where
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
                         self.state.normal_param.value.as_f32();
+
+                    if let Some(message) = (self.on_drag_end)() {
+                        messages.publish(message);
+                    }
 
                     return event::Status::Captured;
                 }
