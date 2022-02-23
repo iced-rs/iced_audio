@@ -218,38 +218,66 @@ impl KnobStep {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_float = Knob::new(&mut self.knob_float_state, Message::Float)
-            .tick_marks(&self.float_tick_marks)
-            .text_marks(&self.float_text_marks);
+        let knob_float = Knob::new(
+            &mut self.knob_float_state,
+            Message::Float,
+            || None,
+            || None,
+        )
+        .tick_marks(&self.float_tick_marks)
+        .text_marks(&self.float_text_marks);
 
-        let knob_int = Knob::new(&mut self.knob_int_state, Message::Int)
-            .tick_marks(&self.int_tick_marks)
-            .text_marks(&self.int_text_marks);
+        let knob_int =
+            Knob::new(&mut self.knob_int_state, Message::Int, || None, || None)
+                .tick_marks(&self.int_tick_marks)
+                .text_marks(&self.int_text_marks);
 
-        let knob_db = Knob::new(&mut self.knob_db_state, Message::DB)
-            .tick_marks(&self.db_tick_marks)
-            .text_marks(&self.db_text_marks);
+        let knob_db =
+            Knob::new(&mut self.knob_db_state, Message::DB, || None, || None)
+                .tick_marks(&self.db_tick_marks)
+                .text_marks(&self.db_text_marks);
 
-        let knob_freq = Knob::new(&mut self.knob_freq_state, Message::Freq)
-            .tick_marks(&self.freq_tick_marks)
-            .text_marks(&self.freq_text_marks);
+        let knob_freq = Knob::new(
+            &mut self.knob_freq_state,
+            Message::Freq,
+            || None,
+            || None,
+        )
+        .tick_marks(&self.freq_tick_marks)
+        .text_marks(&self.freq_text_marks);
 
-        let knob_style1 =
-            Knob::new(&mut self.knob_style1_state, Message::Style1)
-                .style(style::knob::CustomStyleCircle)
-                .text_marks(&self.float_text_marks);
+        let knob_style1 = Knob::new(
+            &mut self.knob_style1_state,
+            Message::Style1,
+            || None,
+            || None,
+        )
+        .style(style::knob::CustomStyleCircle)
+        .text_marks(&self.float_text_marks);
 
-        let knob_style2 =
-            Knob::new(&mut self.knob_style2_state, Message::Style2)
-                .style(style::knob::CustomStyleLine);
+        let knob_style2 = Knob::new(
+            &mut self.knob_style2_state,
+            Message::Style2,
+            || None,
+            || None,
+        )
+        .style(style::knob::CustomStyleLine);
 
-        let knob_style3 =
-            Knob::new(&mut self.knob_style3_state, Message::Style3)
-                .style(style::knob::CustomArc);
+        let knob_style3 = Knob::new(
+            &mut self.knob_style3_state,
+            Message::Style3,
+            || None,
+            || None,
+        )
+        .style(style::knob::CustomArc);
 
-        let knob_style4 =
-            Knob::new(&mut self.knob_style4_state, Message::Style4)
-                .style(style::knob::CustomArcBipolar);
+        let knob_style4 = Knob::new(
+            &mut self.knob_style4_state,
+            Message::Style4,
+            || None,
+            || None,
+        )
+        .style(style::knob::CustomArcBipolar);
 
         // push the widgets into rows
         let knob_row = Row::new()

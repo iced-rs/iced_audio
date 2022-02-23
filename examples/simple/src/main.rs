@@ -135,7 +135,12 @@ impl Sandbox for App {
             VSlider::new(&mut self.v_slider_state, Message::VSliderDB)
                 .tick_marks(&self.center_tick_mark);
 
-        let knob_widget = Knob::new(&mut self.knob_state, Message::KnobFreq);
+        let knob_widget = Knob::new(
+            &mut self.knob_state,
+            Message::KnobFreq,
+            || None,
+            || None,
+        );
 
         let xy_pad_widget =
             XYPad::new(&mut self.xy_pad_state, Message::XYPadFloat);

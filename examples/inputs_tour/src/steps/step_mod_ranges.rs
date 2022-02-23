@@ -212,14 +212,24 @@ impl ModRanges {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_start =
-            Knob::new(&mut self.knob_start_state, Message::RangeStart);
+        let knob_start = Knob::new(
+            &mut self.knob_start_state,
+            Message::RangeStart,
+            || None,
+            || None,
+        );
 
-        let knob_end = Knob::new(&mut self.knob_end_state, Message::RangeEnd);
+        let knob_end = Knob::new(
+            &mut self.knob_end_state,
+            Message::RangeEnd,
+            || None,
+            || None,
+        );
 
-        let knob1 = Knob::new(&mut self.knob1_state, Message::Knob1)
-            .mod_range(&self.mod_range_1)
-            .style(style::knob::CustomArc);
+        let knob1 =
+            Knob::new(&mut self.knob1_state, Message::Knob1, || None, || None)
+                .mod_range(&self.mod_range_1)
+                .style(style::knob::CustomArc);
 
         let h_slider1 =
             HSlider::new(&mut self.h_slider1_state, Message::HSlider1)
@@ -239,10 +249,14 @@ impl ModRanges {
         .size(Length::from(10))
         .style(style::mod_range_input::CustomStyle);
 
-        let knob_auto1 =
-            Knob::new(&mut self.knob_auto1_state, Message::ModKnob1)
-                .mod_range(&self.knob_auto1_mod_range)
-                .style(style::knob::CustomStyleCircle);
+        let knob_auto1 = Knob::new(
+            &mut self.knob_auto1_state,
+            Message::ModKnob1,
+            || None,
+            || None,
+        )
+        .mod_range(&self.knob_auto1_mod_range)
+        .style(style::knob::CustomStyleCircle);
 
         let auto_input2 = ModRangeInput::new(
             &mut self.auto_input2_state,
@@ -251,10 +265,14 @@ impl ModRanges {
         .size(Length::from(15))
         .style(mod_range_input::DefaultInvisible);
 
-        let knob_auto2 =
-            Knob::new(&mut self.knob_auto2_state, Message::ModKnob2)
-                .mod_range(&self.knob_auto2_mod_range)
-                .style(style::knob::CustomStyleCircle);
+        let knob_auto2 = Knob::new(
+            &mut self.knob_auto2_state,
+            Message::ModKnob2,
+            || None,
+            || None,
+        )
+        .mod_range(&self.knob_auto2_mod_range)
+        .style(style::knob::CustomStyleCircle);
 
         // push the widgets into rows
         let knob_row = Row::new()
