@@ -6,11 +6,9 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout,
-    Length, Point, Rectangle, Shell, Size, Widget,
+    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
+    Point, Rectangle, Shell, Size, Widget,
 };
-
-use std::hash::Hash;
 
 use crate::core::{Normal, NormalParam};
 use crate::IntRange;
@@ -441,14 +439,6 @@ where
             &self.style,
             self.direction,
         )
-    }
-
-    fn hash_layout(&self, state: &mut Hasher) {
-        struct Marker;
-        std::any::TypeId::of::<Marker>().hash(state);
-
-        self.width.hash(state);
-        self.height.hash(state);
     }
 }
 
