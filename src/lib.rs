@@ -5,7 +5,7 @@
 //!
 //! Add `iced_audio` as dependency in your `Cargo.toml`:
 //! ```toml
-//! iced_audio = "0.6"
+//! iced_audio = "0.7"
 //! ```
 //! Or if you want to use the GitHub version of `iced`:
 //! ```toml
