@@ -5,7 +5,7 @@
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced_graphics::canvas::{Frame, LineCap, Path, Stroke};
+use iced_graphics::widget::canvas::{Frame, LineCap, Path, Stroke};
 use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 

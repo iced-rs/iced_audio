@@ -5,7 +5,7 @@
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
-use iced_graphics::canvas::{path::Arc, Frame, Path, Stroke};
+use iced_graphics::widget::canvas::{path::Arc, Frame, Path, Stroke};
 use iced_graphics::{Backend, Primitive, Renderer};
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 

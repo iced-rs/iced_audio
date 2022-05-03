@@ -294,7 +294,7 @@ fn button<'a, Message: Clone>(
         Text::new(label).horizontal_alignment(Horizontal::Center),
     )
     .padding(12)
-    .min_width(100)
+    .width(Length::Units(100))
 }
 
 // generates the text for an output

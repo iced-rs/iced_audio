@@ -8,5 +8,5 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { git = "https://github.com/iced-rs/iced", rev = "a53fa91e0ddf374bbeb66d5e831b79127ed47a9d", features=["image"] }
+iced = { version = "0.4", features=["image"] }
 iced_audio = { path = "../../" }
