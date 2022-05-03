@@ -5,7 +5,7 @@
 use crate::native::mod_range_input;
 
 use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{mouse, Background, Point, Rectangle};
+use iced_native::{Background, Point, Rectangle};
 
 pub use crate::native::mod_range_input::State;
 pub use crate::style::mod_range_input::{
@@ -27,7 +27,7 @@ impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
         cursor_position: Point,
         is_dragging: bool,
         style_sheet: &Self::Style,
-    ) -> Self::Output {
+    ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
         let style = if is_dragging {
@@ -80,6 +80,6 @@ impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
             Style::Invisible => Primitive::None,
         };
 
-        (dot, mouse::Interaction::default())
+        self.draw_primitive(dot)
     }
 }

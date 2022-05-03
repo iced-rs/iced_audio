@@ -6,11 +6,9 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout,
-    Length, Point, Rectangle, Size, Widget,
+    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
+    Point, Rectangle, Shell, Size, Widget,
 };
-
-use std::hash::Hash;
 
 use crate::core::{Normal, NormalParam};
 use crate::IntRange;
@@ -52,10 +50,7 @@ impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
             state,
             on_change: Box::new(on_change),
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers {
-                control: true,
-                ..Default::default()
-            },
+            modifier_keys: keyboard::Modifiers::CTRL,
             size: Length::Fill,
             style: Renderer::Style::default(),
         }
@@ -268,7 +263,7 @@ where
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_, Message>,
     ) -> event::Status {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
@@ -293,7 +288,7 @@ where
                             if self
                                 .state
                                 .pressed_modifiers
-                                .matches(self.modifier_keys)
+                                .contains(self.modifier_keys)
                             {
                                 movement_x *= self.modifier_scalar;
                                 movement_y *= self.modifier_scalar;
@@ -313,7 +308,7 @@ where
                             self.state.continuous_normal_y = normal_y;
                             self.state.normal_param_y.value = normal_y.into();
 
-                            messages.push((self.on_change)(
+                            messages.publish((self.on_change)(
                                 self.state.normal_param_x.value,
                                 self.state.normal_param_y.value,
                             ));
@@ -361,7 +356,7 @@ where
                                 self.state.normal_param_y.value =
                                     normal_y.into();
 
-                                messages.push((self.on_change)(
+                                messages.publish((self.on_change)(
                                     self.state.normal_param_x.value,
                                     self.state.normal_param_y.value,
                                 ));
@@ -374,7 +369,7 @@ where
                                 self.state.normal_param_y.value =
                                     self.state.normal_param_y.default;
 
-                                messages.push((self.on_change)(
+                                messages.publish((self.on_change)(
                                     self.state.normal_param_x.value,
                                     self.state.normal_param_y.value,
                                 ));
@@ -408,6 +403,11 @@ where
 
                     return event::Status::Captured;
                 }
+                keyboard::Event::ModifiersChanged(modifiers) => {
+                    self.state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
                 _ => {}
             },
             _ => {}
@@ -419,11 +419,11 @@ where
     fn draw(
         &self,
         renderer: &mut Renderer,
-        _defaults: &Renderer::Defaults,
+        _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
-    ) -> Renderer::Output {
+    ) {
         renderer.draw(
             layout.bounds(),
             cursor_position,
@@ -432,13 +432,6 @@ where
             self.state.is_dragging,
             &self.style,
         )
-    }
-
-    fn hash_layout(&self, state: &mut Hasher) {
-        struct Marker;
-        std::any::TypeId::of::<Marker>().hash(state);
-
-        self.size.hash(state);
     }
 }
 
@@ -471,7 +464,7 @@ pub trait Renderer: iced_native::Renderer {
         normal_y: Normal,
         is_dragging: bool,
         style: &Self::Style,
-    ) -> Self::Output;
+    );
 }
 
 impl<'a, Message, Renderer> From<XYPad<'a, Message, Renderer>>

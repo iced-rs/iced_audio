@@ -5,9 +5,9 @@
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced_graphics::canvas::{Frame, LineCap, Path, Stroke};
+use iced_graphics::widget::canvas::{Frame, LineCap, Path, Stroke};
 use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{mouse, Background, Point, Rectangle, Size, Vector};
+use iced_native::{Background, Point, Rectangle, Size, Vector};
 
 pub use crate::native::ramp::{RampDirection, State};
 pub use crate::style::ramp::{Style, StyleSheet};
@@ -31,7 +31,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
         is_dragging: bool,
         style_sheet: &Self::Style,
         direction: RampDirection,
-    ) -> Self::Output {
+    ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
         let style = if is_dragging {
@@ -283,11 +283,8 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
             }
         };
 
-        (
-            Primitive::Group {
-                primitives: vec![back, line],
-            },
-            mouse::Interaction::default(),
-        )
+        self.draw_primitive(Primitive::Group {
+            primitives: vec![back, line],
+        })
     }
 }

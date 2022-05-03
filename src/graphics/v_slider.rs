@@ -6,7 +6,7 @@ use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::v_slider;
 use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{mouse, Background, Color, Point, Rectangle};
+use iced_native::{Background, Color, Point, Rectangle};
 
 pub use crate::native::v_slider::State;
 pub use crate::style::v_slider::{
@@ -51,7 +51,7 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
         style_sheet: &Self::Style,
         tick_marks_cache: &tick_marks::PrimitiveCache,
         text_marks_cache: &text_marks::PrimitiveCache,
-    ) -> Self::Output {
+    ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
         let style = if is_dragging {
@@ -115,7 +115,7 @@ impl<B: Backend> v_slider::Renderer for Renderer<B> {
             ),
         };
 
-        (primitives, mouse::Interaction::default())
+        self.draw_primitive(primitives)
     }
 }
 

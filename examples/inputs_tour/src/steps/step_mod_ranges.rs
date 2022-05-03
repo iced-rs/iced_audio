@@ -1,4 +1,4 @@
-use iced::{Align, Checkbox, Column, Element, Length, Row, Text};
+use iced::{Alignment, Checkbox, Column, Element, Length, Row, Text};
 
 use iced_audio::{
     h_slider, knob, mod_range_input, v_slider, FloatRange, HSlider, Knob,
@@ -212,14 +212,24 @@ impl ModRanges {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_start =
-            Knob::new(&mut self.knob_start_state, Message::RangeStart);
+        let knob_start = Knob::new(
+            &mut self.knob_start_state,
+            Message::RangeStart,
+            || None,
+            || None,
+        );
 
-        let knob_end = Knob::new(&mut self.knob_end_state, Message::RangeEnd);
+        let knob_end = Knob::new(
+            &mut self.knob_end_state,
+            Message::RangeEnd,
+            || None,
+            || None,
+        );
 
-        let knob1 = Knob::new(&mut self.knob1_state, Message::Knob1)
-            .mod_range(&self.mod_range_1)
-            .style(style::knob::CustomArc);
+        let knob1 =
+            Knob::new(&mut self.knob1_state, Message::Knob1, || None, || None)
+                .mod_range(&self.mod_range_1)
+                .style(style::knob::CustomArc);
 
         let h_slider1 =
             HSlider::new(&mut self.h_slider1_state, Message::HSlider1)
@@ -239,10 +249,14 @@ impl ModRanges {
         .size(Length::from(10))
         .style(style::mod_range_input::CustomStyle);
 
-        let knob_auto1 =
-            Knob::new(&mut self.knob_auto1_state, Message::ModKnob1)
-                .mod_range(&self.knob_auto1_mod_range)
-                .style(style::knob::CustomStyleCircle);
+        let knob_auto1 = Knob::new(
+            &mut self.knob_auto1_state,
+            Message::ModKnob1,
+            || None,
+            || None,
+        )
+        .mod_range(&self.knob_auto1_mod_range)
+        .style(style::knob::CustomStyleCircle);
 
         let auto_input2 = ModRangeInput::new(
             &mut self.auto_input2_state,
@@ -251,10 +265,14 @@ impl ModRanges {
         .size(Length::from(15))
         .style(mod_range_input::DefaultInvisible);
 
-        let knob_auto2 =
-            Knob::new(&mut self.knob_auto2_state, Message::ModKnob2)
-                .mod_range(&self.knob_auto2_mod_range)
-                .style(style::knob::CustomStyleCircle);
+        let knob_auto2 = Knob::new(
+            &mut self.knob_auto2_state,
+            Message::ModKnob2,
+            || None,
+            || None,
+        )
+        .mod_range(&self.knob_auto2_mod_range)
+        .style(style::knob::CustomStyleCircle);
 
         // push the widgets into rows
         let knob_row = Row::new()
@@ -277,7 +295,7 @@ impl ModRanges {
                 Column::new()
                     .max_width(130)
                     .max_height(250)
-                    .align_items(Align::Center)
+                    .align_items(Alignment::Center)
                     .spacing(20)
                     .push(knob1)
                     .push(h_slider1)
@@ -291,7 +309,7 @@ impl ModRanges {
                         Column::new()
                             .width(Length::Fill)
                             .spacing(14)
-                            .align_items(Align::Center)
+                            .align_items(Alignment::Center)
                             .push(Text::new("Custom Style with ModRangeInput"))
                             .push(auto_input1)
                             .push(knob_auto1),
@@ -300,7 +318,7 @@ impl ModRanges {
                         Column::new()
                             .width(Length::Fill)
                             .spacing(0)
-                            .align_items(Align::Center)
+                            .align_items(Alignment::Center)
                             .push(Text::new(
                                 "Custom Style with invisible ModRangeInput",
                             ))

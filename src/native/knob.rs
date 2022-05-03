@@ -5,11 +5,9 @@
 use std::fmt::Debug;
 
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Hasher, Layout,
-    Length, Point, Rectangle, Size, Widget,
+    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
+    Point, Rectangle, Shell, Size, Widget,
 };
-
-use std::hash::Hash;
 
 use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
@@ -28,6 +26,8 @@ pub struct Knob<'a, Message, Renderer: self::Renderer> {
     state: &'a mut State,
     size: Length,
     on_change: Box<dyn Fn(Normal) -> Message>,
+    on_drag_start: Box<dyn Fn() -> Option<Message>>,
+    on_drag_end: Box<dyn Fn() -> Option<Message>>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -48,21 +48,27 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     ///
     /// [`State`]: struct.State.html
     /// [`Knob`]: struct.Knob.html
-    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
+    pub fn new<F, G, H>(
+        state: &'a mut State,
+        on_change: F,
+        on_drag_start: G,
+        on_drag_end: H,
+    ) -> Self
     where
         F: 'static + Fn(Normal) -> Message,
+        G: 'static + Fn() -> Option<Message>,
+        H: 'static + Fn() -> Option<Message>,
     {
         Knob {
             state,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
+            on_drag_start: Box::new(on_drag_start),
+            on_drag_end: Box::new(on_drag_end),
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers {
-                control: true,
-                ..Default::default()
-            },
+            modifier_keys: keyboard::Modifiers::CTRL,
             style: Renderer::Style::default(),
             tick_marks: None,
             text_marks: None,
@@ -184,10 +190,10 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
 
     fn move_virtual_slider(
         &mut self,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_, Message>,
         mut normal_delta: f32,
     ) {
-        if self.state.pressed_modifiers.matches(self.modifier_keys) {
+        if self.state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
 
@@ -203,7 +209,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
 
         self.state.normal_param.value = normal.into();
 
-        messages.push((self.on_change)(self.state.normal_param.value));
+        messages.publish((self.on_change)(self.state.normal_param.value));
     }
 }
 
@@ -325,7 +331,7 @@ where
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_, Message>,
     ) -> event::Status {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
@@ -387,6 +393,10 @@ where
                             mouse::click::Kind::Single => {
                                 self.state.is_dragging = true;
                                 self.state.prev_drag_y = cursor_position.y;
+
+                                if let Some(message) = (self.on_drag_start)() {
+                                    messages.publish(message);
+                                }
                             }
                             _ => {
                                 self.state.is_dragging = false;
@@ -394,7 +404,7 @@ where
                                 self.state.normal_param.value =
                                     self.state.normal_param.default;
 
-                                messages.push((self.on_change)(
+                                messages.publish((self.on_change)(
                                     self.state.normal_param.value,
                                 ));
                             }
@@ -409,6 +419,10 @@ where
                     self.state.is_dragging = false;
                     self.state.continuous_normal =
                         self.state.normal_param.value.as_f32();
+
+                    if let Some(message) = (self.on_drag_end)() {
+                        messages.publish(message);
+                    }
 
                     return event::Status::Captured;
                 }
@@ -425,6 +439,11 @@ where
 
                     return event::Status::Captured;
                 }
+                keyboard::Event::ModifiersChanged(modifiers) => {
+                    self.state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
                 _ => {}
             },
             _ => {}
@@ -436,11 +455,11 @@ where
     fn draw(
         &self,
         renderer: &mut Renderer,
-        _defaults: &Renderer::Defaults,
+        _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
-    ) -> Renderer::Output {
+    ) {
         renderer.draw(
             layout.bounds(),
             cursor_position,
@@ -454,13 +473,6 @@ where
             &self.state.tick_marks_cache,
             &self.state.text_marks_cache,
         )
-    }
-
-    fn hash_layout(&self, state: &mut Hasher) {
-        struct Marker;
-        std::any::TypeId::of::<Marker>().hash(state);
-
-        self.size.hash(state);
     }
 }
 
@@ -499,7 +511,7 @@ pub trait Renderer: iced_native::Renderer {
         style: &Self::Style,
         tick_marks_cache: &crate::tick_marks::PrimitiveCache,
         text_marks_cache: &crate::text_marks::PrimitiveCache,
-    ) -> Self::Output;
+    );
 }
 
 impl<'a, Message, Renderer> From<Knob<'a, Message, Renderer>>

@@ -1,4 +1,4 @@
-use iced_graphics::canvas::{Fill, Frame, LineCap, Path, Stroke};
+use iced_graphics::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Color, Point, Size, Vector};
 

@@ -1,6 +1,6 @@
 // Import iced modules.
 use iced::{
-    Align, Column, Container, Element, Length, Sandbox, Settings, Text,
+    Alignment, Column, Container, Element, Length, Sandbox, Settings, Text,
 };
 // Import iced_audio modules.
 use iced_audio::{
@@ -135,7 +135,12 @@ impl Sandbox for App {
             VSlider::new(&mut self.v_slider_state, Message::VSliderDB)
                 .tick_marks(&self.center_tick_mark);
 
-        let knob_widget = Knob::new(&mut self.knob_state, Message::KnobFreq);
+        let knob_widget = Knob::new(
+            &mut self.knob_state,
+            Message::KnobFreq,
+            || None,
+            || None,
+        );
 
         let xy_pad_widget =
             XYPad::new(&mut self.xy_pad_state, Message::XYPadFloat);
@@ -146,7 +151,7 @@ impl Sandbox for App {
             .max_height(500)
             .spacing(20)
             .padding(20)
-            .align_items(Align::Center)
+            .align_items(Alignment::Center)
             .push(h_slider_widget)
             .push(v_slider_widget)
             .push(knob_widget)
