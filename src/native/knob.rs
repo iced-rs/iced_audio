@@ -32,6 +32,7 @@ pub struct Knob<'a, Message, Renderer: self::Renderer> {
     wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
+    bipolar_center: Option<Normal>,
     style: Renderer::Style,
     tick_marks: Option<&'a tick_marks::Group>,
     text_marks: Option<&'a text_marks::Group>,
@@ -69,6 +70,7 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
+            bipolar_center: None,
             style: Renderer::Style::default(),
             tick_marks: None,
             text_marks: None,
@@ -185,6 +187,16 @@ impl<'a, Message, Renderer: self::Renderer> Knob<'a, Message, Renderer> {
     /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
     pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
         self.mod_range_1 = Some(mod_range);
+        self
+    }
+
+    /// Sets the value to be considered the center of the [`Knob`]. Only has
+    /// an effect when using [`ArcBipolarStyle`].
+    ///
+    /// [`Knob`]: struct.Knob.html
+    /// [`ArcBipolarStyle`]: ../../style/knob/struct.ArcBipolarStyle.html
+    pub fn bipolar_center(mut self, bipolar_center: Normal) -> Self {
+        self.bipolar_center = Some(bipolar_center);
         self
     }
 
@@ -464,6 +476,7 @@ where
             layout.bounds(),
             cursor_position,
             self.state.normal_param.value,
+            self.bipolar_center,
             self.state.is_dragging,
             self.mod_range_1,
             self.mod_range_2,
@@ -492,6 +505,7 @@ pub trait Renderer: iced_native::Renderer {
     ///   * the bounds of the [`Knob`]
     ///   * the current cursor position
     ///   * the current normal of the [`Knob`]
+    ///   * optionally, a custom bipolar center value
     ///   * whether the knob is currently being dragged
     ///   * any tick marks to display
     ///   * any text marks to display
@@ -503,6 +517,7 @@ pub trait Renderer: iced_native::Renderer {
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
+        bipolar_center: Option<Normal>,
         is_dragging: bool,
         mod_range_1: Option<&ModulationRange>,
         mod_range_2: Option<&ModulationRange>,

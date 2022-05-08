@@ -2,6 +2,8 @@
 //!
 //! [`Param`]: ../core/param/struct.Param.html
 
+use std::cmp::Ordering;
+
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
@@ -34,6 +36,7 @@ struct KnobInfo {
     angle_span: f32,
     radius: f32,
     value: Normal,
+    bipolar_center: Option<Normal>,
     value_angle: f32,
 }
 
@@ -51,6 +54,7 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
+        bipolar_center: Option<Normal>,
         is_dragging: bool,
         mod_range_1: Option<&ModulationRange>,
         mod_range_2: Option<&ModulationRange>,
@@ -130,6 +134,7 @@ impl<B: Backend> knob::Renderer for Renderer<B> {
             angle_span,
             radius,
             value: normal,
+            bipolar_center,
             value_angle,
         };
 
@@ -656,13 +661,22 @@ enum BipolarState {
 }
 
 impl BipolarState {
-    pub fn from_knob_value(knob_value: Normal) -> Self {
-        if knob_value.as_f32() < 0.499 {
-            BipolarState::Left
-        } else if knob_value.as_f32() > 0.501 {
-            BipolarState::Right
+    pub fn from_knob_info(knob_info: &KnobInfo) -> Self {
+        if let Some(center) = knob_info.bipolar_center {
+            match knob_info.value.partial_cmp(&center) {
+                Some(Ordering::Less) => BipolarState::Left,
+                Some(Ordering::Equal) => BipolarState::Center,
+                Some(Ordering::Greater) => BipolarState::Right,
+                None => BipolarState::Center,
+            }
         } else {
-            BipolarState::Center
+            if knob_info.value.as_f32() < 0.499 {
+                BipolarState::Left
+            } else if knob_info.value.as_f32() > 0.501 {
+                BipolarState::Right
+            } else {
+                BipolarState::Center
+            }
         }
     }
 }
@@ -682,15 +696,13 @@ fn draw_arc_bipolar_style<'a>(
             text_marks_cache,
         );
 
-    let bipolar_state = BipolarState::from_knob_value(knob_info.value);
+    let bipolar_state = BipolarState::from_knob_info(knob_info);
 
     let arc: Primitive = {
         let width = style.width.from_knob_diameter(knob_info.bounds.width);
 
         let center_point = Point::new(knob_info.radius, knob_info.radius);
         let arc_radius = knob_info.radius - (width / 2.0);
-
-        let half_angle = knob_info.start_angle + (knob_info.angle_span / 2.0);
 
         let mut frame = Frame::new(Size::new(
             knob_info.bounds.width,
@@ -715,6 +727,12 @@ fn draw_arc_bipolar_style<'a>(
 
         frame.stroke(&empty_path, empty_stroke);
 
+        let center_angle = knob_info.start_angle
+            + knob_info
+                .bipolar_center
+                .unwrap_or(Normal::new(0.5))
+                .scale(knob_info.angle_span);
+
         match bipolar_state {
             BipolarState::Left => {
                 let filled_stroke = Stroke {
@@ -728,7 +746,7 @@ fn draw_arc_bipolar_style<'a>(
                     center: center_point,
                     radius: arc_radius,
                     start_angle: knob_info.value_angle,
-                    end_angle: half_angle,
+                    end_angle: center_angle,
                 };
 
                 let filled_path = Path::new(|path| path.arc(filled_arc));
@@ -746,7 +764,7 @@ fn draw_arc_bipolar_style<'a>(
                 let filled_arc = Arc {
                     center: center_point,
                     radius: arc_radius,
-                    start_angle: half_angle,
+                    start_angle: center_angle,
                     end_angle: knob_info.value_angle,
                 };
 
