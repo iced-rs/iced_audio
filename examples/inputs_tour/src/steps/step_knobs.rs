@@ -17,6 +17,7 @@ pub enum Message {
     Style2(Normal),
     Style3(Normal),
     Style4(Normal),
+    Style5(Normal),
 }
 
 pub struct KnobStep {
@@ -33,6 +34,7 @@ pub struct KnobStep {
     knob_style2_state: knob::State,
     knob_style3_state: knob::State,
     knob_style4_state: knob::State,
+    knob_style5_state: knob::State,
 
     float_tick_marks: tick_marks::Group,
     int_tick_marks: tick_marks::Group,
@@ -91,6 +93,10 @@ impl Default for KnobStep {
 
             knob_style4_state: knob::State::new(
                 float_range.default_normal_param(),
+            ),
+
+            knob_style5_state: knob::State::new(
+                float_range.normal_param(-0.6, -0.6),
             ),
 
             float_tick_marks: tick_marks::Group::subdivided(
@@ -211,6 +217,12 @@ impl KnobStep {
                     self.float_range.unmap_to_value(normal),
                 );
             }
+            Message::Style5(normal) => {
+                self.output_text = crate::info_text_f32(
+                    "KnobStyle5",
+                    self.float_range.unmap_to_value(normal),
+                );
+            }
         }
     }
 
@@ -279,6 +291,15 @@ impl KnobStep {
         )
         .style(style::knob::CustomArcBipolar);
 
+        let knob_style5 = Knob::new(
+            &mut self.knob_style5_state,
+            Message::Style5,
+            || None,
+            || None,
+        )
+        .bipolar_center(Normal::new(0.2))
+        .style(style::knob::CustomArcBipolar);
+
         // push the widgets into rows
         let knob_row = Row::new()
             .spacing(20)
@@ -311,7 +332,9 @@ impl KnobStep {
                     .push(Text::new("Custom Style 3"))
                     .push(knob_style3)
                     .push(Text::new("Custom Bipolar Style 4"))
-                    .push(knob_style4),
+                    .push(knob_style4)
+                    .push(Text::new("Custom Bipolar Style 5 (Off-Center)"))
+                    .push(knob_style5),
             );
 
         let content = Column::new()
