@@ -42,11 +42,11 @@ cargo run --package simple --release
 
 Add `iced_audio` as a dependency in your `Cargo.toml`:
 ```toml
-iced_audio = "0.7"
+iced_audio = "0.8"
 ```
 Or if you want to use the GitHub version of `iced`:
 ```toml
-iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
+iced_audio = { git = "https://github.com/iced-rs/iced_audio", branch = "iced_git" }
 ```
 
 __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
