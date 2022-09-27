@@ -38,12 +38,14 @@ pub struct ClassicRail {
 ///
 /// [`Style`]: enum.Style.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-/// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
+/// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
 pub struct TextureStyle {
     /// The rail style
     pub rail: ClassicRail,
     /// The [`Handle`] to the image texture
+    ///
+    /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
     pub image_handle: image::Handle,
     /// The effective height of the handle (not including any padding on the texture)
     pub handle_height: u16,

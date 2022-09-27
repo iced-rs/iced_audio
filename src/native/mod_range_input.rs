@@ -4,13 +4,13 @@
 
 use std::fmt::Debug;
 
+use iced_native::widget::tree::{self, Tree};
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
-    Point, Rectangle, Shell, Size, Widget,
+    event, keyboard, layout, mouse, touch, Clipboard, Element, Event, Layout,
+    Length, Point, Rectangle, Shell, Size, Widget,
 };
 
 use crate::core::{Normal, NormalParam};
-use crate::IntRange;
 
 static DEFAULT_SIZE: u16 = 10;
 static DEFAULT_SCALAR: f32 = 0.00385 / 2.0;
@@ -22,9 +22,9 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 /// [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
 pub struct ModRangeInput<'a, Message, Renderer: self::Renderer> {
-    state: &'a mut State,
+    normal_param: NormalParam,
     size: Length,
-    on_change: Box<dyn Fn(Normal) -> Message>,
+    on_change: Box<dyn Fn(Normal) -> Message + 'a>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -32,23 +32,25 @@ pub struct ModRangeInput<'a, Message, Renderer: self::Renderer> {
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer>
-    ModRangeInput<'a, Message, Renderer>
+impl<'a, Message, Renderer> ModRangeInput<'a, Message, Renderer>
+where
+    Message: Clone,
+    Renderer: self::Renderer,
 {
     /// Creates a new [`ModRangeInput`].
     ///
     /// It expects:
-    ///   * the local [`State`] of the [`ModRangeInput`]
+    ///   * the [`NormalParam`] of the [`ModRangeInput`]
     ///   * a function that will be called when the [`ModRangeInput`] is turned.
     ///
-    /// [`State`]: struct.State.html
+    /// [`NormalParam`]: struct.NormalParam.html
     /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
+    pub fn new<F>(normal_param: NormalParam, on_change: F) -> Self
     where
-        F: 'static + Fn(Normal) -> Message,
+        F: 'a + Fn(Normal) -> Message,
     {
         ModRangeInput {
-            state,
+            normal_param,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
             scalar: DEFAULT_SCALAR,
@@ -130,26 +132,19 @@ impl<'a, Message, Renderer: self::Renderer>
 
     fn move_virtual_slider(
         &mut self,
-        messages: &mut Shell<'_, Message>,
+        state: &mut State,
+        shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
     ) {
-        if self.state.pressed_modifiers.contains(self.modifier_keys) {
+        if state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
 
-        let mut normal = self.state.continuous_normal - normal_delta;
+        self.normal_param.value =
+            Normal::new(state.continuous_normal - normal_delta);
+        state.continuous_normal = self.normal_param.value.as_f32();
 
-        if normal < 0.0 {
-            normal = 0.0;
-        } else if normal > 1.0 {
-            normal = 1.0;
-        }
-
-        self.state.continuous_normal = normal;
-
-        self.state.normal_param.value = normal.into();
-
-        messages.publish((self.on_change)(self.state.normal_param.value));
+        shell.publish((self.on_change)(self.normal_param.value));
     }
 }
 
@@ -157,8 +152,7 @@ impl<'a, Message, Renderer: self::Renderer>
 ///
 /// [`ModRangeInput`]: struct.ModRangeInput.html
 #[derive(Debug, Copy, Clone)]
-pub struct State {
-    normal_param: NormalParam,
+struct State {
     is_dragging: bool,
     prev_drag_y: f32,
     continuous_normal: f32,
@@ -170,73 +164,35 @@ impl State {
     /// Creates a new [`ModRangeInput`] state.
     ///
     /// It expects:
-    /// * a [`NormalParam`] to assign to this widget
+    /// * current [`Normal`] value for the [`ModRangeInput`]
     ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    /// [`Normal`]: ../../core/normal/struct.Normal.html
     /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn new(normal_param: NormalParam) -> Self {
+    fn new(normal: Normal) -> Self {
         Self {
-            normal_param,
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: normal_param.value.as_f32(),
+            continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
-    }
-
-    /// Set the normalized value of the [`ModRangeInput`].
-    pub fn set_normal(&mut self, normal: Normal) {
-        self.normal_param.value = normal;
-        self.continuous_normal = normal.into();
-    }
-
-    /// Get the normalized value of the [`ModRangeInput`].
-    pub fn normal(&self) -> Normal {
-        self.normal_param.value
-    }
-
-    /// Set the normalized default value of the [`ModRangeInput`].
-    pub fn set_default(&mut self, normal: Normal) {
-        self.normal_param.default = normal;
-    }
-
-    /// Get the normalized default value of the [`ModRangeInput`].
-    pub fn default(&self) -> Normal {
-        self.normal_param.default
-    }
-
-    /// Snap the visible value of the [`ModRangeInput`] to the nearest value
-    /// in the integer range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use iced_audio::{mod_range_input, IntRange};
-    ///
-    /// let mut state = mod_range_input::State::new(Default::default());
-    /// let int_range = IntRange::new(0, 10);
-    ///
-    /// state.snap_visible_to(&int_range);
-    ///
-    /// ```
-    pub fn snap_visible_to(&mut self, range: &IntRange) {
-        self.normal_param.value = range.snapped(self.normal_param.value);
-    }
-
-    /// Is the [`ModRangeInput`] currently in the dragging state?
-    ///
-    /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer>
     for ModRangeInput<'a, Message, Renderer>
 where
+    Message: 'a + Clone,
     Renderer: self::Renderer,
 {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(State::new(self.normal_param.value))
+    }
+
     fn width(&self) -> Length {
         self.size
     }
@@ -259,113 +215,116 @@ where
 
     fn on_event(
         &mut self,
+        state: &mut Tree,
         event: Event,
         layout: Layout<'_>,
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Shell<'_, Message>,
+        shell: &mut Shell<'_, Message>,
     ) -> event::Status {
+        let state = state.state.downcast_mut::<State>();
+
         match event {
-            Event::Mouse(mouse_event) => match mouse_event {
-                mouse::Event::CursorMoved { .. } => {
-                    if self.state.is_dragging {
-                        let normal_delta = (cursor_position.y
-                            - self.state.prev_drag_y)
-                            * self.scalar;
+            Event::Mouse(mouse::Event::CursorMoved { .. })
+            | Event::Touch(touch::Event::FingerMoved { .. }) => {
+                if state.is_dragging {
+                    let normal_delta =
+                        (cursor_position.y - state.prev_drag_y) * self.scalar;
 
-                        self.state.prev_drag_y = cursor_position.y;
+                    state.prev_drag_y = cursor_position.y;
 
-                        self.move_virtual_slider(messages, normal_delta);
-
-                        return event::Status::Captured;
-                    }
-                }
-                mouse::Event::WheelScrolled { delta } => {
-                    if self.wheel_scalar == 0.0 {
-                        return event::Status::Ignored;
-                    }
-
-                    if layout.bounds().contains(cursor_position) {
-                        let lines = match delta {
-                            iced_native::mouse::ScrollDelta::Lines {
-                                y,
-                                ..
-                            } => y,
-                            iced_native::mouse::ScrollDelta::Pixels {
-                                y,
-                                ..
-                            } => {
-                                if y > 0.0 {
-                                    1.0
-                                } else if y < 0.0 {
-                                    -1.0
-                                } else {
-                                    0.0
-                                }
-                            }
-                        };
-
-                        if lines != 0.0 {
-                            let normal_delta = -lines * self.wheel_scalar;
-
-                            self.move_virtual_slider(messages, normal_delta);
-
-                            return event::Status::Captured;
-                        }
-                    }
-                }
-                mouse::Event::ButtonPressed(mouse::Button::Left) => {
-                    if layout.bounds().contains(cursor_position) {
-                        let click = mouse::Click::new(
-                            cursor_position,
-                            self.state.last_click,
-                        );
-
-                        match click.kind() {
-                            mouse::click::Kind::Single => {
-                                self.state.is_dragging = true;
-                                self.state.prev_drag_y = cursor_position.y;
-                            }
-                            _ => {
-                                self.state.is_dragging = false;
-
-                                self.state.normal_param.value =
-                                    self.state.normal_param.default;
-
-                                messages.publish((self.on_change)(
-                                    self.state.normal_param.value,
-                                ));
-                            }
-                        }
-
-                        self.state.last_click = Some(click);
-
-                        return event::Status::Captured;
-                    }
-                }
-                mouse::Event::ButtonReleased(mouse::Button::Left) => {
-                    self.state.is_dragging = false;
-                    self.state.continuous_normal =
-                        self.state.normal_param.value.as_f32();
+                    self.move_virtual_slider(state, shell, normal_delta);
 
                     return event::Status::Captured;
                 }
-                _ => {}
-            },
+            }
+            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                if self.wheel_scalar == 0.0 {
+                    return event::Status::Ignored;
+                }
+
+                if layout.bounds().contains(cursor_position) {
+                    let lines = match delta {
+                        iced_native::mouse::ScrollDelta::Lines {
+                            y, ..
+                        } => y,
+                        iced_native::mouse::ScrollDelta::Pixels {
+                            y, ..
+                        } => {
+                            if y > 0.0 {
+                                1.0
+                            } else if y < 0.0 {
+                                -1.0
+                            } else {
+                                0.0
+                            }
+                        }
+                    };
+
+                    if lines != 0.0 {
+                        let normal_delta = -lines * self.wheel_scalar;
+
+                        self.move_virtual_slider(state, shell, normal_delta);
+
+                        return event::Status::Captured;
+                    }
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                if layout.bounds().contains(cursor_position) {
+                    let click =
+                        mouse::Click::new(cursor_position, state.last_click);
+
+                    match click.kind() {
+                        mouse::click::Kind::Single => {
+                            state.is_dragging = true;
+                            state.prev_drag_y = cursor_position.y;
+                            state.continuous_normal =
+                                self.normal_param.value.as_f32();
+                        }
+                        _ => {
+                            state.is_dragging = false;
+
+                            self.normal_param.value = self.normal_param.default;
+                            state.continuous_normal =
+                                self.normal_param.default.as_f32();
+
+                            shell.publish((self.on_change)(
+                                self.normal_param.value,
+                            ));
+                        }
+                    }
+
+                    state.last_click = Some(click);
+
+                    return event::Status::Captured;
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerLifted { .. })
+            | Event::Touch(touch::Event::FingerLost { .. }) => {
+                if state.is_dragging {
+                    state.is_dragging = false;
+                    state.continuous_normal = self.normal_param.value.as_f32();
+
+                    return event::Status::Captured;
+                }
+            }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
@@ -379,16 +338,19 @@ where
 
     fn draw(
         &self,
+        state: &Tree,
         renderer: &mut Renderer,
+        _theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
     ) {
+        let state = state.state.downcast_ref::<State>();
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.is_dragging,
+            state.is_dragging,
             &self.style,
         )
     }
@@ -425,8 +387,8 @@ pub trait Renderer: iced_native::Renderer {
 impl<'a, Message, Renderer> From<ModRangeInput<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
+    Message: 'a + Clone,
     Renderer: 'a + self::Renderer,
-    Message: 'a,
 {
     fn from(
         mod_range_input: ModRangeInput<'a, Message, Renderer>,

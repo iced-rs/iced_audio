@@ -1,4 +1,5 @@
-use iced::{image, Color, Rectangle};
+use iced::widget::image;
+use iced::{Color, Rectangle};
 use iced_audio::{text_marks, tick_marks, v_slider, Offset};
 
 use super::colors;

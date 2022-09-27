@@ -5,10 +5,10 @@
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::h_slider;
-use iced_graphics::{Backend, Primitive, Renderer};
+use iced::Renderer;
+use iced_graphics::Primitive;
 use iced_native::{Background, Color, Point, Rectangle};
 
-pub use crate::native::h_slider::State;
 pub use crate::style::h_slider::{
     ClassicHandle, ClassicRail, ClassicStyle, ModRangePlacement, ModRangeStyle,
     RectBipolarStyle, RectStyle, Style, StyleSheet, TextMarksStyle,
@@ -32,10 +32,10 @@ struct ValueMarkers<'a> {
 ///
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`HSlider`]: struct.HSlider.html
-pub type HSlider<'a, Message, Backend> =
-    h_slider::HSlider<'a, Message, Renderer<Backend>>;
+pub type HSlider<'a, Message, Theme> =
+    h_slider::HSlider<'a, Message, Renderer<Theme>>;
 
-impl<B: Backend> h_slider::Renderer for Renderer<B> {
+impl<Theme> h_slider::Renderer for Renderer<Theme> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(

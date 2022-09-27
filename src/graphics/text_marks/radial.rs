@@ -2,9 +2,8 @@ use super::PrimitiveCache;
 use crate::native::text_marks;
 use crate::style::text_marks::Style;
 
-use iced_graphics::{
-    alignment::Horizontal, alignment::Vertical, Point, Primitive, Rectangle,
-};
+use iced::{alignment::Horizontal, alignment::Vertical, Point, Rectangle};
+use iced_graphics::Primitive;
 
 /// Draws text marks around an arc.
 ///

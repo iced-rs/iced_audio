@@ -1,6 +1,6 @@
 //! Offset type
 
-use iced_native::Rectangle;
+use iced::{Point, Rectangle};
 
 /// A 2D offset vector with a horizontal and vertical offset in pixels.
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -52,9 +52,9 @@ impl Default for Offset {
     }
 }
 
-impl From<Offset> for iced_graphics::Point {
+impl From<Offset> for Point {
     fn from(offset: Offset) -> Self {
-        iced_graphics::Point {
+        Point {
             x: offset.x,
             y: offset.y,
         }

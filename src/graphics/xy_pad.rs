@@ -5,10 +5,10 @@
 
 use crate::core::Normal;
 use crate::native::xy_pad;
-use iced_graphics::{Backend, Primitive, Renderer};
+use iced::Renderer;
+use iced_graphics::Primitive;
 use iced_native::{Background, Color, Point, Rectangle};
 
-pub use crate::native::xy_pad::State;
 pub use crate::style::xy_pad::{
     HandleCircle, HandleShape, HandleSquare, Style, StyleSheet,
 };
@@ -21,10 +21,10 @@ pub use crate::style::xy_pad::{
 ///
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`XYPad`]: struct.XYPad.html
-pub type XYPad<'a, Message, Backend> =
-    xy_pad::XYPad<'a, Message, Renderer<Backend>>;
+pub type XYPad<'a, Message, Theme> =
+    xy_pad::XYPad<'a, Message, Renderer<Theme>>;
 
-impl<B: Backend> xy_pad::Renderer for Renderer<B> {
+impl<Theme> xy_pad::Renderer for Renderer<Theme> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(

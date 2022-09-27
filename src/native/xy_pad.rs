@@ -5,13 +5,13 @@
 
 use std::fmt::Debug;
 
+use iced_native::widget::tree::{self, Tree};
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
-    Point, Rectangle, Shell, Size, Widget,
+    event, keyboard, layout, mouse, touch, Clipboard, Element, Event, Layout,
+    Length, Point, Rectangle, Shell, Size, Widget,
 };
 
 use crate::core::{Normal, NormalParam};
-use crate::IntRange;
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
@@ -25,29 +25,39 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 /// [`XYPad`]: struct.XYPad.html
 #[allow(missing_debug_implementations)]
 pub struct XYPad<'a, Message, Renderer: self::Renderer> {
-    state: &'a mut State,
-    on_change: Box<dyn Fn(Normal, Normal) -> Message>,
+    normal_param_x: NormalParam,
+    normal_param_y: NormalParam,
+    on_change: Box<dyn Fn(Normal, Normal) -> Message + 'a>,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     size: Length,
     style: Renderer::Style,
 }
 
-impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
+impl<'a, Message, Renderer> XYPad<'a, Message, Renderer>
+where
+    Message: 'a + Clone,
+    Renderer: self::Renderer,
+{
     /// Creates a new [`XYPad`].
     ///
     /// It expects:
-    ///   * the local [`State`] of the [`XYPad`]
+    ///   * the [`NormalParam`]s for the x & y axis of the [`XYPad`]
     ///   * a function that will be called when the [`XYPad`] is dragged.
     ///
-    /// [`State`]: struct.State.html
+    /// [`NormalParam`]: struct.NormalParam.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<F>(state: &'a mut State, on_change: F) -> Self
+    pub fn new<F>(
+        normal_param_x: NormalParam,
+        normal_param_y: NormalParam,
+        on_change: F,
+    ) -> Self
     where
         F: 'static + Fn(Normal, Normal) -> Message,
     {
         XYPad {
-            state,
+            normal_param_x,
+            normal_param_y,
             on_change: Box::new(on_change),
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
@@ -101,9 +111,7 @@ impl<'a, Message, Renderer: self::Renderer> XYPad<'a, Message, Renderer> {
 ///
 /// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
-pub struct State {
-    normal_param_x: NormalParam,
-    normal_param_y: NormalParam,
+struct State {
     is_dragging: bool,
     prev_drag_x: f32,
     prev_drag_y: f32,
@@ -117,119 +125,40 @@ impl State {
     /// Creates a new [`XYPad`] state.
     ///
     /// It expects:
-    /// * a [`NormalParam`] to assign to this widget's x axis
-    /// * a [`NormalParam`] to assign to this widget's y axis
+    /// * current [`Normal`] value of the x & y axis for the [`XYPad`]
     ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
+    /// [`Normal`]: ../../core/normal/struct.Normal.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new(
-        normal_param_x: NormalParam,
-        normal_param_y: NormalParam,
-    ) -> Self {
+    fn new(normal_x: Normal, normal_y: Normal) -> Self {
         Self {
-            normal_param_x,
-            normal_param_y,
             is_dragging: false,
             prev_drag_x: 0.0,
             prev_drag_y: 0.0,
-            continuous_normal_x: normal_param_x.value.as_f32(),
-            continuous_normal_y: normal_param_y.value.as_f32(),
+            continuous_normal_x: normal_x.as_f32(),
+            continuous_normal_y: normal_y.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
-    }
-
-    /// Set the normalized value of the x axis of the [`XYPad`].
-    pub fn set_normal_x(&mut self, normal: Normal) {
-        self.normal_param_x.value = normal;
-        self.continuous_normal_x = normal.into();
-    }
-
-    /// Set the normalized value of the y axis of the [`XYPad`].
-    pub fn set_normal_y(&mut self, normal: Normal) {
-        self.normal_param_y.value = normal;
-        self.continuous_normal_y = normal.into();
-    }
-
-    /// Get the normalized value of the x axis of the [`XYPad`].
-    pub fn normal_x(&self) -> Normal {
-        self.normal_param_x.value
-    }
-
-    /// Get the normalized value of the y axis of the [`XYPad`].
-    pub fn normal_y(&self) -> Normal {
-        self.normal_param_y.value
-    }
-
-    /// Set the normalized default value of the x axis of the [`XYPad`].
-    pub fn set_default_x(&mut self, normal: Normal) {
-        self.normal_param_x.default = normal;
-    }
-
-    /// Set the normalized default value of the y axis of the [`XYPad`].
-    pub fn set_default_y(&mut self, normal: Normal) {
-        self.normal_param_y.default = normal;
-    }
-
-    /// Get the normalized default value of the x axis of the [`XYPad`].
-    pub fn default_x(&self) -> Normal {
-        self.normal_param_x.default
-    }
-
-    /// Get the normalized default value of the y axis of the [`XYPad`].
-    pub fn default_y(&self) -> Normal {
-        self.normal_param_y.default
-    }
-
-    /// Snap the visible value of the x axis of the [`XYPad`] to the nearest value
-    /// in the integer range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use iced_audio::{xy_pad, IntRange};
-    ///
-    /// let mut state = xy_pad::State::new(Default::default(), Default::default());
-    /// let int_range = IntRange::new(0, 10);
-    ///
-    /// state.snap_visible_x_to(&int_range);
-    ///
-    /// ```
-    pub fn snap_visible_x_to(&mut self, range: &IntRange) {
-        self.normal_param_x.value = range.snapped(self.normal_param_x.value);
-    }
-
-    /// Snap the visible value of the y axis of the [`XYPad`] to the nearest value
-    /// in the integer range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use iced_audio::{xy_pad, IntRange};
-    ///
-    /// let mut state = xy_pad::State::new(Default::default(), Default::default());
-    /// let int_range = IntRange::new(0, 10);
-    ///
-    /// state.snap_visible_y_to(&int_range);
-    ///
-    /// ```
-    pub fn snap_visible_y_to(&mut self, range: &IntRange) {
-        self.normal_param_y.value = range.snapped(self.normal_param_y.value);
-    }
-
-    /// Is the [`XYPad`] currently in the dragging state?
-    ///
-    /// [`XYPad`]: struct.XYPad.html
-    pub fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer>
     for XYPad<'a, Message, Renderer>
 where
+    Message: 'a + Clone,
     Renderer: self::Renderer,
 {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(State::new(
+            self.normal_param_x.value,
+            self.normal_param_y.value,
+        ))
+    }
+
     fn width(&self) -> Length {
         self.size
     }
@@ -258,153 +187,159 @@ where
 
     fn on_event(
         &mut self,
+        state: &mut Tree,
         event: Event,
         layout: Layout<'_>,
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Shell<'_, Message>,
+        shell: &mut Shell<'_, Message>,
     ) -> event::Status {
+        let state = state.state.downcast_mut::<State>();
+
         match event {
-            Event::Mouse(mouse_event) => match mouse_event {
-                mouse::Event::CursorMoved { .. } => {
-                    if self.state.is_dragging {
-                        let bounds_size = {
-                            if layout.bounds().width <= layout.bounds().height {
-                                layout.bounds().width
-                            } else {
-                                layout.bounds().height
-                            }
-                        };
-                        if bounds_size != 0.0 {
-                            let mut movement_x = (cursor_position.x
-                                - self.state.prev_drag_x)
-                                / bounds_size;
-
-                            let mut movement_y = (cursor_position.y
-                                - self.state.prev_drag_y)
-                                / bounds_size;
-
-                            if self
-                                .state
-                                .pressed_modifiers
-                                .contains(self.modifier_keys)
-                            {
-                                movement_x *= self.modifier_scalar;
-                                movement_y *= self.modifier_scalar;
-                            }
-
-                            let normal_x =
-                                self.state.continuous_normal_x + movement_x;
-                            let normal_y =
-                                self.state.continuous_normal_y - movement_y;
-
-                            self.state.prev_drag_x = cursor_position.x;
-                            self.state.prev_drag_y = cursor_position.y;
-
-                            self.state.continuous_normal_x = normal_x;
-                            self.state.normal_param_x.value = normal_x.into();
-
-                            self.state.continuous_normal_y = normal_y;
-                            self.state.normal_param_y.value = normal_y.into();
-
-                            messages.publish((self.on_change)(
-                                self.state.normal_param_x.value,
-                                self.state.normal_param_y.value,
-                            ));
-
-                            return event::Status::Captured;
+            Event::Mouse(mouse::Event::CursorMoved { .. })
+            | Event::Touch(touch::Event::FingerMoved { .. }) => {
+                if state.is_dragging {
+                    let bounds_size = {
+                        if layout.bounds().width <= layout.bounds().height {
+                            layout.bounds().width
+                        } else {
+                            layout.bounds().height
                         }
-                    }
-                }
-                mouse::Event::ButtonPressed(mouse::Button::Left) => {
-                    if layout.bounds().contains(cursor_position) {
-                        let click = mouse::Click::new(
-                            cursor_position,
-                            self.state.last_click,
-                        );
+                    };
+                    if bounds_size != 0.0 {
+                        let mut movement_x = (cursor_position.x
+                            - state.prev_drag_x)
+                            / bounds_size;
 
-                        match click.kind() {
-                            mouse::click::Kind::Single => {
-                                self.state.is_dragging = true;
-                                self.state.prev_drag_x = cursor_position.x;
-                                self.state.prev_drag_y = cursor_position.y;
+                        let mut movement_y = (cursor_position.y
+                            - state.prev_drag_y)
+                            / bounds_size;
 
-                                let bounds_size = {
-                                    if layout.bounds().width
-                                        <= layout.bounds().height
-                                    {
-                                        layout.bounds().width
-                                    } else {
-                                        layout.bounds().height
-                                    }
-                                };
-
-                                let normal_x = (cursor_position.x
-                                    - layout.bounds().x)
-                                    / bounds_size;
-
-                                let normal_y = 1.0
-                                    - ((cursor_position.y - layout.bounds().y)
-                                        / bounds_size);
-
-                                self.state.continuous_normal_x = normal_x;
-                                self.state.normal_param_x.value =
-                                    normal_x.into();
-
-                                self.state.continuous_normal_y = normal_y;
-                                self.state.normal_param_y.value =
-                                    normal_y.into();
-
-                                messages.publish((self.on_change)(
-                                    self.state.normal_param_x.value,
-                                    self.state.normal_param_y.value,
-                                ));
-                            }
-                            _ => {
-                                self.state.is_dragging = false;
-
-                                self.state.normal_param_x.value =
-                                    self.state.normal_param_x.default;
-                                self.state.normal_param_y.value =
-                                    self.state.normal_param_y.default;
-
-                                messages.publish((self.on_change)(
-                                    self.state.normal_param_x.value,
-                                    self.state.normal_param_y.value,
-                                ));
-                            }
+                        if state.pressed_modifiers.contains(self.modifier_keys)
+                        {
+                            movement_x *= self.modifier_scalar;
+                            movement_y *= self.modifier_scalar;
                         }
 
-                        self.state.last_click = Some(click);
+                        let normal_x = state.continuous_normal_x + movement_x;
+                        let normal_y = state.continuous_normal_y - movement_y;
+
+                        state.prev_drag_x = cursor_position.x;
+                        state.prev_drag_y = cursor_position.y;
+
+                        state.continuous_normal_x = normal_x;
+                        self.normal_param_x.value = normal_x.into();
+
+                        state.continuous_normal_y = normal_y;
+                        self.normal_param_y.value = normal_y.into();
+
+                        shell.publish((self.on_change)(
+                            self.normal_param_x.value,
+                            self.normal_param_y.value,
+                        ));
 
                         return event::Status::Captured;
                     }
                 }
-                mouse::Event::ButtonReleased(mouse::Button::Left) => {
-                    self.state.is_dragging = false;
-                    self.state.continuous_normal_x =
-                        self.state.normal_param_x.value.as_f32();
-                    self.state.continuous_normal_y =
-                        self.state.normal_param_y.value.as_f32();
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                if layout.bounds().contains(cursor_position) {
+                    let click =
+                        mouse::Click::new(cursor_position, state.last_click);
+
+                    match click.kind() {
+                        mouse::click::Kind::Single => {
+                            state.is_dragging = true;
+                            state.prev_drag_x = cursor_position.x;
+                            state.prev_drag_y = cursor_position.y;
+                            state.continuous_normal_x =
+                                self.normal_param_x.value.as_f32();
+                            state.continuous_normal_y =
+                                self.normal_param_y.value.as_f32();
+
+                            let bounds_size = {
+                                if layout.bounds().width
+                                    <= layout.bounds().height
+                                {
+                                    layout.bounds().width
+                                } else {
+                                    layout.bounds().height
+                                }
+                            };
+
+                            let normal_x = (cursor_position.x
+                                - layout.bounds().x)
+                                / bounds_size;
+
+                            let normal_y = 1.0
+                                - ((cursor_position.y - layout.bounds().y)
+                                    / bounds_size);
+
+                            state.continuous_normal_x = normal_x;
+                            self.normal_param_x.value = normal_x.into();
+
+                            state.continuous_normal_y = normal_y;
+                            self.normal_param_y.value = normal_y.into();
+
+                            shell.publish((self.on_change)(
+                                self.normal_param_x.value,
+                                self.normal_param_y.value,
+                            ));
+                        }
+                        _ => {
+                            state.is_dragging = false;
+
+                            self.normal_param_x.value =
+                                self.normal_param_x.default;
+                            state.continuous_normal_x =
+                                self.normal_param_x.default.as_f32();
+
+                            self.normal_param_y.value =
+                                self.normal_param_y.default;
+                            state.continuous_normal_y =
+                                self.normal_param_y.default.as_f32();
+
+                            shell.publish((self.on_change)(
+                                self.normal_param_x.value,
+                                self.normal_param_y.value,
+                            ));
+                        }
+                    }
+
+                    state.last_click = Some(click);
 
                     return event::Status::Captured;
                 }
-                _ => {}
-            },
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerLifted { .. })
+            | Event::Touch(touch::Event::FingerLost { .. }) => {
+                if state.is_dragging {
+                    state.is_dragging = false;
+                    state.continuous_normal_x =
+                        self.normal_param_x.value.as_f32();
+                    state.continuous_normal_y =
+                        self.normal_param_y.value.as_f32();
+
+                    return event::Status::Captured;
+                }
+            }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
@@ -418,18 +353,21 @@ where
 
     fn draw(
         &self,
+        state: &Tree,
         renderer: &mut Renderer,
+        _theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
     ) {
+        let state = state.state.downcast_ref::<State>();
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.normal_param_x.value,
-            self.state.normal_param_y.value,
-            self.state.is_dragging,
+            self.normal_param_x.value,
+            self.normal_param_y.value,
+            state.is_dragging,
             &self.style,
         )
     }
@@ -470,8 +408,8 @@ pub trait Renderer: iced_native::Renderer {
 impl<'a, Message, Renderer> From<XYPad<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
+    Message: 'a + Clone,
     Renderer: 'a + self::Renderer,
-    Message: 'a,
 {
     fn from(
         xy_pad: XYPad<'a, Message, Renderer>,

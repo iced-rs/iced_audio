@@ -1,11 +1,12 @@
-use iced::{Alignment, Checkbox, Column, Element, Length, Row, Text};
+use iced::widget::{checkbox, column, container, row, text};
+use iced::{Alignment, Element, Length};
 
 use iced_audio::{
-    h_slider, knob, mod_range_input, v_slider, FloatRange, HSlider, Knob,
-    ModRangeInput, ModulationRange, Normal, VSlider,
+    mod_range_input, FloatRange, HSlider, Knob, ModRangeInput, ModulationRange,
+    Normal, NormalParam, VSlider,
 };
 
-use crate::{style, Step};
+use crate::{style, StepContainer};
 
 /// Unique identifier for each parameter. Note you may also use u32, i32, or
 /// Strings if you wish.
@@ -30,20 +31,20 @@ pub struct ModRanges {
     float_range: FloatRange,
     float_range_bipolar: FloatRange,
 
-    knob_start_state: knob::State,
-    knob_end_state: knob::State,
+    knob_start_param: NormalParam,
+    knob_end_param: NormalParam,
 
-    knob1_state: knob::State,
-    h_slider1_state: h_slider::State,
-    v_slider1_state: v_slider::State,
+    knob1_param: NormalParam,
+    h_slider1_param: NormalParam,
+    v_slider1_param: NormalParam,
     mod_range_1: ModulationRange,
 
-    auto_input1_state: mod_range_input::State,
-    knob_auto1_state: knob::State,
+    auto_input1_param: NormalParam,
+    knob_auto1_param: NormalParam,
     knob_auto1_mod_range: ModulationRange,
 
-    auto_input2_state: mod_range_input::State,
-    knob_auto2_state: knob::State,
+    auto_input2_param: NormalParam,
+    knob_auto2_param: NormalParam,
     knob_auto2_mod_range: ModulationRange,
 
     mod_range_toggle_value: bool,
@@ -65,40 +66,24 @@ impl Default for ModRanges {
             float_range_bipolar,
 
             // initialize the state of the Knob widget
-            knob_start_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-            knob_end_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
+            knob_start_param: float_range.default_normal_param(),
+            knob_end_param: float_range.default_normal_param(),
 
             mod_range_1: ModulationRange::default(),
 
-            knob1_state: knob::State::new(float_range.default_normal_param()),
+            knob1_param: float_range.default_normal_param(),
 
-            h_slider1_state: h_slider::State::new(
-                float_range.default_normal_param(),
-            ),
+            h_slider1_param: float_range.default_normal_param(),
 
-            v_slider1_state: v_slider::State::new(
-                float_range.default_normal_param(),
-            ),
+            v_slider1_param: float_range.default_normal_param(),
 
-            auto_input1_state: mod_range_input::State::new(
-                float_range_bipolar.default_normal_param(),
-            ),
+            auto_input1_param: float_range_bipolar.default_normal_param(),
 
-            knob_auto1_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-            auto_input2_state: mod_range_input::State::new(
-                float_range_bipolar.default_normal_param(),
-            ),
+            knob_auto1_param: float_range.default_normal_param(),
+            auto_input2_param: float_range_bipolar.default_normal_param(),
             knob_auto1_mod_range: ModulationRange::default(),
 
-            knob_auto2_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
+            knob_auto2_param: float_range.default_normal_param(),
             output_text: String::from("Move a widget"),
             knob_auto2_mod_range: ModulationRange::default(),
 
@@ -115,6 +100,8 @@ impl ModRanges {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::RangeStart(normal) => {
+                self.knob_start_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "RangeStart",
                     self.float_range.unmap_to_value(normal),
@@ -123,6 +110,8 @@ impl ModRanges {
                 self.mod_range_1.start = normal;
             }
             Message::RangeEnd(normal) => {
+                self.knob_end_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "RangeEnd",
                     self.float_range.unmap_to_value(normal),
@@ -131,24 +120,32 @@ impl ModRanges {
                 self.mod_range_1.end = normal;
             }
             Message::Knob1(normal) => {
+                self.knob1_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "Knob1",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::HSlider1(normal) => {
+                self.h_slider1_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "HSlider1",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::VSlider1(normal) => {
+                self.v_slider1_param.value = normal;
+
                 self.output_text = crate::info_text_f32(
                     "VSlider1",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::ModKnob1(normal) => {
+                self.knob_auto1_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "ModKnob1",
                     self.float_range.unmap_to_value(normal),
@@ -156,7 +153,7 @@ impl ModRanges {
 
                 let mod_value = self
                     .float_range_bipolar
-                    .unmap_to_value(self.auto_input1_state.normal());
+                    .unmap_to_value(self.auto_input1_param.value);
 
                 self.knob_auto1_mod_range.start = normal;
                 self.knob_auto1_mod_range.end =
@@ -164,16 +161,19 @@ impl ModRanges {
                         .into();
             }
             Message::ModRangeInput1(normal) => {
+                self.auto_input1_param.update(normal);
+
                 let value = self.float_range_bipolar.unmap_to_value(normal);
 
                 self.output_text =
                     crate::info_text_f32("ModRangeInput1", value);
 
                 self.knob_auto1_mod_range.end =
-                    (self.knob_auto1_state.normal_param.value.as_f32() + value)
-                        .into();
+                    (self.knob_auto1_param.value.as_f32() + value).into();
             }
             Message::ModKnob2(normal) => {
+                self.knob_auto2_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "ModKnob2",
                     self.float_range.unmap_to_value(normal),
@@ -181,7 +181,7 @@ impl ModRanges {
 
                 let mod_value = self
                     .float_range_bipolar
-                    .unmap_to_value(self.auto_input2_state.normal());
+                    .unmap_to_value(self.auto_input2_param.value);
 
                 self.knob_auto2_mod_range.start = normal;
                 self.knob_auto2_mod_range.end =
@@ -189,14 +189,15 @@ impl ModRanges {
                         .into();
             }
             Message::ModRangeInput2(normal) => {
+                self.auto_input2_param.update(normal);
+
                 let value = self.float_range_bipolar.unmap_to_value(normal);
 
                 self.output_text =
                     crate::info_text_f32("ModRangeInput1", value);
 
                 self.knob_auto2_mod_range.end =
-                    (self.knob_auto2_state.normal_param.value.as_f32() + value)
-                        .into();
+                    (self.knob_auto2_param.value.as_f32() + value).into();
             }
             Message::ToggleModRange(toggle) => {
                 self.mod_range_toggle_value = toggle;
@@ -208,49 +209,41 @@ impl ModRanges {
         }
     }
 
-    pub fn view(&mut self, _debug: bool) -> Element<Message> {
+    pub fn view(&self, _debug: bool) -> Element<Message> {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
         let knob_start = Knob::new(
-            &mut self.knob_start_state,
+            self.knob_start_param,
             Message::RangeStart,
             || None,
             || None,
         );
 
-        let knob_end = Knob::new(
-            &mut self.knob_end_state,
-            Message::RangeEnd,
-            || None,
-            || None,
-        );
+        let knob_end =
+            Knob::new(self.knob_end_param, Message::RangeEnd, || None, || None);
 
         let knob1 =
-            Knob::new(&mut self.knob1_state, Message::Knob1, || None, || None)
+            Knob::new(self.knob1_param, Message::Knob1, || None, || None)
                 .mod_range(&self.mod_range_1)
                 .style(style::knob::CustomArc);
 
-        let h_slider1 =
-            HSlider::new(&mut self.h_slider1_state, Message::HSlider1)
-                .mod_range(&self.mod_range_1)
-                .style(style::h_slider::RectStyle);
+        let h_slider1 = HSlider::new(self.h_slider1_param, Message::HSlider1)
+            .mod_range(&self.mod_range_1)
+            .style(style::h_slider::RectStyle);
 
-        let v_slider1 =
-            VSlider::new(&mut self.v_slider1_state, Message::VSlider1)
-                .width(Length::from(Length::Units(30)))
-                .mod_range(&self.mod_range_1)
-                .style(style::v_slider::RectStyle);
+        let v_slider1 = VSlider::new(self.v_slider1_param, Message::VSlider1)
+            .width(Length::from(Length::Units(30)))
+            .mod_range(&self.mod_range_1)
+            .style(style::v_slider::RectStyle);
 
-        let auto_input1 = ModRangeInput::new(
-            &mut self.auto_input1_state,
-            Message::ModRangeInput1,
-        )
-        .size(Length::from(10))
-        .style(style::mod_range_input::CustomStyle);
+        let auto_input1 =
+            ModRangeInput::new(self.auto_input1_param, Message::ModRangeInput1)
+                .size(Length::from(10))
+                .style(style::mod_range_input::CustomStyle);
 
         let knob_auto1 = Knob::new(
-            &mut self.knob_auto1_state,
+            self.knob_auto1_param,
             Message::ModKnob1,
             || None,
             || None,
@@ -258,15 +251,13 @@ impl ModRanges {
         .mod_range(&self.knob_auto1_mod_range)
         .style(style::knob::CustomStyleCircle);
 
-        let auto_input2 = ModRangeInput::new(
-            &mut self.auto_input2_state,
-            Message::ModRangeInput2,
-        )
-        .size(Length::from(15))
-        .style(mod_range_input::DefaultInvisible);
+        let auto_input2 =
+            ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
+                .size(Length::from(15))
+                .style(mod_range_input::DefaultInvisible);
 
         let knob_auto2 = Knob::new(
-            &mut self.knob_auto2_state,
+            self.knob_auto2_param,
             Message::ModKnob2,
             || None,
             || None,
@@ -275,64 +266,56 @@ impl ModRanges {
         .style(style::knob::CustomStyleCircle);
 
         // push the widgets into rows
-        let knob_row = Row::new()
-            .spacing(20)
-            .push(
-                Column::new()
+        let knob_row = row![
+            column![
+                text("Range Start"),
+                knob_start,
+                text("Range End"),
+                knob_end,
+                checkbox(
+                    "Show Modulation",
+                    self.mod_range_toggle_value,
+                    Message::ToggleModRange,
+                ),
+            ]
+            .max_width(130)
+            .spacing(10),
+            container(
+                column![knob1, h_slider1, v_slider1]
                     .max_width(130)
-                    .spacing(10)
-                    .push(Text::new("Range Start"))
-                    .push(knob_start)
-                    .push(Text::new("Range End"))
-                    .push(knob_end)
-                    .push(Checkbox::new(
-                        self.mod_range_toggle_value,
-                        "Show Modulation",
-                        Message::ToggleModRange,
-                    )),
-            )
-            .push(
-                Column::new()
-                    .max_width(130)
-                    .max_height(250)
                     .align_items(Alignment::Center)
                     .spacing(20)
-                    .push(knob1)
-                    .push(h_slider1)
-                    .push(v_slider1),
             )
-            .push(
-                Column::new()
-                    .width(Length::Fill)
-                    .spacing(10)
-                    .push(
-                        Column::new()
-                            .width(Length::Fill)
-                            .spacing(14)
-                            .align_items(Alignment::Center)
-                            .push(Text::new("Custom Style with ModRangeInput"))
-                            .push(auto_input1)
-                            .push(knob_auto1),
-                    )
-                    .push(
-                        Column::new()
-                            .width(Length::Fill)
-                            .spacing(0)
-                            .align_items(Alignment::Center)
-                            .push(Text::new(
-                                "Custom Style with invisible ModRangeInput",
-                            ))
-                            .push(auto_input2)
-                            .push(knob_auto2),
-                    ),
-            );
+            .max_height(250),
+            column![
+                column![
+                    text("Custom Style with ModRangeInput"),
+                    auto_input1,
+                    knob_auto1,
+                ]
+                .width(Length::Fill)
+                .spacing(14)
+                .align_items(Alignment::Center),
+                column![
+                    text("Custom Style with invisible ModRangeInput",),
+                    auto_input2,
+                    knob_auto2,
+                ]
+                .width(Length::Fill)
+                .spacing(0)
+                .align_items(Alignment::Center)
+            ]
+            .width(Length::Fill)
+            .spacing(10),
+        ]
+        .spacing(20);
 
-        let content = Column::new()
+        let content = column![knob_row, text(&self.output_text).size(16)]
             .spacing(20)
-            .padding(20)
-            .push(knob_row)
-            .push(Text::new(&self.output_text).size(16));
+            .padding(20);
 
-        Step::container("Modulation Ranges").push(content).into()
+        StepContainer::<Self, _, _>::new("Modulation Ranges")
+            .push(content)
+            .into()
     }
 }

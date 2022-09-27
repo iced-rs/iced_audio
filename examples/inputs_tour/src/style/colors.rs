@@ -1,5 +1,6 @@
 use iced::Color;
 
+/* FIXME commented out due to new style handling in iced.
 pub const BUTTON_PRIMARY: Color = Color::from_rgb(
     0x32 as f32 / 255.0,
     0x80 as f32 / 255.0,
@@ -11,6 +12,7 @@ pub const BUTTON_SECONDARY: Color = Color::from_rgb(
     0x69 as f32 / 255.0,
     0x73 as f32 / 255.0,
 );
+*/
 
 pub const EMPTY: Color = Color::from_rgb(
     0x42 as f32 / 255.0,

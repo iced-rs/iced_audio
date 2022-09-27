@@ -1,4 +1,5 @@
-use iced_graphics::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
+use iced::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
+use iced_graphics::triangle;
 use iced_graphics::Primitive;
 use iced_native::{Color, Point, Size, Vector};
 
@@ -17,11 +18,6 @@ fn draw_radial_circles(
     radius: f32,
     inverse: bool,
 ) {
-    let fill = Fill {
-        color,
-        ..Fill::default()
-    };
-
     let path = Path::circle(Point::new(0.0, -offset_radius), radius);
 
     if inverse {
@@ -33,7 +29,13 @@ fn draw_radial_circles(
                     frame.rotate(angle);
                 }
 
-                frame.fill(&path, fill);
+                frame.fill(
+                    &path,
+                    Fill {
+                        style: triangle::Style::Solid(color),
+                        ..Fill::default()
+                    },
+                );
             });
         }
     } else {
@@ -45,7 +47,13 @@ fn draw_radial_circles(
                     frame.rotate(angle);
                 }
 
-                frame.fill(&path, fill);
+                frame.fill(
+                    &path,
+                    Fill {
+                        style: triangle::Style::Solid(color),
+                        ..Fill::default()
+                    },
+                );
             });
         }
     }
@@ -62,13 +70,6 @@ fn draw_radial_lines(
     length: f32,
     inverse: bool,
 ) {
-    let stroke = Stroke {
-        width,
-        color,
-        line_cap: LineCap::Butt,
-        ..Stroke::default()
-    };
-
     let path = Path::line(
         Point::new(0.0, -offset_radius),
         Point::new(0.0, -offset_radius - length),
@@ -83,7 +84,15 @@ fn draw_radial_lines(
                     frame.rotate(angle);
                 }
 
-                frame.stroke(&path, stroke);
+                frame.stroke(
+                    &path,
+                    Stroke {
+                        width,
+                        style: triangle::Style::Solid(color),
+                        line_cap: LineCap::Butt,
+                        ..Stroke::default()
+                    },
+                );
             });
         }
     } else {
@@ -95,7 +104,15 @@ fn draw_radial_lines(
                     frame.rotate(angle);
                 }
 
-                frame.stroke(&path, stroke);
+                frame.stroke(
+                    &path,
+                    Stroke {
+                        width,
+                        style: triangle::Style::Solid(color),
+                        line_cap: LineCap::Butt,
+                        ..Stroke::default()
+                    },
+                );
             });
         }
     }

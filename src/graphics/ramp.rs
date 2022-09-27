@@ -5,11 +5,13 @@
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced_graphics::widget::canvas::{Frame, LineCap, Path, Stroke};
-use iced_graphics::{Backend, Primitive, Renderer};
-use iced_native::{Background, Point, Rectangle, Size, Vector};
+use iced::widget::canvas::{Frame, LineCap, Path, Stroke};
+use iced::Renderer;
+use iced::{Background, Point, Rectangle, Size, Vector};
+use iced_graphics::triangle;
+use iced_graphics::Primitive;
 
-pub use crate::native::ramp::{RampDirection, State};
+pub use crate::native::ramp::RampDirection;
 pub use crate::style::ramp::{Style, StyleSheet};
 
 /// A ramp GUI widget that controls a [`Param`]. It is usually used to
@@ -17,10 +19,9 @@ pub use crate::style::ramp::{Style, StyleSheet};
 ///
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`Ramp`]: struct.Ramp.html
-pub type Ramp<'a, Message, Backend> =
-    ramp::Ramp<'a, Message, Renderer<Backend>>;
+pub type Ramp<Message, Theme> = ramp::Ramp<Message, Renderer<Theme>>;
 
-impl<B: Backend> ramp::Renderer for Renderer<B> {
+impl<Theme> ramp::Renderer for Renderer<Theme> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(
@@ -73,7 +74,9 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_down_color,
+                            style: triangle::Style::Solid(
+                                style.line_down_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -106,7 +109,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_up_color,
+                            style: triangle::Style::Solid(style.line_up_color),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -142,7 +145,9 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_center_color,
+                            style: triangle::Style::Solid(
+                                style.line_center_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -178,7 +183,9 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_down_color,
+                            style: triangle::Style::Solid(
+                                style.line_down_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -214,7 +221,7 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_up_color,
+                            style: triangle::Style::Solid(style.line_up_color),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -250,7 +257,9 @@ impl<B: Backend> ramp::Renderer for Renderer<B> {
                     } else {
                         let stroke = Stroke {
                             width: style.line_width as f32,
-                            color: style.line_center_color,
+                            style: triangle::Style::Solid(
+                                style.line_center_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };

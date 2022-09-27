@@ -4,10 +4,10 @@
 
 use crate::native::mod_range_input;
 
-use iced_graphics::{Backend, Primitive, Renderer};
+use iced::Renderer;
+use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle};
 
-pub use crate::native::mod_range_input::State;
 pub use crate::style::mod_range_input::{
     CircleStyle, DefaultInvisible, SquareStyle, Style, StyleSheet,
 };
@@ -15,10 +15,10 @@ pub use crate::style::mod_range_input::{
 /// An interactive dot that controls an [`Param`]
 ///
 /// [`Param`]: ../core/param/struct.Param.html
-pub type ModRangeInput<'a, Message, Backend> =
-    mod_range_input::ModRangeInput<'a, Message, Renderer<Backend>>;
+pub type ModRangeInput<'a, Message, Theme> =
+    mod_range_input::ModRangeInput<'a, Message, Renderer<Theme>>;
 
-impl<B: Backend> mod_range_input::Renderer for Renderer<B> {
+impl<Theme> mod_range_input::Renderer for Renderer<Theme> {
     type Style = Box<dyn StyleSheet>;
 
     fn draw(

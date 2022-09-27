@@ -1,10 +1,11 @@
-//! `iced_graphics` renderer for tick marks
+//! `iced` renderer for tick marks
 
 use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
 use crate::style::tick_marks::{Placement, Shape, Style};
-use iced_graphics::{Background, Color, Primitive, Rectangle};
+use iced::{Background, Color, Rectangle};
+use iced_graphics::Primitive;
 
 fn draw_vertical_lines(
     primitives: &mut Vec<Primitive>,

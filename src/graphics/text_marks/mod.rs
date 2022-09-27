@@ -1,6 +1,7 @@
 //! Structs for constructing a group of text marks.
 
 use iced_native::{Point, Rectangle};
+
 use std::cell::RefCell;
 use std::sync::Arc;
 

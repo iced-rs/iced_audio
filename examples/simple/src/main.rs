@@ -1,11 +1,10 @@
 // Import iced modules.
-use iced::{
-    Alignment, Column, Container, Element, Length, Sandbox, Settings, Text,
-};
+use iced::widget::{column, container, text};
+use iced::{Alignment, Element, Length, Sandbox, Settings};
 // Import iced_audio modules.
 use iced_audio::{
-    h_slider, knob, tick_marks, v_slider, xy_pad, FloatRange, FreqRange,
-    HSlider, IntRange, Knob, LogDBRange, Normal, VSlider, XYPad,
+    tick_marks, FloatRange, FreqRange, HSlider, IntRange, Knob, LogDBRange,
+    Normal, NormalParam, VSlider, XYPad,
 };
 
 // The message when a parameter widget is moved by the user
@@ -41,10 +40,11 @@ pub struct App {
     freq_range: FreqRange,
 
     // The states of the widgets that will control the parameters.
-    h_slider_state: h_slider::State,
-    v_slider_state: v_slider::State,
-    knob_state: knob::State,
-    xy_pad_state: xy_pad::State,
+    h_slider_param: NormalParam,
+    v_slider_param: NormalParam,
+    knob_param: NormalParam,
+    xy_pad_x_param: NormalParam,
+    xy_pad_y_param: NormalParam,
 
     // A group of tick marks with their size and position.
     center_tick_mark: tick_marks::Group,
@@ -71,17 +71,11 @@ impl Sandbox for App {
 
             // Initialize the state of the widgets with a normalized parameter
             // that has a value and a default value.
-            h_slider_state: h_slider::State::new(int_range.normal_param(5, 5)),
-            v_slider_state: v_slider::State::new(
-                db_range.default_normal_param(),
-            ),
-            knob_state: knob::State::new(
-                freq_range.normal_param(1000.0, 1000.0),
-            ),
-            xy_pad_state: xy_pad::State::new(
-                float_range.default_normal_param(),
-                float_range.default_normal_param(),
-            ),
+            h_slider_param: int_range.normal_param(5, 5),
+            v_slider_param: db_range.default_normal_param(),
+            knob_param: freq_range.normal_param(1000.0, 1000.0),
+            xy_pad_x_param: float_range.default_normal_param(),
+            xy_pad_y_param: float_range.default_normal_param(),
 
             // Add a tick mark at the center position with the tier 2 size
             center_tick_mark: tick_marks::Group::center(tick_marks::Tier::Two),
@@ -102,20 +96,27 @@ impl Sandbox for App {
             // Now do something useful with that value!
             Message::HSliderInt(normal) => {
                 // Integer parameters must be snapped to make the widget "step" when moved.
-                self.h_slider_state.snap_visible_to(&self.int_range);
+                self.h_slider_param.update(self.int_range.snapped(normal));
 
                 let value = self.int_range.unmap_to_value(normal);
                 self.output_text = format!("HSliderInt: {}", value);
             }
             Message::VSliderDB(normal) => {
+                self.v_slider_param.update(normal);
+
                 let value = self.db_range.unmap_to_value(normal);
                 self.output_text = format!("VSliderDB: {:.3}", value);
             }
             Message::KnobFreq(normal) => {
+                self.knob_param.update(normal);
+
                 let value = self.freq_range.unmap_to_value(normal);
                 self.output_text = format!("KnobFreq: {:.2}", value);
             }
             Message::XYPadFloat(normal_x, normal_y) => {
+                self.xy_pad_x_param.update(normal_x);
+                self.xy_pad_y_param.update(normal_y);
+
                 let value_x = self.float_range.unmap_to_value(normal_x);
                 let value_y = self.float_range.unmap_to_value(normal_y);
                 self.output_text =
@@ -124,45 +125,41 @@ impl Sandbox for App {
         }
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         // Create each parameter widget, passing in the current state of the widget.
         let h_slider_widget =
-            HSlider::new(&mut self.h_slider_state, Message::HSliderInt)
+            HSlider::new(self.h_slider_param, Message::HSliderInt)
                 // Add the tick mark group to this widget.
                 .tick_marks(&self.center_tick_mark);
 
         let v_slider_widget =
-            VSlider::new(&mut self.v_slider_state, Message::VSliderDB)
+            VSlider::new(self.v_slider_param, Message::VSliderDB)
                 .tick_marks(&self.center_tick_mark);
 
-        let knob_widget = Knob::new(
-            &mut self.knob_state,
-            Message::KnobFreq,
-            || None,
-            || None,
+        let knob_widget =
+            Knob::new(self.knob_param, Message::KnobFreq, || None, || None);
+
+        let xy_pad_widget = XYPad::new(
+            self.xy_pad_x_param,
+            self.xy_pad_y_param,
+            Message::XYPadFloat,
         );
 
-        let xy_pad_widget =
-            XYPad::new(&mut self.xy_pad_state, Message::XYPadFloat);
-
         // Push the widgets into the iced DOM
-        let content: Element<_> = Column::new()
-            .max_width(300)
-            .max_height(500)
-            .spacing(20)
-            .padding(20)
-            .align_items(Alignment::Center)
-            .push(h_slider_widget)
-            .push(v_slider_widget)
-            .push(knob_widget)
-            .push(xy_pad_widget)
-            .push(
-                Container::new(Text::new(&self.output_text))
-                    .width(Length::Fill),
-            )
-            .into();
+        let content = column![
+            h_slider_widget,
+            v_slider_widget,
+            knob_widget,
+            xy_pad_widget,
+            container(text(&self.output_text)).width(Length::Fill),
+        ]
+        .max_width(300)
+        .spacing(20)
+        .padding(20)
+        .align_items(Alignment::Center);
 
-        Container::new(content)
+        container(content)
+            .max_height(500)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()

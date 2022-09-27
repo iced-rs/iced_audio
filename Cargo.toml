@@ -25,9 +25,7 @@ members = [
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dev-dependencies]
-iced = { version = "0.4", features = ["canvas"] }
-
 [dependencies]
-iced_native = "0.5"
-iced_graphics = { version = "0.3", features = ["canvas"] }
+iced = { version = "0.5.2", features = ["canvas"] }
+iced_graphics = "0.4.0"
+iced_native = "0.6.1"

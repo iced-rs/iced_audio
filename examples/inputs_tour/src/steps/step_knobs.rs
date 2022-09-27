@@ -1,11 +1,12 @@
-use iced::{Column, Element, Length, Row, Text};
+use iced::widget::{column, row, text};
+use iced::{Element, Length};
 
 use iced_audio::{
-    knob, text_marks, tick_marks, FloatRange, FreqRange, IntRange, Knob,
-    LogDBRange, Normal,
+    text_marks, tick_marks, FloatRange, FreqRange, IntRange, Knob, LogDBRange,
+    Normal, NormalParam,
 };
 
-use crate::{style, Step};
+use crate::{style, StepContainer};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -26,15 +27,15 @@ pub struct KnobStep {
     db_range: LogDBRange,
     freq_range: FreqRange,
 
-    knob_float_state: knob::State,
-    knob_int_state: knob::State,
-    knob_db_state: knob::State,
-    knob_freq_state: knob::State,
-    knob_style1_state: knob::State,
-    knob_style2_state: knob::State,
-    knob_style3_state: knob::State,
-    knob_style4_state: knob::State,
-    knob_style5_state: knob::State,
+    knob_float_param: NormalParam,
+    knob_int_param: NormalParam,
+    knob_db_param: NormalParam,
+    knob_freq_param: NormalParam,
+    knob_style1_param: NormalParam,
+    knob_style2_param: NormalParam,
+    knob_style3_param: NormalParam,
+    knob_style4_param: NormalParam,
+    knob_style5_param: NormalParam,
 
     float_tick_marks: tick_marks::Group,
     int_tick_marks: tick_marks::Group,
@@ -67,37 +68,15 @@ impl Default for KnobStep {
             freq_range,
 
             // initialize the state of the Knob widget
-            knob_float_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-
-            knob_int_state: knob::State::new(int_range.default_normal_param()),
-
-            knob_db_state: knob::State::new(db_range.default_normal_param()),
-
-            knob_freq_state: knob::State::new(
-                freq_range.normal_param(1000.0, 1000.0),
-            ),
-
-            knob_style1_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-
-            knob_style2_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-
-            knob_style3_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-
-            knob_style4_state: knob::State::new(
-                float_range.default_normal_param(),
-            ),
-
-            knob_style5_state: knob::State::new(
-                float_range.normal_param(-0.6, -0.6),
-            ),
+            knob_float_param: float_range.default_normal_param(),
+            knob_int_param: int_range.default_normal_param(),
+            knob_db_param: db_range.default_normal_param(),
+            knob_freq_param: freq_range.normal_param(1000.0, 1000.0),
+            knob_style1_param: float_range.default_normal_param(),
+            knob_style2_param: float_range.default_normal_param(),
+            knob_style3_param: float_range.default_normal_param(),
+            knob_style4_param: float_range.default_normal_param(),
+            knob_style5_param: float_range.normal_param(-0.6, -0.6),
 
             float_tick_marks: tick_marks::Group::subdivided(
                 1,
@@ -167,6 +146,8 @@ impl KnobStep {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::Float(normal) => {
+                self.knob_float_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobFloat",
                     self.float_range.unmap_to_value(normal),
@@ -174,7 +155,7 @@ impl KnobStep {
             }
             Message::Int(normal) => {
                 // Integer parameters must be snapped to make the widget "step" when moved.
-                self.knob_int_state.snap_visible_to(&self.int_range);
+                self.knob_int_param.update(self.int_range.snapped(normal));
 
                 self.output_text = crate::info_text_i32(
                     "KnobInt",
@@ -182,42 +163,56 @@ impl KnobStep {
                 );
             }
             Message::DB(normal) => {
+                self.knob_db_param.update(normal);
+
                 self.output_text = crate::info_text_db(
                     "KnobDB",
                     self.db_range.unmap_to_value(normal),
                 );
             }
             Message::Freq(normal) => {
+                self.knob_freq_param.update(normal);
+
                 self.output_text = crate::info_text_freq(
                     "KnobFreq",
                     self.freq_range.unmap_to_value(normal),
                 );
             }
             Message::Style1(normal) => {
+                self.knob_style1_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobStyle1",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::Style2(normal) => {
+                self.knob_style2_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobStyle2",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::Style3(normal) => {
+                self.knob_style3_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobStyle3",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::Style4(normal) => {
+                self.knob_style4_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobStyle4",
                     self.float_range.unmap_to_value(normal),
                 );
             }
             Message::Style5(normal) => {
+                self.knob_style5_param.update(normal);
+
                 self.output_text = crate::info_text_f32(
                     "KnobStyle5",
                     self.float_range.unmap_to_value(normal),
@@ -226,40 +221,32 @@ impl KnobStep {
         }
     }
 
-    pub fn view(&mut self, _debug: bool) -> Element<Message> {
+    pub fn view(&self, _debug: bool) -> Element<Message> {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_float = Knob::new(
-            &mut self.knob_float_state,
-            Message::Float,
-            || None,
-            || None,
-        )
-        .tick_marks(&self.float_tick_marks)
-        .text_marks(&self.float_text_marks);
+        let knob_float =
+            Knob::new(self.knob_float_param, Message::Float, || None, || None)
+                .tick_marks(&self.float_tick_marks)
+                .text_marks(&self.float_text_marks);
 
         let knob_int =
-            Knob::new(&mut self.knob_int_state, Message::Int, || None, || None)
+            Knob::new(self.knob_int_param, Message::Int, || None, || None)
                 .tick_marks(&self.int_tick_marks)
                 .text_marks(&self.int_text_marks);
 
         let knob_db =
-            Knob::new(&mut self.knob_db_state, Message::DB, || None, || None)
+            Knob::new(self.knob_db_param, Message::DB, || None, || None)
                 .tick_marks(&self.db_tick_marks)
                 .text_marks(&self.db_text_marks);
 
-        let knob_freq = Knob::new(
-            &mut self.knob_freq_state,
-            Message::Freq,
-            || None,
-            || None,
-        )
-        .tick_marks(&self.freq_tick_marks)
-        .text_marks(&self.freq_text_marks);
+        let knob_freq =
+            Knob::new(self.knob_freq_param, Message::Freq, || None, || None)
+                .tick_marks(&self.freq_tick_marks)
+                .text_marks(&self.freq_text_marks);
 
         let knob_style1 = Knob::new(
-            &mut self.knob_style1_state,
+            self.knob_style1_param,
             Message::Style1,
             || None,
             || None,
@@ -268,7 +255,7 @@ impl KnobStep {
         .text_marks(&self.float_text_marks);
 
         let knob_style2 = Knob::new(
-            &mut self.knob_style2_state,
+            self.knob_style2_param,
             Message::Style2,
             || None,
             || None,
@@ -276,7 +263,7 @@ impl KnobStep {
         .style(style::knob::CustomStyleLine);
 
         let knob_style3 = Knob::new(
-            &mut self.knob_style3_state,
+            self.knob_style3_param,
             Message::Style3,
             || None,
             || None,
@@ -284,7 +271,7 @@ impl KnobStep {
         .style(style::knob::CustomArc);
 
         let knob_style4 = Knob::new(
-            &mut self.knob_style4_state,
+            self.knob_style4_param,
             Message::Style4,
             || None,
             || None,
@@ -292,7 +279,7 @@ impl KnobStep {
         .style(style::knob::CustomArcBipolar);
 
         let knob_style5 = Knob::new(
-            &mut self.knob_style5_state,
+            self.knob_style5_param,
             Message::Style5,
             || None,
             || None,
@@ -301,48 +288,46 @@ impl KnobStep {
         .style(style::knob::CustomArcBipolar);
 
         // push the widgets into rows
-        let knob_row = Row::new()
+        let knob_row = row![
+            column![
+                text("Float Range"),
+                knob_float,
+                text("Log DB Range"),
+                knob_db,
+                text("Custom Style 1"),
+                knob_style1,
+            ]
+            .width(Length::Fill)
+            .spacing(20),
+            column![
+                text("Int Range"),
+                knob_int,
+                text("Freq Range"),
+                knob_freq,
+                text("Custom Style 2"),
+                knob_style2,
+            ]
+            .width(Length::Fill)
+            .spacing(20),
+            column![
+                text("Custom Style 3"),
+                knob_style3,
+                text("Custom Bipolar Style 4"),
+                knob_style4,
+                text("Custom Bipolar Style 5 (Off-Center)"),
+                knob_style5,
+            ]
+            .width(Length::Fill)
             .spacing(20)
-            .push(
-                Column::new()
-                    .width(Length::Fill)
-                    .spacing(20)
-                    .push(Text::new("Float Range"))
-                    .push(knob_float)
-                    .push(Text::new("Log DB Range"))
-                    .push(knob_db)
-                    .push(Text::new("Custom Style 1"))
-                    .push(knob_style1),
-            )
-            .push(
-                Column::new()
-                    .width(Length::Fill)
-                    .spacing(20)
-                    .push(Text::new("Int Range"))
-                    .push(knob_int)
-                    .push(Text::new("Freq Range"))
-                    .push(knob_freq)
-                    .push(Text::new("Custom Style 2"))
-                    .push(knob_style2),
-            )
-            .push(
-                Column::new()
-                    .width(Length::Fill)
-                    .spacing(20)
-                    .push(Text::new("Custom Style 3"))
-                    .push(knob_style3)
-                    .push(Text::new("Custom Bipolar Style 4"))
-                    .push(knob_style4)
-                    .push(Text::new("Custom Bipolar Style 5 (Off-Center)"))
-                    .push(knob_style5),
-            );
+        ]
+        .spacing(20);
 
-        let content = Column::new()
+        let content = column![knob_row, text(&self.output_text).size(16)]
             .spacing(20)
-            .padding(20)
-            .push(knob_row)
-            .push(Text::new(&self.output_text).size(16));
+            .padding(20);
 
-        Step::container("Knobs").push(content).into()
+        StepContainer::<Self, _, _>::new("Knobs")
+            .push(content)
+            .into()
     }
 }

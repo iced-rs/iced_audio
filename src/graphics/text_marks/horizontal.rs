@@ -2,9 +2,8 @@ use super::PrimitiveCache;
 use crate::native::text_marks;
 use crate::style::text_marks::{Align, Placement, Style};
 
-use iced_graphics::{
-    alignment::Horizontal, alignment::Vertical, Primitive, Rectangle,
-};
+use iced::{alignment::Horizontal, alignment::Vertical, Rectangle};
+use iced_graphics::Primitive;
 
 fn draw_aligned(
     primitives: &mut Vec<Primitive>,
