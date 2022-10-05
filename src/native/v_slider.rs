@@ -200,6 +200,10 @@ where
         shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
     ) {
+        if normal_delta.abs() < f32::EPSILON {
+            return;
+        }
+
         if state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
@@ -297,14 +301,18 @@ where
             Event::Mouse(mouse::Event::CursorMoved { .. })
             | Event::Touch(touch::Event::FingerMoved { .. }) => {
                 if state.is_dragging {
-                    let bounds_height = layout.bounds().height;
-                    if bounds_height > 0.0 {
+                    let bounds = layout.bounds();
+                    if bounds.height > 0.0 {
                         let normal_delta = (cursor_position.y
                             - state.prev_drag_y)
-                            / bounds_height
+                            / bounds.height
                             * self.scalar;
 
-                        state.prev_drag_y = cursor_position.y;
+                        state.prev_drag_y = if cursor_position.y <= bounds.y {
+                            bounds.y
+                        } else {
+                            cursor_position.y.min(bounds.y + bounds.height)
+                        };
 
                         self.move_virtual_slider(state, shell, normal_delta);
 

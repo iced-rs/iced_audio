@@ -176,6 +176,10 @@ where
         shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
     ) {
+        if normal_delta.abs() < f32::EPSILON {
+            return;
+        }
+
         if state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
