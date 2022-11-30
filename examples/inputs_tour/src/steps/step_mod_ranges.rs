@@ -213,20 +213,13 @@ impl ModRanges {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_start = Knob::new(
-            self.knob_start_param,
-            Message::RangeStart,
-            || None,
-            || None,
-        );
+        let knob_start = Knob::new(self.knob_start_param, Message::RangeStart);
 
-        let knob_end =
-            Knob::new(self.knob_end_param, Message::RangeEnd, || None, || None);
+        let knob_end = Knob::new(self.knob_end_param, Message::RangeEnd);
 
-        let knob1 =
-            Knob::new(self.knob1_param, Message::Knob1, || None, || None)
-                .mod_range(&self.mod_range_1)
-                .style(style::knob::CustomArc);
+        let knob1 = Knob::new(self.knob1_param, Message::Knob1)
+            .mod_range(&self.mod_range_1)
+            .style(style::knob::CustomArc);
 
         let h_slider1 = HSlider::new(self.h_slider1_param, Message::HSlider1)
             .mod_range(&self.mod_range_1)
@@ -242,28 +235,18 @@ impl ModRanges {
                 .size(Length::from(10))
                 .style(style::mod_range_input::CustomStyle);
 
-        let knob_auto1 = Knob::new(
-            self.knob_auto1_param,
-            Message::ModKnob1,
-            || None,
-            || None,
-        )
-        .mod_range(&self.knob_auto1_mod_range)
-        .style(style::knob::CustomStyleCircle);
+        let knob_auto1 = Knob::new(self.knob_auto1_param, Message::ModKnob1)
+            .mod_range(&self.knob_auto1_mod_range)
+            .style(style::knob::CustomStyleCircle);
 
         let auto_input2 =
             ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
                 .size(Length::from(15))
                 .style(theme::ModRangeInput::Invisible);
 
-        let knob_auto2 = Knob::new(
-            self.knob_auto2_param,
-            Message::ModKnob2,
-            || None,
-            || None,
-        )
-        .mod_range(&self.knob_auto2_mod_range)
-        .style(style::knob::CustomStyleCircle);
+        let knob_auto2 = Knob::new(self.knob_auto2_param, Message::ModKnob2)
+            .mod_range(&self.knob_auto2_mod_range)
+            .style(style::knob::CustomStyleCircle);
 
         // push the widgets into rows
         let knob_row = row![

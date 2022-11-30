@@ -136,8 +136,7 @@ impl Sandbox for App {
             VSlider::new(self.v_slider_param, Message::VSliderDB)
                 .tick_marks(&self.center_tick_mark);
 
-        let knob_widget =
-            Knob::new(self.knob_param, Message::KnobFreq, || None, || None);
+        let knob_widget = Knob::new(self.knob_param, Message::KnobFreq);
 
         let xy_pad_widget = XYPad::new(
             self.xy_pad_x_param,

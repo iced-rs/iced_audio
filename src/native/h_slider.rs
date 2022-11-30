@@ -11,7 +11,7 @@ use iced_native::{
 };
 
 use crate::core::{ModulationRange, Normal, NormalParam};
-use crate::native::{text_marks, tick_marks};
+use crate::native::{text_marks, tick_marks, VirtualSliderStatus};
 use crate::style::h_slider::StyleSheet;
 
 static DEFAULT_HEIGHT: u16 = 14;
@@ -33,6 +33,7 @@ where
 {
     normal_param: NormalParam,
     on_change: Box<dyn 'a + Fn(Normal) -> Message>,
+    on_release: Option<Message>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -67,6 +68,7 @@ where
         HSlider {
             normal_param,
             on_change: Box::new(on_change),
+            on_release: None,
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
@@ -79,6 +81,17 @@ where
             mod_range_1: None,
             mod_range_2: None,
         }
+    }
+
+    /// Sets the release message of the [`HSlider`].
+    /// This is called when the mouse is released from the slider.
+    ///
+    /// Typically, the user's interaction with the slider is finished when this message is produced.
+    /// This is useful if you need to spawn a long-running task from the slider's result, where
+    /// the default on_change message could create too many events.
+    pub fn on_release(mut self, on_release: Message) -> Self {
+        self.on_release = Some(on_release);
+        self
     }
 
     /// Sets the width of the [`HSlider`].
@@ -210,9 +223,9 @@ where
         state: &mut State,
         shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
-    ) {
+    ) -> VirtualSliderStatus {
         if normal_delta.abs() < f32::EPSILON {
-            return;
+            return VirtualSliderStatus::Unchanged;
         }
 
         if state.pressed_modifiers.contains(self.modifier_keys) {
@@ -224,6 +237,8 @@ where
         state.continuous_normal = self.normal_param.value.as_f32();
 
         shell.publish((self.on_change)(self.normal_param.value));
+
+        VirtualSliderStatus::Moved
     }
 }
 
@@ -232,7 +247,7 @@ where
 /// [`HSlider`]: struct.HSlider.html
 #[derive(Debug, Clone)]
 struct State {
-    is_dragging: bool,
+    dragging_status: Option<VirtualSliderStatus>,
     prev_drag_x: f32,
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
@@ -251,7 +266,7 @@ impl State {
     /// [`HSlider`]: struct.HSlider.html
     fn new(normal: Normal) -> Self {
         Self {
-            is_dragging: false,
+            dragging_status: None,
             prev_drag_x: 0.0,
             continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
@@ -312,7 +327,7 @@ where
         match event {
             Event::Mouse(mouse::Event::CursorMoved { .. })
             | Event::Touch(touch::Event::FingerMoved { .. }) => {
-                if state.is_dragging {
+                if state.dragging_status.is_some() {
                     let bounds = layout.bounds();
                     if bounds.width > 0.0 {
                         let normal_delta = (cursor_position.x
@@ -326,7 +341,16 @@ where
                             cursor_position.x.min(bounds.x + bounds.width)
                         };
 
-                        self.move_virtual_slider(state, shell, normal_delta);
+                        let slider_status = self.move_virtual_slider(
+                            state,
+                            shell,
+                            normal_delta,
+                        );
+                        state
+                            .dragging_status
+                            .as_mut()
+                            .expect("dragging_status taken")
+                            .update_with(slider_status);
 
                         return event::Status::Captured;
                     }
@@ -358,7 +382,14 @@ where
                     if lines != 0.0 {
                         let normal_delta = -lines * self.wheel_scalar;
 
-                        self.move_virtual_slider(state, shell, normal_delta);
+                        if self
+                            .move_virtual_slider(state, shell, normal_delta)
+                            .was_moved()
+                        {
+                            if let Some(on_release) = self.on_release.clone() {
+                                shell.publish(on_release);
+                            }
+                        }
 
                         return event::Status::Captured;
                     }
@@ -372,13 +403,13 @@ where
 
                     match click.kind() {
                         mouse::click::Kind::Single => {
-                            state.is_dragging = true;
+                            state.dragging_status = Some(Default::default());
                             state.prev_drag_x = cursor_position.x;
                             state.continuous_normal =
                                 self.normal_param.value.as_f32();
                         }
                         _ => {
-                            state.is_dragging = false;
+                            state.dragging_status = None;
 
                             self.normal_param.value = self.normal_param.default;
                             state.continuous_normal =
@@ -387,6 +418,10 @@ where
                             shell.publish((self.on_change)(
                                 self.normal_param.value,
                             ));
+
+                            if let Some(on_release) = self.on_release.clone() {
+                                shell.publish(on_release);
+                            }
                         }
                     }
 
@@ -398,8 +433,13 @@ where
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if state.is_dragging {
-                    state.is_dragging = false;
+                if let Some(slider_status) = state.dragging_status.take() {
+                    if slider_status.was_moved() {
+                        if let Some(on_release) = self.on_release.clone() {
+                            shell.publish(on_release);
+                        }
+                    }
+
                     state.continuous_normal = self.normal_param.value.as_f32();
 
                     return event::Status::Captured;
@@ -444,7 +484,7 @@ where
             layout.bounds(),
             cursor_position,
             self.normal_param.value,
-            state.is_dragging,
+            state.dragging_status.is_some(),
             self.mod_range_1,
             self.mod_range_2,
             self.tick_marks,
@@ -485,7 +525,7 @@ where
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
-        is_dragging: bool,
+        dragging_status: bool,
         mod_range_1: Option<&ModulationRange>,
         mod_range_2: Option<&ModulationRange>,
         tick_marks: Option<&tick_marks::Group>,

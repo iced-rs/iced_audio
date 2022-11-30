@@ -21,3 +21,30 @@ pub use ramp::Ramp;
 pub use v_slider::VSlider;
 #[doc(no_inline)]
 pub use xy_pad::XYPad;
+
+/// Moved status for the virtual sliders.
+///
+/// This allows tracking the virtual slider actual movements
+/// thus preventing some events from unnecessary being emitted.
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
+pub(crate) enum VirtualSliderStatus {
+    Moved,
+    #[default]
+    Unchanged,
+}
+
+impl VirtualSliderStatus {
+    /// Updates current value with the provided `update`.
+    ///
+    /// Doesn't change `self` if `update` is `Unchanged`.
+    pub(crate) fn update_with(&mut self, update: Self) {
+        if matches!(update, VirtualSliderStatus::Moved) {
+            *self = VirtualSliderStatus::Moved;
+        }
+    }
+
+    /// Whether the virtual slider status was moved.
+    pub(crate) fn was_moved(self) -> bool {
+        matches!(self, VirtualSliderStatus::Moved)
+    }
+}

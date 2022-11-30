@@ -12,6 +12,7 @@ use iced_native::{
 };
 
 use crate::core::{Normal, NormalParam};
+use crate::native::VirtualSliderStatus;
 use crate::style::xy_pad::StyleSheet;
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -33,6 +34,7 @@ where
     normal_param_x: NormalParam,
     normal_param_y: NormalParam,
     on_change: Box<dyn 'a + Fn(Normal, Normal) -> Message>,
+    on_release: Option<Message>,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     size: Length,
@@ -65,11 +67,23 @@ where
             normal_param_x,
             normal_param_y,
             on_change: Box::new(on_change),
+            on_release: None,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             size: Length::Fill,
             style: Default::default(),
         }
+    }
+
+    /// Sets the release message of the [`XYPad`].
+    /// This is called when the mouse is released from the xy pad.
+    ///
+    /// Typically, the user's interaction with the xy pad is finished when this message is produced.
+    /// This is useful if you need to spawn a long-running task from the xy pad's result, where
+    /// the default on_change message could create too many events.
+    pub fn on_release(mut self, on_release: Message) -> Self {
+        self.on_release = Some(on_release);
+        self
     }
 
     /// Sets the size of the [`XYPad`].
@@ -121,7 +135,7 @@ where
 /// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
 struct State {
-    is_dragging: bool,
+    dragging_status: Option<VirtualSliderStatus>,
     prev_drag_x: f32,
     prev_drag_y: f32,
     continuous_normal_x: f32,
@@ -140,7 +154,7 @@ impl State {
     /// [`XYPad`]: struct.XYPad.html
     fn new(normal_x: Normal, normal_y: Normal) -> Self {
         Self {
-            is_dragging: false,
+            dragging_status: None,
             prev_drag_x: 0.0,
             prev_drag_y: 0.0,
             continuous_normal_x: normal_x.as_f32(),
@@ -210,7 +224,7 @@ where
         match event {
             Event::Mouse(mouse::Event::CursorMoved { .. })
             | Event::Touch(touch::Event::FingerMoved { .. }) => {
-                if state.is_dragging {
+                if state.dragging_status.is_some() {
                     let bounds_size = {
                         if layout.bounds().width <= layout.bounds().height {
                             layout.bounds().width
@@ -250,6 +264,12 @@ where
                             self.normal_param_y.value,
                         ));
 
+                        state
+                            .dragging_status
+                            .as_mut()
+                            .expect("dragging_status taken")
+                            .update_with(VirtualSliderStatus::Moved);
+
                         return event::Status::Captured;
                     }
                 }
@@ -262,7 +282,7 @@ where
 
                     match click.kind() {
                         mouse::click::Kind::Single => {
-                            state.is_dragging = true;
+                            state.dragging_status = Some(Default::default());
                             state.prev_drag_x = cursor_position.x;
                             state.prev_drag_y = cursor_position.y;
                             state.continuous_normal_x =
@@ -300,7 +320,7 @@ where
                             ));
                         }
                         _ => {
-                            state.is_dragging = false;
+                            state.dragging_status = None;
 
                             self.normal_param_x.value =
                                 self.normal_param_x.default;
@@ -316,6 +336,10 @@ where
                                 self.normal_param_x.value,
                                 self.normal_param_y.value,
                             ));
+
+                            if let Some(on_release) = self.on_release.clone() {
+                                shell.publish(on_release);
+                            }
                         }
                     }
 
@@ -327,8 +351,13 @@ where
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if state.is_dragging {
-                    state.is_dragging = false;
+                if let Some(slider_status) = state.dragging_status.take() {
+                    if slider_status.was_moved() {
+                        if let Some(on_release) = self.on_release.clone() {
+                            shell.publish(on_release);
+                        }
+                    }
+
                     state.continuous_normal_x =
                         self.normal_param_x.value.as_f32();
                     state.continuous_normal_y =
@@ -377,7 +406,7 @@ where
             cursor_position,
             self.normal_param_x.value,
             self.normal_param_y.value,
-            state.is_dragging,
+            state.dragging_status.is_some(),
             theme,
             &self.style,
         )
@@ -411,7 +440,7 @@ where
         cursor_position: Point,
         normal_x: Normal,
         normal_y: Normal,
-        is_dragging: bool,
+        dragging_status: bool,
         style_sheet: &dyn StyleSheet<
             Style = <Self::Theme as StyleSheet>::Style,
         >,

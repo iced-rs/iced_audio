@@ -12,6 +12,7 @@ use iced_native::{
 };
 
 use crate::core::{Normal, NormalParam};
+use crate::native::VirtualSliderStatus;
 use crate::style::ramp::StyleSheet;
 
 static DEFAULT_WIDTH: u16 = 40;
@@ -48,6 +49,7 @@ where
 {
     normal_param: NormalParam,
     on_change: Box<dyn 'a + Fn(Normal) -> Message>,
+    on_release: Option<Message>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -87,6 +89,7 @@ where
         Ramp {
             normal_param,
             on_change: Box::new(on_change),
+            on_release: None,
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
@@ -96,6 +99,17 @@ where
             style: Default::default(),
             direction,
         }
+    }
+
+    /// Sets the release message of the [`Ramp`].
+    /// This is called when the mouse is released from the ramp.
+    ///
+    /// Typically, the user's interaction with the ramp is finished when this message is produced.
+    /// This is useful if you need to spawn a long-running task from the ramp's result, where
+    /// the default on_change message could create too many events.
+    pub fn on_release(mut self, on_release: Message) -> Self {
+        self.on_release = Some(on_release);
+        self
     }
 
     /// Sets the width of the [`Ramp`].
@@ -184,9 +198,9 @@ where
         state: &mut State,
         shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
-    ) {
+    ) -> VirtualSliderStatus {
         if normal_delta.abs() < f32::EPSILON {
-            return;
+            return VirtualSliderStatus::Unchanged;
         }
 
         if state.pressed_modifiers.contains(self.modifier_keys) {
@@ -198,6 +212,8 @@ where
         state.continuous_normal = self.normal_param.value.as_f32();
 
         shell.publish((self.on_change)(self.normal_param.value));
+
+        VirtualSliderStatus::Moved
     }
 }
 
@@ -206,7 +222,7 @@ where
 /// [`Ramp`]: struct.Ramp.html
 #[derive(Debug, Copy, Clone)]
 struct State {
-    is_dragging: bool,
+    dragging_status: Option<VirtualSliderStatus>,
     prev_drag_y: f32,
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
@@ -226,7 +242,7 @@ impl State {
     /// [`Ramp`]: struct.Ramp.html
     fn new(normal: Normal) -> Self {
         Self {
-            is_dragging: false,
+            dragging_status: None,
             prev_drag_y: 0.0,
             continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
@@ -285,13 +301,19 @@ where
         match event {
             Event::Mouse(mouse::Event::CursorMoved { .. })
             | Event::Touch(touch::Event::FingerMoved { .. }) => {
-                if state.is_dragging {
+                if state.dragging_status.is_some() {
                     let normal_delta =
                         (cursor_position.y - state.prev_drag_y) * self.scalar;
 
                     state.prev_drag_y = cursor_position.y;
 
-                    self.move_virtual_slider(state, shell, normal_delta);
+                    let slider_status =
+                        self.move_virtual_slider(state, shell, normal_delta);
+                    state
+                        .dragging_status
+                        .as_mut()
+                        .expect("dragging_status taken")
+                        .update_with(slider_status);
 
                     return event::Status::Captured;
                 }
@@ -322,7 +344,14 @@ where
                     if lines != 0.0 {
                         let normal_delta = -lines * self.wheel_scalar;
 
-                        self.move_virtual_slider(state, shell, normal_delta);
+                        if self
+                            .move_virtual_slider(state, shell, normal_delta)
+                            .was_moved()
+                        {
+                            if let Some(on_release) = self.on_release.clone() {
+                                shell.publish(on_release);
+                            }
+                        }
 
                         return event::Status::Captured;
                     }
@@ -336,13 +365,13 @@ where
 
                     match click.kind() {
                         mouse::click::Kind::Single => {
-                            state.is_dragging = true;
+                            state.dragging_status = Some(Default::default());
                             state.prev_drag_y = cursor_position.y;
                             state.continuous_normal =
                                 self.normal_param.value.as_f32();
                         }
                         _ => {
-                            state.is_dragging = false;
+                            state.dragging_status = None;
 
                             self.normal_param.value = self.normal_param.default;
                             state.continuous_normal =
@@ -351,6 +380,10 @@ where
                             shell.publish((self.on_change)(
                                 self.normal_param.value,
                             ));
+
+                            if let Some(on_release) = self.on_release.clone() {
+                                shell.publish(on_release);
+                            }
                         }
                     }
 
@@ -362,8 +395,13 @@ where
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if state.is_dragging {
-                    state.is_dragging = false;
+                if let Some(slider_status) = state.dragging_status.take() {
+                    if slider_status.was_moved() {
+                        if let Some(on_release) = self.on_release.clone() {
+                            shell.publish(on_release);
+                        }
+                    }
+
                     state.continuous_normal = self.normal_param.value.as_f32();
 
                     return event::Status::Captured;
@@ -408,7 +446,7 @@ where
             layout.bounds(),
             cursor_position,
             self.normal_param.value,
-            state.is_dragging,
+            state.dragging_status.is_some(),
             theme,
             &self.style,
             self.direction,
@@ -442,7 +480,7 @@ where
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
-        is_dragging: bool,
+        dragging_status: bool,
         style_sheet: &dyn StyleSheet<
             Style = <Self::Theme as StyleSheet>::Style,
         >,
