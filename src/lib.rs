@@ -194,11 +194,17 @@
 //! [`Iced`]: https://github.com/hecrj/iced
 //! [`here`]: https://github.com/hecrj/iced
 
-#![deny(missing_docs)]
-#![deny(missing_debug_implementations)]
-#![deny(unused_results)]
-#![forbid(rust_2018_idioms)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(
+    unused_results,
+    clippy::extra_unused_lifetimes,
+    clippy::from_over_into,
+    clippy::needless_borrow,
+    clippy::new_without_default,
+    clippy::useless_conversion
+)]
+#![deny(missing_docs, unused_results)]
+#![forbid(unsafe_code, rust_2018_idioms)]
+#![allow(clippy::inherent_to_string, clippy::type_complexity)]
 
 //extern crate simdeez;
 

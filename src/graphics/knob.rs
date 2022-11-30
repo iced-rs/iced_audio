@@ -8,14 +8,13 @@ use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
 use iced::widget::canvas::{path::Arc, Frame, Path, Stroke};
-use iced::Renderer;
 use iced_graphics::triangle;
 use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 
 pub use crate::style::knob::{
-    ArcBipolarStyle, ArcStyle, CircleNotch, CircleStyle, LineCap, LineNotch,
-    ModRangeArcStyle, NotchShape, Style, StyleLength, StyleSheet,
+    Appearance, ArcBipolarStyle, ArcStyle, CircleNotch, CircleStyle, LineCap,
+    LineNotch, ModRangeArcStyle, NotchShape, StyleLength, StyleSheet,
     TextMarksStyle, TickMarksStyle, ValueArcStyle,
 };
 
@@ -44,11 +43,13 @@ struct KnobInfo {
 /// A rotating knob GUI widget that controls a [`Param`]
 ///
 /// [`Param`]: ../../core/param/struct.Param.html
-pub type Knob<'a, Message, Theme> = knob::Knob<'a, Message, Renderer<Theme>>;
+pub type Knob<'a, Message, Theme> =
+    knob::Knob<'a, Message, iced::Renderer<Theme>>;
 
-impl<Theme> knob::Renderer for Renderer<Theme> {
-    type Style = Box<dyn StyleSheet>;
-
+impl knob::Renderer for iced::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -60,20 +61,23 @@ impl<Theme> knob::Renderer for Renderer<Theme> {
         mod_range_2: Option<&ModulationRange>,
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
-        style_sheet: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         tick_marks_cache: &tick_marks::PrimitiveCache,
         text_marks_cache: &text_marks::PrimitiveCache,
     ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
-        let angle_range = style_sheet.angle_range();
+        let angle_range = style_sheet.angle_range(style);
 
-        let style = if is_dragging {
-            style_sheet.dragging()
+        let appearance = if is_dragging {
+            style_sheet.dragging(style)
         } else if is_mouse_over {
-            style_sheet.hovered()
+            style_sheet.hovered(style)
         } else {
-            style_sheet.active()
+            style_sheet.active(style)
         };
 
         let value_markers = ValueMarkers {
@@ -81,11 +85,11 @@ impl<Theme> knob::Renderer for Renderer<Theme> {
             text_marks,
             mod_range_1,
             mod_range_2,
-            tick_marks_style: style_sheet.tick_marks_style(),
-            text_marks_style: style_sheet.text_marks_style(),
-            value_arc_style: style_sheet.value_arc_style(),
-            mod_range_style_1: style_sheet.mod_range_arc_style(),
-            mod_range_style_2: style_sheet.mod_range_arc_style_2(),
+            tick_marks_style: style_sheet.tick_marks_style(style),
+            text_marks_style: style_sheet.text_marks_style(style),
+            value_arc_style: style_sheet.value_arc_style(style),
+            mod_range_style_1: style_sheet.mod_range_arc_style(style),
+            mod_range_style_2: style_sheet.mod_range_arc_style_2(style),
         };
 
         let bounds = {
@@ -138,22 +142,22 @@ impl<Theme> knob::Renderer for Renderer<Theme> {
             value_angle,
         };
 
-        self.draw_primitive(match style {
-            Style::Circle(style) => draw_circle_style(
+        self.draw_primitive(match appearance {
+            Appearance::Circle(style) => draw_circle_style(
                 &knob_info,
                 style,
                 &value_markers,
                 tick_marks_cache,
                 text_marks_cache,
             ),
-            Style::Arc(style) => draw_arc_style(
+            Appearance::Arc(style) => draw_arc_style(
                 &knob_info,
                 style,
                 &value_markers,
                 tick_marks_cache,
                 text_marks_cache,
             ),
-            Style::ArcBipolar(style) => draw_arc_bipolar_style(
+            Appearance::ArcBipolar(style) => draw_arc_bipolar_style(
                 &knob_info,
                 style,
                 &value_markers,

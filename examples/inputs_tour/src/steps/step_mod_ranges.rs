@@ -2,7 +2,7 @@ use iced::widget::{checkbox, column, container, row, text};
 use iced::{Alignment, Element, Length};
 
 use iced_audio::{
-    mod_range_input, FloatRange, HSlider, Knob, ModRangeInput, ModulationRange,
+    style::theme, FloatRange, HSlider, Knob, ModRangeInput, ModulationRange,
     Normal, NormalParam, VSlider,
 };
 
@@ -254,7 +254,7 @@ impl ModRanges {
         let auto_input2 =
             ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
                 .size(Length::from(15))
-                .style(mod_range_input::DefaultInvisible);
+                .style(theme::ModRangeInput::Invisible);
 
         let knob_auto2 = Knob::new(
             self.knob_auto2_param,

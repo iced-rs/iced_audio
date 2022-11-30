@@ -12,6 +12,7 @@ use iced_native::{
 
 use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks};
+use crate::style::knob::StyleSheet;
 
 static DEFAULT_SIZE: u16 = 30;
 static DEFAULT_SCALAR: f32 = 0.00385;
@@ -22,18 +23,22 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 ///
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
-pub struct Knob<'a, Message, Renderer: self::Renderer> {
+pub struct Knob<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
     normal_param: NormalParam,
     size: Length,
-    on_change: Box<dyn Fn(Normal) -> Message + 'a>,
-    on_drag_start: Box<dyn Fn() -> Option<Message> + 'a>,
-    on_drag_end: Box<dyn Fn() -> Option<Message> + 'a>,
+    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
+    on_drag_start: Box<dyn 'a + Fn() -> Option<Message>>,
+    on_drag_end: Box<dyn 'a + Fn() -> Option<Message>>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     bipolar_center: Option<Normal>,
-    style: Renderer::Style,
+    style: <Renderer::Theme as StyleSheet>::Style,
     tick_marks: Option<&'a tick_marks::Group>,
     text_marks: Option<&'a text_marks::Group>,
     mod_range_1: Option<&'a ModulationRange>,
@@ -44,6 +49,7 @@ impl<'a, Message, Renderer> Knob<'a, Message, Renderer>
 where
     Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     /// Creates a new [`Knob`].
     ///
@@ -76,7 +82,7 @@ where
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             bipolar_center: None,
-            style: Renderer::Style::default(),
+            style: Default::default(),
             tick_marks: None,
             text_marks: None,
             mod_range_1: None,
@@ -96,7 +102,10 @@ where
     /// Sets the style of the [`Knob`].
     ///
     /// [`Knob`]: struct.Knob.html
-    pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
+    pub fn style(
+        mut self,
+        style: impl Into<<Renderer::Theme as StyleSheet>::Style>,
+    ) -> Self {
         self.style = style.into();
         self
     }
@@ -267,6 +276,7 @@ impl<'a, Message, Renderer> Widget<Message, Renderer>
 where
     Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -431,7 +441,7 @@ where
         &self,
         state: &Tree,
         renderer: &mut Renderer,
-        _theme: &Renderer::Theme,
+        theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -448,6 +458,7 @@ where
             self.mod_range_2,
             self.tick_marks,
             self.text_marks,
+            theme,
             &self.style,
             &state.tick_marks_cache,
             &state.text_marks_cache,
@@ -461,10 +472,10 @@ where
 /// able to use a [`Knob`] in your user interface.
 ///
 /// [`Knob`]: struct.Knob.html
-pub trait Renderer: iced_native::Renderer {
-    /// The style supported by this renderer.
-    type Style: Default;
-
+pub trait Renderer: iced_native::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     /// Draws a [`Knob`].
     ///
     /// It receives:
@@ -489,7 +500,10 @@ pub trait Renderer: iced_native::Renderer {
         mod_range_2: Option<&ModulationRange>,
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
-        style: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         tick_marks_cache: &crate::tick_marks::PrimitiveCache,
         text_marks_cache: &crate::text_marks::PrimitiveCache,
     );
@@ -500,6 +514,7 @@ impl<'a, Message, Renderer> From<Knob<'a, Message, Renderer>>
 where
     Message: 'a + Clone,
     Renderer: 'a + self::Renderer,
+    Renderer::Theme: 'a + StyleSheet,
 {
     fn from(
         knob: Knob<'a, Message, Renderer>,

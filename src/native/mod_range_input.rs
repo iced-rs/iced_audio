@@ -11,6 +11,7 @@ use iced_native::{
 };
 
 use crate::core::{Normal, NormalParam};
+use crate::style::mod_range_input::StyleSheet;
 
 static DEFAULT_SIZE: u16 = 10;
 static DEFAULT_SCALAR: f32 = 0.00385 / 2.0;
@@ -21,21 +22,26 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 ///
 /// [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
-pub struct ModRangeInput<'a, Message, Renderer: self::Renderer> {
+pub struct ModRangeInput<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
     normal_param: NormalParam,
     size: Length,
-    on_change: Box<dyn Fn(Normal) -> Message + 'a>,
+    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
-    style: Renderer::Style,
+    style: <Renderer::Theme as StyleSheet>::Style,
 }
 
 impl<'a, Message, Renderer> ModRangeInput<'a, Message, Renderer>
 where
     Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     /// Creates a new [`ModRangeInput`].
     ///
@@ -57,7 +63,7 @@ where
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
-            style: Renderer::Style::default(),
+            style: Default::default(),
         }
     }
 
@@ -73,7 +79,10 @@ where
     /// Sets the style of the [`ModRangeInput`].
     ///
     /// [`ModRangeInput`]: struct.ModRangeInput.html
-    pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
+    pub fn style(
+        mut self,
+        style: impl Into<<Renderer::Theme as StyleSheet>::Style>,
+    ) -> Self {
         self.style = style.into();
         self
     }
@@ -188,6 +197,7 @@ impl<'a, Message, Renderer> Widget<Message, Renderer>
 where
     Message: 'a + Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -344,7 +354,7 @@ where
         &self,
         state: &Tree,
         renderer: &mut Renderer,
-        _theme: &Renderer::Theme,
+        theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -355,6 +365,7 @@ where
             layout.bounds(),
             cursor_position,
             state.is_dragging,
+            theme,
             &self.style,
         )
     }
@@ -366,10 +377,10 @@ where
 /// able to use an [`ModRangeInput`] in your user interface.
 ///
 /// [`ModRangeInput`]: struct.ModRangeInput.html
-pub trait Renderer: iced_native::Renderer {
-    /// The style supported by this renderer.
-    type Style: Default;
-
+pub trait Renderer: iced_native::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     /// Draws an [`ModRangeInput`].
     ///
     /// It receives:
@@ -384,7 +395,10 @@ pub trait Renderer: iced_native::Renderer {
         bounds: Rectangle,
         cursor_position: Point,
         is_dragging: bool,
-        style: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
     );
 }
 
@@ -393,6 +407,7 @@ impl<'a, Message, Renderer> From<ModRangeInput<'a, Message, Renderer>>
 where
     Message: 'a + Clone,
     Renderer: 'a + self::Renderer,
+    Renderer::Theme: 'a + StyleSheet,
 {
     fn from(
         mod_range_input: ModRangeInput<'a, Message, Renderer>,

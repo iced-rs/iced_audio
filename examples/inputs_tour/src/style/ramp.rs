@@ -7,7 +7,7 @@ use super::colors;
 
 pub struct CustomStyle;
 impl CustomStyle {
-    const ACTIVE_STYLE: ramp::Style = ramp::Style {
+    const ACTIVE_STYLE: ramp::Appearance = ramp::Appearance {
         back_color: colors::KNOB,
         back_border_width: 2.0,
         back_border_color: colors::KNOB_BORDER,
@@ -18,12 +18,14 @@ impl CustomStyle {
     };
 }
 impl ramp::StyleSheet for CustomStyle {
-    fn active(&self) -> ramp::Style {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> ramp::Appearance {
         Self::ACTIVE_STYLE
     }
 
-    fn hovered(&self) -> ramp::Style {
-        ramp::Style {
+    fn hovered(&self, _style: &Self::Style) -> ramp::Appearance {
+        ramp::Appearance {
             line_center_color: Color::from_rgb(0.8, 0.8, 0.8),
             line_up_color: Color::from_rgb(0.0, 1.0, 0.0),
             line_down_color: Color::from_rgb(
@@ -35,7 +37,7 @@ impl ramp::StyleSheet for CustomStyle {
         }
     }
 
-    fn dragging(&self) -> ramp::Style {
-        self.hovered()
+    fn dragging(&self, style: &Self::Style) -> ramp::Appearance {
+        self.hovered(style)
     }
 }

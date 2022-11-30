@@ -6,41 +6,45 @@
 use crate::core::Normal;
 use crate::native::ramp;
 use iced::widget::canvas::{Frame, LineCap, Path, Stroke};
-use iced::Renderer;
 use iced::{Background, Point, Rectangle, Size, Vector};
 use iced_graphics::triangle;
 use iced_graphics::Primitive;
 
 pub use crate::native::ramp::RampDirection;
-pub use crate::style::ramp::{Style, StyleSheet};
+pub use crate::style::ramp::{Appearance, StyleSheet};
 
 /// A ramp GUI widget that controls a [`Param`]. It is usually used to
 /// represent the easing of a parameter between two points in time.
 ///
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`Ramp`]: struct.Ramp.html
-pub type Ramp<Message, Theme> = ramp::Ramp<Message, Renderer<Theme>>;
+pub type Ramp<'a, Message, Theme> =
+    ramp::Ramp<'a, Message, iced::Renderer<Theme>>;
 
-impl<Theme> ramp::Renderer for Renderer<Theme> {
-    type Style = Box<dyn StyleSheet>;
-
+impl ramp::Renderer for iced::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     fn draw(
         &mut self,
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        style_sheet: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         direction: RampDirection,
     ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
-        let style = if is_dragging {
-            style_sheet.dragging()
+        let appearance = if is_dragging {
+            style_sheet.dragging(style)
         } else if is_mouse_over {
-            style_sheet.hovered()
+            style_sheet.hovered(style)
         } else {
-            style_sheet.active()
+            style_sheet.active(style)
         };
 
         let bounds_x = bounds.x.floor();
@@ -56,13 +60,13 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                 width: bounds_width,
                 height: bounds_height,
             },
-            background: Background::Color(style.back_color),
+            background: Background::Color(appearance.back_color),
             border_radius: 0.0,
-            border_width: style.back_border_width,
-            border_color: style.back_border_color,
+            border_width: appearance.back_border_width,
+            border_color: appearance.back_border_color,
         };
 
-        let border_width = style.back_border_width as f32;
+        let border_width = appearance.back_border_width as f32;
         let twice_border_width = border_width * 2.0;
 
         let range_width = bounds_width - twice_border_width;
@@ -73,9 +77,9 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                 let primitive = {
                     if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
+                            width: appearance.line_width as f32,
                             style: triangle::Style::Solid(
-                                style.line_down_color,
+                                appearance.line_down_color,
                             ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
@@ -108,8 +112,10 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                         }
                     } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
-                            style: triangle::Style::Solid(style.line_up_color),
+                            width: appearance.line_width as f32,
+                            style: triangle::Style::Solid(
+                                appearance.line_up_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -144,9 +150,9 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                         }
                     } else {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
+                            width: appearance.line_width as f32,
                             style: triangle::Style::Solid(
-                                style.line_center_color,
+                                appearance.line_center_color,
                             ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
@@ -182,9 +188,9 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                 let primitive = {
                     if normal.as_f32() < 0.449 {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
+                            width: appearance.line_width as f32,
                             style: triangle::Style::Solid(
-                                style.line_down_color,
+                                appearance.line_down_color,
                             ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
@@ -220,8 +226,10 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                         }
                     } else if normal.as_f32() > 0.501 {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
-                            style: triangle::Style::Solid(style.line_up_color),
+                            width: appearance.line_width as f32,
+                            style: triangle::Style::Solid(
+                                appearance.line_up_color,
+                            ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()
                         };
@@ -256,9 +264,9 @@ impl<Theme> ramp::Renderer for Renderer<Theme> {
                         }
                     } else {
                         let stroke = Stroke {
-                            width: style.line_width as f32,
+                            width: appearance.line_width as f32,
                             style: triangle::Style::Solid(
-                                style.line_center_color,
+                                appearance.line_center_color,
                             ),
                             line_cap: LineCap::Square,
                             ..Stroke::default()

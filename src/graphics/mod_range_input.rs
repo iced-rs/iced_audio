@@ -2,44 +2,43 @@
 //!
 //! [`Param`]: ../core/param/struct.Param.html
 
-use crate::native::mod_range_input;
-
-use iced::Renderer;
 use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle};
 
+use crate::native::mod_range_input;
 pub use crate::style::mod_range_input::{
-    CircleStyle, DefaultInvisible, SquareStyle, Style, StyleSheet,
+    Appearance, CircleStyle, SquareStyle, StyleSheet,
 };
 
 /// An interactive dot that controls an [`Param`]
 ///
 /// [`Param`]: ../core/param/struct.Param.html
 pub type ModRangeInput<'a, Message, Theme> =
-    mod_range_input::ModRangeInput<'a, Message, Renderer<Theme>>;
+    mod_range_input::ModRangeInput<'a, Message, iced::Renderer<Theme>>;
 
-impl<Theme> mod_range_input::Renderer for Renderer<Theme> {
-    type Style = Box<dyn StyleSheet>;
-
+impl mod_range_input::Renderer for iced::Renderer {
     fn draw(
         &mut self,
         bounds: Rectangle,
         cursor_position: Point,
         is_dragging: bool,
-        style_sheet: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
     ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
-        let style = if is_dragging {
-            style_sheet.dragging()
+        let appearance = if is_dragging {
+            style_sheet.dragging(style)
         } else if is_mouse_over {
-            style_sheet.hovered()
+            style_sheet.hovered(style)
         } else {
-            style_sheet.active()
+            style_sheet.active(style)
         };
 
-        let dot: Primitive = match style {
-            Style::Circle(style) => {
+        let dot: Primitive = match appearance {
+            Appearance::Circle(style) => {
                 let bounds_x = bounds.x.floor();
                 let bounds_y = bounds.y.floor();
                 let bounds_size = bounds.width.floor();
@@ -59,7 +58,7 @@ impl<Theme> mod_range_input::Renderer for Renderer<Theme> {
                     border_color: style.border_color,
                 }
             }
-            Style::Square(style) => {
+            Appearance::Square(style) => {
                 let bounds_x = bounds.x.floor();
                 let bounds_y = bounds.y.floor();
                 let bounds_size = bounds.width.floor();
@@ -77,7 +76,7 @@ impl<Theme> mod_range_input::Renderer for Renderer<Theme> {
                     border_color: style.border_color,
                 }
             }
-            Style::Invisible => Primitive::None,
+            Appearance::Invisible => Primitive::None,
         };
 
         self.draw_primitive(dot)

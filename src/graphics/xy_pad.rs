@@ -5,12 +5,11 @@
 
 use crate::core::Normal;
 use crate::native::xy_pad;
-use iced::Renderer;
 use iced_graphics::Primitive;
 use iced_native::{Background, Color, Point, Rectangle};
 
 pub use crate::style::xy_pad::{
-    HandleCircle, HandleShape, HandleSquare, Style, StyleSheet,
+    Appearance, HandleCircle, HandleShape, HandleSquare, StyleSheet,
 };
 
 /// A 2D XY pad GUI widget that controls two [`Param`] parameters at
@@ -22,11 +21,12 @@ pub use crate::style::xy_pad::{
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`XYPad`]: struct.XYPad.html
 pub type XYPad<'a, Message, Theme> =
-    xy_pad::XYPad<'a, Message, Renderer<Theme>>;
+    xy_pad::XYPad<'a, Message, iced::Renderer<Theme>>;
 
-impl<Theme> xy_pad::Renderer for Renderer<Theme> {
-    type Style = Box<dyn StyleSheet>;
-
+impl xy_pad::Renderer for iced::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -34,16 +34,19 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
         normal_x: Normal,
         normal_y: Normal,
         is_dragging: bool,
-        style_sheet: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
     ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
-        let style = if is_dragging {
-            style_sheet.dragging()
+        let appearance = if is_dragging {
+            style_sheet.dragging(style)
         } else if is_mouse_over {
-            style_sheet.hovered()
+            style_sheet.hovered(style)
         } else {
-            style_sheet.active()
+            style_sheet.active(style)
         };
 
         let bounds_x = bounds.x.floor();
@@ -64,10 +67,10 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
                 width: bounds_size,
                 height: bounds_size,
             },
-            background: Background::Color(style.back_color),
+            background: Background::Color(appearance.back_color),
             border_radius: 0.0,
-            border_width: style.border_width,
-            border_color: style.border_color,
+            border_width: appearance.border_width,
+            border_color: appearance.border_color,
         };
 
         let handle_x = (bounds_x + (bounds_size * normal_x.as_f32())).floor();
@@ -76,10 +79,10 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
 
         let bounds_center = (bounds_size / 2.0).floor();
 
-        let (h_center_line, v_center_line) = if style.center_line_color
+        let (h_center_line, v_center_line) = if appearance.center_line_color
             != Color::TRANSPARENT
         {
-            let center_line_width = style.center_line_width as f32;
+            let center_line_width = appearance.center_line_width as f32;
             let half_center_line_width = (center_line_width / 2.0).floor();
 
             (
@@ -90,7 +93,7 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
                         width: bounds_size,
                         height: center_line_width,
                     },
-                    background: Background::Color(style.center_line_color),
+                    background: Background::Color(appearance.center_line_color),
                     border_radius: 0.0,
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
@@ -102,7 +105,7 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
                         width: center_line_width,
                         height: bounds_size,
                     },
-                    background: Background::Color(style.center_line_color),
+                    background: Background::Color(appearance.center_line_color),
                     border_radius: 0.0,
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
@@ -112,8 +115,8 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
             (Primitive::None, Primitive::None)
         };
 
-        let (h_rail, v_rail) = if style.rail_width != 0.0 {
-            let rail_width = style.rail_width as f32;
+        let (h_rail, v_rail) = if appearance.rail_width != 0.0 {
+            let rail_width = appearance.rail_width as f32;
             let half_rail_width = (rail_width / 2.0).floor();
             (
                 Primitive::Quad {
@@ -121,9 +124,9 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
                         x: bounds_x,
                         y: handle_y - half_rail_width,
                         width: bounds_size,
-                        height: style.rail_width as f32,
+                        height: appearance.rail_width as f32,
                     },
-                    background: Background::Color(style.h_rail_color),
+                    background: Background::Color(appearance.h_rail_color),
                     border_radius: 0.0,
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
@@ -132,10 +135,10 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
                     bounds: Rectangle {
                         x: handle_x - half_rail_width,
                         y: bounds_y,
-                        width: style.rail_width as f32,
+                        width: appearance.rail_width as f32,
                         height: bounds_size,
                     },
-                    background: Background::Color(style.v_rail_color),
+                    background: Background::Color(appearance.v_rail_color),
                     border_radius: 0.0,
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
@@ -146,7 +149,7 @@ impl<Theme> xy_pad::Renderer for Renderer<Theme> {
         };
 
         let handle = {
-            match style.handle {
+            match appearance.handle {
                 HandleShape::Circle(circle) => {
                     let diameter = circle.diameter as f32;
                     let radius = diameter / 2.0;

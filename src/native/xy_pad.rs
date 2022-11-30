@@ -12,6 +12,7 @@ use iced_native::{
 };
 
 use crate::core::{Normal, NormalParam};
+use crate::style::xy_pad::StyleSheet;
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
@@ -24,20 +25,25 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`XYPad`]: struct.XYPad.html
 #[allow(missing_debug_implementations)]
-pub struct XYPad<'a, Message, Renderer: self::Renderer> {
+pub struct XYPad<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
     normal_param_x: NormalParam,
     normal_param_y: NormalParam,
-    on_change: Box<dyn Fn(Normal, Normal) -> Message + 'a>,
+    on_change: Box<dyn 'a + Fn(Normal, Normal) -> Message>,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     size: Length,
-    style: Renderer::Style,
+    style: <Renderer::Theme as StyleSheet>::Style,
 }
 
 impl<'a, Message, Renderer> XYPad<'a, Message, Renderer>
 where
     Message: 'a + Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     /// Creates a new [`XYPad`].
     ///
@@ -53,7 +59,7 @@ where
         on_change: F,
     ) -> Self
     where
-        F: 'static + Fn(Normal, Normal) -> Message,
+        F: 'a + Fn(Normal, Normal) -> Message,
     {
         XYPad {
             normal_param_x,
@@ -62,7 +68,7 @@ where
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             size: Length::Fill,
-            style: Renderer::Style::default(),
+            style: Default::default(),
         }
     }
 
@@ -77,7 +83,10 @@ where
     /// Sets the style of the [`XYPad`].
     ///
     /// [`XYPad`]: struct.XYPad.html
-    pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
+    pub fn style(
+        mut self,
+        style: impl Into<<Renderer::Theme as StyleSheet>::Style>,
+    ) -> Self {
         self.style = style.into();
         self
     }
@@ -145,8 +154,9 @@ impl State {
 impl<'a, Message, Renderer> Widget<Message, Renderer>
     for XYPad<'a, Message, Renderer>
 where
-    Message: 'a + Clone,
+    Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -355,7 +365,7 @@ where
         &self,
         state: &Tree,
         renderer: &mut Renderer,
-        _theme: &Renderer::Theme,
+        theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -368,6 +378,7 @@ where
             self.normal_param_x.value,
             self.normal_param_y.value,
             state.is_dragging,
+            theme,
             &self.style,
         )
     }
@@ -379,10 +390,10 @@ where
 /// able to use an [`XYPad`] in your user interface.
 ///
 /// [`XYPad`]: struct.XYPad.html
-pub trait Renderer: iced_native::Renderer {
-    /// The style supported by this renderer.
-    type Style: Default;
-
+pub trait Renderer: iced_native::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     /// Draws an [`XYPad`].
     ///
     /// It receives:
@@ -401,7 +412,10 @@ pub trait Renderer: iced_native::Renderer {
         normal_x: Normal,
         normal_y: Normal,
         is_dragging: bool,
-        style: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
     );
 }
 
@@ -410,6 +424,7 @@ impl<'a, Message, Renderer> From<XYPad<'a, Message, Renderer>>
 where
     Message: 'a + Clone,
     Renderer: 'a + self::Renderer,
+    Renderer::Theme: 'a + StyleSheet,
 {
     fn from(
         xy_pad: XYPad<'a, Message, Renderer>,

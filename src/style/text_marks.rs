@@ -101,7 +101,7 @@ impl std::cmp::PartialEq for Style {
     }
 }
 
-impl std::default::Default for Style {
+impl Default for Style {
     fn default() -> Self {
         Self {
             color: default_colors::TEXT_MARK,

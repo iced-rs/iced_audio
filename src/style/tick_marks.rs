@@ -102,7 +102,7 @@ pub enum Shape {
     },
 }
 
-impl std::default::Default for Style {
+impl Default for Style {
     fn default() -> Self {
         Self {
             tier_1: Shape::Line {

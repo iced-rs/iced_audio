@@ -12,6 +12,7 @@ use iced_native::{
 };
 
 use crate::core::{Normal, NormalParam};
+use crate::style::ramp::StyleSheet;
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
@@ -40,23 +41,28 @@ impl Default for RampDirection {
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`Ramp`]: struct.Ramp.html
 #[allow(missing_debug_implementations)]
-pub struct Ramp<Message, Renderer: self::Renderer> {
+pub struct Ramp<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
     normal_param: NormalParam,
-    on_change: Box<dyn Fn(Normal) -> Message>,
+    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     width: Length,
     height: Length,
-    style: Renderer::Style,
+    style: <Renderer::Theme as StyleSheet>::Style,
     direction: RampDirection,
 }
 
-impl<Message, Renderer: self::Renderer> Ramp<Message, Renderer>
+impl<'a, Message, Renderer> Ramp<'a, Message, Renderer>
 where
     Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     /// Creates a new [`Ramp`].
     ///
@@ -87,7 +93,7 @@ where
             modifier_keys: keyboard::Modifiers::CTRL,
             width: Length::from(Length::Units(DEFAULT_WIDTH)),
             height: Length::from(Length::Units(DEFAULT_HEIGHT)),
-            style: Renderer::Style::default(),
+            style: Default::default(),
             direction,
         }
     }
@@ -113,7 +119,10 @@ where
     /// Sets the style of the [`Ramp`].
     ///
     /// [`Ramp`]: struct.Ramp.html
-    pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
+    pub fn style(
+        mut self,
+        style: impl Into<<Renderer::Theme as StyleSheet>::Style>,
+    ) -> Self {
         self.style = style.into();
         self
     }
@@ -226,10 +235,12 @@ impl State {
     }
 }
 
-impl<Message, Renderer> Widget<Message, Renderer> for Ramp<Message, Renderer>
+impl<'a, Message, Renderer> Widget<Message, Renderer>
+    for Ramp<'a, Message, Renderer>
 where
     Message: Clone,
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -386,7 +397,7 @@ where
         &self,
         state: &Tree,
         renderer: &mut Renderer,
-        _theme: &Renderer::Theme,
+        theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -398,6 +409,7 @@ where
             cursor_position,
             self.normal_param.value,
             state.is_dragging,
+            theme,
             &self.style,
             self.direction,
         )
@@ -410,10 +422,10 @@ where
 /// able to use a [`Ramp`] in your user interface.
 ///
 /// [`Ramp`]: struct.Ramp.html
-pub trait Renderer: iced_native::Renderer {
-    /// The style supported by this renderer.
-    type Style: Default;
-
+pub trait Renderer: iced_native::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     /// Draws a [`Ramp`].
     ///
     /// It receives:
@@ -431,20 +443,24 @@ pub trait Renderer: iced_native::Renderer {
         cursor_position: Point,
         normal: Normal,
         is_dragging: bool,
-        style: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         direction: RampDirection,
     );
 }
 
-impl<Message, Renderer> From<Ramp<Message, Renderer>>
-    for Element<'_, Message, Renderer>
+impl<'a, Message, Renderer> From<Ramp<'a, Message, Renderer>>
+    for Element<'a, Message, Renderer>
 where
-    Message: 'static + Clone,
-    Renderer: 'static + self::Renderer,
+    Message: 'a + Clone,
+    Renderer: 'a + self::Renderer,
+    Renderer::Theme: 'a + StyleSheet,
 {
     fn from(
-        ramp: Ramp<Message, Renderer>,
-    ) -> Element<'static, Message, Renderer> {
+        ramp: Ramp<'a, Message, Renderer>,
+    ) -> Element<'a, Message, Renderer> {
         Element::new(ramp)
     }
 }

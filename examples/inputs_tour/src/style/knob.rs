@@ -22,12 +22,14 @@ impl CustomStyleCircle {
     };
 }
 impl knob::StyleSheet for CustomStyleCircle {
-    fn active(&self) -> knob::Style {
-        knob::Style::Circle(Self::ACTIVE_CIRCLE_STYLE)
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
     }
 
-    fn hovered(&self) -> knob::Style {
-        knob::Style::Circle(knob::CircleStyle {
+    fn hovered(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Circle(knob::CircleStyle {
             notch: knob::NotchShape::Circle(knob::CircleNotch {
                 color: colors::HANDLE_HOVER,
                 border_color: colors::FILLED_HOVER,
@@ -37,11 +39,14 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn dragging(&self) -> knob::Style {
-        self.hovered()
+    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
+        self.hovered(style)
     }
 
-    fn value_arc_style(&self) -> Option<knob::ValueArcStyle> {
+    fn value_arc_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<knob::ValueArcStyle> {
         Some(knob::ValueArcStyle {
             width: 3.0,
             offset: 1.5,
@@ -52,7 +57,10 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn mod_range_arc_style(&self) -> Option<knob::ModRangeArcStyle> {
+    fn mod_range_arc_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<knob::ModRangeArcStyle> {
         Some(knob::ModRangeArcStyle {
             width: 3.0,
             offset: 6.0,
@@ -63,7 +71,10 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn text_marks_style(&self) -> Option<knob::TextMarksStyle> {
+    fn text_marks_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<knob::TextMarksStyle> {
         Some(knob::TextMarksStyle {
             style: text_marks::Style {
                 color: [0.16, 0.16, 0.16, 0.9].into(),
@@ -98,20 +109,24 @@ impl CustomStyleLine {
     };
 }
 impl knob::StyleSheet for CustomStyleLine {
-    fn active(&self) -> knob::Style {
-        knob::Style::Circle(Self::ACTIVE_CIRCLE_STYLE)
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
     }
 
-    #[allow(irrefutable_let_patterns)]
-    fn hovered(&self) -> knob::Style {
-        self.active()
+    fn hovered(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn dragging(&self) -> knob::Style {
-        self.active()
+    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn value_arc_style(&self) -> Option<knob::ValueArcStyle> {
+    fn value_arc_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<knob::ValueArcStyle> {
         Some(knob::ValueArcStyle {
             width: 2.5,
             offset: 2.0,
@@ -127,8 +142,10 @@ impl knob::StyleSheet for CustomStyleLine {
 
 pub struct CustomArc;
 impl knob::StyleSheet for CustomArc {
-    fn active(&self) -> knob::Style {
-        knob::Style::Arc(knob::ArcStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Arc(knob::ArcStyle {
             width: knob::StyleLength::Units(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             filled_color: colors::KNOB_ARC,
@@ -143,19 +160,22 @@ impl knob::StyleSheet for CustomArc {
         })
     }
 
-    fn hovered(&self) -> knob::Style {
-        self.active()
+    fn hovered(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn dragging(&self) -> knob::Style {
-        self.active()
+    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn angle_range(&self) -> iced_audio::KnobAngleRange {
+    fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {
         iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
 
-    fn mod_range_arc_style(&self) -> Option<knob::ModRangeArcStyle> {
+    fn mod_range_arc_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<knob::ModRangeArcStyle> {
         Some(knob::ModRangeArcStyle {
             width: 3.0,
             offset: 1.5,
@@ -180,8 +200,10 @@ impl CustomArcBipolar {
     };
 }
 impl knob::StyleSheet for CustomArcBipolar {
-    fn active(&self) -> knob::Style {
-        knob::Style::ArcBipolar(knob::ArcBipolarStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::ArcBipolar(knob::ArcBipolarStyle {
             width: knob::StyleLength::Units(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             left_filled_color: colors::KNOB_ARC,
@@ -201,15 +223,15 @@ impl knob::StyleSheet for CustomArcBipolar {
         })
     }
 
-    fn hovered(&self) -> knob::Style {
-        self.active()
+    fn hovered(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn dragging(&self) -> knob::Style {
-        self.active()
+    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
+        self.active(style)
     }
 
-    fn angle_range(&self) -> iced_audio::KnobAngleRange {
+    fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {
         iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
 }

@@ -2,7 +2,6 @@ mod steps;
 mod style;
 use steps::*;
 
-use iced::theme;
 use iced::widget::{
     column, container, horizontal_space, row, scrollable, text, Button, Column,
 };
@@ -68,7 +67,7 @@ impl Sandbox for InputsTour {
             controls = controls.push(
                 button("Back")
                     .on_press(Message::BackPressed)
-                    .style(theme::Button::Secondary),
+                    .style(style::Button::Secondary.into()),
             );
         }
 
@@ -78,7 +77,7 @@ impl Sandbox for InputsTour {
             controls = controls.push(
                 button("Next")
                     .on_press(Message::NextPressed)
-                    .style(theme::Button::Primary),
+                    .style(style::Button::Primary.into()),
             );
         }
 

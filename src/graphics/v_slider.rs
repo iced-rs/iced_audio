@@ -5,13 +5,12 @@
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::v_slider;
-use iced::Renderer;
 use iced_graphics::Primitive;
 use iced_native::{Background, Color, Point, Rectangle};
 
 pub use crate::style::v_slider::{
-    ClassicHandle, ClassicRail, ClassicStyle, ModRangePlacement, ModRangeStyle,
-    RectBipolarStyle, RectStyle, Style, StyleSheet, TextMarksStyle,
+    Appearance, ClassicHandle, ClassicRail, ClassicStyle, ModRangePlacement,
+    ModRangeStyle, RectBipolarStyle, RectStyle, StyleSheet, TextMarksStyle,
     TextureStyle, TickMarksStyle,
 };
 
@@ -33,11 +32,9 @@ struct ValueMarkers<'a> {
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`VSlider`]: struct.VSlider.html
 pub type VSlider<'a, Message, Theme> =
-    v_slider::VSlider<'a, Message, Renderer<Theme>>;
+    v_slider::VSlider<'a, Message, iced::Renderer<Theme>>;
 
-impl<Theme> v_slider::Renderer for Renderer<Theme> {
-    type Style = Box<dyn StyleSheet>;
-
+impl v_slider::Renderer for iced::Renderer {
     fn draw(
         &mut self,
         bounds: Rectangle,
@@ -48,18 +45,21 @@ impl<Theme> v_slider::Renderer for Renderer<Theme> {
         mod_range_2: Option<&ModulationRange>,
         tick_marks: Option<&tick_marks::Group>,
         text_marks: Option<&text_marks::Group>,
-        style_sheet: &Self::Style,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         tick_marks_cache: &tick_marks::PrimitiveCache,
         text_marks_cache: &text_marks::PrimitiveCache,
     ) {
         let is_mouse_over = bounds.contains(cursor_position);
 
-        let style = if is_dragging {
-            style_sheet.dragging()
+        let appearance = if is_dragging {
+            style_sheet.dragging(style)
         } else if is_mouse_over {
-            style_sheet.hovered()
+            style_sheet.hovered(style)
         } else {
-            style_sheet.active()
+            style_sheet.active(style)
         };
 
         let bounds = Rectangle {
@@ -74,14 +74,14 @@ impl<Theme> v_slider::Renderer for Renderer<Theme> {
             text_marks,
             mod_range_1,
             mod_range_2,
-            tick_marks_style: style_sheet.tick_marks_style(),
-            text_marks_style: style_sheet.text_marks_style(),
-            mod_range_style_1: style_sheet.mod_range_style(),
-            mod_range_style_2: style_sheet.mod_range_style_2(),
+            tick_marks_style: style_sheet.tick_marks_style(style),
+            text_marks_style: style_sheet.text_marks_style(style),
+            mod_range_style_1: style_sheet.mod_range_style(style),
+            mod_range_style_2: style_sheet.mod_range_style_2(style),
         };
 
-        let primitives = match style {
-            Style::Texture(style) => draw_texture_style(
+        let primitives = match appearance {
+            Appearance::Texture(style) => draw_texture_style(
                 normal,
                 &bounds,
                 style,
@@ -89,7 +89,7 @@ impl<Theme> v_slider::Renderer for Renderer<Theme> {
                 tick_marks_cache,
                 text_marks_cache,
             ),
-            Style::Classic(style) => draw_classic_style(
+            Appearance::Classic(style) => draw_classic_style(
                 normal,
                 &bounds,
                 &style,
@@ -97,7 +97,7 @@ impl<Theme> v_slider::Renderer for Renderer<Theme> {
                 tick_marks_cache,
                 text_marks_cache,
             ),
-            Style::Rect(style) => draw_rect_style(
+            Appearance::Rect(style) => draw_rect_style(
                 normal,
                 &bounds,
                 &style,
@@ -105,7 +105,7 @@ impl<Theme> v_slider::Renderer for Renderer<Theme> {
                 tick_marks_cache,
                 text_marks_cache,
             ),
-            Style::RectBipolar(style) => draw_rect_bipolar_style(
+            Appearance::RectBipolar(style) => draw_rect_bipolar_style(
                 normal,
                 &bounds,
                 &style,
