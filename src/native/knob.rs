@@ -11,7 +11,7 @@ use iced_native::{
 };
 
 use crate::core::{ModulationRange, Normal, NormalParam};
-use crate::native::{text_marks, tick_marks, VirtualSliderStatus};
+use crate::native::{text_marks, tick_marks, SliderStatus};
 use crate::style::knob::StyleSheet;
 
 static DEFAULT_SIZE: u16 = 30;
@@ -31,7 +31,8 @@ where
     normal_param: NormalParam,
     size: Length,
     on_change: Box<dyn 'a + Fn(Normal) -> Message>,
-    on_release: Option<Message>,
+    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
+    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
@@ -46,7 +47,6 @@ where
 
 impl<'a, Message, Renderer> Knob<'a, Message, Renderer>
 where
-    Message: Clone,
     Renderer: self::Renderer,
     Renderer::Theme: StyleSheet,
 {
@@ -66,6 +66,7 @@ where
             normal_param,
             size: Length::from(Length::Units(DEFAULT_SIZE)),
             on_change: Box::new(on_change),
+            on_grab: None,
             on_release: None,
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
@@ -80,14 +81,31 @@ where
         }
     }
 
+    /// Sets the grab message of the [`Knob`].
+    /// This is called when the mouse grabs from the knob.
+    ///
+    /// Typically, the user's interaction with the knob starts when this message is produced.
+    /// This is useful for some environments so that external changes, such as automation,
+    /// don't interfer with user's changes.
+    pub fn on_grab(
+        mut self,
+        on_grab: impl 'a + FnMut() -> Option<Message>,
+    ) -> Self {
+        self.on_grab = Some(Box::new(on_grab));
+        self
+    }
+
     /// Sets the release message of the [`Knob`].
     /// This is called when the mouse is released from the knob.
     ///
     /// Typically, the user's interaction with the knob is finished when this message is produced.
     /// This is useful if you need to spawn a long-running task from the knob's result, where
     /// the default on_change message could create too many events.
-    pub fn on_release(mut self, on_release: Message) -> Self {
-        self.on_release = Some(on_release);
+    pub fn on_release(
+        mut self,
+        on_release: impl 'a + FnMut() -> Option<Message>,
+    ) -> Self {
+        self.on_release = Some(Box::new(on_release));
         self
     }
 
@@ -218,11 +236,10 @@ where
     fn move_virtual_slider(
         &mut self,
         state: &mut State,
-        shell: &mut Shell<'_, Message>,
         mut normal_delta: f32,
-    ) -> VirtualSliderStatus {
+    ) -> SliderStatus {
         if normal_delta.abs() < f32::EPSILON {
-            return VirtualSliderStatus::Unchanged;
+            return SliderStatus::Unchanged;
         }
 
         if state.pressed_modifiers.contains(self.modifier_keys) {
@@ -233,9 +250,27 @@ where
             Normal::new(state.continuous_normal - normal_delta);
         state.continuous_normal = self.normal_param.value.as_f32();
 
-        shell.publish((self.on_change)(self.normal_param.value));
+        SliderStatus::Moved
+    }
 
-        VirtualSliderStatus::Moved
+    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) =
+            self.on_grab.as_mut().and_then(|on_grab| on_grab())
+        {
+            shell.publish(message);
+        }
+    }
+
+    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
+        shell.publish((self.on_change)(self.normal_param.value));
+    }
+
+    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) =
+            self.on_release.as_mut().and_then(|on_release| on_release())
+        {
+            shell.publish(message);
+        }
     }
 }
 
@@ -244,7 +279,7 @@ where
 /// [`Knob`]: struct.Knob.html
 #[derive(Debug, Clone)]
 struct State {
-    dragging_status: Option<VirtualSliderStatus>,
+    dragging_status: Option<SliderStatus>,
     prev_drag_y: f32,
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
@@ -277,7 +312,6 @@ impl State {
 impl<'a, Message, Renderer> Widget<Message, Renderer>
     for Knob<'a, Message, Renderer>
 where
-    Message: Clone,
     Renderer: self::Renderer,
     Renderer::Theme: StyleSheet,
 {
@@ -330,13 +364,16 @@ where
 
                     state.prev_drag_y = cursor_position.y;
 
-                    let slider_status =
-                        self.move_virtual_slider(state, shell, normal_delta);
-                    state
-                        .dragging_status
-                        .as_mut()
-                        .expect("dragging_status taken")
-                        .update_with(slider_status);
+                    if self.move_virtual_slider(state, normal_delta).was_moved()
+                    {
+                        self.fire_on_change(shell);
+
+                        state
+                            .dragging_status
+                            .as_mut()
+                            .expect("dragging_status taken")
+                            .moved();
+                    }
 
                     return event::Status::Captured;
                 }
@@ -368,11 +405,22 @@ where
                         let normal_delta = -lines * self.wheel_scalar;
 
                         if self
-                            .move_virtual_slider(state, shell, normal_delta)
+                            .move_virtual_slider(state, normal_delta)
                             .was_moved()
                         {
-                            if let Some(on_release) = self.on_release.clone() {
-                                shell.publish(on_release);
+                            if state.dragging_status.is_none() {
+                                self.maybe_fire_on_grab(shell);
+                            }
+
+                            self.fire_on_change(shell);
+
+                            if let Some(slider_status) =
+                                state.dragging_status.as_mut()
+                            {
+                                // Widget was grabbed => keep it grabbed
+                                slider_status.moved();
+                            } else {
+                                self.maybe_fire_on_release(shell);
                             }
                         }
 
@@ -388,24 +436,36 @@ where
 
                     match click.kind() {
                         mouse::click::Kind::Single => {
+                            self.maybe_fire_on_grab(shell);
+
                             state.dragging_status = Some(Default::default());
                             state.prev_drag_y = cursor_position.y;
                             state.continuous_normal =
                                 self.normal_param.value.as_f32();
                         }
                         _ => {
-                            state.dragging_status = None;
+                            // Reset to default
 
-                            self.normal_param.value = self.normal_param.default;
-                            state.continuous_normal =
-                                self.normal_param.default.as_f32();
+                            let prev_dragging_status =
+                                state.dragging_status.take();
 
-                            shell.publish((self.on_change)(
-                                self.normal_param.value,
-                            ));
+                            if self.normal_param.value
+                                != self.normal_param.default
+                            {
+                                if prev_dragging_status.is_none() {
+                                    self.maybe_fire_on_grab(shell);
+                                }
 
-                            if let Some(on_release) = self.on_release.clone() {
-                                shell.publish(on_release);
+                                self.normal_param.value =
+                                    self.normal_param.default;
+                                state.continuous_normal =
+                                    self.normal_param.default.as_f32();
+
+                                self.fire_on_change(shell);
+
+                                self.maybe_fire_on_release(shell);
+                            } else if prev_dragging_status.is_some() {
+                                self.maybe_fire_on_release(shell);
                             }
                         }
                     }
@@ -419,10 +479,10 @@ where
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
                 if let Some(slider_status) = state.dragging_status.take() {
-                    if slider_status.was_moved() {
-                        if let Some(on_release) = self.on_release.clone() {
-                            shell.publish(on_release);
-                        }
+                    if self.on_grab.is_some() || slider_status.was_moved() {
+                        // maybe fire on release if `on_grab` is defined
+                        // so as to terminate the action, regardless of the actual user movement.
+                        self.maybe_fire_on_release(shell);
                     }
 
                     state.continuous_normal = self.normal_param.value.as_f32();
@@ -529,7 +589,7 @@ where
 impl<'a, Message, Renderer> From<Knob<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
-    Message: 'a + Clone,
+    Message: 'a,
     Renderer: 'a + self::Renderer,
     Renderer::Theme: 'a + StyleSheet,
 {

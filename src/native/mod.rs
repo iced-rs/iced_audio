@@ -27,24 +27,20 @@ pub use xy_pad::XYPad;
 /// This allows tracking the virtual slider actual movements
 /// thus preventing some events from unnecessary being emitted.
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
-pub(crate) enum VirtualSliderStatus {
+pub(crate) enum SliderStatus {
     Moved,
     #[default]
     Unchanged,
 }
 
-impl VirtualSliderStatus {
-    /// Updates current value with the provided `update`.
-    ///
-    /// Doesn't change `self` if `update` is `Unchanged`.
-    pub(crate) fn update_with(&mut self, update: Self) {
-        if matches!(update, VirtualSliderStatus::Moved) {
-            *self = VirtualSliderStatus::Moved;
-        }
+impl SliderStatus {
+    /// Sets the slider as moved.
+    pub(crate) fn moved(&mut self) {
+        *self = SliderStatus::Moved;
     }
 
-    /// Whether the virtual slider status was moved.
+    /// Whether the slider was moved.
     pub(crate) fn was_moved(self) -> bool {
-        matches!(self, VirtualSliderStatus::Moved)
+        matches!(self, SliderStatus::Moved)
     }
 }
