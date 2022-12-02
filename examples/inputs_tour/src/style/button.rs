@@ -1,4 +1,4 @@
-use iced::{button, Background, Color, Vector};
+use iced::{widget::button, Background, Color, Vector};
 
 use super::colors;
 
@@ -8,8 +8,10 @@ pub enum Button {
 }
 
 impl button::StyleSheet for Button {
-    fn active(&self) -> button::Style {
-        button::Style {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> button::Appearance {
+        button::Appearance {
             background: Some(Background::Color(match self {
                 Button::Primary => colors::BUTTON_PRIMARY,
                 Button::Secondary => colors::BUTTON_SECONDARY,
@@ -17,15 +19,21 @@ impl button::StyleSheet for Button {
             border_radius: 12.0,
             shadow_offset: Vector::new(1.0, 1.0),
             text_color: Color::from_rgb8(0xEE, 0xEE, 0xEE),
-            ..button::Style::default()
+            ..button::Appearance::default()
         }
     }
 
-    fn hovered(&self) -> button::Style {
-        button::Style {
+    fn hovered(&self, style: &Self::Style) -> button::Appearance {
+        button::Appearance {
             text_color: Color::WHITE,
             shadow_offset: Vector::new(1.0, 2.0),
-            ..self.active()
+            ..self.active(style)
         }
+    }
+}
+
+impl From<Button> for iced::theme::Button {
+    fn from(style: Button) -> Self {
+        iced::theme::Button::Custom(Box::new(style))
     }
 }

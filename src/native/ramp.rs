@@ -5,13 +5,15 @@
 
 use std::fmt::Debug;
 
+use iced_native::widget::tree::{self, Tree};
 use iced_native::{
-    event, keyboard, layout, mouse, Clipboard, Element, Event, Layout, Length,
-    Point, Rectangle, Shell, Size, Widget,
+    event, keyboard, layout, mouse, touch, Clipboard, Element, Event, Layout,
+    Length, Point, Rectangle, Shell, Size, Widget,
 };
 
 use crate::core::{Normal, NormalParam};
-use crate::IntRange;
+use crate::native::SliderStatus;
+use crate::style::ramp::StyleSheet;
 
 static DEFAULT_WIDTH: u16 = 40;
 static DEFAULT_HEIGHT: u16 = 20;
@@ -40,34 +42,44 @@ impl Default for RampDirection {
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`Ramp`]: struct.Ramp.html
 #[allow(missing_debug_implementations)]
-pub struct Ramp<'a, Message, Renderer: self::Renderer> {
-    state: &'a mut State,
-    on_change: Box<dyn Fn(Normal) -> Message>,
+pub struct Ramp<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
+    normal_param: NormalParam,
+    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
+    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
+    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
     scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
     modifier_keys: keyboard::Modifiers,
     width: Length,
     height: Length,
-    style: Renderer::Style,
+    style: <Renderer::Theme as StyleSheet>::Style,
     direction: RampDirection,
 }
 
-impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
+impl<'a, Message, Renderer> Ramp<'a, Message, Renderer>
+where
+    Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
+{
     /// Creates a new [`Ramp`].
     ///
     /// It expects:
-    ///   * the local [`State`] of the [`Ramp`]
+    ///   * the [`NormalParam`] of the [`Ramp`]
     ///   * a function that will be called when the [`Ramp`] is dragged.
     ///   * the [`RampDirection`] of the [`Ramp`], which tells if the ramp line
     /// should point `Up` (from `bottom-left` to `top-right`), or `Down` (from
     /// `top-left` to `bottom-right`)
     ///
     /// [`RampDirection`]: enum.RampDirection.html
-    /// [`State`]: struct.State.html
+    /// [`NormalParam`]: struct.NormalParam.html
     /// [`Ramp`]: struct.Ramp.html
     pub fn new<F>(
-        state: &'a mut State,
+        normal_param: NormalParam,
         on_change: F,
         direction: RampDirection,
     ) -> Self
@@ -75,17 +87,47 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
         F: 'static + Fn(Normal) -> Message,
     {
         Ramp {
-            state,
+            normal_param,
             on_change: Box::new(on_change),
+            on_grab: None,
+            on_release: None,
             scalar: DEFAULT_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             width: Length::from(Length::Units(DEFAULT_WIDTH)),
             height: Length::from(Length::Units(DEFAULT_HEIGHT)),
-            style: Renderer::Style::default(),
+            style: Default::default(),
             direction,
         }
+    }
+
+    /// Sets the grab message of the [`Ramp`].
+    /// This is called when the mouse grabs from the ramp.
+    ///
+    /// Typically, the user's interaction with the ramp starts when this message is produced.
+    /// This is useful for some environments so that external changes, such as automation,
+    /// don't interfer with user's changes.
+    pub fn on_grab(
+        mut self,
+        on_grab: impl 'a + FnMut() -> Option<Message>,
+    ) -> Self {
+        self.on_grab = Some(Box::new(on_grab));
+        self
+    }
+
+    /// Sets the release message of the [`Ramp`].
+    /// This is called when the mouse is released from the ramp.
+    ///
+    /// Typically, the user's interaction with the ramp is finished when this message is produced.
+    /// This is useful if you need to spawn a long-running task from the ramp's result, where
+    /// the default on_change message could create too many events.
+    pub fn on_release(
+        mut self,
+        on_release: impl 'a + FnMut() -> Option<Message>,
+    ) -> Self {
+        self.on_release = Some(Box::new(on_release));
+        self
     }
 
     /// Sets the width of the [`Ramp`].
@@ -109,7 +151,10 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
     /// Sets the style of the [`Ramp`].
     ///
     /// [`Ramp`]: struct.Ramp.html
-    pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
+    pub fn style(
+        mut self,
+        style: impl Into<<Renderer::Theme as StyleSheet>::Style>,
+    ) -> Self {
         self.style = style.into();
         self
     }
@@ -168,26 +213,42 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
 
     fn move_virtual_slider(
         &mut self,
-        messages: &mut Shell<'_, Message>,
+        state: &mut State,
         mut normal_delta: f32,
-    ) {
-        if self.state.pressed_modifiers.contains(self.modifier_keys) {
+    ) -> SliderStatus {
+        if normal_delta.abs() < f32::EPSILON {
+            return SliderStatus::Unchanged;
+        }
+
+        if state.pressed_modifiers.contains(self.modifier_keys) {
             normal_delta *= self.modifier_scalar;
         }
 
-        let mut normal = self.state.continuous_normal - normal_delta;
+        self.normal_param.value =
+            (state.continuous_normal - normal_delta).into();
+        state.continuous_normal = self.normal_param.value.as_f32();
 
-        if normal < 0.0 {
-            normal = 0.0;
-        } else if normal > 1.0 {
-            normal = 1.0;
+        SliderStatus::Moved
+    }
+
+    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) =
+            self.on_grab.as_mut().and_then(|on_grab| on_grab())
+        {
+            shell.publish(message);
         }
+    }
 
-        self.state.continuous_normal = normal;
+    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
+        shell.publish((self.on_change)(self.normal_param.value));
+    }
 
-        self.state.normal_param.value = normal.into();
-
-        messages.publish((self.on_change)(self.state.normal_param.value));
+    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) =
+            self.on_release.as_mut().and_then(|on_release| on_release())
+        {
+            shell.publish(message);
+        }
     }
 }
 
@@ -195,9 +256,8 @@ impl<'a, Message, Renderer: self::Renderer> Ramp<'a, Message, Renderer> {
 ///
 /// [`Ramp`]: struct.Ramp.html
 #[derive(Debug, Copy, Clone)]
-pub struct State {
-    normal_param: NormalParam,
-    is_dragging: bool,
+struct State {
+    dragging_status: Option<SliderStatus>,
     prev_drag_y: f32,
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
@@ -208,68 +268,21 @@ impl State {
     /// Creates a new [`Ramp`] state.
     ///
     /// It expects:
-    /// * a [`NormalParam`] to assign to this widget. A [`NormalParam`] with a [`Normal`]
-    /// value of `0.5` represents a straight line, `0.0` is curved downward all
-    /// the way, and `1.0` is curved upward all the way.
+    /// * current [`Normal`] value for the [`Ramp`].
+    /// A [`Normal`] value of `0.5` represents a straight line,
+    /// `0.0` is curved downward all the way,
+    /// and `1.0` is curved upward all the way.
     ///
-    /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
     /// [`Normal`]: ../../core/struct.Normal.html
     /// [`Ramp`]: struct.Ramp.html
-    pub fn new(normal_param: NormalParam) -> Self {
+    fn new(normal: Normal) -> Self {
         Self {
-            normal_param,
-            is_dragging: false,
+            dragging_status: None,
             prev_drag_y: 0.0,
-            continuous_normal: normal_param.value.as_f32(),
+            continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
         }
-    }
-
-    /// Set the normalized value of the [`Ramp`].
-    pub fn set_normal(&mut self, normal: Normal) {
-        self.normal_param.value = normal;
-        self.continuous_normal = normal.into();
-    }
-
-    /// Get the normalized value of the [`Ramp`].
-    pub fn normal(&self) -> Normal {
-        self.normal_param.value
-    }
-
-    /// Set the normalized default value of the [`Ramp`].
-    pub fn set_default(&mut self, normal: Normal) {
-        self.normal_param.default = normal;
-    }
-
-    /// Get the normalized default value of the [`Ramp`].
-    pub fn default(&self) -> Normal {
-        self.normal_param.default
-    }
-
-    /// Snap the visible value of the [`Ramp`] to the nearest value
-    /// in the integer range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use iced_audio::{ramp, IntRange};
-    ///
-    /// let mut state = ramp::State::new(Default::default());
-    /// let int_range = IntRange::new(0, 10);
-    ///
-    /// state.snap_visible_to(&int_range);
-    ///
-    /// ```
-    pub fn snap_visible_to(&mut self, range: &IntRange) {
-        self.normal_param.value = range.snapped(self.normal_param.value);
-    }
-
-    /// Is the [`Ramp`] currently in the dragging state?
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    pub fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
 }
 
@@ -277,7 +290,16 @@ impl<'a, Message, Renderer> Widget<Message, Renderer>
     for Ramp<'a, Message, Renderer>
 where
     Renderer: self::Renderer,
+    Renderer::Theme: StyleSheet,
 {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(State::new(self.normal_param.value))
+    }
+
     fn width(&self) -> Length {
         self.width
     }
@@ -300,115 +322,164 @@ where
 
     fn on_event(
         &mut self,
+        state: &mut Tree,
         event: Event,
         layout: Layout<'_>,
         cursor_position: Point,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        messages: &mut Shell<'_, Message>,
+        shell: &mut Shell<'_, Message>,
     ) -> event::Status {
+        let state = state.state.downcast_mut::<State>();
+
         match event {
-            Event::Mouse(mouse_event) => match mouse_event {
-                mouse::Event::CursorMoved { .. } => {
-                    if self.state.is_dragging {
-                        if self.state.is_dragging {
-                            let normal_delta = (cursor_position.y
-                                - self.state.prev_drag_y)
-                                * self.scalar;
+            Event::Mouse(mouse::Event::CursorMoved { .. })
+            | Event::Touch(touch::Event::FingerMoved { .. }) => {
+                if state.dragging_status.is_some() {
+                    let normal_delta =
+                        (cursor_position.y - state.prev_drag_y) * self.scalar;
 
-                            self.state.prev_drag_y = cursor_position.y;
+                    state.prev_drag_y = cursor_position.y;
 
-                            self.move_virtual_slider(messages, normal_delta);
+                    if self.move_virtual_slider(state, normal_delta).was_moved()
+                    {
+                        self.fire_on_change(shell);
 
-                            return event::Status::Captured;
-                        }
+                        state
+                            .dragging_status
+                            .as_mut()
+                            .expect("dragging_status taken")
+                            .moved();
                     }
+
+                    return event::Status::Captured;
                 }
-                mouse::Event::WheelScrolled { delta } => {
-                    if self.wheel_scalar == 0.0 {
-                        return event::Status::Ignored;
-                    }
-
-                    if layout.bounds().contains(cursor_position) {
-                        let lines = match delta {
-                            iced_native::mouse::ScrollDelta::Lines {
-                                y,
-                                ..
-                            } => y,
-                            iced_native::mouse::ScrollDelta::Pixels {
-                                y,
-                                ..
-                            } => {
-                                if y > 0.0 {
-                                    1.0
-                                } else if y < 0.0 {
-                                    -1.0
-                                } else {
-                                    0.0
-                                }
-                            }
-                        };
-
-                        if lines != 0.0 {
-                            let normal_delta = -lines * self.wheel_scalar;
-
-                            self.move_virtual_slider(messages, normal_delta);
-
-                            return event::Status::Captured;
-                        }
-                    }
+            }
+            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                if self.wheel_scalar == 0.0 {
+                    return event::Status::Ignored;
                 }
-                mouse::Event::ButtonPressed(mouse::Button::Left) => {
-                    if layout.bounds().contains(cursor_position) {
-                        let click = mouse::Click::new(
-                            cursor_position,
-                            self.state.last_click,
-                        );
 
-                        match click.kind() {
-                            mouse::click::Kind::Single => {
-                                self.state.is_dragging = true;
-                                self.state.prev_drag_y = cursor_position.y;
-                            }
-                            _ => {
-                                self.state.is_dragging = false;
-
-                                self.state.normal_param.value =
-                                    self.state.normal_param.default;
-
-                                messages.publish((self.on_change)(
-                                    self.state.normal_param.value,
-                                ));
+                if layout.bounds().contains(cursor_position) {
+                    let lines = match delta {
+                        iced_native::mouse::ScrollDelta::Lines {
+                            y, ..
+                        } => y,
+                        iced_native::mouse::ScrollDelta::Pixels {
+                            y, ..
+                        } => {
+                            if y > 0.0 {
+                                1.0
+                            } else if y < 0.0 {
+                                -1.0
+                            } else {
+                                0.0
                             }
                         }
+                    };
 
-                        self.state.last_click = Some(click);
+                    if lines != 0.0 {
+                        let normal_delta = -lines * self.wheel_scalar;
+
+                        if self
+                            .move_virtual_slider(state, normal_delta)
+                            .was_moved()
+                        {
+                            if state.dragging_status.is_none() {
+                                self.maybe_fire_on_grab(shell);
+                            }
+
+                            self.fire_on_change(shell);
+
+                            if let Some(slider_status) =
+                                state.dragging_status.as_mut()
+                            {
+                                // Widget was grabbed => keep it grabbed
+                                slider_status.moved();
+                            } else {
+                                self.maybe_fire_on_release(shell);
+                            }
+                        }
 
                         return event::Status::Captured;
                     }
                 }
-                mouse::Event::ButtonReleased(mouse::Button::Left) => {
-                    self.state.is_dragging = false;
-                    self.state.continuous_normal =
-                        self.state.normal_param.value.as_f32();
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                if layout.bounds().contains(cursor_position) {
+                    let click =
+                        mouse::Click::new(cursor_position, state.last_click);
+
+                    match click.kind() {
+                        mouse::click::Kind::Single => {
+                            self.maybe_fire_on_grab(shell);
+
+                            state.dragging_status = Some(Default::default());
+                            state.prev_drag_y = cursor_position.y;
+                            state.continuous_normal =
+                                self.normal_param.value.as_f32();
+                        }
+                        _ => {
+                            // Reset to default
+
+                            let prev_dragging_status =
+                                state.dragging_status.take();
+
+                            if self.normal_param.value
+                                != self.normal_param.default
+                            {
+                                if prev_dragging_status.is_none() {
+                                    self.maybe_fire_on_grab(shell);
+                                }
+
+                                self.normal_param.value =
+                                    self.normal_param.default;
+                                state.continuous_normal =
+                                    self.normal_param.default.as_f32();
+
+                                self.fire_on_change(shell);
+
+                                self.maybe_fire_on_release(shell);
+                            } else if prev_dragging_status.is_some() {
+                                self.maybe_fire_on_release(shell);
+                            }
+                        }
+                    }
+
+                    state.last_click = Some(click);
 
                     return event::Status::Captured;
                 }
-                _ => {}
-            },
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerLifted { .. })
+            | Event::Touch(touch::Event::FingerLost { .. }) => {
+                if let Some(slider_status) = state.dragging_status.take() {
+                    if self.on_grab.is_some() || slider_status.was_moved() {
+                        // maybe fire on release if `on_grab` is defined
+                        // so as to terminate the action, regardless of the actual user movement.
+                        self.maybe_fire_on_release(shell);
+                    }
+
+                    state.continuous_normal = self.normal_param.value.as_f32();
+
+                    return event::Status::Captured;
+                }
+            }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
-                    self.state.pressed_modifiers = modifiers;
+                    state.pressed_modifiers = modifiers;
 
                     return event::Status::Captured;
                 }
@@ -422,17 +493,21 @@ where
 
     fn draw(
         &self,
+        state: &Tree,
         renderer: &mut Renderer,
+        theme: &Renderer::Theme,
         _style: &iced_native::renderer::Style,
         layout: Layout<'_>,
         cursor_position: Point,
         _viewport: &Rectangle,
     ) {
+        let state = state.state.downcast_ref::<State>();
         renderer.draw(
             layout.bounds(),
             cursor_position,
-            self.state.normal_param.value,
-            self.state.is_dragging,
+            self.normal_param.value,
+            state.dragging_status.is_some(),
+            theme,
             &self.style,
             self.direction,
         )
@@ -445,10 +520,10 @@ where
 /// able to use a [`Ramp`] in your user interface.
 ///
 /// [`Ramp`]: struct.Ramp.html
-pub trait Renderer: iced_native::Renderer {
-    /// The style supported by this renderer.
-    type Style: Default;
-
+pub trait Renderer: iced_native::Renderer
+where
+    Self::Theme: StyleSheet,
+{
     /// Draws a [`Ramp`].
     ///
     /// It receives:
@@ -465,8 +540,11 @@ pub trait Renderer: iced_native::Renderer {
         bounds: Rectangle,
         cursor_position: Point,
         normal: Normal,
-        is_dragging: bool,
-        style: &Self::Style,
+        dragging_status: bool,
+        style_sheet: &dyn StyleSheet<
+            Style = <Self::Theme as StyleSheet>::Style,
+        >,
+        style: &<Self::Theme as StyleSheet>::Style,
         direction: RampDirection,
     );
 }
@@ -474,8 +552,9 @@ pub trait Renderer: iced_native::Renderer {
 impl<'a, Message, Renderer> From<Ramp<'a, Message, Renderer>>
     for Element<'a, Message, Renderer>
 where
-    Renderer: 'a + self::Renderer,
     Message: 'a,
+    Renderer: 'a + self::Renderer,
+    Renderer::Theme: 'a + StyleSheet,
 {
     fn from(
         ramp: Ramp<'a, Message, Renderer>,

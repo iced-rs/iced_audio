@@ -5,7 +5,7 @@
 use iced_native::Color;
 //use iced_native::image;
 
-pub use iced_graphics::canvas::LineCap;
+pub use iced::widget::canvas::{Canvas, LineCap};
 
 use crate::style::{default_colors, text_marks, tick_marks};
 use crate::KnobAngleRange;
@@ -14,7 +14,7 @@ use crate::KnobAngleRange;
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub enum Style {
+pub enum Appearance {
     //Texture(TextureStyle),
     /// A classic circular style
     Circle(CircleStyle),
@@ -26,9 +26,9 @@ pub enum Style {
 }
 
 /*
-/// A [`Style`] for a [`Knob`] that uses an image texture for the knob
+/// An [`Appearance`] for a [`Knob`] that uses an image texture for the knob
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
@@ -109,9 +109,9 @@ pub enum NotchShape {
     Line(LineNotch),
 }
 
-/// A classic circular [`Style`] of a [`Knob`]
+/// A classic circular [`Appearance`] of a [`Knob`]
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub struct CircleStyle {
@@ -125,9 +125,26 @@ pub struct CircleStyle {
     pub notch: NotchShape,
 }
 
-/// A modern arc [`Style`] of a [`Knob`]
+impl Default for CircleStyle {
+    fn default() -> Self {
+        CircleStyle {
+            color: default_colors::LIGHT_BACK,
+            border_width: 1.0,
+            border_color: default_colors::BORDER,
+            notch: NotchShape::Circle(CircleNotch {
+                color: default_colors::BORDER,
+                border_width: 0.0,
+                border_color: Color::TRANSPARENT,
+                diameter: StyleLength::Scaled(0.17),
+                offset: StyleLength::Scaled(0.15),
+            }),
+        }
+    }
+}
+
+/// A modern arc [`Appearance`] of a [`Knob`]
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub struct ArcStyle {
@@ -143,11 +160,11 @@ pub struct ArcStyle {
     pub cap: LineCap,
 }
 
-/// A modern arc [`Style`] of a [`Knob`].
+/// A modern arc [`Appearance`] of a [`Knob`].
 /// It can display different colors for left, right, and center positions. The filled arc
 /// color draws from the center position.
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub struct ArcBipolarStyle {
@@ -259,26 +276,29 @@ impl std::default::Default for TextMarksStyle {
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 pub trait StyleSheet {
+    /// The supported style of the [`StyleSheet`].
+    type Style: Default;
+
     /// Produces the style of an active [`Knob`].
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn active(&self) -> Style;
+    fn active(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`Knob`].
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn hovered(&self) -> Style;
+    fn hovered(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a [`Knob`] that is being dragged.
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn dragging(&self) -> Style;
+    fn dragging(&self, style: &Self::Style) -> Appearance;
 
     /// a [`KnobAngleRange`] that defines the minimum and maximum angle that the
     /// knob rotates
     ///
     /// [`KnobAngleRange`]: struct.KnobAngleRange.html
-    fn angle_range(&self) -> KnobAngleRange {
+    fn angle_range(&self, _style: &Self::Style) -> KnobAngleRange {
         KnobAngleRange::default()
     }
 
@@ -288,7 +308,7 @@ pub trait StyleSheet {
     ///
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn tick_marks_style(&self) -> Option<TickMarksStyle> {
+    fn tick_marks_style(&self, _style: &Self::Style) -> Option<TickMarksStyle> {
         None
     }
 
@@ -297,7 +317,7 @@ pub trait StyleSheet {
     /// For no value arc, don't override this or set this to return `None`.
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn value_arc_style(&self) -> Option<ValueArcStyle> {
+    fn value_arc_style(&self, _style: &Self::Style) -> Option<ValueArcStyle> {
         None
     }
 
@@ -307,7 +327,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_style(&self) -> Option<ModRangeArcStyle> {
+    fn mod_range_arc_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<ModRangeArcStyle> {
         None
     }
 
@@ -317,7 +340,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_style_2(&self) -> Option<ModRangeArcStyle> {
+    fn mod_range_arc_style_2(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<ModRangeArcStyle> {
         None
     }
 
@@ -327,84 +353,7 @@ pub trait StyleSheet {
     ///
     /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn text_marks_style(&self) -> Option<TextMarksStyle> {
+    fn text_marks_style(&self, _style: &Self::Style) -> Option<TextMarksStyle> {
         None
-    }
-}
-
-struct Default;
-impl Default {
-    const ACTIVE_CIRCLE_STYLE: CircleStyle = CircleStyle {
-        color: default_colors::LIGHT_BACK,
-        border_width: 1.0,
-        border_color: default_colors::BORDER,
-        notch: NotchShape::Circle(CircleNotch {
-            color: default_colors::BORDER,
-            border_width: 0.0,
-            border_color: Color::TRANSPARENT,
-            diameter: StyleLength::Scaled(0.17),
-            offset: StyleLength::Scaled(0.15),
-        }),
-    };
-}
-impl StyleSheet for Default {
-    fn active(&self) -> Style {
-        Style::Circle(Self::ACTIVE_CIRCLE_STYLE)
-    }
-
-    #[allow(irrefutable_let_patterns)]
-    fn hovered(&self) -> Style {
-        Style::Circle(CircleStyle {
-            color: default_colors::KNOB_BACK_HOVER,
-            ..Self::ACTIVE_CIRCLE_STYLE
-        })
-    }
-
-    fn dragging(&self) -> Style {
-        self.hovered()
-    }
-
-    fn tick_marks_style(&self) -> Option<TickMarksStyle> {
-        Some(TickMarksStyle {
-            style: tick_marks::Style {
-                tier_1: tick_marks::Shape::Circle {
-                    diameter: 4.0,
-                    color: default_colors::TICK_TIER_1,
-                },
-                tier_2: tick_marks::Shape::Circle {
-                    diameter: 2.0,
-                    color: default_colors::TICK_TIER_2,
-                },
-                tier_3: tick_marks::Shape::Circle {
-                    diameter: 2.0,
-                    color: default_colors::TICK_TIER_3,
-                },
-            },
-            offset: 3.5,
-        })
-    }
-
-    fn text_marks_style(&self) -> Option<TextMarksStyle> {
-        Some(TextMarksStyle {
-            style: text_marks::Style::default(),
-            offset: 14.0,
-            h_char_offset: 3.0,
-            v_offset: -0.75,
-        })
-    }
-}
-
-impl std::default::Default for Box<dyn StyleSheet> {
-    fn default() -> Self {
-        Box::new(Default)
-    }
-}
-
-impl<T> From<T> for Box<dyn StyleSheet>
-where
-    T: 'static + StyleSheet,
-{
-    fn from(style: T) -> Self {
-        Box::new(style)
     }
 }

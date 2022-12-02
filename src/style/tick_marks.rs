@@ -1,6 +1,6 @@
-//! Various styles for a [`TickMarkGroup`] in a bar meter widget
-///
-/// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
+//! Various styles for a [`tick_marks::Group`] in a bar meter widget
+//!
+//! [`tick_marks::Group`]: ../../native/tick_marks/struct.Group.html
 use iced_native::Color;
 
 use crate::core::Offset;
@@ -102,7 +102,7 @@ pub enum Shape {
     },
 }
 
-impl std::default::Default for Style {
+impl Default for Style {
     fn default() -> Self {
         Self {
             tier_1: Shape::Line {

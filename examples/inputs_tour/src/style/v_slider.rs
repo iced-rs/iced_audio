@@ -1,4 +1,5 @@
-use iced::{image, Color, Rectangle};
+use iced::widget::image;
+use iced::{Color, Rectangle};
 use iced_audio::{text_marks, tick_marks, v_slider, Offset};
 
 use super::colors;
@@ -19,23 +20,28 @@ impl RectStyle {
     };
 }
 impl v_slider::StyleSheet for RectStyle {
-    fn active(&self) -> v_slider::Style {
-        v_slider::Style::Rect(Self::ACTIVE_RECT_STYLE)
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> v_slider::Appearance {
+        v_slider::Appearance::Rect(Self::ACTIVE_RECT_STYLE)
     }
 
-    fn hovered(&self) -> v_slider::Style {
-        v_slider::Style::Rect(v_slider::RectStyle {
+    fn hovered(&self, _style: &Self::Style) -> v_slider::Appearance {
+        v_slider::Appearance::Rect(v_slider::RectStyle {
             filled_color: colors::FILLED_HOVER,
             handle_height: 5,
             ..Self::ACTIVE_RECT_STYLE
         })
     }
 
-    fn dragging(&self) -> v_slider::Style {
-        self.hovered()
+    fn dragging(&self, style: &Self::Style) -> v_slider::Appearance {
+        self.hovered(style)
     }
 
-    fn mod_range_style(&self) -> Option<v_slider::ModRangeStyle> {
+    fn mod_range_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<v_slider::ModRangeStyle> {
         Some(v_slider::ModRangeStyle {
             placement: v_slider::ModRangePlacement::CenterFilled {
                 edge_padding: 0.0,
@@ -80,12 +86,14 @@ impl RectBipolarStyle {
         };
 }
 impl v_slider::StyleSheet for RectBipolarStyle {
-    fn active(&self) -> v_slider::Style {
-        v_slider::Style::RectBipolar(Self::ACTIVE_RECT_STYLE)
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> v_slider::Appearance {
+        v_slider::Appearance::RectBipolar(Self::ACTIVE_RECT_STYLE)
     }
 
-    fn hovered(&self) -> v_slider::Style {
-        v_slider::Style::RectBipolar(v_slider::RectBipolarStyle {
+    fn hovered(&self, _style: &Self::Style) -> v_slider::Appearance {
+        v_slider::Appearance::RectBipolar(v_slider::RectBipolarStyle {
             top_filled_color: colors::FILLED_HOVER,
             bottom_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
             handle_height: 5,
@@ -93,8 +101,8 @@ impl v_slider::StyleSheet for RectBipolarStyle {
         })
     }
 
-    fn dragging(&self) -> v_slider::Style {
-        self.hovered()
+    fn dragging(&self, style: &Self::Style) -> v_slider::Appearance {
+        self.hovered(style)
     }
 }
 
@@ -102,8 +110,10 @@ impl v_slider::StyleSheet for RectBipolarStyle {
 
 pub struct TextureStyle(pub image::Handle, pub Rectangle);
 impl v_slider::StyleSheet for TextureStyle {
-    fn active(&self) -> v_slider::Style {
-        v_slider::Style::Texture(v_slider::TextureStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> v_slider::Appearance {
+        v_slider::Appearance::Texture(v_slider::TextureStyle {
             rail: v_slider::ClassicRail {
                 rail_colors: (
                     [0.0, 0.0, 0.0, 0.9].into(),
@@ -118,15 +128,18 @@ impl v_slider::StyleSheet for TextureStyle {
         })
     }
 
-    fn hovered(&self) -> v_slider::Style {
-        self.active()
+    fn hovered(&self, style: &Self::Style) -> v_slider::Appearance {
+        self.active(style)
     }
 
-    fn dragging(&self) -> v_slider::Style {
-        self.active()
+    fn dragging(&self, style: &Self::Style) -> v_slider::Appearance {
+        self.active(style)
     }
 
-    fn tick_marks_style(&self) -> Option<v_slider::TickMarksStyle> {
+    fn tick_marks_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<v_slider::TickMarksStyle> {
         Some(v_slider::TickMarksStyle {
             style: tick_marks::Style {
                 tier_1: tick_marks::Shape::Line {
@@ -153,7 +166,10 @@ impl v_slider::StyleSheet for TextureStyle {
         })
     }
 
-    fn text_marks_style(&self) -> Option<v_slider::TextMarksStyle> {
+    fn text_marks_style(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<v_slider::TextMarksStyle> {
         Some(v_slider::TextMarksStyle {
             style: text_marks::Style {
                 color: [0.16, 0.16, 0.16, 0.9].into(),

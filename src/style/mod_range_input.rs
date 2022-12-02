@@ -10,7 +10,7 @@ use crate::style::default_colors;
 ///
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
-pub enum Style {
+pub enum Appearance {
     /// A circle style
     Circle(CircleStyle),
     /// A square style
@@ -23,9 +23,9 @@ pub enum Style {
     Invisible,
 }
 
-/// A circle [`Style`] for an [`ModRangeInput`]
+/// A circle [`Appearance`] for an [`ModRangeInput`]
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
 pub struct CircleStyle {
@@ -37,9 +37,19 @@ pub struct CircleStyle {
     pub border_color: Color,
 }
 
-/// A square [`Style`] for an [`ModRangeInput`]
+impl Default for CircleStyle {
+    fn default() -> Self {
+        CircleStyle {
+            color: default_colors::LIGHT_BACK,
+            border_width: 1.0,
+            border_color: default_colors::BORDER,
+        }
+    }
+}
+
+/// A square [`Appearance`] for an [`ModRangeInput`]
 ///
-/// [`Style`]: enum.Style.html
+/// [`Appearance`]: enum.Appearance.html
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
 pub struct SquareStyle {
@@ -57,84 +67,21 @@ pub struct SquareStyle {
 ///
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 pub trait StyleSheet {
+    /// The supported style of the [`StyleSheet`].
+    type Style: Default;
+
     /// Produces the style of an active [`ModRangeInput`].
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn active(&self) -> Style;
+    fn active(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`ModRangeInput`].
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn hovered(&self) -> Style;
+    fn hovered(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a [`ModRangeInput`] that is being dragged.
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn dragging(&self) -> Style;
-}
-
-struct Default;
-impl Default {
-    const ACTIVE_STYLE: CircleStyle = CircleStyle {
-        color: default_colors::LIGHT_BACK,
-        border_width: 1.0,
-        border_color: default_colors::BORDER,
-    };
-}
-impl StyleSheet for Default {
-    fn active(&self) -> Style {
-        Style::Circle(Self::ACTIVE_STYLE)
-    }
-
-    fn hovered(&self) -> Style {
-        Style::Circle(CircleStyle {
-            color: default_colors::KNOB_BACK_HOVER,
-            ..Self::ACTIVE_STYLE
-        })
-    }
-
-    fn dragging(&self) -> Style {
-        self.hovered()
-    }
-}
-
-/// An invisible [`StyleSheet`] for an [`ModRangeInput`]
-///
-/// Appearance is invisible, but the input is still interactable. Useful
-/// if placed right on top of a [`Knob`] with a [`ModRangeRingStyle`].
-///
-/// [`StyleSheet`]: struct.StyleSheet.html
-/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-/// [`Knob`]: ../../native/knob/struct.Knob.html
-/// [`ModRangeRingStyle`]: ../knob/struct.ModRangeRingStyle.html
-#[allow(missing_debug_implementations)]
-pub struct DefaultInvisible;
-
-impl StyleSheet for DefaultInvisible {
-    fn active(&self) -> Style {
-        Style::Invisible
-    }
-
-    fn hovered(&self) -> Style {
-        self.active()
-    }
-
-    fn dragging(&self) -> Style {
-        self.active()
-    }
-}
-
-impl std::default::Default for Box<dyn StyleSheet> {
-    fn default() -> Self {
-        Box::new(Default)
-    }
-}
-
-impl<T> From<T> for Box<dyn StyleSheet>
-where
-    T: 'static + StyleSheet,
-{
-    fn from(style: T) -> Self {
-        Box::new(style)
-    }
+    fn dragging(&self, style: &Self::Style) -> Appearance;
 }

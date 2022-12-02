@@ -14,7 +14,7 @@ impl CustomStyle {
         border_radius: 2.0,
         border_color: colors::HANDLE,
     };
-    const ACTIVE_STYLE: xy_pad::Style = xy_pad::Style {
+    const ACTIVE_STYLE: xy_pad::Appearance = xy_pad::Appearance {
         rail_width: 1.0,
         h_rail_color: colors::HANDLE,
         v_rail_color: colors::HANDLE,
@@ -32,12 +32,14 @@ impl CustomStyle {
     };
 }
 impl xy_pad::StyleSheet for CustomStyle {
-    fn active(&self) -> xy_pad::Style {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> xy_pad::Appearance {
         Self::ACTIVE_STYLE
     }
 
-    fn hovered(&self) -> xy_pad::Style {
-        xy_pad::Style {
+    fn hovered(&self, _style: &Self::Style) -> xy_pad::Appearance {
+        xy_pad::Appearance {
             handle: xy_pad::HandleShape::Square(xy_pad::HandleSquare {
                 color: colors::FILLED_HOVER,
                 size: 12,
@@ -47,8 +49,8 @@ impl xy_pad::StyleSheet for CustomStyle {
         }
     }
 
-    fn dragging(&self) -> xy_pad::Style {
-        xy_pad::Style {
+    fn dragging(&self, _style: &Self::Style) -> xy_pad::Appearance {
+        xy_pad::Appearance {
             handle: xy_pad::HandleShape::Square(xy_pad::HandleSquare {
                 color: colors::FILLED_HOVER,
                 ..Self::ACTIVE_HANDLE

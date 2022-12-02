@@ -32,3 +32,13 @@ impl Default for NormalParam {
         }
     }
 }
+
+impl NormalParam {
+    /// Updates the [`Normal`] value of this `NormalParam`
+    ///
+    /// [`Normal`]: ../struct.Normal.html
+    #[inline]
+    pub fn update(&mut self, normal: Normal) {
+        self.value = normal;
+    }
+}

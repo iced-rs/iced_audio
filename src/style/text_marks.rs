@@ -1,7 +1,7 @@
-//! Various styles for a [`TextMarkGroup`] in a bar meter widget
-///
-/// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
-use iced_graphics::{Color, Font};
+//! Various styles for a [`text_marks::Group`] in a bar meter widget
+//!
+//! [`text_marks::Group`]: ../../native/text_marks/struct.Group.html
+use iced::{Color, Font};
 
 use crate::core::Offset;
 use crate::style::default_colors;
@@ -101,7 +101,7 @@ impl std::cmp::PartialEq for Style {
     }
 }
 
-impl std::default::Default for Style {
+impl Default for Style {
     fn default() -> Self {
         Self {
             color: default_colors::TEXT_MARK,
