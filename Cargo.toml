@@ -7,9 +7,9 @@ edition = "2018"
 keywords = ["iced", "gui", "audio", "vst", "lv2"]
 categories = ["gui", "visualization"]
 description = "An extension to the Iced GUI library with useful widgets for audio applications"
-homepage = "https://github.com/BillyDM/iced_audio"
+homepage = "https://github.com/iced-rs/iced_audio"
 documentation = "https://docs.rs/iced_audio"
-repository = "https://github.com/BillyDM/iced_audio"
+repository = "https://github.com/iced-rs/iced_audio"
 readme = "README.md"
 resolver = "2"
 

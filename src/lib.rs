@@ -9,7 +9,7 @@
 //! ```
 //! Or if you want to use the GitHub version of `iced`:
 //! ```toml
-//! iced_audio = { git = "https://github.com/BillyDM/iced_audio", branch = "iced_git" }
+//! iced_audio = { git = "https://github.com/iced-rs/iced_audio", branch = "iced_git" }
 //! ```
 //! __Both Iced Audio and [`Iced`] move fast and the `main` and `iced_git` branch can contain breaking changes!__ If
 //! you want to learn about a specific release, check out [the release list].
@@ -17,7 +17,7 @@
 //! # Simple Usage Example
 //!
 //! This crate assumes you know the basics of how to use [`Iced`]. If you
-//! haven't alreay, please check it out [`here`].
+//! haven't already, please check it out [`here`].
 //!
 //! ```no_run
 //! // Import iced modules.
@@ -191,8 +191,8 @@
 //! }
 //!
 //! ```
-//! [`Iced`]: https://github.com/hecrj/iced
-//! [`here`]: https://github.com/hecrj/iced
+//! [`Iced`]: https://github.com/iced-rs/iced
+//! [`here`]: https://github.com/iced-rs/iced
 
 #![deny(
     unused_results,
