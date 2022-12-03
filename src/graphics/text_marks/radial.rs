@@ -18,6 +18,7 @@ use iced_graphics::Primitive;
 /// from being too close to the arc.
 /// * `inverse` - Whether to inverse the positions of the text marks (true) or
 /// not (false).
+#[allow(clippy::too_many_arguments)]
 pub fn draw_radial_text_marks(
     center: Point,
     radius: f32,
@@ -56,7 +57,7 @@ pub fn draw_radial_text_marks(
                 };
 
                 let (dx, dy) = {
-                    if angle < -0.001 || angle > 0.001 {
+                    if !(-0.001..=0.001).contains(&angle) {
                         angle.sin_cos()
                     } else {
                         (0.0, -1.0)

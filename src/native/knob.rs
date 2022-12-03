@@ -64,7 +64,7 @@ where
     {
         Knob {
             normal_param,
-            size: Length::from(Length::Units(DEFAULT_SIZE)),
+            size: Length::Units(DEFAULT_SIZE),
             on_change: Box::new(on_change),
             on_grab: None,
             on_release: None,
@@ -566,6 +566,7 @@ where
     ///   * the style of the [`Knob`]
     ///
     /// [`Knob`]: struct.Knob.html
+    #[allow(clippy::too_many_arguments)]
     fn draw(
         &mut self,
         bounds: Rectangle,

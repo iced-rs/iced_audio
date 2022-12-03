@@ -464,7 +464,7 @@ fn draw_mod_range_arc(
 fn draw_circle_notch(knob_info: &KnobInfo, style: &CircleNotch) -> Primitive {
     let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
-    let (dx, dy) = if value_angle < -0.001 || value_angle > 0.001 {
+    let (dx, dy) = if !(-0.001..=0.001).contains(&value_angle) {
         value_angle.sin_cos()
     } else {
         (0.0, -1.0)
@@ -517,7 +517,7 @@ fn draw_line_notch(knob_info: &KnobInfo, style: &LineNotch) -> Primitive {
         Frame::new(Size::new(knob_info.bounds.width, knob_info.bounds.width));
     frame.translate(Vector::new(knob_info.radius, knob_info.radius));
 
-    if value_angle < -0.001 || value_angle > 0.001 {
+    if !(-0.001..=0.001).contains(&value_angle) {
         frame.rotate(value_angle);
     }
 
@@ -673,14 +673,12 @@ impl BipolarState {
                 Some(Ordering::Greater) => BipolarState::Right,
                 None => BipolarState::Center,
             }
+        } else if knob_info.value.as_f32() < 0.499 {
+            BipolarState::Left
+        } else if knob_info.value.as_f32() > 0.501 {
+            BipolarState::Right
         } else {
-            if knob_info.value.as_f32() < 0.499 {
-                BipolarState::Left
-            } else if knob_info.value.as_f32() > 0.501 {
-                BipolarState::Right
-            } else {
-                BipolarState::Center
-            }
+            BipolarState::Center
         }
     }
 }
@@ -734,7 +732,7 @@ fn draw_arc_bipolar_style<'a>(
         let center_angle = knob_info.start_angle
             + knob_info
                 .bipolar_center
-                .unwrap_or(Normal::new(0.5))
+                .unwrap_or_else(|| Normal::new(0.5))
                 .scale(knob_info.angle_span);
 
         match bipolar_state {

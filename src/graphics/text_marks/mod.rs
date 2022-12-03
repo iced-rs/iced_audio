@@ -97,6 +97,7 @@ impl PrimitiveCache {
     }
 
     /// Cache and retrieve radial text marks.
+    #[allow(clippy::too_many_arguments)]
     pub fn cached_radial<F: Fn() -> iced_graphics::Primitive>(
         &self,
         center: Point,

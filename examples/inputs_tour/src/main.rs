@@ -251,7 +251,6 @@ impl<'a> Step {
             Step::XYPads(step) => step.view(debug).map(StepMessage::XYPadsMsg),
             Step::Ramps(step) => step.view(debug).map(StepMessage::RampsMsg),
         }
-        .into()
     }
 
     fn welcome() -> Element<'a, StepMessage> {

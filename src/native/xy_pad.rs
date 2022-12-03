@@ -479,6 +479,7 @@ where
     ///   * the style of the [`XYPad`]
     ///
     /// [`XYPad`]: struct.XYPad.html
+    #[allow(clippy::too_many_arguments)]
     fn draw(
         &mut self,
         bounds: Rectangle,

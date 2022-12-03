@@ -188,7 +188,7 @@ fn draw_text_marks(
     if let Some(text_marks) = text_marks {
         if let Some(style) = text_marks_style {
             text_marks::draw_horizontal_text_marks(
-                &value_bounds,
+                value_bounds,
                 text_marks,
                 &style.style,
                 &style.placement,
@@ -212,23 +212,19 @@ fn draw_mod_range(
         if let Some(style) = style {
             let (y, height) = match style.placement {
                 ModRangePlacement::Center { height, offset } => (
-                    bounds.y
-                        + f32::from(offset)
-                        + ((bounds.height - f32::from(height)) / 2.0),
-                    f32::from(height),
+                    bounds.y + offset + ((bounds.height - height) / 2.0),
+                    height,
                 ),
                 ModRangePlacement::CenterFilled { edge_padding } => (
-                    bounds.y + f32::from(edge_padding),
-                    bounds.height - (f32::from(edge_padding) * 2.0),
+                    bounds.y + edge_padding,
+                    bounds.height - (edge_padding * 2.0),
                 ),
-                ModRangePlacement::Top { height, offset } => (
-                    bounds.y + f32::from(offset) - f32::from(height),
-                    f32::from(height),
-                ),
-                ModRangePlacement::Bottom { height, offset } => (
-                    bounds.y + bounds.height + f32::from(offset),
-                    f32::from(height),
-                ),
+                ModRangePlacement::Top { height, offset } => {
+                    (bounds.y + offset - height, height)
+                }
+                ModRangePlacement::Bottom { height, offset } => {
+                    (bounds.y + bounds.height + offset, height)
+                }
             };
 
             let back: Primitive = if let Some(back_color) = style.back_color {
@@ -321,7 +317,7 @@ fn draw_texture_style<'a>(
         text_marks_cache,
     );
 
-    let (top_rail, bottom_rail) = draw_classic_rail(&bounds, &style.rail);
+    let (top_rail, bottom_rail) = draw_classic_rail(bounds, &style.rail);
 
     let handle = Primitive::Image {
         handle: style.image_handle,
@@ -374,11 +370,11 @@ fn draw_classic_style<'a>(
         text_marks_cache,
     );
 
-    let (top_rail, bottom_rail) = draw_classic_rail(&bounds, &style.rail);
+    let (top_rail, bottom_rail) = draw_classic_rail(bounds, &style.rail);
 
     let handle_border_radius = style.handle.border_radius;
     let handle_offset = normal.scale(value_bounds.width).round();
-    let notch_width = f32::from(style.handle.notch_width);
+    let notch_width = style.handle.notch_width;
 
     let handle = Primitive::Quad {
         bounds: Rectangle {
@@ -445,7 +441,7 @@ fn draw_rect_style<'a>(
 
     let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
         &value_bounds,
-        &bounds,
+        bounds,
         value_markers,
         tick_marks_cache,
         text_marks_cache,
@@ -464,7 +460,7 @@ fn draw_rect_style<'a>(
         border_color: style.back_border_color,
     };
 
-    let border_width = f32::from(style.back_border_width);
+    let border_width = style.back_border_width;
     let twice_border_width = border_width * 2.0;
 
     let handle_offset = normal
@@ -475,8 +471,7 @@ fn draw_rect_style<'a>(
         bounds: Rectangle {
             x: bounds.x,
             y: bounds.y,
-            width: handle_offset + twice_border_width
-                - f32::from(style.handle_filled_gap),
+            width: handle_offset + twice_border_width - style.handle_filled_gap,
             height: bounds.height,
         },
         background: Background::Color(style.filled_color),
@@ -530,13 +525,13 @@ fn draw_rect_bipolar_style<'a>(
 
     let (tick_marks, text_marks, mod_range_1, mod_range_2) = draw_value_markers(
         &value_bounds,
-        &bounds,
+        bounds,
         value_markers,
         tick_marks_cache,
         text_marks_cache,
     );
 
-    let border_width = f32::from(style.back_border_width);
+    let border_width = style.back_border_width;
     let twice_border_width = border_width * 2.0;
 
     let empty_rect = Primitive::Quad {
@@ -562,7 +557,7 @@ fn draw_rect_bipolar_style<'a>(
         (style.handle_center_color, Primitive::None)
     } else if normal.as_f32() < 0.5 {
         let filled_rect_offset =
-            handle_offset + handle_width + f32::from(style.handle_filled_gap);
+            handle_offset + handle_width + style.handle_filled_gap;
         (
             style.handle_left_color,
             Primitive::Quad {
@@ -590,7 +585,7 @@ fn draw_rect_bipolar_style<'a>(
                     y: bounds.y,
                     width: handle_offset - filled_rect_offset
                         + twice_border_width
-                        - f32::from(style.handle_filled_gap),
+                        - style.handle_filled_gap,
                     height: bounds.height,
                 },
                 background: Background::Color(style.right_filled_color),
@@ -634,13 +629,10 @@ fn draw_classic_rail(
     let (top_width, bottom_width) = style.rail_widths;
     let (top_color, bottom_color) = style.rail_colors;
 
-    let top_width = f32::from(top_width);
-    let bottom_width = f32::from(bottom_width);
-
     let full_width = top_width + bottom_width;
 
-    let x = bounds.x + f32::from(style.rail_padding);
-    let width = bounds.width - (f32::from(style.rail_padding) * 2.0);
+    let x = bounds.x + style.rail_padding;
+    let width = bounds.width - (style.rail_padding * 2.0);
 
     let start_y = (bounds.y + ((bounds.height - full_width) / 2.0)).round();
 

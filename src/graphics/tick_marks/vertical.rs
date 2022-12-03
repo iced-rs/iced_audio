@@ -7,6 +7,7 @@ use crate::style::tick_marks::{Placement, Shape, Style};
 use iced::{Background, Color, Rectangle};
 use iced_graphics::Primitive;
 
+#[allow(clippy::too_many_arguments)]
 fn draw_vertical_lines(
     primitives: &mut Vec<Primitive>,
     tick_marks: &[Normal],
@@ -18,7 +19,7 @@ fn draw_vertical_lines(
     color: Color,
     inverse: bool,
 ) {
-    let start_y = bounds_y - (f32::from(width) / 2.0);
+    let start_y = bounds_y - (width / 2.0);
     let back_color = Background::Color(color);
 
     if inverse {
@@ -27,8 +28,8 @@ fn draw_vertical_lines(
                 bounds: Rectangle {
                     x,
                     y: (start_y + tick_mark.scale(bounds_height)),
-                    width: f32::from(length),
-                    height: f32::from(width),
+                    width: length,
+                    height: width,
                 },
                 background: back_color,
                 border_radius: 0.0,
@@ -42,8 +43,8 @@ fn draw_vertical_lines(
                 bounds: Rectangle {
                     x,
                     y: (start_y + tick_mark.scale_inv(bounds_height)),
-                    width: f32::from(length),
-                    height: f32::from(width),
+                    width: length,
+                    height: width,
                 },
                 background: back_color,
                 border_radius: 0.0,
@@ -54,6 +55,7 @@ fn draw_vertical_lines(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_vertical_circles(
     primitives: &mut Vec<Primitive>,
     tick_marks: &[Normal],
@@ -64,9 +66,9 @@ fn draw_vertical_circles(
     color: Color,
     inverse: bool,
 ) {
-    let diameter = f32::from(diameter);
+    let diameter = diameter;
     let radius = diameter / 2.0;
-    let start_y = bounds_y - f32::from(radius);
+    let start_y = bounds_y - radius;
     let back_color = Background::Color(color);
 
     if inverse {
@@ -113,7 +115,7 @@ fn draw_vertical_left_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
@@ -192,7 +194,7 @@ fn draw_vertical_right_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
@@ -203,7 +205,7 @@ fn draw_vertical_right_aligned_tier(
                     tick_marks,
                     bounds.y,
                     bounds.height,
-                    x - f32::from(*length),
+                    x - (*length),
                     *width,
                     *length,
                     *color,
@@ -216,7 +218,7 @@ fn draw_vertical_right_aligned_tier(
                     tick_marks,
                     bounds.y,
                     bounds.height,
-                    x - f32::from(*diameter),
+                    x - (*diameter),
                     *diameter,
                     *color,
                     inverse,
@@ -272,17 +274,14 @@ fn draw_vertical_center_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
                 color,
             } => {
                 let (x, length) = if fill_length {
-                    (
-                        bounds.x + f32::from(*length),
-                        bounds.width - (f32::from(*length) * 2.0),
-                    )
+                    (bounds.x + (*length), bounds.width - ((*length) * 2.0))
                 } else {
                     (x - (*length / 2.0), *length)
                 };
@@ -301,10 +300,7 @@ fn draw_vertical_center_aligned_tier(
             }
             Shape::Circle { diameter, color } => {
                 let (x, diameter) = if fill_length {
-                    (
-                        bounds.x + f32::from(*diameter),
-                        bounds.width - (f32::from(*diameter) * 2.0),
-                    )
+                    (bounds.x + (*diameter), bounds.width - ((*diameter) * 2.0))
                 } else {
                     (x - (*diameter / 2.0), *diameter)
                 };
@@ -363,6 +359,7 @@ fn draw_vertical_center_aligned(
 }
 
 #[inline]
+#[allow(clippy::too_many_arguments)]
 fn draw_vertical_center_aligned_split_tier(
     primitives: &mut Vec<Primitive>,
     bounds: &Rectangle,
@@ -375,7 +372,7 @@ fn draw_vertical_center_aligned_split_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
@@ -416,7 +413,7 @@ fn draw_vertical_center_aligned_split_tier(
             Shape::Circle { diameter, color } => {
                 let (left_x, diameter) = if fill_length {
                     (
-                        bounds.x - f32::from(*diameter),
+                        bounds.x - *diameter,
                         *diameter + ((bounds.width + gap) / 2.0),
                     )
                 } else {
@@ -450,6 +447,7 @@ fn draw_vertical_center_aligned_split_tier(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_vertical_center_aligned_split(
     primitives: &mut Vec<Primitive>,
     bounds: &Rectangle,
@@ -654,7 +652,7 @@ pub fn draw_vertical_tick_marks(
                         tick_marks,
                         style,
                         *fill_length,
-                        f32::from(*gap),
+                        *gap,
                         inverse,
                     );
 

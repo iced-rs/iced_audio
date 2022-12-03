@@ -6,6 +6,7 @@ use crate::native::tick_marks;
 use crate::style::tick_marks::{Placement, Shape, Style};
 use iced_graphics::{Background, Color, Primitive, Rectangle};
 
+#[allow(clippy::too_many_arguments)]
 fn draw_horizontal_lines(
     primitives: &mut Vec<Primitive>,
     tick_marks: &[Normal],
@@ -17,7 +18,7 @@ fn draw_horizontal_lines(
     color: Color,
     inverse: bool,
 ) {
-    let start_x = bounds_x - (f32::from(width) / 2.0);
+    let start_x = bounds_x - (width / 2.0);
     let back_color = Background::Color(color);
 
     if inverse {
@@ -26,8 +27,8 @@ fn draw_horizontal_lines(
                 bounds: Rectangle {
                     x: (start_x + tick_mark.scale_inv(bounds_width)),
                     y,
-                    width: f32::from(width),
-                    height: f32::from(length),
+                    width,
+                    height: length,
                 },
                 background: back_color,
                 border_radius: 0.0,
@@ -41,8 +42,8 @@ fn draw_horizontal_lines(
                 bounds: Rectangle {
                     x: (start_x + tick_mark.scale(bounds_width)),
                     y,
-                    width: f32::from(width),
-                    height: f32::from(length),
+                    width,
+                    height: length,
                 },
                 background: back_color,
                 border_radius: 0.0,
@@ -53,6 +54,7 @@ fn draw_horizontal_lines(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_horizontal_circles(
     primitives: &mut Vec<Primitive>,
     tick_marks: &[Normal],
@@ -63,9 +65,8 @@ fn draw_horizontal_circles(
     color: Color,
     inverse: bool,
 ) {
-    let diameter = f32::from(diameter);
     let radius = diameter / 2.0;
-    let start_x = bounds_x - f32::from(radius);
+    let start_x = bounds_x - radius;
     let back_color = Background::Color(color);
 
     if inverse {
@@ -112,7 +113,7 @@ fn draw_horizontal_top_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
@@ -191,7 +192,7 @@ fn draw_horizontal_bottom_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
@@ -202,7 +203,7 @@ fn draw_horizontal_bottom_aligned_tier(
                     tick_marks,
                     bounds.x,
                     bounds.width,
-                    y - f32::from(*length),
+                    y - (*length),
                     *width,
                     *length,
                     *color,
@@ -215,7 +216,7 @@ fn draw_horizontal_bottom_aligned_tier(
                     tick_marks,
                     bounds.x,
                     bounds.width,
-                    y - f32::from(*diameter),
+                    y - (*diameter),
                     *diameter,
                     *color,
                     inverse,
@@ -271,17 +272,14 @@ fn draw_horizontal_center_aligned_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
                 color,
             } => {
                 let (y, length) = if fill_length {
-                    (
-                        bounds.y + f32::from(*length),
-                        bounds.height - (f32::from(*length) * 2.0),
-                    )
+                    (bounds.y + (*length), bounds.height - ((*length) * 2.0))
                 } else {
                     (y - (*length / 2.0), *length)
                 };
@@ -301,8 +299,8 @@ fn draw_horizontal_center_aligned_tier(
             Shape::Circle { diameter, color } => {
                 let (y, diameter) = if fill_length {
                     (
-                        bounds.y + f32::from(*diameter),
-                        bounds.height - (f32::from(*diameter) * 2.0),
+                        bounds.y + (*diameter),
+                        bounds.height - ((*diameter) * 2.0),
                     )
                 } else {
                     (y - (diameter / 2.0), *diameter)
@@ -362,6 +360,7 @@ fn draw_horizontal_center_aligned(
 }
 
 #[inline]
+#[allow(clippy::too_many_arguments)]
 fn draw_horizontal_center_aligned_split_tier(
     primitives: &mut Vec<Primitive>,
     bounds: &Rectangle,
@@ -374,18 +373,17 @@ fn draw_horizontal_center_aligned_split_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
                 color,
             } => {
                 let (left_y, length) = if fill_length {
-                    let length =
-                        f32::from(*length) + (bounds.height + gap) / 2.0;
+                    let length = (*length) + (bounds.height + gap) / 2.0;
                     ((y - length - (gap / 2.0)), length)
                 } else {
-                    ((y - f32::from(*length) - (gap / 2.0)), *length)
+                    ((y - (*length) - (gap / 2.0)), *length)
                 };
 
                 let right_y = y + (gap / 2.0);
@@ -416,11 +414,11 @@ fn draw_horizontal_center_aligned_split_tier(
             Shape::Circle { diameter, color } => {
                 let (left_y, diameter) = if fill_length {
                     (
-                        bounds.y - f32::from(*diameter),
-                        f32::from(*diameter) + ((bounds.height + gap) / 2.0),
+                        bounds.y - (*diameter),
+                        (*diameter) + ((bounds.height + gap) / 2.0),
                     )
                 } else {
-                    (y - f32::from(*diameter) - (gap / 2.0), *diameter)
+                    (y - (*diameter) - (gap / 2.0), *diameter)
                 };
 
                 let right_y = y + (gap / 2.0);
@@ -450,6 +448,7 @@ fn draw_horizontal_center_aligned_split_tier(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_horizontal_center_aligned_split(
     primitives: &mut Vec<Primitive>,
     bounds: &Rectangle,
@@ -654,7 +653,7 @@ pub fn draw_horizontal_tick_marks(
                         tick_marks,
                         style,
                         *fill_length,
-                        f32::from(*gap),
+                        *gap,
                         inverse,
                     );
 

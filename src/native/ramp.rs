@@ -95,8 +95,8 @@ where
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
-            width: Length::from(Length::Units(DEFAULT_WIDTH)),
-            height: Length::from(Length::Units(DEFAULT_HEIGHT)),
+            width: Length::Units(DEFAULT_WIDTH),
+            height: Length::Units(DEFAULT_HEIGHT),
             style: Default::default(),
             direction,
         }
@@ -535,6 +535,7 @@ where
     ///   * the direction of the ramp line of the [`Ramp`]
     ///
     /// [`Ramp`]: struct.Ramp.html
+    #[allow(clippy::too_many_arguments)]
     fn draw(
         &mut self,
         bounds: Rectangle,

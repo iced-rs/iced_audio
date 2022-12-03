@@ -20,7 +20,7 @@
 //! haven't alreay, please check it out [`here`].
 //!
 //! ```no_run
-// Import iced modules.
+//! // Import iced modules.
 //! use iced::widget::{column, container, text};
 //! use iced::{Alignment, Element, Length, Sandbox, Settings};
 //! // Import iced_audio modules.
@@ -204,7 +204,11 @@
 )]
 #![deny(missing_docs, unused_results)]
 #![forbid(unsafe_code, rust_2018_idioms)]
-#![allow(clippy::inherent_to_string, clippy::type_complexity)]
+#![allow(
+    clippy::needless_doctest_main,
+    clippy::inherent_to_string,
+    clippy::type_complexity
+)]
 
 //extern crate simdeez;
 
