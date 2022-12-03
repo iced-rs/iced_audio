@@ -136,14 +136,14 @@ impl Group {
 
         if text.len() == 1 {
             vec.push((Normal::min(), String::from(text[0])));
-        } else if text.len() != 0 {
+        } else if !text.is_empty() {
             let len_min_1 = text.len() - 1;
             let span = 1.0 / len_min_1 as f32;
 
-            for i in 0..len_min_1 {
+            for (i, item) in text.iter().take(len_min_1).enumerate() {
                 let pos = i as f32 * span;
 
-                vec.push((pos.into(), String::from(text[i])));
+                vec.push((pos.into(), String::from(*item)));
             }
 
             vec.push((Normal::max(), String::from(text[len_min_1])));

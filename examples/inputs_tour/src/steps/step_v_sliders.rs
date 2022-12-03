@@ -228,12 +228,12 @@ impl VSliderStep {
             .text_marks(&self.freq_text_marks);
 
         let v_slider_rect = VSlider::new(self.rect_param, Message::RectStyle)
-            .width(Length::from(Length::Units(24)))
+            .width(Length::Units(24))
             .style(style::v_slider::RectStyle);
 
         let v_slider_rect_bp =
             VSlider::new(self.rect_bp_param, Message::RectBipolarStyle)
-                .width(Length::from(Length::Units(24)))
+                .width(Length::Units(24))
                 .style(style::v_slider::RectBipolarStyle);
 
         let v_slider_texture =
@@ -241,7 +241,7 @@ impl VSliderStep {
                 .tick_marks(&self.float_tick_marks)
                 .text_marks(&self.float_text_marks)
                 // the width of the texture
-                .width(Length::from(Length::Units(20)))
+                .width(Length::Units(20))
                 .style(style::v_slider::TextureStyle(
                     // clone the handle to the loaded texture
                     self.v_slider_texture_handle.clone(),

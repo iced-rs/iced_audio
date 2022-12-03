@@ -75,7 +75,7 @@ where
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             width: Length::Fill,
-            height: Length::from(Length::Units(DEFAULT_HEIGHT)),
+            height: Length::Units(DEFAULT_HEIGHT),
             style: Default::default(),
             tick_marks: None,
             text_marks: None,
@@ -579,6 +579,7 @@ where
     ///   * the style of the [`HSlider`]
     ///
     /// [`HSlider`]: struct.HSlider.html
+    #[allow(clippy::too_many_arguments)]
     fn draw(
         &mut self,
         bounds: Rectangle,

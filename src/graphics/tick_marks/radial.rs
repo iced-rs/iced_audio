@@ -8,6 +8,7 @@ use crate::core::Normal;
 use crate::native::tick_marks;
 use crate::style::tick_marks::{Shape, Style};
 
+#[allow(clippy::too_many_arguments)]
 fn draw_radial_circles(
     frame: &mut Frame,
     offset_radius: f32,
@@ -25,7 +26,7 @@ fn draw_radial_circles(
             let angle = start_angle + tick_mark.scale_inv(angle_span);
 
             frame.with_save(|frame| {
-                if angle < -0.001 || angle > 0.001 {
+                if !(-0.001..=0.001).contains(&angle) {
                     frame.rotate(angle);
                 }
 
@@ -43,7 +44,7 @@ fn draw_radial_circles(
             let angle = start_angle + tick_mark.scale(angle_span);
 
             frame.with_save(|frame| {
-                if angle < -0.001 || angle > 0.001 {
+                if !(-0.001..=0.001).contains(&angle) {
                     frame.rotate(angle);
                 }
 
@@ -59,6 +60,7 @@ fn draw_radial_circles(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_radial_lines(
     frame: &mut Frame,
     offset_radius: f32,
@@ -80,7 +82,7 @@ fn draw_radial_lines(
             let angle = start_angle + tick_mark.scale_inv(angle_span);
 
             frame.with_save(|frame| {
-                if angle < -0.001 || angle > 0.001 {
+                if !(-0.001..=0.001).contains(&angle) {
                     frame.rotate(angle);
                 }
 
@@ -100,7 +102,7 @@ fn draw_radial_lines(
             let angle = start_angle + tick_mark.scale(angle_span);
 
             frame.with_save(|frame| {
-                if angle < -0.001 || angle > 0.001 {
+                if !(-0.001..=0.001).contains(&angle) {
                     frame.rotate(angle);
                 }
 
@@ -119,6 +121,7 @@ fn draw_radial_lines(
 }
 
 #[inline]
+#[allow(clippy::too_many_arguments)]
 fn draw_tier(
     frame: &mut Frame,
     offset_radius: f32,
@@ -131,14 +134,14 @@ fn draw_tier(
 ) {
     if let Some(tick_marks) = tick_marks {
         match shape {
-            Shape::None => return,
+            Shape::None => (),
             Shape::Line {
                 length,
                 width,
                 color,
             } => {
-                let length = f32::from(*length);
-                let width = f32::from(*width);
+                let length = *length;
+                let width = *width;
 
                 if inside {
                     draw_radial_lines(
@@ -167,7 +170,7 @@ fn draw_tier(
                 }
             }
             Shape::Circle { diameter, color } => {
-                let radius = f32::from(*diameter) / 2.0;
+                let radius = (*diameter) / 2.0;
 
                 if inside {
                     draw_radial_circles(
@@ -216,7 +219,7 @@ fn max_length(style: &Style) -> f32 {
         Shape::Circle { diameter, .. } => diameter,
     };
 
-    f32::from(length_1.max(length_2).max(length_3))
+    length_1.max(length_2).max(length_3)
 }
 
 /// Draws tick marks around an arc.
@@ -231,6 +234,7 @@ fn max_length(style: &Style) -> f32 {
 /// * `style` - The tick marks style.
 /// * `inverse` - Whether to inverse the positions of the tick marks (true) or
 /// not (false).
+#[allow(clippy::too_many_arguments)]
 pub fn draw_radial_tick_marks(
     center: Point,
     radius: f32,

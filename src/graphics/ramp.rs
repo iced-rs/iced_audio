@@ -74,229 +74,213 @@ where
 
         let line: Primitive = match direction {
             RampDirection::Up => {
-                let primitive = {
-                    if normal.as_f32() < 0.449 {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_down_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
+                if normal.as_f32() < 0.449 {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(
+                            appearance.line_down_color,
+                        ),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
 
-                        let control = Point::new(
-                            range_width * (1.0 - (normal.as_f32() * 2.0)),
-                            0.0,
-                        );
-                        let to = Point::new(range_width, -range_height);
+                    let control = Point::new(
+                        range_width * (1.0 - (normal.as_f32() * 2.0)),
+                        0.0,
+                    );
+                    let to = Point::new(range_width, -range_height);
 
-                        let path =
-                            Path::new(|p| p.quadratic_curve_to(control, to));
+                    let path = Path::new(|p| p.quadratic_curve_to(control, to));
 
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(0.0, range_height));
+                    frame.translate(Vector::new(0.0, range_height));
 
-                        frame.stroke(&path, stroke);
+                    frame.stroke(&path, stroke);
 
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
-                    } else if normal.as_f32() > 0.501 {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_up_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
-
-                        let control = Point::new(
-                            range_width
-                                * (1.0 - ((normal.as_f32() - 0.5) * 2.0)),
-                            -range_height,
-                        );
-                        let to = Point::new(range_width, -range_height);
-
-                        let path = Path::new(|p| {
-                            p.move_to(to);
-                            p.quadratic_curve_to(control, Point::ORIGIN)
-                        });
-
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
-
-                        frame.translate(Vector::new(0.0, range_height));
-
-                        frame.stroke(&path, stroke);
-
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
-                    } else {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_center_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
-
-                        let path = Path::line(
-                            Point::new(0.0, 0.0),
-                            Point::new(range_width, -range_height),
-                        );
-
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
-
-                        frame.translate(Vector::new(0.0, range_height));
-
-                        frame.stroke(&path, stroke);
-
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
                     }
-                };
+                } else if normal.as_f32() > 0.501 {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(appearance.line_up_color),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
 
-                primitive
+                    let control = Point::new(
+                        range_width * (1.0 - ((normal.as_f32() - 0.5) * 2.0)),
+                        -range_height,
+                    );
+                    let to = Point::new(range_width, -range_height);
+
+                    let path = Path::new(|p| {
+                        p.move_to(to);
+                        p.quadratic_curve_to(control, Point::ORIGIN)
+                    });
+
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
+
+                    frame.translate(Vector::new(0.0, range_height));
+
+                    frame.stroke(&path, stroke);
+
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
+                    }
+                } else {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(
+                            appearance.line_center_color,
+                        ),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
+
+                    let path = Path::line(
+                        Point::new(0.0, 0.0),
+                        Point::new(range_width, -range_height),
+                    );
+
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
+
+                    frame.translate(Vector::new(0.0, range_height));
+
+                    frame.stroke(&path, stroke);
+
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
+                    }
+                }
             }
             RampDirection::Down => {
-                let primitive = {
-                    if normal.as_f32() < 0.449 {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_down_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
+                if normal.as_f32() < 0.449 {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(
+                            appearance.line_down_color,
+                        ),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
 
-                        let control = Point::new(
-                            range_width * (normal.as_f32() * 2.0),
-                            0.0,
-                        );
-                        let from = Point::new(0.0, -range_height);
-                        let to = Point::new(range_width, 0.0);
+                    let control =
+                        Point::new(range_width * (normal.as_f32() * 2.0), 0.0);
+                    let from = Point::new(0.0, -range_height);
+                    let to = Point::new(range_width, 0.0);
 
-                        let path = Path::new(|p| {
-                            p.move_to(from);
-                            p.quadratic_curve_to(control, to)
-                        });
+                    let path = Path::new(|p| {
+                        p.move_to(from);
+                        p.quadratic_curve_to(control, to)
+                    });
 
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
 
-                        frame.translate(Vector::new(0.0, range_height));
+                    frame.translate(Vector::new(0.0, range_height));
 
-                        frame.stroke(&path, stroke);
+                    frame.stroke(&path, stroke);
 
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
-                    } else if normal.as_f32() > 0.501 {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_up_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
-
-                        let control = Point::new(
-                            range_width * ((normal.as_f32() - 0.5) * 2.0),
-                            -range_height,
-                        );
-                        let from = Point::new(0.0, -range_height);
-                        let to = Point::new(range_width, 0.0);
-
-                        let path = Path::new(|p| {
-                            p.move_to(to);
-                            p.quadratic_curve_to(control, from)
-                        });
-
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
-
-                        frame.translate(Vector::new(0.0, range_height));
-
-                        frame.stroke(&path, stroke);
-
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
-                    } else {
-                        let stroke = Stroke {
-                            width: appearance.line_width as f32,
-                            style: triangle::Style::Solid(
-                                appearance.line_center_color,
-                            ),
-                            line_cap: LineCap::Square,
-                            ..Stroke::default()
-                        };
-
-                        let path = Path::line(
-                            Point::new(0.0, -range_height),
-                            Point::new(range_width, 0.0),
-                        );
-
-                        let mut frame =
-                            Frame::new(Size::new(range_width, range_height));
-
-                        frame.translate(Vector::new(0.0, range_height));
-
-                        frame.stroke(&path, stroke);
-
-                        Primitive::Translate {
-                            translation: Vector::new(
-                                bounds_x + border_width,
-                                bounds_y + border_width,
-                            ),
-                            content: Box::new(
-                                frame.into_geometry().into_primitive(),
-                            ),
-                        }
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
                     }
-                };
+                } else if normal.as_f32() > 0.501 {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(appearance.line_up_color),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
 
-                primitive
+                    let control = Point::new(
+                        range_width * ((normal.as_f32() - 0.5) * 2.0),
+                        -range_height,
+                    );
+                    let from = Point::new(0.0, -range_height);
+                    let to = Point::new(range_width, 0.0);
+
+                    let path = Path::new(|p| {
+                        p.move_to(to);
+                        p.quadratic_curve_to(control, from)
+                    });
+
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
+
+                    frame.translate(Vector::new(0.0, range_height));
+
+                    frame.stroke(&path, stroke);
+
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
+                    }
+                } else {
+                    let stroke = Stroke {
+                        width: appearance.line_width as f32,
+                        style: triangle::Style::Solid(
+                            appearance.line_center_color,
+                        ),
+                        line_cap: LineCap::Square,
+                        ..Stroke::default()
+                    };
+
+                    let path = Path::line(
+                        Point::new(0.0, -range_height),
+                        Point::new(range_width, 0.0),
+                    );
+
+                    let mut frame =
+                        Frame::new(Size::new(range_width, range_height));
+
+                    frame.translate(Vector::new(0.0, range_height));
+
+                    frame.stroke(&path, stroke);
+
+                    Primitive::Translate {
+                        translation: Vector::new(
+                            bounds_x + border_width,
+                            bounds_y + border_width,
+                        ),
+                        content: Box::new(
+                            frame.into_geometry().into_primitive(),
+                        ),
+                    }
+                }
             }
         };
 

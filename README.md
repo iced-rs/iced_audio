@@ -1,7 +1,7 @@
 # Iced Audio
 [![Documentation](https://docs.rs/iced_audio/badge.svg)][documentation]
 [![Crates.io](https://img.shields.io/crates/v/iced_audio.svg)](https://crates.io/crates/iced_audio)
-[![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/BillyDM/iced_audio/blob/main/LICENSE)
+[![License](https://img.shields.io/crates/l/iced_audio.svg)](https://github.com/iced-rs/iced_audio/blob/main/LICENSE)
 [![project chat](https://img.shields.io/badge/chat-on_zulip-brightgreen.svg)](https://iced.zulipchat.com)
 
 An extension to the [Iced] GUI library with useful widgets for audio applications such as VST / LV2 plugins.
@@ -53,7 +53,7 @@ __Both Iced Audio and [Iced] move fast and the `main` and `iced_git` branch can 
 you want to learn about a specific release, check out [the release list].
 
 ## Simple Usage Example
-This crate assumes you know the basics of how to use [Iced]. If you haven't alreay, please check it out [here].
+This crate assumes you know the basics of how to use [Iced]. If you haven't already, please check it out [here].
 ```rust
 // Import iced modules.
 use iced::widget::{column, container, text};
@@ -238,19 +238,19 @@ Contributions are greatly appreciated! If you want to contribute, please
 read the official [Iced] [contributing guidelines] for more details.
 
 Feedback is also welcome! You can open an issue or, if you want to talk,
-come chat to our [Zulip server]. Moreover, you can find me (and a bunch of
+come chat to our [Discord server]. Moreover, you can find me (and a bunch of
 awesome folks) over the `#gui-and-ui` channels in
 the [Rust Community Discord]. I go by `BillyDM#3892` there.
 
-[Iced]: https://github.com/hecrj/iced
+[Iced]: https://github.com/iced-rs/iced
 [documentation]: https://docs.rs/iced_audio/
-[here]: https://github.com/hecrj/iced
-[contributing guidelines]: https://github.com/hecrj/iced/blob/master/CONTRIBUTING.md
-[Zulip server]: https://iced.zulipchat.com/
+[here]: https://github.com/iced-rs/iced
+[contributing guidelines]: https://github.com/iced-rs/iced/blob/master/CONTRIBUTING.md
+[Discord server]: https://discord.gg/3xZJ65GAhd
 [Rust Community Discord]: https://bit.ly/rust-community
-[the release list]: https://github.com/BillyDM/iced_audio/releases
-[more screenshots]: https://github.com/BillyDM/iced_audio/tree/main/screenshots
-[roadmap]: https://github.com/BillyDM/iced_audio/tree/main/ROADMAP.md
+[the release list]: https://github.com/iced-rs/iced_audio/releases
+[more screenshots]: https://github.com/iced-rs/iced_audio/tree/main/screenshots
+[roadmap]: https://github.com/iced-rs/iced_audio/tree/main/ROADMAP.md
 [`iced_baseview`]: https://github.com/BillyDM/iced_baseview
 [`iced-baseplug-examples`]: https://github.com/BillyDM/iced-baseplug-examples
 [`baseview`]: https://github.com/RustAudio/baseview

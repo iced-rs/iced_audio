@@ -226,7 +226,7 @@ impl ModRanges {
             .style(style::h_slider::RectStyle);
 
         let v_slider1 = VSlider::new(self.v_slider1_param, Message::VSlider1)
-            .width(Length::from(Length::Units(30)))
+            .width(Length::Units(30))
             .mod_range(&self.mod_range_1)
             .style(style::v_slider::RectStyle);
 

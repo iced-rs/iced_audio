@@ -74,7 +74,7 @@ where
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
-            width: Length::from(Length::Units(DEFAULT_WIDTH)),
+            width: Length::Units(DEFAULT_WIDTH),
             height: Length::Fill,
             style: Default::default(),
             tick_marks: None,
@@ -577,6 +577,7 @@ where
     ///   * the style of the [`VSlider`]
     ///
     /// [`VSlider`]: struct.VSlider.html
+    #[allow(clippy::too_many_arguments)]
     fn draw(
         &mut self,
         bounds: Rectangle,

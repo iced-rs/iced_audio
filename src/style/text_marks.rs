@@ -7,7 +7,7 @@ use crate::core::Offset;
 use crate::style::default_colors;
 
 /// The alignment of text in text marks.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Align {
     /// Align to the start of the text.
     Start,
@@ -86,10 +86,7 @@ impl std::cmp::PartialEq for Style {
             && self.bounds_width == rhs.bounds_width
             && self.bounds_height == rhs.bounds_width
             && match self.font {
-                Font::Default => match rhs.font {
-                    Font::Default => true,
-                    _ => false,
-                },
+                Font::Default => matches!(rhs.font, Font::Default),
                 Font::External { name, .. } => {
                     let self_name = name;
                     match rhs.font {

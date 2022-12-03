@@ -229,6 +229,11 @@ impl Group {
         self.len
     }
 
+    /// Whethere there are no tick marks.
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
     /// Returns the hashed value of the internal data.
     pub(crate) fn hashed(&self) -> u64 {
         self.hashed
@@ -252,7 +257,7 @@ impl From<&[(Normal, Tier)]> for Group {
 /// * One - large-sized tick mark
 /// * Two - medium-sized tick mark
 /// * Small - small-sized tick mark
-#[derive(Debug, Copy, Clone, PartialEq, std::hash::Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, std::hash::Hash)]
 pub enum Tier {
     /// large-sized tick mark
     One,

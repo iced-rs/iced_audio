@@ -85,7 +85,7 @@ impl Sandbox for App {
     }
 
     fn title(&self) -> String {
-        format!("Simple Example - Iced Audio")
+        "Simple Example - Iced Audio".to_string()
     }
 
     fn update(&mut self, event: Message) {
