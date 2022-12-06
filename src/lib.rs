@@ -235,5 +235,13 @@ mod platform {
     };
 }
 
+#[cfg(all(not(feature = "glow"), feature = "wgpu"))]
+use iced_wgpu as renderer;
+
+#[cfg(feature = "glow")]
+use iced_glow as renderer;
+
+use renderer::Renderer;
+
 #[doc(no_inline)]
 pub use platform::*;

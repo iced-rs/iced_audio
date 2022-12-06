@@ -5,7 +5,7 @@
 use iced_native::Color;
 //use iced_native::image;
 
-pub use iced::widget::canvas::{Canvas, LineCap};
+pub use iced_graphics::widget::canvas::{Canvas, LineCap};
 
 use crate::style::{default_colors, text_marks, tick_marks};
 use crate::KnobAngleRange;

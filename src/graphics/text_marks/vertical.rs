@@ -2,7 +2,7 @@ use super::PrimitiveCache;
 use crate::native::text_marks;
 use crate::style::text_marks::{Align, Placement, Style};
 
-use iced::{alignment::Horizontal, alignment::Vertical, Rectangle};
+use iced_core::{alignment::Horizontal, alignment::Vertical, Rectangle};
 use iced_graphics::Primitive;
 
 fn draw_aligned(

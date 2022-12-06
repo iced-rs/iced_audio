@@ -9,10 +9,10 @@ publish = false
 
 [dependencies]
 iced = { version = "0.5.2", default-features = false, features = ["image"] }
-iced_audio = { path = "../../" }
+iced_audio = { path = "../../", default-features = false }
 iced_native = "0.6.1"
 
 [features]
 default = ["wgpu"]
-glow = ["iced_audio/glow"]
-wgpu = ["iced_audio/wgpu"]
+glow = ["iced/glow", "iced_audio/glow"]
+wgpu = ["iced/wgpu", "iced_audio/wgpu"]

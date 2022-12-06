@@ -4,7 +4,7 @@ use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
 use crate::style::tick_marks::{Placement, Shape, Style};
-use iced::{Background, Color, Rectangle};
+use iced_core::{Background, Color, Rectangle};
 use iced_graphics::Primitive;
 
 #[allow(clippy::too_many_arguments)]

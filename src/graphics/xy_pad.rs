@@ -21,9 +21,9 @@ pub use crate::style::xy_pad::{
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`XYPad`]: struct.XYPad.html
 pub type XYPad<'a, Message, Theme> =
-    xy_pad::XYPad<'a, Message, iced::Renderer<Theme>>;
+    xy_pad::XYPad<'a, Message, crate::Renderer<Theme>>;
 
-impl<Theme> xy_pad::Renderer for iced::Renderer<Theme>
+impl<Theme> xy_pad::Renderer for crate::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

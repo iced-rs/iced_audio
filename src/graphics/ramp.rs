@@ -5,9 +5,9 @@
 
 use crate::core::Normal;
 use crate::native::ramp;
-use iced::widget::canvas::{Frame, LineCap, Path, Stroke};
-use iced::{Background, Point, Rectangle, Size, Vector};
+use iced_core::{Background, Point, Rectangle, Size, Vector};
 use iced_graphics::triangle;
+use iced_graphics::widget::canvas::{Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 
 pub use crate::native::ramp::RampDirection;
@@ -19,9 +19,9 @@ pub use crate::style::ramp::{Appearance, StyleSheet};
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`Ramp`]: struct.Ramp.html
 pub type Ramp<'a, Message, Theme> =
-    ramp::Ramp<'a, Message, iced::Renderer<Theme>>;
+    ramp::Ramp<'a, Message, crate::Renderer<Theme>>;
 
-impl<Theme> ramp::Renderer for iced::Renderer<Theme>
+impl<Theme> ramp::Renderer for crate::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

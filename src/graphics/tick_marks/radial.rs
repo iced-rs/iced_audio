@@ -1,5 +1,5 @@
-use iced::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
 use iced_graphics::triangle;
+use iced_graphics::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Color, Point, Size, Vector};
 
