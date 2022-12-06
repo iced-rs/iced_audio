@@ -56,7 +56,7 @@ impl Group {
     /// [`Group`]: struct.Group.html
     /// [`TextMark`]: struct.TextMark.html
     pub fn center(text: &str) -> Self {
-        vec![(Normal::center(), String::from(text))].into()
+        vec![(Normal::CENTER, String::from(text))].into()
     }
 
     /// Returns a new [`Group`] with a [`TextMark`] in
@@ -69,8 +69,8 @@ impl Group {
     /// [`TextMark`]: struct.TextMark.html
     pub fn min_max(min_text: &str, max_text: &str) -> Self {
         vec![
-            (Normal::min(), String::from(min_text)),
-            (Normal::max(), String::from(max_text)),
+            (Normal::MIN, String::from(min_text)),
+            (Normal::MAX, String::from(max_text)),
         ]
         .into()
     }
@@ -90,9 +90,9 @@ impl Group {
         center_text: &str,
     ) -> Self {
         vec![
-            (Normal::min(), String::from(min_text)),
-            (Normal::center(), String::from(center_text)),
-            (Normal::max(), String::from(max_text)),
+            (Normal::MIN, String::from(min_text)),
+            (Normal::CENTER, String::from(center_text)),
+            (Normal::MAX, String::from(max_text)),
         ]
         .into()
     }
@@ -114,15 +114,15 @@ impl Group {
         for (i, text) in text.iter().enumerate() {
             let pos = (i as f32 * span) + span;
 
-            vec.push((pos.into(), String::from(*text)));
+            vec.push((Normal::from_clipped(pos), String::from(*text)));
         }
 
         if let Some(min_text) = min {
-            vec.push((Normal::min(), String::from(min_text)));
+            vec.push((Normal::MIN, String::from(min_text)));
         }
 
         if let Some(max_text) = max {
-            vec.push((Normal::max(), String::from(max_text)));
+            vec.push((Normal::MAX, String::from(max_text)));
         }
 
         vec.into()
@@ -135,7 +135,7 @@ impl Group {
         let mut vec: Vec<(Normal, String)> = Vec::with_capacity(text.len());
 
         if text.len() == 1 {
-            vec.push((Normal::min(), String::from(text[0])));
+            vec.push((Normal::MIN, String::from(text[0])));
         } else if !text.is_empty() {
             let len_min_1 = text.len() - 1;
             let span = 1.0 / len_min_1 as f32;
@@ -143,10 +143,10 @@ impl Group {
             for (i, item) in text.iter().take(len_min_1).enumerate() {
                 let pos = i as f32 * span;
 
-                vec.push((pos.into(), String::from(*item)));
+                vec.push((Normal::from_clipped(pos), String::from(*item)));
             }
 
-            vec.push((Normal::max(), String::from(text[len_min_1])));
+            vec.push((Normal::MAX, String::from(text[len_min_1])));
         }
 
         vec.into()

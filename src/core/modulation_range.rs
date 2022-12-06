@@ -23,7 +23,7 @@ impl ModulationRange {
     /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
     /// * ends - Where the modulation range ends.
     /// `0.0.into()` is all the way minimum, and `1.0.into()` is all the way maximum.
-    pub fn new(start: Normal, end: Normal) -> Self {
+    pub const fn new(start: Normal, end: Normal) -> Self {
         Self {
             start,
             end,
@@ -35,8 +35,8 @@ impl ModulationRange {
 impl Default for ModulationRange {
     fn default() -> Self {
         Self {
-            start: 0.0.into(),
-            end: 0.0.into(),
+            start: Normal::MIN,
+            end: Normal::MIN,
             filled_visible: true,
         }
     }

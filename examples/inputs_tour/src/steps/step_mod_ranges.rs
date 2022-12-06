@@ -156,9 +156,9 @@ impl ModRanges {
                     .unmap_to_value(self.auto_input1_param.value);
 
                 self.knob_auto1_mod_range.start = normal;
-                self.knob_auto1_mod_range.end =
-                    (self.knob_auto1_mod_range.start.as_f32() + mod_value)
-                        .into();
+                self.knob_auto1_mod_range.end.set_clipped(
+                    self.knob_auto1_mod_range.start.as_f32() + mod_value,
+                );
             }
             Message::ModRangeInput1(normal) => {
                 self.auto_input1_param.update(normal);
@@ -168,8 +168,9 @@ impl ModRanges {
                 self.output_text =
                     crate::info_text_f32("ModRangeInput1", value);
 
-                self.knob_auto1_mod_range.end =
-                    (self.knob_auto1_param.value.as_f32() + value).into();
+                self.knob_auto1_mod_range
+                    .end
+                    .set_clipped(self.knob_auto1_param.value.as_f32() + value);
             }
             Message::ModKnob2(normal) => {
                 self.knob_auto2_param.update(normal);
@@ -184,9 +185,9 @@ impl ModRanges {
                     .unmap_to_value(self.auto_input2_param.value);
 
                 self.knob_auto2_mod_range.start = normal;
-                self.knob_auto2_mod_range.end =
-                    (self.knob_auto2_mod_range.start.as_f32() + mod_value)
-                        .into();
+                self.knob_auto2_mod_range.end.set_clipped(
+                    self.knob_auto2_mod_range.start.as_f32() + mod_value,
+                );
             }
             Message::ModRangeInput2(normal) => {
                 self.auto_input2_param.update(normal);
@@ -196,8 +197,9 @@ impl ModRanges {
                 self.output_text =
                     crate::info_text_f32("ModRangeInput1", value);
 
-                self.knob_auto2_mod_range.end =
-                    (self.knob_auto2_param.value.as_f32() + value).into();
+                self.knob_auto2_mod_range
+                    .end
+                    .set_clipped(self.knob_auto2_param.value.as_f32() + value);
             }
             Message::ToggleModRange(toggle) => {
                 self.mod_range_toggle_value = toggle;

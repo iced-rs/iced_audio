@@ -27,8 +27,8 @@ pub struct NormalParam {
 impl Default for NormalParam {
     fn default() -> Self {
         Self {
-            value: Normal::min(),
-            default: Normal::min(),
+            value: Normal::MIN,
+            default: Normal::MIN,
         }
     }
 }

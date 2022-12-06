@@ -4,9 +4,9 @@
 use super::math::{PI_OVER_180, TWO_PI};
 
 /// The default minimum angle of a rotating widget such as a Knob
-pub static DEFAULT_ANGLE_MIN: f32 = 30.0 * PI_OVER_180;
+pub const DEFAULT_ANGLE_MIN: f32 = 30.0 * PI_OVER_180;
 /// The default maximum angle of a rotating widget such as a Knob
-pub static DEFAULT_ANGLE_MAX: f32 = (360.0 - 30.0) * PI_OVER_180;
+pub const DEFAULT_ANGLE_MAX: f32 = (360.0 - 30.0) * PI_OVER_180;
 
 /// The range between the minimum and maximum angle (in radians) a knob
 /// will rotate.
@@ -78,10 +78,10 @@ impl KnobAngleRange {
         let mut min = min;
         let mut max = max;
 
-        if min < 0.0 || min >= TWO_PI {
+        if !(0.0..TWO_PI).contains(&min) {
             min = 0.0;
         }
-        if max < 0.0 || max >= TWO_PI {
+        if !(0.0..TWO_PI).contains(&max) {
             max = 0.0;
         }
 

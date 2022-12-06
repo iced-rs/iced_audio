@@ -249,8 +249,9 @@ where
             normal_delta *= self.modifier_scalar;
         }
 
-        self.normal_param.value =
-            (state.continuous_normal - normal_delta).into();
+        self.normal_param
+            .value
+            .set_clipped(state.continuous_normal - normal_delta);
         state.continuous_normal = self.normal_param.value.as_f32();
 
         SliderStatus::Moved

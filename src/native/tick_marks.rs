@@ -72,7 +72,7 @@ impl Group {
     /// [`Group`]: struct.Group.html
     /// [`Tier`]: enum.Tier.html
     pub fn center(tier: Tier) -> Self {
-        Self::from_normalized(&[(Normal::center(), tier)])
+        Self::from_normalized(&[(Normal::CENTER, tier)])
     }
 
     /// Returns a new [`Group`] with a tick mark in
@@ -83,7 +83,7 @@ impl Group {
     /// [`Group`]: struct.Group.html
     /// [`Tier`]: enum.Tier.html
     pub fn min_max(tier: Tier) -> Self {
-        Self::from_normalized(&[(Normal::min(), tier), (Normal::max(), tier)])
+        Self::from_normalized(&[(Normal::MIN, tier), (Normal::MAX, tier)])
     }
 
     /// Returns a new [`Group`] with a tick mark in
@@ -96,9 +96,9 @@ impl Group {
     /// [`Tier`]: enum.Tier.html
     pub fn min_max_and_center(min_max_tier: Tier, center_tier: Tier) -> Self {
         Self::from_normalized(&[
-            (Normal::min(), min_max_tier),
-            (Normal::center(), center_tier),
-            (Normal::max(), min_max_tier),
+            (Normal::MIN, min_max_tier),
+            (Normal::CENTER, center_tier),
+            (Normal::MAX, min_max_tier),
         ])
     }
 
@@ -137,21 +137,24 @@ impl Group {
             let one_pos = (i_1 as f32 * one_span) + one_span;
 
             if i_1 != one {
-                tick_marks.push((one_pos.into(), Tier::One));
+                tick_marks.push((Normal::from_clipped(one_pos), Tier::One));
             }
 
             for i_2 in 0..two_ranges {
                 let two_pos = (i_2 as f32 * two_span) + two_span;
 
                 if i_2 != two {
-                    tick_marks.push(((one_pos - two_pos).into(), Tier::Two));
+                    tick_marks.push((
+                        Normal::from_clipped(one_pos - two_pos),
+                        Tier::Two,
+                    ));
                 }
 
                 for i_3 in 0..three {
                     let three_pos = (i_3 as f32 * three_span) + three_span;
 
                     tick_marks.push((
-                        (one_pos - two_pos + three_pos).into(),
+                        Normal::from_clipped(one_pos - two_pos + three_pos),
                         Tier::Three,
                     ));
                 }
@@ -159,8 +162,8 @@ impl Group {
         }
 
         if let Some(side_tier) = sides {
-            tick_marks.push((Normal::min(), side_tier));
-            tick_marks.push((Normal::max(), side_tier));
+            tick_marks.push((Normal::MIN, side_tier));
+            tick_marks.push((Normal::MAX, side_tier));
         }
 
         Self::from_normalized(&tick_marks)
@@ -177,7 +180,7 @@ impl Group {
         let mut tick_marks: Vec<(Normal, Tier)> = Vec::with_capacity(len);
 
         if len == 1 {
-            tick_marks.push((Normal::min(), tier));
+            tick_marks.push((Normal::MIN, tier));
         } else if len != 0 {
             let len_min_1 = len - 1;
             let span = 1.0 / len_min_1 as f32;
@@ -185,10 +188,10 @@ impl Group {
             for i in 0..len_min_1 {
                 let pos = i as f32 * span;
 
-                tick_marks.push((pos.into(), tier));
+                tick_marks.push((Normal::from_clipped(pos), tier));
             }
 
-            tick_marks.push((Normal::max(), tier));
+            tick_marks.push((Normal::MAX, tier));
         }
 
         Self::from_normalized(&tick_marks)
