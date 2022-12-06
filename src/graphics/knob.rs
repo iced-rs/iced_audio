@@ -46,7 +46,7 @@ struct KnobInfo {
 pub type Knob<'a, Message, Theme> =
     knob::Knob<'a, Message, iced::Renderer<Theme>>;
 
-impl knob::Renderer for iced::Renderer
+impl<Theme> knob::Renderer for iced::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

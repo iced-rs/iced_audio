@@ -34,7 +34,7 @@ struct ValueMarkers<'a> {
 pub type HSlider<'a, Message, Theme> =
     h_slider::HSlider<'a, Message, iced::Renderer<Theme>>;
 
-impl h_slider::Renderer for iced::Renderer
+impl<Theme> h_slider::Renderer for iced::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

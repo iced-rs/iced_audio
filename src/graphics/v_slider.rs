@@ -34,7 +34,10 @@ struct ValueMarkers<'a> {
 pub type VSlider<'a, Message, Theme> =
     v_slider::VSlider<'a, Message, iced::Renderer<Theme>>;
 
-impl v_slider::Renderer for iced::Renderer {
+impl<Theme> v_slider::Renderer for iced::Renderer<Theme>
+where
+    Self::Theme: StyleSheet,
+{
     fn draw(
         &mut self,
         bounds: Rectangle,

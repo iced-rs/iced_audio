@@ -21,7 +21,7 @@ pub use crate::style::ramp::{Appearance, StyleSheet};
 pub type Ramp<'a, Message, Theme> =
     ramp::Ramp<'a, Message, iced::Renderer<Theme>>;
 
-impl ramp::Renderer for iced::Renderer
+impl<Theme> ramp::Renderer for iced::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

@@ -16,7 +16,10 @@ pub use crate::style::mod_range_input::{
 pub type ModRangeInput<'a, Message, Theme> =
     mod_range_input::ModRangeInput<'a, Message, iced::Renderer<Theme>>;
 
-impl mod_range_input::Renderer for iced::Renderer {
+impl<Theme> mod_range_input::Renderer for iced::Renderer<Theme>
+where
+    Self::Theme: StyleSheet,
+{
     fn draw(
         &mut self,
         bounds: Rectangle,

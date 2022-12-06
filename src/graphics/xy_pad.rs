@@ -23,7 +23,7 @@ pub use crate::style::xy_pad::{
 pub type XYPad<'a, Message, Theme> =
     xy_pad::XYPad<'a, Message, iced::Renderer<Theme>>;
 
-impl xy_pad::Renderer for iced::Renderer
+impl<Theme> xy_pad::Renderer for iced::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {
