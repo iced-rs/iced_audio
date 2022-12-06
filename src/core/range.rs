@@ -91,7 +91,7 @@ impl FloatRange {
     /// [`Normal`]: ../struct.Normal.html
     pub fn map_to_normal(&self, value: f32) -> Normal {
         let value = self.constrain(value);
-        ((value - self.min) * self.span_recip).into()
+        Normal::from_clipped((value - self.min) * self.span_recip)
     }
 
     /// Returns the corresponding value from the supplied [`Normal`]
@@ -191,7 +191,7 @@ impl IntRange {
     /// [`Normal`]: ../struct.Normal.html
     pub fn map_to_normal(&self, value: i32) -> Normal {
         let value = self.constrain(value);
-        ((value - self.min) as f32 * self.span_recip).into()
+        Normal::from_clipped((value - self.min) as f32 * self.span_recip)
     }
 
     /// Returns the corresponding value from the supplied [`Normal`]
@@ -232,7 +232,7 @@ impl LogDBRange {
     /// * `min` - the minimum of the range in dB (inclusive), must be <= 0.0
     /// * `max` - the maximum of the range in dB (inclusive), must be >= 0.0
     /// * `zero_position` - a normal that defines where on the slider 0 decibels
-    /// should be. For example, `Normal::new(0.5)` will have 0 dB at the center
+    /// should be. For example, `Normal::CENTER` will have 0 dB at the center
     /// of the slider. Normals of `1.0` and `0.0` can be used for only negative
     /// or only positive decibels respectively
     ///
@@ -325,7 +325,7 @@ impl LogDBRange {
 
             let log_normal = 1.0 - neg_normal.sqrt();
 
-            (log_normal * self.zero_position.as_f32()).into()
+            Normal::from_clipped(log_normal * self.zero_position.as_f32())
         } else {
             if self.max <= 0.0 {
                 return Normal::MAX;
@@ -334,9 +334,10 @@ impl LogDBRange {
 
             let log_normal = pos_normal.sqrt();
 
-            ((log_normal * (1.0 - self.zero_position.as_f32()))
-                + self.zero_position.as_f32())
-            .into()
+            Normal::from_clipped(
+                (log_normal * (1.0 - self.zero_position.as_f32()))
+                    + self.zero_position.as_f32(),
+            )
         }
     }
 
@@ -475,16 +476,17 @@ impl FreqRange {
     pub fn map_to_normal(&self, value: f32) -> Normal {
         let value = self.constrain(value);
         let spectrum_normal = octave_spectrum_map_to_normal(value);
-        ((spectrum_normal.as_f32() - self.min_spectrum_normal.as_f32())
-            * self.spectrum_normal_span_recip)
-            .into()
+        Normal::from_clipped(
+            (spectrum_normal.as_f32() - self.min_spectrum_normal.as_f32())
+                * self.spectrum_normal_span_recip,
+        )
     }
 
     /// Returns the corresponding frequency value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn unmap_to_value(&self, normal: Normal) -> f32 {
-        let spectrum_normal = Normal::new(
+        let spectrum_normal = Normal::from_clipped(
             normal.as_f32() * self.spectrum_normal_span
                 + self.min_spectrum_normal.as_f32(),
         );
@@ -512,5 +514,5 @@ fn octave_normal_to_spectrum(value: Normal) -> f32 {
 /// [`Normal`]: ../struct.Normal.html
 #[inline]
 fn octave_spectrum_map_to_normal(freq: f32) -> Normal {
-    (((freq / 40.0).log2() + 1.0) * 0.1).into()
+    Normal::from_clipped(((freq / 40.0).log2() + 1.0) * 0.1)
 }

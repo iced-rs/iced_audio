@@ -732,7 +732,7 @@ fn draw_arc_bipolar_style<'a>(
         let center_angle = knob_info.start_angle
             + knob_info
                 .bipolar_center
-                .unwrap_or_else(|| Normal::new(0.5))
+                .unwrap_or_else(|| Normal::from_clipped(0.5))
                 .scale(knob_info.angle_span);
 
         match bipolar_state {

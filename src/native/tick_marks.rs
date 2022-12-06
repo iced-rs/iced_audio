@@ -137,21 +137,24 @@ impl Group {
             let one_pos = (i_1 as f32 * one_span) + one_span;
 
             if i_1 != one {
-                tick_marks.push((one_pos.into(), Tier::One));
+                tick_marks.push((Normal::from_clipped(one_pos), Tier::One));
             }
 
             for i_2 in 0..two_ranges {
                 let two_pos = (i_2 as f32 * two_span) + two_span;
 
                 if i_2 != two {
-                    tick_marks.push(((one_pos - two_pos).into(), Tier::Two));
+                    tick_marks.push((
+                        Normal::from_clipped(one_pos - two_pos),
+                        Tier::Two,
+                    ));
                 }
 
                 for i_3 in 0..three {
                     let three_pos = (i_3 as f32 * three_span) + three_span;
 
                     tick_marks.push((
-                        (one_pos - two_pos + three_pos).into(),
+                        Normal::from_clipped(one_pos - two_pos + three_pos),
                         Tier::Three,
                     ));
                 }
@@ -185,7 +188,7 @@ impl Group {
             for i in 0..len_min_1 {
                 let pos = i as f32 * span;
 
-                tick_marks.push((pos.into(), tier));
+                tick_marks.push((Normal::from_clipped(pos), tier));
             }
 
             tick_marks.push((Normal::MAX, tier));

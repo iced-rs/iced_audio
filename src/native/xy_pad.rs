@@ -294,10 +294,10 @@ where
                         state.prev_drag_y = cursor_position.y;
 
                         state.continuous_normal_x = normal_x;
-                        self.normal_param_x.value = normal_x.into();
+                        self.normal_param_x.value.set_clipped(normal_x);
 
                         state.continuous_normal_y = normal_y;
-                        self.normal_param_y.value = normal_y.into();
+                        self.normal_param_y.value.set_clipped(normal_y);
 
                         self.fire_on_change(shell);
 
@@ -348,10 +348,10 @@ where
                                     / bounds_size);
 
                             state.continuous_normal_x = normal_x;
-                            self.normal_param_x.value = normal_x.into();
+                            self.normal_param_x.value.set_clipped(normal_x);
 
                             state.continuous_normal_y = normal_y;
-                            self.normal_param_y.value = normal_y.into();
+                            self.normal_param_y.value.set_clipped(normal_y);
 
                             shell.publish((self.on_change)(
                                 self.normal_param_x.value,

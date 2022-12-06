@@ -255,7 +255,7 @@ impl KnobStep {
             .style(style::knob::CustomArcBipolar);
 
         let knob_style5 = Knob::new(self.knob_style5_param, Message::Style5)
-            .bipolar_center(Normal::new(0.2))
+            .bipolar_center(Normal::from_clipped(0.2))
             .style(style::knob::CustomArcBipolar);
 
         // push the widgets into rows
