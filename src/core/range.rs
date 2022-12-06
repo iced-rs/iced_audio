@@ -319,7 +319,7 @@ impl LogDBRange {
             self.zero_position
         } else if value < 0.0 {
             if self.min >= 0.0 {
-                return 0.0.into();
+                return Normal::MIN;
             }
             let neg_normal = value * self.min_recip;
 
@@ -328,7 +328,7 @@ impl LogDBRange {
             (log_normal * self.zero_position.as_f32()).into()
         } else {
             if self.max <= 0.0 {
-                return 1.0.into();
+                return Normal::MAX;
             }
             let pos_normal = value * self.max_recip;
 
@@ -371,7 +371,7 @@ impl LogDBRange {
 
 impl Default for LogDBRange {
     fn default() -> Self {
-        LogDBRange::new(-12.0, 12.0, 0.5.into())
+        LogDBRange::new(-12.0, 12.0, Normal::CENTER)
     }
 }
 

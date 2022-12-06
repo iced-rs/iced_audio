@@ -32,6 +32,15 @@ impl Default for Normal {
 }
 
 impl Normal {
+    /// A `Normal` with the value `0.0`.
+    pub const MIN: Self = Self { value: 0.0 };
+
+    /// A `Normal` with the value `0.5`.
+    pub const CENTER: Self = Self { value: 0.5 };
+
+    /// A `Normal` with the value `1.0`.
+    pub const MAX: Self = Self { value: 1.0 };
+
     /// Creates a new `Normal`.
     ///
     /// # Arguments
@@ -55,21 +64,6 @@ impl Normal {
                 }
             },
         }
-    }
-
-    /// Returns a `Normal` with the value `0.0`.
-    pub fn min() -> Self {
-        Self { value: 0.0 }
-    }
-
-    /// Returns a `Normal` with the value `1.0`.
-    pub fn max() -> Self {
-        Self { value: 1.0 }
-    }
-
-    /// Returns a `Normal` with the value `0.5`.
-    pub fn center() -> Self {
-        Self { value: 0.5 }
     }
 
     /// Set a value for the `Normal`.

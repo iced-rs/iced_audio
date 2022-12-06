@@ -302,7 +302,7 @@ fn draw_value_arc(
                 let half_angle =
                     knob_info.start_angle + (knob_info.angle_span / 2.0);
 
-                if knob_info.value < Normal::center() {
+                if knob_info.value < Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
                         style: triangle::Style::Solid(style.left_filled_color),
@@ -320,7 +320,7 @@ fn draw_value_arc(
                     let filled_path = Path::new(|path| path.arc(filled_arc));
 
                     frame.stroke(&filled_path, filled_stroke);
-                } else if knob_info.value > Normal::center() {
+                } else if knob_info.value > Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
                         style: triangle::Style::Solid(right_filled_color),
@@ -340,7 +340,7 @@ fn draw_value_arc(
                     frame.stroke(&filled_path, filled_stroke);
                 }
             }
-        } else if knob_info.value != Normal::min() {
+        } else if knob_info.value != Normal::MIN {
             let filled_stroke = Stroke {
                 width: style.width,
                 style: triangle::Style::Solid(style.left_filled_color),

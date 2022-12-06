@@ -1,14 +1,14 @@
 //! Math helper functions
 
 /// pi / 180.0
-pub static PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
+pub const PI_OVER_180: f32 = std::f32::consts::PI / 180.0;
 /// 2.0 * pi
-pub static TWO_PI: f32 = std::f32::consts::PI * 2.0;
+pub const TWO_PI: f32 = std::f32::consts::PI * 2.0;
 /// pi * (3.0 / 2.0)
-pub static THREE_HALVES_PI: f32 = std::f32::consts::PI * 2.0;
+pub const THREE_HALVES_PI: f32 = std::f32::consts::FRAC_PI_2 * 3.0;
 
-static ONE_OVER_20_F32: f32 = 1.0 / 20.0;
-static ONE_OVER_20_F64: f64 = 1.0 / 20.0;
+const ONE_OVER_20_F32: f32 = 1.0 / 20.0;
+const ONE_OVER_20_F64: f64 = 1.0 / 20.0;
 
 /// Converts decibels to amplitude
 #[inline]

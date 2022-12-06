@@ -81,7 +81,7 @@
 //!         // Initalize each range:
 //!         let float_range = FloatRange::default_bipolar();
 //!         let int_range = IntRange::new(0, 10);
-//!         let db_range = LogDBRange::new(-12.0, 12.0, 0.5.into());
+//!         let db_range = LogDBRange::new(-12.0, 12.0, Normal::CENTER);
 //!         let freq_range = FreqRange::default();
 //!
 //!         App {
@@ -178,7 +178,7 @@
 //!         .max_width(300)
 //!         .spacing(20)
 //!         .padding(20)
-//!         .align_items(Align::Center);
+//!         .align_items(Alignment::Center);
 //!
 //!         container(content)
 //!             .max_height(500)
