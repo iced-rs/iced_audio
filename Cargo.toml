@@ -22,6 +22,11 @@ members = [
     "examples/inputs_tour",
 ]
 
+[features]
+default = ["wgpu"]
+glow = ["iced_glow"]
+wgpu = ["iced_wgpu"]
+
 [dependencies]
 iced_core = "0.6"
 iced_glow = { version = "0.4", optional = true }
@@ -29,7 +34,5 @@ iced_graphics = { version = "0.4", features = ["canvas"] }
 iced_native = "0.6"
 iced_wgpu = { version = "0.6", optional = true }
 
-[features]
-default = ["wgpu"]
-glow = ["iced_glow"]
-wgpu = ["iced_wgpu"]
+[dev-dependencies]
+iced = "0.5"
