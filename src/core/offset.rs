@@ -1,6 +1,6 @@
 //! Offset type
 
-use iced::{Point, Rectangle};
+use iced_core::{Point, Rectangle};
 
 /// A 2D offset vector with a horizontal and vertical offset in pixels.
 #[derive(Debug, Copy, Clone, PartialEq)]

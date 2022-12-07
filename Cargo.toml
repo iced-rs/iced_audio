@@ -22,15 +22,17 @@ members = [
     "examples/inputs_tour",
 ]
 
-# See more keys and their definitions at
-# https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-iced = { version = "0.5.2", default-features = false, features = ["canvas"] }
-iced_graphics = "0.4.0"
-iced_native = "0.6.1"
-
 [features]
 default = ["wgpu"]
-glow = ["iced/glow"]
-wgpu = ["iced/wgpu"]
+glow = ["iced_glow"]
+wgpu = ["iced_wgpu"]
+
+[dependencies]
+iced_core = "0.6"
+iced_glow = { version = "0.4", optional = true }
+iced_graphics = { version = "0.4", features = ["canvas"] }
+iced_native = "0.6"
+iced_wgpu = { version = "0.6", optional = true }
+
+[dev-dependencies]
+iced = "0.5"

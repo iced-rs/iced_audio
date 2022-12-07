@@ -32,9 +32,9 @@ struct ValueMarkers<'a> {
 /// [`Param`]: ../../core/param/trait.Param.html
 /// [`HSlider`]: struct.HSlider.html
 pub type HSlider<'a, Message, Theme> =
-    h_slider::HSlider<'a, Message, iced::Renderer<Theme>>;
+    h_slider::HSlider<'a, Message, crate::Renderer<Theme>>;
 
-impl h_slider::Renderer for iced::Renderer
+impl<Theme> h_slider::Renderer for crate::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

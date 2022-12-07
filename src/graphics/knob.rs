@@ -7,8 +7,8 @@ use std::cmp::Ordering;
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
-use iced::widget::canvas::{path::Arc, Frame, Path, Stroke};
 use iced_graphics::triangle;
+use iced_graphics::widget::canvas::{path::Arc, Frame, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 
@@ -44,9 +44,9 @@ struct KnobInfo {
 ///
 /// [`Param`]: ../../core/param/struct.Param.html
 pub type Knob<'a, Message, Theme> =
-    knob::Knob<'a, Message, iced::Renderer<Theme>>;
+    knob::Knob<'a, Message, crate::Renderer<Theme>>;
 
-impl knob::Renderer for iced::Renderer
+impl<Theme> knob::Renderer for crate::Renderer<Theme>
 where
     Self::Theme: StyleSheet,
 {

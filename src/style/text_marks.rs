@@ -1,7 +1,7 @@
 //! Various styles for a [`text_marks::Group`] in a bar meter widget
 //!
 //! [`text_marks::Group`]: ../../native/text_marks/struct.Group.html
-use iced::{Color, Font};
+use iced_core::{Color, Font};
 
 use crate::core::Offset;
 use crate::style::default_colors;
