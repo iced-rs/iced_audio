@@ -56,7 +56,7 @@ where
                         height: bounds_size,
                     },
                     background: Background::Color(style.color),
-                    border_radius: radius,
+                    border_radius: [radius; 4],
                     border_width: style.border_width,
                     border_color: style.border_color,
                 }
@@ -74,7 +74,7 @@ where
                         height: bounds_size,
                     },
                     background: Background::Color(style.color),
-                    border_radius: style.border_radius,
+                    border_radius: [style.border_radius; 4],
                     border_width: style.border_width,
                     border_color: style.border_color,
                 }

@@ -32,7 +32,7 @@ fn draw_vertical_lines(
                     height: width,
                 },
                 background: back_color,
-                border_radius: 0.0,
+                border_radius: [0.0; 4],
                 border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
@@ -47,7 +47,7 @@ fn draw_vertical_lines(
                     height: width,
                 },
                 background: back_color,
-                border_radius: 0.0,
+                border_radius: [0.0; 4],
                 border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
@@ -81,7 +81,7 @@ fn draw_vertical_circles(
                     height: diameter,
                 },
                 background: back_color,
-                border_radius: radius,
+                border_radius: [radius; 4],
                 border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });
@@ -96,7 +96,7 @@ fn draw_vertical_circles(
                     height: diameter,
                 },
                 background: back_color,
-                border_radius: radius,
+                border_radius: [radius; 4],
                 border_width: 0.0,
                 border_color: Color::TRANSPARENT,
             });

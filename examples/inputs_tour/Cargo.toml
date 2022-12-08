@@ -8,9 +8,9 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.5.2", default-features = false, features = ["image"] }
+iced = { version = "0.6", default-features = false, features = ["image"] }
 iced_audio = { path = "../../", default-features = false }
-iced_native = "0.6.1"
+iced_native = "0.7"
 
 [features]
 default = ["wgpu"]

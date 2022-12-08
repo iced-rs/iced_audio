@@ -6,8 +6,7 @@
 use crate::core::Normal;
 use crate::native::ramp;
 use iced_core::{Background, Point, Rectangle, Size, Vector};
-use iced_graphics::triangle;
-use iced_graphics::widget::canvas::{Frame, LineCap, Path, Stroke};
+use iced_graphics::widget::canvas::{self, Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 
 pub use crate::native::ramp::RampDirection;
@@ -61,7 +60,7 @@ where
                 height: bounds_height,
             },
             background: Background::Color(appearance.back_color),
-            border_radius: 0.0,
+            border_radius: [0.0; 4],
             border_width: appearance.back_border_width,
             border_color: appearance.back_border_color,
         };
@@ -77,9 +76,7 @@ where
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(
-                            appearance.line_down_color,
-                        ),
+                        style: canvas::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -111,7 +108,7 @@ where
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(appearance.line_up_color),
+                        style: canvas::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -146,7 +143,7 @@ where
                 } else {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(
+                        style: canvas::Style::Solid(
                             appearance.line_center_color,
                         ),
                         line_cap: LineCap::Square,
@@ -180,9 +177,7 @@ where
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(
-                            appearance.line_down_color,
-                        ),
+                        style: canvas::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -216,7 +211,7 @@ where
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(appearance.line_up_color),
+                        style: canvas::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -252,7 +247,7 @@ where
                 } else {
                     let stroke = Stroke {
                         width: appearance.line_width as f32,
-                        style: triangle::Style::Solid(
+                        style: canvas::Style::Solid(
                             appearance.line_center_color,
                         ),
                         line_cap: LineCap::Square,

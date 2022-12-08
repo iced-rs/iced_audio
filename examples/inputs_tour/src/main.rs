@@ -413,12 +413,12 @@ where
         );
     }
     fn overlay<'b>(
-        &'b self,
+        &'b mut self,
         tree: &'b mut Tree,
         layout: Layout<'_>,
         renderer: &Renderer,
     ) -> Option<overlay::Element<'b, Message, Renderer>> {
-        Widget::overlay(&self.col, tree, layout, renderer)
+        Widget::overlay(&mut self.col, tree, layout, renderer)
     }
 }
 
