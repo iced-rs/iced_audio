@@ -1,5 +1,4 @@
-use iced_graphics::triangle;
-use iced_graphics::widget::canvas::{Fill, Frame, LineCap, Path, Stroke};
+use iced_graphics::widget::canvas::{self, Fill, Frame, LineCap, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Color, Point, Size, Vector};
 
@@ -33,7 +32,7 @@ fn draw_radial_circles(
                 frame.fill(
                     &path,
                     Fill {
-                        style: triangle::Style::Solid(color),
+                        style: canvas::Style::Solid(color),
                         ..Fill::default()
                     },
                 );
@@ -51,7 +50,7 @@ fn draw_radial_circles(
                 frame.fill(
                     &path,
                     Fill {
-                        style: triangle::Style::Solid(color),
+                        style: canvas::Style::Solid(color),
                         ..Fill::default()
                     },
                 );
@@ -90,7 +89,7 @@ fn draw_radial_lines(
                     &path,
                     Stroke {
                         width,
-                        style: triangle::Style::Solid(color),
+                        style: canvas::Style::Solid(color),
                         line_cap: LineCap::Butt,
                         ..Stroke::default()
                     },
@@ -110,7 +109,7 @@ fn draw_radial_lines(
                     &path,
                     Stroke {
                         width,
-                        style: triangle::Style::Solid(color),
+                        style: canvas::Style::Solid(color),
                         line_cap: LineCap::Butt,
                         ..Stroke::default()
                     },

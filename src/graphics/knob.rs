@@ -7,8 +7,7 @@ use std::cmp::Ordering;
 use crate::core::{ModulationRange, Normal};
 use crate::graphics::{text_marks, tick_marks};
 use crate::native::knob;
-use iced_graphics::triangle;
-use iced_graphics::widget::canvas::{path::Arc, Frame, Path, Stroke};
+use iced_graphics::widget::canvas::{self, path::Arc, Frame, Path, Stroke};
 use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 
@@ -278,7 +277,7 @@ fn draw_value_arc(
         if let Some(empty_color) = style.empty_color {
             let empty_stroke = Stroke {
                 width: style.width,
-                style: triangle::Style::Solid(empty_color),
+                style: canvas::Style::Solid(empty_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -305,7 +304,7 @@ fn draw_value_arc(
                 if knob_info.value < Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
-                        style: triangle::Style::Solid(style.left_filled_color),
+                        style: canvas::Style::Solid(style.left_filled_color),
                         line_cap: style.cap,
                         ..Stroke::default()
                     };
@@ -323,7 +322,7 @@ fn draw_value_arc(
                 } else if knob_info.value > Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
-                        style: triangle::Style::Solid(right_filled_color),
+                        style: canvas::Style::Solid(right_filled_color),
                         line_cap: style.cap,
                         ..Stroke::default()
                     };
@@ -343,7 +342,7 @@ fn draw_value_arc(
         } else if knob_info.value != Normal::MIN {
             let filled_stroke = Stroke {
                 width: style.width,
-                style: triangle::Style::Solid(style.left_filled_color),
+                style: canvas::Style::Solid(style.left_filled_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -392,7 +391,7 @@ fn draw_mod_range_arc(
             if let Some(empty_color) = style.empty_color {
                 let empty_stroke = Stroke {
                     width: style.width,
-                    style: triangle::Style::Solid(empty_color),
+                    style: canvas::Style::Solid(empty_color),
                     line_cap: style.cap,
                     ..Stroke::default()
                 };
@@ -427,7 +426,7 @@ fn draw_mod_range_arc(
 
                 let filled_stroke = Stroke {
                     width: style.width,
-                    style: triangle::Style::Solid(color),
+                    style: canvas::Style::Solid(color),
                     line_cap: style.cap,
                     ..Stroke::default()
                 };
@@ -488,7 +487,7 @@ fn draw_circle_notch(knob_info: &KnobInfo, style: &CircleNotch) -> Primitive {
             height: notch_diameter,
         },
         background: Background::Color(style.color),
-        border_radius: notch_radius,
+        border_radius: [notch_radius; 4],
         border_width: style.border_width,
         border_color: style.border_color,
     }
@@ -499,7 +498,7 @@ fn draw_line_notch(knob_info: &KnobInfo, style: &LineNotch) -> Primitive {
 
     let stroke = Stroke {
         width: style.width.from_knob_diameter(knob_info.bounds.width),
-        style: triangle::Style::Solid(style.color),
+        style: canvas::Style::Solid(style.color),
         line_cap: style.cap,
         ..Stroke::default()
     };
@@ -555,7 +554,7 @@ fn draw_circle_style<'a>(
     let knob_back = Primitive::Quad {
         bounds: knob_info.bounds,
         background: Background::Color(style.color),
-        border_radius: knob_info.radius,
+        border_radius: [knob_info.radius; 4],
         border_width: style.border_width,
         border_color: style.border_color,
     };
@@ -603,7 +602,7 @@ fn draw_arc_style<'a>(
 
         let empty_stroke = Stroke {
             width,
-            style: triangle::Style::Solid(style.empty_color),
+            style: canvas::Style::Solid(style.empty_color),
             line_cap: style.cap,
             ..Stroke::default()
         };
@@ -621,7 +620,7 @@ fn draw_arc_style<'a>(
 
         let filled_stroke = Stroke {
             width,
-            style: triangle::Style::Solid(style.filled_color),
+            style: canvas::Style::Solid(style.filled_color),
             line_cap: style.cap,
             ..Stroke::default()
         };
@@ -713,7 +712,7 @@ fn draw_arc_bipolar_style<'a>(
 
         let empty_stroke = Stroke {
             width,
-            style: triangle::Style::Solid(style.empty_color),
+            style: canvas::Style::Solid(style.empty_color),
             line_cap: style.cap,
             ..Stroke::default()
         };
@@ -739,7 +738,7 @@ fn draw_arc_bipolar_style<'a>(
             BipolarState::Left => {
                 let filled_stroke = Stroke {
                     width,
-                    style: triangle::Style::Solid(style.left_filled_color),
+                    style: canvas::Style::Solid(style.left_filled_color),
                     line_cap: style.cap,
                     ..Stroke::default()
                 };
@@ -758,7 +757,7 @@ fn draw_arc_bipolar_style<'a>(
             BipolarState::Right => {
                 let filled_stroke = Stroke {
                     width,
-                    style: triangle::Style::Solid(style.right_filled_color),
+                    style: canvas::Style::Solid(style.right_filled_color),
                     line_cap: style.cap,
                     ..Stroke::default()
                 };
