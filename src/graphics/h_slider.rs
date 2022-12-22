@@ -9,9 +9,10 @@ use iced_graphics::Primitive;
 use iced_native::{Background, Color, Point, Rectangle};
 
 pub use crate::style::h_slider::{
-    Appearance, ClassicHandle, ClassicRail, ClassicStyle, ModRangePlacement,
-    ModRangeStyle, RectBipolarStyle, RectStyle, StyleSheet, TextMarksStyle,
-    TextureStyle, TickMarksStyle,
+    Appearance, ClassicAppearance, ClassicHandle, ClassicRail,
+    ModRangeAppearance, ModRangePlacement, RectAppearance,
+    RectBipolarAppearance, StyleSheet, TextMarksAppearance, TextureAppearance,
+    TickMarksAppearance,
 };
 
 struct ValueMarkers<'a> {
@@ -19,10 +20,10 @@ struct ValueMarkers<'a> {
     text_marks: Option<&'a text_marks::Group>,
     mod_range_1: Option<&'a ModulationRange>,
     mod_range_2: Option<&'a ModulationRange>,
-    tick_marks_style: Option<TickMarksStyle>,
-    text_marks_style: Option<TextMarksStyle>,
-    mod_range_style_1: Option<ModRangeStyle>,
-    mod_range_style_2: Option<ModRangeStyle>,
+    tick_marks_style: Option<TickMarksAppearance>,
+    text_marks_style: Option<TextMarksAppearance>,
+    mod_range_style_1: Option<ModRangeAppearance>,
+    mod_range_style_2: Option<ModRangeAppearance>,
 }
 
 /// A horizontal slider GUI widget that controls a [`Param`]
@@ -77,10 +78,10 @@ where
             text_marks,
             mod_range_1,
             mod_range_2,
-            tick_marks_style: style_sheet.tick_marks_style(style),
-            text_marks_style: style_sheet.text_marks_style(style),
-            mod_range_style_1: style_sheet.mod_range_style(style),
-            mod_range_style_2: style_sheet.mod_range_style_2(style),
+            tick_marks_style: style_sheet.tick_marks_appearance(style),
+            text_marks_style: style_sheet.text_marks_appearance(style),
+            mod_range_style_1: style_sheet.mod_range_appearance(style),
+            mod_range_style_2: style_sheet.mod_range_appearance_2(style),
         };
 
         let primitives = match appearance {
@@ -158,7 +159,7 @@ fn draw_value_markers<'a>(
 fn draw_tick_marks(
     bounds: &Rectangle,
     tick_marks: Option<&tick_marks::Group>,
-    tick_marks_style: &Option<TickMarksStyle>,
+    tick_marks_style: &Option<TickMarksAppearance>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(tick_marks) = tick_marks {
@@ -182,7 +183,7 @@ fn draw_tick_marks(
 fn draw_text_marks(
     value_bounds: &Rectangle,
     text_marks: Option<&text_marks::Group>,
-    text_marks_style: &Option<TextMarksStyle>,
+    text_marks_style: &Option<TextMarksAppearance>,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(text_marks) = text_marks {
@@ -206,7 +207,7 @@ fn draw_text_marks(
 fn draw_mod_range(
     bounds: &Rectangle,
     mod_range: Option<&ModulationRange>,
-    style: &Option<ModRangeStyle>,
+    style: &Option<ModRangeAppearance>,
 ) -> Primitive {
     if let Some(mod_range) = mod_range {
         if let Some(style) = style {
@@ -297,7 +298,7 @@ fn draw_mod_range(
 fn draw_texture_style<'a>(
     normal: Normal,
     bounds: &Rectangle,
-    style: TextureStyle,
+    style: TextureAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
@@ -348,7 +349,7 @@ fn draw_texture_style<'a>(
 fn draw_classic_style<'a>(
     normal: Normal,
     bounds: &Rectangle,
-    style: &ClassicStyle,
+    style: &ClassicAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
@@ -425,7 +426,7 @@ fn draw_classic_style<'a>(
 fn draw_rect_style<'a>(
     normal: Normal,
     bounds: &Rectangle,
-    style: &RectStyle,
+    style: &RectAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
@@ -509,7 +510,7 @@ fn draw_rect_style<'a>(
 fn draw_rect_bipolar_style<'a>(
     normal: Normal,
     bounds: &Rectangle,
-    style: &RectBipolarStyle,
+    style: &RectBipolarAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,

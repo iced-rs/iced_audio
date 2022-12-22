@@ -3,7 +3,7 @@
 use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
-use crate::style::tick_marks::{Placement, Shape, Style};
+use crate::style::tick_marks::{Appearance, Placement, Shape};
 use iced_graphics::{Background, Color, Primitive, Rectangle};
 
 #[allow(clippy::too_many_arguments)]
@@ -152,7 +152,7 @@ fn draw_horizontal_top_aligned(
     bounds: &Rectangle,
     y: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
 ) {
     draw_horizontal_top_aligned_tier(
@@ -231,7 +231,7 @@ fn draw_horizontal_bottom_aligned(
     bounds: &Rectangle,
     y: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
 ) {
     draw_horizontal_bottom_aligned_tier(
@@ -326,7 +326,7 @@ fn draw_horizontal_center_aligned(
     bounds: &Rectangle,
     y: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     fill_length: bool,
     inverse: bool,
 ) {
@@ -454,7 +454,7 @@ fn draw_horizontal_center_aligned_split(
     bounds: &Rectangle,
     y: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     fill_length: bool,
     gap: f32,
     inverse: bool,
@@ -502,7 +502,7 @@ fn draw_horizontal_center_aligned_split(
 pub fn draw_horizontal_tick_marks(
     bounds: &Rectangle,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     placement: &Placement,
     inverse: bool,
     cache: &PrimitiveCache,

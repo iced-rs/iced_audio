@@ -1,6 +1,6 @@
 use super::PrimitiveCache;
 use crate::native::text_marks;
-use crate::style::text_marks::Style;
+use crate::style::text_marks::Appearance;
 
 use iced_core::{alignment::Horizontal, alignment::Vertical, Point, Rectangle};
 use iced_graphics::Primitive;
@@ -25,7 +25,7 @@ pub fn draw_radial_text_marks(
     start_angle: f32,
     angle_span: f32,
     text_marks: &text_marks::Group,
-    style: &Style,
+    style: &Appearance,
     h_char_offset: f32,
     inverse: bool,
     cache: &PrimitiveCache,

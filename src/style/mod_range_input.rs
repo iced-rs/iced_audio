@@ -12,9 +12,9 @@ use crate::style::default_colors;
 #[derive(Debug, Clone)]
 pub enum Appearance {
     /// A circle style
-    Circle(CircleStyle),
+    Circle(CircleAppearance),
     /// A square style
-    Square(SquareStyle),
+    Square(SquareAppearance),
     /// Appearance is invisible, but still interactable. Useful if placed right
     /// on top of a [`Knob`] with an [`ModRangeRingStyle`].
     ///
@@ -28,7 +28,7 @@ pub enum Appearance {
 /// [`Appearance`]: enum.Appearance.html
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
-pub struct CircleStyle {
+pub struct CircleAppearance {
     /// Color of the circle
     pub color: Color,
     /// Width of the border
@@ -37,9 +37,9 @@ pub struct CircleStyle {
     pub border_color: Color,
 }
 
-impl Default for CircleStyle {
+impl Default for CircleAppearance {
     fn default() -> Self {
-        CircleStyle {
+        CircleAppearance {
             color: default_colors::LIGHT_BACK,
             border_width: 1.0,
             border_color: default_colors::BORDER,
@@ -52,7 +52,7 @@ impl Default for CircleStyle {
 /// [`Appearance`]: enum.Appearance.html
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 #[derive(Debug, Clone)]
-pub struct SquareStyle {
+pub struct SquareAppearance {
     /// Color of the square
     pub color: Color,
     /// Width of the border

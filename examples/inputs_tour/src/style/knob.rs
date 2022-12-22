@@ -14,12 +14,13 @@ impl CustomStyleCircle {
         diameter: knob::StyleLength::Scaled(0.21),
         offset: knob::StyleLength::Scaled(0.21),
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleStyle = knob::CircleStyle {
-        color: colors::KNOB,
-        border_width: 3.0,
-        border_color: colors::KNOB_BORDER,
-        notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
-    };
+    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance =
+        knob::CircleAppearance {
+            color: colors::KNOB,
+            border_width: 3.0,
+            border_color: colors::KNOB_BORDER,
+            notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
+        };
 }
 impl knob::StyleSheet for CustomStyleCircle {
     type Style = iced::Theme;
@@ -29,7 +30,7 @@ impl knob::StyleSheet for CustomStyleCircle {
     }
 
     fn hovered(&self, _style: &Self::Style) -> knob::Appearance {
-        knob::Appearance::Circle(knob::CircleStyle {
+        knob::Appearance::Circle(knob::CircleAppearance {
             notch: knob::NotchShape::Circle(knob::CircleNotch {
                 color: colors::HANDLE_HOVER,
                 border_color: colors::FILLED_HOVER,
@@ -43,11 +44,11 @@ impl knob::StyleSheet for CustomStyleCircle {
         self.hovered(style)
     }
 
-    fn value_arc_style(
+    fn value_arc_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<knob::ValueArcStyle> {
-        Some(knob::ValueArcStyle {
+    ) -> Option<knob::ValueArcAppearance> {
+        Some(knob::ValueArcAppearance {
             width: 3.0,
             offset: 1.5,
             empty_color: Some(colors::KNOB_ARC_EMPTY),
@@ -57,11 +58,11 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn mod_range_arc_style(
+    fn mod_range_arc_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<knob::ModRangeArcStyle> {
-        Some(knob::ModRangeArcStyle {
+    ) -> Option<knob::ModRangeArcAppearance> {
+        Some(knob::ModRangeArcAppearance {
             width: 3.0,
             offset: 6.0,
             empty_color: Some(colors::KNOB_ARC_EMPTY),
@@ -71,12 +72,12 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn text_marks_style(
+    fn text_marks_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<knob::TextMarksStyle> {
-        Some(knob::TextMarksStyle {
-            style: text_marks::Style {
+    ) -> Option<knob::TextMarksAppearance> {
+        Some(knob::TextMarksAppearance {
+            style: text_marks::Appearance {
                 color: [0.16, 0.16, 0.16, 0.9].into(),
                 text_size: 11,
                 font: Default::default(),
@@ -101,12 +102,13 @@ impl CustomStyleLine {
         offset: knob::StyleLength::Units(5.0),
         cap: knob::LineCap::Round,
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleStyle = knob::CircleStyle {
-        color: colors::KNOB,
-        border_width: 0.0,
-        border_color: Color::TRANSPARENT,
-        notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
-    };
+    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance =
+        knob::CircleAppearance {
+            color: colors::KNOB,
+            border_width: 0.0,
+            border_color: Color::TRANSPARENT,
+            notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
+        };
 }
 impl knob::StyleSheet for CustomStyleLine {
     type Style = iced::Theme;
@@ -123,11 +125,11 @@ impl knob::StyleSheet for CustomStyleLine {
         self.active(style)
     }
 
-    fn value_arc_style(
+    fn value_arc_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<knob::ValueArcStyle> {
-        Some(knob::ValueArcStyle {
+    ) -> Option<knob::ValueArcAppearance> {
+        Some(knob::ValueArcAppearance {
             width: 2.5,
             offset: 2.0,
             empty_color: Some(colors::KNOB_ARC_EMPTY),
@@ -145,7 +147,7 @@ impl knob::StyleSheet for CustomArc {
     type Style = iced::Theme;
 
     fn active(&self, _style: &Self::Style) -> knob::Appearance {
-        knob::Appearance::Arc(knob::ArcStyle {
+        knob::Appearance::Arc(knob::ArcAppearance {
             width: knob::StyleLength::Units(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             filled_color: colors::KNOB_ARC,
@@ -172,11 +174,11 @@ impl knob::StyleSheet for CustomArc {
         iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
     }
 
-    fn mod_range_arc_style(
+    fn mod_range_arc_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<knob::ModRangeArcStyle> {
-        Some(knob::ModRangeArcStyle {
+    ) -> Option<knob::ModRangeArcAppearance> {
+        Some(knob::ModRangeArcAppearance {
             width: 3.0,
             offset: 1.5,
             empty_color: Some(colors::KNOB_ARC_EMPTY),
@@ -203,7 +205,7 @@ impl knob::StyleSheet for CustomArcBipolar {
     type Style = iced::Theme;
 
     fn active(&self, _style: &Self::Style) -> knob::Appearance {
-        knob::Appearance::ArcBipolar(knob::ArcBipolarStyle {
+        knob::Appearance::ArcBipolar(knob::ArcBipolarAppearance {
             width: knob::StyleLength::Units(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             left_filled_color: colors::KNOB_ARC,

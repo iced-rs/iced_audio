@@ -7,7 +7,7 @@ use iced_native::{Background, Point, Rectangle};
 
 use crate::native::mod_range_input;
 pub use crate::style::mod_range_input::{
-    Appearance, CircleStyle, SquareStyle, StyleSheet,
+    Appearance, CircleAppearance, SquareAppearance, StyleSheet,
 };
 
 /// An interactive dot that controls an [`Param`]
