@@ -3,7 +3,7 @@
 use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
-use crate::style::tick_marks::{Placement, Shape, Style};
+use crate::style::tick_marks::{Appearance, Placement, Shape};
 use iced_core::{Background, Color, Rectangle};
 use iced_graphics::Primitive;
 
@@ -154,7 +154,7 @@ fn draw_vertical_left_aligned(
     bounds: &Rectangle,
     x: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
 ) {
     draw_vertical_left_aligned_tier(
@@ -233,7 +233,7 @@ fn draw_vertical_right_aligned(
     bounds: &Rectangle,
     x: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
 ) {
     draw_vertical_right_aligned_tier(
@@ -325,7 +325,7 @@ fn draw_vertical_center_aligned(
     bounds: &Rectangle,
     x: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     fill_length: bool,
     inverse: bool,
 ) {
@@ -453,7 +453,7 @@ fn draw_vertical_center_aligned_split(
     bounds: &Rectangle,
     x: f32,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     fill_length: bool,
     gap: f32,
     inverse: bool,
@@ -501,7 +501,7 @@ fn draw_vertical_center_aligned_split(
 pub fn draw_vertical_tick_marks(
     bounds: &Rectangle,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     placement: &Placement,
     inverse: bool,
     cache: &PrimitiveCache,

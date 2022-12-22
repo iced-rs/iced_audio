@@ -210,8 +210,6 @@
     clippy::type_complexity
 )]
 
-//extern crate simdeez;
-
 pub mod core;
 pub mod graphics;
 pub mod native;

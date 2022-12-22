@@ -5,7 +5,7 @@ use iced_native::{Color, Point, Size, Vector};
 use super::PrimitiveCache;
 use crate::core::Normal;
 use crate::native::tick_marks;
-use crate::style::tick_marks::{Shape, Style};
+use crate::style::tick_marks::{Appearance, Shape};
 
 #[allow(clippy::too_many_arguments)]
 fn draw_radial_circles(
@@ -199,7 +199,7 @@ fn draw_tier(
     }
 }
 
-fn max_length(style: &Style) -> f32 {
+fn max_length(style: &Appearance) -> f32 {
     let length_1 = match style.tier_1 {
         Shape::None => 0.0,
         Shape::Line { length, .. } => length,
@@ -241,7 +241,7 @@ pub fn draw_radial_tick_marks(
     angle_span: f32,
     inside: bool,
     tick_marks: &tick_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
     cache: &PrimitiveCache,
 ) -> Primitive {

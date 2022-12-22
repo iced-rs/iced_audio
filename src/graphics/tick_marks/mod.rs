@@ -21,7 +21,7 @@ struct PrimitiveCacheData {
 
     pub bounds: Rectangle,
     pub tick_marks_hash: u64,
-    pub style: Style,
+    pub style: Appearance,
     pub placement: Placement,
     pub inverse: bool,
 
@@ -39,7 +39,7 @@ impl Default for PrimitiveCacheData {
 
             bounds: Rectangle::default(),
             tick_marks_hash: 0,
-            style: Style::default(),
+            style: Appearance::default(),
             placement: Placement::default(),
             inverse: false,
 
@@ -70,7 +70,7 @@ impl PrimitiveCache {
         &self,
         bounds: Rectangle,
         tick_marks: &Group,
-        style: Style,
+        style: Appearance,
         placement: Placement,
         inverse: bool,
         builder: F,
@@ -107,7 +107,7 @@ impl PrimitiveCache {
         angle_span: f32,
         inside: bool,
         tick_marks: &Group,
-        style: Style,
+        style: Appearance,
         inverse: bool,
         builder: F,
     ) -> iced_graphics::Primitive {

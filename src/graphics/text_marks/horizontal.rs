@@ -1,6 +1,6 @@
 use super::PrimitiveCache;
 use crate::native::text_marks;
-use crate::style::text_marks::{Align, Placement, Style};
+use crate::style::text_marks::{Align, Appearance, Placement};
 
 use iced_core::{alignment::Horizontal, alignment::Vertical, Rectangle};
 use iced_graphics::Primitive;
@@ -10,7 +10,7 @@ fn draw_aligned(
     bounds: &Rectangle,
     y: f32,
     text_marks: &text_marks::Group,
-    style: &Style,
+    style: &Appearance,
     inverse: bool,
     align: Vertical,
 ) {
@@ -69,7 +69,7 @@ fn draw_aligned(
 pub fn draw_horizontal_text_marks(
     bounds: &Rectangle,
     text_marks: &text_marks::Group,
-    style: &Style,
+    style: &Appearance,
     placement: &Placement,
     inverse: bool,
     cache: &PrimitiveCache,

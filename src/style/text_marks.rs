@@ -66,7 +66,7 @@ impl std::default::Default for Placement {
 ///
 /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
 #[derive(Debug, Copy, Clone)]
-pub struct Style {
+pub struct Appearance {
     /// The color of the text.
     pub color: Color,
     /// The size of the text.
@@ -79,8 +79,8 @@ pub struct Style {
     pub bounds_height: u16,
 }
 
-impl std::cmp::PartialEq for Style {
-    fn eq(&self, rhs: &Style) -> bool {
+impl std::cmp::PartialEq for Appearance {
+    fn eq(&self, rhs: &Appearance) -> bool {
         self.color == rhs.color
             && self.text_size == rhs.text_size
             && self.bounds_width == rhs.bounds_width
@@ -98,7 +98,7 @@ impl std::cmp::PartialEq for Style {
     }
 }
 
-impl Default for Style {
+impl Default for Appearance {
     fn default() -> Self {
         Self {
             color: default_colors::TEXT_MARK,

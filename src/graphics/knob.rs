@@ -12,9 +12,10 @@ use iced_graphics::Primitive;
 use iced_native::{Background, Point, Rectangle, Size, Vector};
 
 pub use crate::style::knob::{
-    Appearance, ArcBipolarStyle, ArcStyle, CircleNotch, CircleStyle, LineCap,
-    LineNotch, ModRangeArcStyle, NotchShape, StyleLength, StyleSheet,
-    TextMarksStyle, TickMarksStyle, ValueArcStyle,
+    Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance,
+    CircleNotch, LineCap, LineNotch, ModRangeArcAppearance, NotchShape,
+    StyleLength, StyleSheet, TextMarksAppearance, TickMarksAppearance,
+    ValueArcAppearance,
 };
 
 struct ValueMarkers<'a> {
@@ -22,11 +23,11 @@ struct ValueMarkers<'a> {
     text_marks: Option<&'a text_marks::Group>,
     mod_range_1: Option<&'a ModulationRange>,
     mod_range_2: Option<&'a ModulationRange>,
-    tick_marks_style: Option<TickMarksStyle>,
-    text_marks_style: Option<TextMarksStyle>,
-    value_arc_style: Option<ValueArcStyle>,
-    mod_range_style_1: Option<ModRangeArcStyle>,
-    mod_range_style_2: Option<ModRangeArcStyle>,
+    tick_marks_style: Option<TickMarksAppearance>,
+    text_marks_style: Option<TextMarksAppearance>,
+    value_arc_style: Option<ValueArcAppearance>,
+    mod_range_style_1: Option<ModRangeArcAppearance>,
+    mod_range_style_2: Option<ModRangeArcAppearance>,
 }
 
 struct KnobInfo {
@@ -84,11 +85,11 @@ where
             text_marks,
             mod_range_1,
             mod_range_2,
-            tick_marks_style: style_sheet.tick_marks_style(style),
-            text_marks_style: style_sheet.text_marks_style(style),
-            value_arc_style: style_sheet.value_arc_style(style),
-            mod_range_style_1: style_sheet.mod_range_arc_style(style),
-            mod_range_style_2: style_sheet.mod_range_arc_style_2(style),
+            tick_marks_style: style_sheet.tick_marks_appearance(style),
+            text_marks_style: style_sheet.text_marks_appearance(style),
+            value_arc_style: style_sheet.value_arc_appearance(style),
+            mod_range_style_1: style_sheet.mod_range_arc_appearance(style),
+            mod_range_style_2: style_sheet.mod_range_arc_appearance_2(style),
         };
 
         let bounds = {
@@ -203,7 +204,7 @@ fn draw_value_markers<'a>(
 fn draw_tick_marks(
     knob_info: &KnobInfo,
     tick_marks: Option<&tick_marks::Group>,
-    style: &Option<TickMarksStyle>,
+    style: &Option<TickMarksAppearance>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(tick_marks) = tick_marks {
@@ -230,7 +231,7 @@ fn draw_tick_marks(
 fn draw_text_marks(
     knob_info: &KnobInfo,
     text_marks: Option<&text_marks::Group>,
-    style: &Option<TextMarksStyle>,
+    style: &Option<TextMarksAppearance>,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
     if let Some(text_marks) = text_marks {
@@ -259,7 +260,7 @@ fn draw_text_marks(
 
 fn draw_value_arc(
     knob_info: &KnobInfo,
-    style: &Option<ValueArcStyle>,
+    style: &Option<ValueArcAppearance>,
 ) -> Primitive {
     if let Some(style) = style {
         let half_width = style.width / 2.0;
@@ -373,7 +374,7 @@ fn draw_value_arc(
 
 fn draw_mod_range_arc(
     knob_info: &KnobInfo,
-    style: &Option<ModRangeArcStyle>,
+    style: &Option<ModRangeArcAppearance>,
     mod_range: Option<&ModulationRange>,
 ) -> Primitive {
     if let Some(mod_range) = mod_range {
@@ -538,7 +539,7 @@ fn draw_notch(knob_info: &KnobInfo, notch: &NotchShape) -> Primitive {
 
 fn draw_circle_style<'a>(
     knob_info: &KnobInfo,
-    style: CircleStyle,
+    style: CircleAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
@@ -576,7 +577,7 @@ fn draw_circle_style<'a>(
 
 fn draw_arc_style<'a>(
     knob_info: &KnobInfo,
-    style: ArcStyle,
+    style: ArcAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
@@ -684,7 +685,7 @@ impl BipolarState {
 
 fn draw_arc_bipolar_style<'a>(
     knob_info: &KnobInfo,
-    style: ArcBipolarStyle,
+    style: ArcBipolarAppearance,
     value_markers: &ValueMarkers<'a>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,

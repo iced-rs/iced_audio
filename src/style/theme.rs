@@ -40,7 +40,7 @@ impl h_slider::StyleSheet for iced_native::Theme {
     fn hovered(&self, style: &Self::Style) -> h_slider::Appearance {
         match style {
             HSlider::Default => {
-                h_slider::Appearance::Classic(h_slider::ClassicStyle {
+                h_slider::Appearance::Classic(h_slider::ClassicAppearance {
                     handle: h_slider::ClassicHandle {
                         color: default_colors::LIGHT_BACK_HOVER,
                         ..Default::default()
@@ -55,7 +55,7 @@ impl h_slider::StyleSheet for iced_native::Theme {
     fn dragging(&self, style: &Self::Style) -> h_slider::Appearance {
         match style {
             HSlider::Default => {
-                h_slider::Appearance::Classic(h_slider::ClassicStyle {
+                h_slider::Appearance::Classic(h_slider::ClassicAppearance {
                     handle: h_slider::ClassicHandle {
                         color: default_colors::LIGHT_BACK_DRAG,
                         ..Default::default()
@@ -67,13 +67,13 @@ impl h_slider::StyleSheet for iced_native::Theme {
         }
     }
 
-    fn tick_marks_style(
+    fn tick_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<h_slider::TickMarksStyle> {
+    ) -> Option<h_slider::TickMarksAppearance> {
         match style {
-            HSlider::Default => Some(h_slider::TickMarksStyle {
-                style: tick_marks::Style {
+            HSlider::Default => Some(h_slider::TickMarksAppearance {
+                style: tick_marks::Appearance {
                     tier_1: tick_marks::Shape::Line {
                         length: 24.0,
                         width: 2.0,
@@ -95,43 +95,43 @@ impl h_slider::StyleSheet for iced_native::Theme {
                     fill_length: false,
                 },
             }),
-            HSlider::Custom(custom) => custom.tick_marks_style(self),
+            HSlider::Custom(custom) => custom.tick_marks_appearance(self),
         }
     }
 
-    fn mod_range_style(
+    fn mod_range_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<h_slider::ModRangeStyle> {
+    ) -> Option<h_slider::ModRangeAppearance> {
         match style {
             HSlider::Default => None,
-            HSlider::Custom(custom) => custom.mod_range_style(self),
+            HSlider::Custom(custom) => custom.mod_range_appearance(self),
         }
     }
 
-    fn mod_range_style_2(
+    fn mod_range_appearance_2(
         &self,
         style: &Self::Style,
-    ) -> Option<h_slider::ModRangeStyle> {
+    ) -> Option<h_slider::ModRangeAppearance> {
         match style {
             HSlider::Default => None,
-            HSlider::Custom(custom) => custom.mod_range_style_2(self),
+            HSlider::Custom(custom) => custom.mod_range_appearance_2(self),
         }
     }
 
-    fn text_marks_style(
+    fn text_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<h_slider::TextMarksStyle> {
+    ) -> Option<h_slider::TextMarksAppearance> {
         match style {
-            HSlider::Default => Some(h_slider::TextMarksStyle {
+            HSlider::Default => Some(h_slider::TextMarksAppearance {
                 style: Default::default(),
                 placement: text_marks::Placement::RightOrBottom {
                     inside: false,
                     offset: Offset { x: 0.0, y: 7.0 },
                 },
             }),
-            HSlider::Custom(custom) => custom.text_marks_style(self),
+            HSlider::Custom(custom) => custom.text_marks_appearance(self),
         }
     }
 }
@@ -167,7 +167,7 @@ impl knob::StyleSheet for iced_native::Theme {
 
     fn hovered(&self, style: &Self::Style) -> knob::Appearance {
         match style {
-            Knob::Default => knob::Appearance::Circle(knob::CircleStyle {
+            Knob::Default => knob::Appearance::Circle(knob::CircleAppearance {
                 color: default_colors::KNOB_BACK_HOVER,
                 ..Default::default()
             }),
@@ -189,13 +189,13 @@ impl knob::StyleSheet for iced_native::Theme {
         }
     }
 
-    fn tick_marks_style(
+    fn tick_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<knob::TickMarksStyle> {
+    ) -> Option<knob::TickMarksAppearance> {
         match style {
-            Knob::Default => Some(knob::TickMarksStyle {
-                style: tick_marks::Style {
+            Knob::Default => Some(knob::TickMarksAppearance {
+                style: tick_marks::Appearance {
                     tier_1: tick_marks::Shape::Circle {
                         diameter: 4.0,
                         color: default_colors::TICK_TIER_1,
@@ -211,52 +211,52 @@ impl knob::StyleSheet for iced_native::Theme {
                 },
                 offset: 3.5,
             }),
-            Knob::Custom(custom) => custom.tick_marks_style(self),
+            Knob::Custom(custom) => custom.tick_marks_appearance(self),
         }
     }
 
-    fn value_arc_style(
+    fn value_arc_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<knob::ValueArcStyle> {
+    ) -> Option<knob::ValueArcAppearance> {
         match style {
             Knob::Default => None,
-            Knob::Custom(custom) => custom.value_arc_style(self),
+            Knob::Custom(custom) => custom.value_arc_appearance(self),
         }
     }
 
-    fn mod_range_arc_style(
+    fn mod_range_arc_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<knob::ModRangeArcStyle> {
+    ) -> Option<knob::ModRangeArcAppearance> {
         match style {
             Knob::Default => None,
-            Knob::Custom(custom) => custom.mod_range_arc_style(self),
+            Knob::Custom(custom) => custom.mod_range_arc_appearance(self),
         }
     }
 
-    fn mod_range_arc_style_2(
+    fn mod_range_arc_appearance_2(
         &self,
         style: &Self::Style,
-    ) -> Option<knob::ModRangeArcStyle> {
+    ) -> Option<knob::ModRangeArcAppearance> {
         match style {
             Knob::Default => None,
-            Knob::Custom(custom) => custom.mod_range_arc_style_2(self),
+            Knob::Custom(custom) => custom.mod_range_arc_appearance_2(self),
         }
     }
 
-    fn text_marks_style(
+    fn text_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<knob::TextMarksStyle> {
+    ) -> Option<knob::TextMarksAppearance> {
         match style {
-            Knob::Default => Some(knob::TextMarksStyle {
+            Knob::Default => Some(knob::TextMarksAppearance {
                 style: Default::default(),
                 offset: 14.0,
                 h_char_offset: 3.0,
                 v_offset: -0.75,
             }),
-            Knob::Custom(custom) => custom.text_marks_style(self),
+            Knob::Custom(custom) => custom.text_marks_appearance(self),
         }
     }
 }
@@ -298,7 +298,7 @@ impl mod_range_input::StyleSheet for iced_native::Theme {
     fn hovered(&self, style: &Self::Style) -> mod_range_input::Appearance {
         match style {
             ModRangeInput::Default => mod_range_input::Appearance::Circle(
-                mod_range_input::CircleStyle {
+                mod_range_input::CircleAppearance {
                     color: default_colors::KNOB_BACK_HOVER,
                     ..Default::default()
                 },
@@ -395,7 +395,7 @@ impl v_slider::StyleSheet for iced_native::Theme {
     fn hovered(&self, style: &Self::Style) -> v_slider::Appearance {
         match style {
             VSlider::Default => {
-                v_slider::Appearance::Classic(v_slider::ClassicStyle {
+                v_slider::Appearance::Classic(v_slider::ClassicAppearance {
                     handle: v_slider::ClassicHandle {
                         color: default_colors::LIGHT_BACK_HOVER,
                         ..Default::default()
@@ -410,7 +410,7 @@ impl v_slider::StyleSheet for iced_native::Theme {
     fn dragging(&self, style: &Self::Style) -> v_slider::Appearance {
         match style {
             VSlider::Default => {
-                v_slider::Appearance::Classic(v_slider::ClassicStyle {
+                v_slider::Appearance::Classic(v_slider::ClassicAppearance {
                     handle: v_slider::ClassicHandle {
                         color: default_colors::LIGHT_BACK_DRAG,
                         ..Default::default()
@@ -422,13 +422,13 @@ impl v_slider::StyleSheet for iced_native::Theme {
         }
     }
 
-    fn tick_marks_style(
+    fn tick_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<v_slider::TickMarksStyle> {
+    ) -> Option<v_slider::TickMarksAppearance> {
         match style {
-            VSlider::Default => Some(v_slider::TickMarksStyle {
-                style: tick_marks::Style {
+            VSlider::Default => Some(v_slider::TickMarksAppearance {
+                style: tick_marks::Appearance {
                     tier_1: tick_marks::Shape::Line {
                         length: 24.0,
                         width: 2.0,
@@ -450,43 +450,43 @@ impl v_slider::StyleSheet for iced_native::Theme {
                     fill_length: false,
                 },
             }),
-            VSlider::Custom(custom) => custom.tick_marks_style(self),
+            VSlider::Custom(custom) => custom.tick_marks_appearance(self),
         }
     }
 
-    fn mod_range_style(
+    fn mod_range_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<v_slider::ModRangeStyle> {
+    ) -> Option<v_slider::ModRangeAppearance> {
         match style {
             VSlider::Default => None,
-            VSlider::Custom(custom) => custom.mod_range_style(self),
+            VSlider::Custom(custom) => custom.mod_range_appearance(self),
         }
     }
 
-    fn mod_range_style_2(
+    fn mod_range_appearance_2(
         &self,
         style: &Self::Style,
-    ) -> Option<v_slider::ModRangeStyle> {
+    ) -> Option<v_slider::ModRangeAppearance> {
         match style {
             VSlider::Default => None,
-            VSlider::Custom(custom) => custom.mod_range_style_2(self),
+            VSlider::Custom(custom) => custom.mod_range_appearance_2(self),
         }
     }
 
-    fn text_marks_style(
+    fn text_marks_appearance(
         &self,
         style: &Self::Style,
-    ) -> Option<v_slider::TextMarksStyle> {
+    ) -> Option<v_slider::TextMarksAppearance> {
         match style {
-            VSlider::Default => Some(v_slider::TextMarksStyle {
+            VSlider::Default => Some(v_slider::TextMarksAppearance {
                 style: Default::default(),
                 placement: text_marks::Placement::LeftOrTop {
                     inside: false,
                     offset: Offset { x: -7.0, y: 0.0 },
                 },
             }),
-            VSlider::Custom(custom) => custom.text_marks_style(self),
+            VSlider::Custom(custom) => custom.text_marks_appearance(self),
         }
     }
 }

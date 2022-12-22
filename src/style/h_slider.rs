@@ -12,14 +12,14 @@ use crate::style::{default_colors, text_marks, tick_marks};
 #[derive(Debug, Clone)]
 pub enum Appearance {
     /// uses an image texture for the handle
-    Texture(TextureStyle),
+    Texture(TextureAppearance),
     /// modeled after hardware sliders
-    Classic(ClassicStyle),
+    Classic(ClassicAppearance),
     /// a modern style with a line inside a filled rectangle
-    Rect(RectStyle),
+    Rect(RectAppearance),
     /// same as `Rect` but can have different colors for left,
     /// right, and center positions
-    RectBipolar(RectBipolarStyle),
+    RectBipolar(RectBipolarAppearance),
 }
 
 /// A classic line rail style
@@ -39,7 +39,7 @@ pub struct ClassicRail {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
-pub struct TextureStyle {
+pub struct TextureAppearance {
     /// The rail style
     pub rail: ClassicRail,
     /// The [`Handle`] to the image texture
@@ -59,16 +59,16 @@ pub struct TextureStyle {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 /// [`ClassicHandle`]: struct.ClassicHandle.html
 #[derive(Debug, Clone)]
-pub struct ClassicStyle {
+pub struct ClassicAppearance {
     /// The rail style
     pub rail: ClassicRail,
     /// a `ClassicHandle` defining the style of the handle
     pub handle: ClassicHandle,
 }
 
-impl Default for ClassicStyle {
+impl Default for ClassicAppearance {
     fn default() -> Self {
-        ClassicStyle {
+        ClassicAppearance {
             rail: ClassicRail {
                 rail_colors: default_colors::SLIDER_RAIL,
                 rail_widths: (1.0, 1.0),
@@ -121,7 +121,7 @@ impl Default for ClassicHandle {
 /// [`Appearance`]: enum.Appearance.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
-pub struct RectStyle {
+pub struct RectAppearance {
     /// color of the background rectangle
     pub back_color: Color,
     /// width of the background rectangle border
@@ -148,7 +148,7 @@ pub struct RectStyle {
 /// [`Appearance`]: enum.Appearance.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone, Copy)]
-pub struct RectBipolarStyle {
+pub struct RectBipolarAppearance {
     /// color of the background rectangle
     pub back_color: Color,
     /// width of the background rectangle border
@@ -218,7 +218,7 @@ pub enum ModRangePlacement {
 /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone)]
-pub struct ModRangeStyle {
+pub struct ModRangeAppearance {
     /// The placement of the line relative to the widget
     pub placement: ModRangePlacement,
     /// The width of the background border.
@@ -241,9 +241,9 @@ pub struct ModRangeStyle {
 ///
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone)]
-pub struct TickMarksStyle {
+pub struct TickMarksAppearance {
     /// The style of the tick marks
-    pub style: tick_marks::Style,
+    pub style: tick_marks::Appearance,
     /// The placement of the tick marks
     pub placement: tick_marks::Placement,
 }
@@ -252,9 +252,9 @@ pub struct TickMarksStyle {
 ///
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 #[derive(Debug, Clone)]
-pub struct TextMarksStyle {
+pub struct TextMarksAppearance {
     /// The style of the text marks
-    pub style: text_marks::Style,
+    pub style: text_marks::Appearance,
     /// The placement of the text marks
     pub placement: text_marks::Placement,
 }
@@ -286,7 +286,10 @@ pub trait StyleSheet {
     /// For no tick marks, don't override this or set this to return `None`.
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn tick_marks_style(&self, _style: &Self::Style) -> Option<TickMarksStyle> {
+    fn tick_marks_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<TickMarksAppearance> {
         None
     }
 
@@ -296,7 +299,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn mod_range_style(&self, _style: &Self::Style) -> Option<ModRangeStyle> {
+    fn mod_range_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<ModRangeAppearance> {
         None
     }
 
@@ -306,7 +312,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn mod_range_style_2(&self, _style: &Self::Style) -> Option<ModRangeStyle> {
+    fn mod_range_appearance_2(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<ModRangeAppearance> {
         None
     }
 
@@ -315,7 +324,10 @@ pub trait StyleSheet {
     /// For no text marks, don't override this or set this to return `None`.
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn text_marks_style(&self, _style: &Self::Style) -> Option<TextMarksStyle> {
+    fn text_marks_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<TextMarksAppearance> {
         None
     }
 }

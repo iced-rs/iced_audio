@@ -17,12 +17,12 @@ use crate::KnobAngleRange;
 pub enum Appearance {
     //Texture(TextureStyle),
     /// A classic circular style
-    Circle(CircleStyle),
+    Circle(CircleAppearance),
     /// A modern arc style
-    Arc(ArcStyle),
+    Arc(ArcAppearance),
     /// A modern arc style with. It can display different colors
     /// for left, right, and center positions.
-    ArcBipolar(ArcBipolarStyle),
+    ArcBipolar(ArcBipolarAppearance),
 }
 
 /*
@@ -114,7 +114,7 @@ pub enum NotchShape {
 /// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct CircleStyle {
+pub struct CircleAppearance {
     /// The color of the knob
     pub color: Color,
     /// The width of the border around the knob
@@ -125,9 +125,9 @@ pub struct CircleStyle {
     pub notch: NotchShape,
 }
 
-impl Default for CircleStyle {
+impl Default for CircleAppearance {
     fn default() -> Self {
-        CircleStyle {
+        CircleAppearance {
             color: default_colors::LIGHT_BACK,
             border_width: 1.0,
             border_color: default_colors::BORDER,
@@ -147,7 +147,7 @@ impl Default for CircleStyle {
 /// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct ArcStyle {
+pub struct ArcAppearance {
     /// The width (thickness) of the arc
     pub width: StyleLength,
     /// The color of an empty portion of the arc
@@ -167,7 +167,7 @@ pub struct ArcStyle {
 /// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct ArcBipolarStyle {
+pub struct ArcBipolarAppearance {
     /// The width (thickness) of the arc
     pub width: StyleLength,
     /// The color of the empty background portion of the arc
@@ -189,7 +189,7 @@ pub struct ArcBipolarStyle {
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct ValueArcStyle {
+pub struct ValueArcAppearance {
     /// The width (thickness) of the arc
     pub width: f32,
     /// The offset from the edge of the `Knob` in pixels
@@ -212,7 +212,7 @@ pub struct ValueArcStyle {
 /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Copy, Clone)]
-pub struct ModRangeArcStyle {
+pub struct ModRangeArcAppearance {
     /// The width (thickness) of the arc
     pub width: f32,
     /// The offset from the edge of the `Knob` in pixels
@@ -233,9 +233,9 @@ pub struct ModRangeArcStyle {
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct TickMarksStyle {
+pub struct TickMarksAppearance {
     /// The style of the tick marks
-    pub style: tick_marks::Style,
+    pub style: tick_marks::Appearance,
     /// The offset from the edge of the knob in pixels
     pub offset: f32,
 }
@@ -244,9 +244,9 @@ pub struct TickMarksStyle {
 ///
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
-pub struct TextMarksStyle {
+pub struct TextMarksAppearance {
     /// The style of the text marks
-    pub style: text_marks::Style,
+    pub style: text_marks::Appearance,
     /// The offset from the edge of the knob in pixels
     pub offset: f32,
     /// Extra horizontal offset in pixels for each additional character
@@ -261,10 +261,10 @@ pub struct TextMarksStyle {
     pub v_offset: f32,
 }
 
-impl std::default::Default for TextMarksStyle {
+impl std::default::Default for TextMarksAppearance {
     fn default() -> Self {
         Self {
-            style: text_marks::Style::default(),
+            style: text_marks::Appearance::default(),
             offset: 15.0,
             h_char_offset: 3.0,
             v_offset: -0.75,
@@ -308,7 +308,10 @@ pub trait StyleSheet {
     ///
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn tick_marks_style(&self, _style: &Self::Style) -> Option<TickMarksStyle> {
+    fn tick_marks_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<TickMarksAppearance> {
         None
     }
 
@@ -317,7 +320,10 @@ pub trait StyleSheet {
     /// For no value arc, don't override this or set this to return `None`.
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn value_arc_style(&self, _style: &Self::Style) -> Option<ValueArcStyle> {
+    fn value_arc_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<ValueArcAppearance> {
         None
     }
 
@@ -327,10 +333,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_style(
+    fn mod_range_arc_appearance(
         &self,
         _style: &Self::Style,
-    ) -> Option<ModRangeArcStyle> {
+    ) -> Option<ModRangeArcAppearance> {
         None
     }
 
@@ -340,10 +346,10 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_style_2(
+    fn mod_range_arc_appearance_2(
         &self,
         _style: &Self::Style,
-    ) -> Option<ModRangeArcStyle> {
+    ) -> Option<ModRangeArcAppearance> {
         None
     }
 
@@ -353,7 +359,10 @@ pub trait StyleSheet {
     ///
     /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn text_marks_style(&self, _style: &Self::Style) -> Option<TextMarksStyle> {
+    fn text_marks_appearance(
+        &self,
+        _style: &Self::Style,
+    ) -> Option<TextMarksAppearance> {
         None
     }
 }
