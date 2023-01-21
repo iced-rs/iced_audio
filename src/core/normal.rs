@@ -1,6 +1,6 @@
 //! An `f32` value that is gauranteed to be constrained to the range of
 //!
-//! `0.0 >= value <= 1.0`
+//! `0.0 <= value <= 1.0`
 
 use std::fmt;
 
@@ -16,7 +16,7 @@ impl fmt::Display for NormalOutOfRange {
 
 /// An `f32` value that is gauranteed to be constrained to the range of
 ///
-/// `0.0 >= value <= 1.0`
+/// `0.0 <= value <= 1.0`
 ///
 /// # Example
 ///
