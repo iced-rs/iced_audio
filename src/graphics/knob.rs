@@ -168,9 +168,9 @@ where
     }
 }
 
-fn draw_value_markers<'a>(
+fn draw_value_markers(
     knob_info: &KnobInfo,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> (Primitive, Primitive, Primitive, Primitive, Primitive) {
@@ -537,10 +537,10 @@ fn draw_notch(knob_info: &KnobInfo, notch: &NotchShape) -> Primitive {
     }
 }
 
-fn draw_circle_style<'a>(
+fn draw_circle_style(
     knob_info: &KnobInfo,
     style: CircleAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
@@ -575,10 +575,10 @@ fn draw_circle_style<'a>(
     }
 }
 
-fn draw_arc_style<'a>(
+fn draw_arc_style(
     knob_info: &KnobInfo,
     style: ArcAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
@@ -683,10 +683,10 @@ impl BipolarState {
     }
 }
 
-fn draw_arc_bipolar_style<'a>(
+fn draw_arc_bipolar_style(
     knob_info: &KnobInfo,
     style: ArcBipolarAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {

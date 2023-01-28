@@ -123,10 +123,10 @@ where
     }
 }
 
-fn draw_value_markers<'a>(
+fn draw_value_markers(
     mark_bounds: &Rectangle,
     mod_bounds: &Rectangle,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> (Primitive, Primitive, Primitive, Primitive) {
@@ -295,11 +295,11 @@ fn draw_mod_range(
     }
 }
 
-fn draw_texture_style<'a>(
+fn draw_texture_style(
     normal: Normal,
     bounds: &Rectangle,
     style: TextureAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
@@ -346,11 +346,11 @@ fn draw_texture_style<'a>(
     }
 }
 
-fn draw_classic_style<'a>(
+fn draw_classic_style(
     normal: Normal,
     bounds: &Rectangle,
     style: &ClassicAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
@@ -423,11 +423,11 @@ fn draw_classic_style<'a>(
     }
 }
 
-fn draw_rect_style<'a>(
+fn draw_rect_style(
     normal: Normal,
     bounds: &Rectangle,
     style: &RectAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
@@ -507,11 +507,11 @@ fn draw_rect_style<'a>(
     }
 }
 
-fn draw_rect_bipolar_style<'a>(
+fn draw_rect_bipolar_style(
     normal: Normal,
     bounds: &Rectangle,
     style: &RectBipolarAppearance,
-    value_markers: &ValueMarkers<'a>,
+    value_markers: &ValueMarkers<'_>,
     tick_marks_cache: &tick_marks::PrimitiveCache,
     text_marks_cache: &text_marks::PrimitiveCache,
 ) -> Primitive {
