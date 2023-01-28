@@ -283,6 +283,7 @@ where
 struct State {
     dragging_status: Option<SliderStatus>,
     prev_drag_y: f32,
+    prev_normal: Normal,
     continuous_normal: f32,
     pressed_modifiers: keyboard::Modifiers,
     last_click: Option<mouse::Click>,
@@ -302,6 +303,7 @@ impl State {
         Self {
             dragging_status: None,
             prev_drag_y: 0.0,
+            prev_normal: normal,
             continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
@@ -356,6 +358,14 @@ where
         shell: &mut Shell<'_, Message>,
     ) -> event::Status {
         let state = state.state.downcast_mut::<State>();
+
+        // Update state after a discontinuity
+        if state.dragging_status.is_none()
+            && state.prev_normal != self.normal_param.value
+        {
+            state.prev_normal = self.normal_param.value;
+            state.continuous_normal = self.normal_param.value.as_f32();
+        }
 
         match event {
             Event::Mouse(mouse::Event::CursorMoved { .. })
@@ -453,8 +463,6 @@ where
 
                             state.dragging_status = Some(Default::default());
                             state.prev_drag_y = cursor_position.y;
-                            state.continuous_normal =
-                                self.normal_param.value.as_f32();
                         }
                         _ => {
                             // Reset to default
@@ -471,8 +479,6 @@ where
 
                                 self.normal_param.value =
                                     self.normal_param.default;
-                                state.continuous_normal =
-                                    self.normal_param.default.as_f32();
 
                                 self.fire_on_change(shell);
 
@@ -497,8 +503,6 @@ where
                         // so as to terminate the action, regardless of the actual user movement.
                         self.maybe_fire_on_release(shell);
                     }
-
-                    state.continuous_normal = self.normal_param.value.as_f32();
 
                     return event::Status::Captured;
                 }
