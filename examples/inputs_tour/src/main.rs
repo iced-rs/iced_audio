@@ -349,9 +349,10 @@ where
         &self,
         tree: &mut Tree,
         layout: Layout<'_>,
+        renderer: &Renderer,
         operation: &mut dyn Operation<Message>,
     ) {
-        Widget::operate(&self.col, tree, layout, operation);
+        Widget::operate(&self.col, tree, layout, renderer, operation);
     }
     fn on_event(
         &mut self,
