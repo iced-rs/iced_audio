@@ -82,7 +82,7 @@ where
         let (h_center_line, v_center_line) = if appearance.center_line_color
             != Color::TRANSPARENT
         {
-            let center_line_width = appearance.center_line_width as f32;
+            let center_line_width = appearance.center_line_width;
             let half_center_line_width = (center_line_width / 2.0).floor();
 
             (
@@ -116,7 +116,7 @@ where
         };
 
         let (h_rail, v_rail) = if appearance.rail_width != 0.0 {
-            let rail_width = appearance.rail_width as f32;
+            let rail_width = appearance.rail_width;
             let half_rail_width = (rail_width / 2.0).floor();
             (
                 Primitive::Quad {
@@ -124,7 +124,7 @@ where
                         x: bounds_x,
                         y: handle_y - half_rail_width,
                         width: bounds_size,
-                        height: appearance.rail_width as f32,
+                        height: appearance.rail_width,
                     },
                     background: Background::Color(appearance.h_rail_color),
                     border_radius: [0.0; 4],
@@ -135,7 +135,7 @@ where
                     bounds: Rectangle {
                         x: handle_x - half_rail_width,
                         y: bounds_y,
-                        width: appearance.rail_width as f32,
+                        width: appearance.rail_width,
                         height: bounds_size,
                     },
                     background: Background::Color(appearance.v_rail_color),
@@ -151,7 +151,7 @@ where
         let handle = {
             match appearance.handle {
                 HandleShape::Circle(circle) => {
-                    let diameter = circle.diameter as f32;
+                    let diameter = circle.diameter;
                     let radius = diameter / 2.0;
 
                     Primitive::Quad {

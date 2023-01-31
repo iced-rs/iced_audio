@@ -65,7 +65,7 @@ where
             border_color: appearance.back_border_color,
         };
 
-        let border_width = appearance.back_border_width as f32;
+        let border_width = appearance.back_border_width;
         let twice_border_width = border_width * 2.0;
 
         let range_width = bounds_width - twice_border_width;
@@ -75,7 +75,7 @@ where
             RampDirection::Up => {
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
@@ -107,7 +107,7 @@ where
                     }
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
@@ -142,7 +142,7 @@ where
                     }
                 } else {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(
                             appearance.line_center_color,
                         ),
@@ -176,7 +176,7 @@ where
             RampDirection::Down => {
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
@@ -210,7 +210,7 @@ where
                     }
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
@@ -246,7 +246,7 @@ where
                     }
                 } else {
                     let stroke = Stroke {
-                        width: appearance.line_width as f32,
+                        width: appearance.line_width,
                         style: canvas::Style::Solid(
                             appearance.line_center_color,
                         ),
