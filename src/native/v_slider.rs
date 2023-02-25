@@ -14,7 +14,7 @@ use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks, SliderStatus};
 use crate::style::v_slider::StyleSheet;
 
-static DEFAULT_WIDTH: u16 = 14;
+static DEFAULT_WIDTH: f32 = 14.0;
 static DEFAULT_SCALAR: f32 = 0.9575;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -74,7 +74,7 @@ where
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
-            width: Length::Units(DEFAULT_WIDTH),
+            width: Length::Fixed(DEFAULT_WIDTH),
             height: Length::Fill,
             style: Default::default(),
             tick_marks: None,
@@ -113,7 +113,7 @@ where
     }
 
     /// Sets the width of the [`VSlider`].
-    /// The default width is `Length::Units(14)`.
+    /// The default width is `Length::Fixed(14)`.
     ///
     /// [`VSlider`]: struct.VSlider.html
     pub fn width(mut self, width: Length) -> Self {

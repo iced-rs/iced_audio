@@ -443,7 +443,7 @@ fn button<'a, Message: Clone>(label: &str) -> Button<'a, Message> {
         text(label).horizontal_alignment(alignment::Horizontal::Center),
     )
     .padding(12)
-    .width(Length::Units(100))
+    .width(Length::Fixed(100.0))
 }
 
 // generates the text for an output

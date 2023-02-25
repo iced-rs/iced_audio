@@ -14,7 +14,7 @@ use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks, SliderStatus};
 use crate::style::h_slider::StyleSheet;
 
-static DEFAULT_HEIGHT: u16 = 14;
+static DEFAULT_HEIGHT: f32 = 14.0;
 static DEFAULT_SCALAR: f32 = 0.9575;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -75,7 +75,7 @@ where
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
             width: Length::Fill,
-            height: Length::Units(DEFAULT_HEIGHT),
+            height: Length::Fixed(DEFAULT_HEIGHT),
             style: Default::default(),
             tick_marks: None,
             text_marks: None,
@@ -124,7 +124,7 @@ where
 
     /// Sets the height of the [`HSlider`].
     ///
-    /// The default height is `Length::Units(14)`.
+    /// The default height is `Length::Fixed(14)`.
     ///
     /// [`HSlider`]: struct.HSlider.html
     pub fn height(mut self, height: Length) -> Self {

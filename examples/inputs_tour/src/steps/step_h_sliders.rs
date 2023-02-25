@@ -228,12 +228,12 @@ impl HSliderStep {
             .text_marks(&self.freq_text_marks);
 
         let h_slider_rect = HSlider::new(self.rect_param, Message::RectStyle)
-            .height(Length::Units(24))
+            .height(Length::Fixed(24.0))
             .style(style::h_slider::RectStyle);
 
         let h_slider_rect_bp =
             HSlider::new(self.rect_bp_param, Message::BipolarRectStyle)
-                .height(Length::Units(24))
+                .height(Length::Fixed(24.0))
                 .style(style::h_slider::RectBipolarStyle);
 
         let h_slider_texture =
@@ -241,7 +241,7 @@ impl HSliderStep {
                 .tick_marks(&self.float_tick_marks)
                 .text_marks(&self.float_text_marks)
                 // the height of the texture
-                .height(Length::Units(20))
+                .height(Length::Fixed(20.0))
                 .style(style::h_slider::TextureStyle(
                     // clone the handle to the loaded texture
                     self.h_slider_texture_handle.clone(),
