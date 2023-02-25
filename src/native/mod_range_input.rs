@@ -14,7 +14,7 @@ use crate::core::{Normal, NormalParam};
 use crate::native::SliderStatus;
 use crate::style::mod_range_input::StyleSheet;
 
-static DEFAULT_SIZE: u16 = 10;
+static DEFAULT_SIZE: f32 = 10.0;
 static DEFAULT_SCALAR: f32 = 0.00385 / 2.0;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.01 / 2.0;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -59,7 +59,7 @@ where
     {
         ModRangeInput {
             normal_param,
-            size: Length::Units(DEFAULT_SIZE),
+            size: Length::Fixed(DEFAULT_SIZE),
             on_change: Box::new(on_change),
             on_grab: None,
             on_release: None,
@@ -100,7 +100,7 @@ where
     }
 
     /// Sets the diameter of the [`ModRangeInput`]. The default size is
-    /// `Length::from(Length::Units(31))`.
+    /// `Length::from(Length::Fixed(31))`.
     ///
     /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn size(mut self, size: Length) -> Self {

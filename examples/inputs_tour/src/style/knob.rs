@@ -97,9 +97,9 @@ pub struct CustomStyleLine;
 impl CustomStyleLine {
     const ACTIVE_CIRCLE_NOTCH: knob::LineNotch = knob::LineNotch {
         color: Color::from_rgb(0.0, 0.82, 0.0),
-        width: knob::StyleLength::Units(3.5),
+        width: knob::StyleLength::Fixed(3.5),
         length: knob::StyleLength::Scaled(0.12),
-        offset: knob::StyleLength::Units(5.0),
+        offset: knob::StyleLength::Fixed(5.0),
         cap: knob::LineCap::Round,
     };
     const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance =
@@ -148,15 +148,15 @@ impl knob::StyleSheet for CustomArc {
 
     fn active(&self, _style: &Self::Style) -> knob::Appearance {
         knob::Appearance::Arc(knob::ArcAppearance {
-            width: knob::StyleLength::Units(3.15),
+            width: knob::StyleLength::Fixed(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             filled_color: colors::KNOB_ARC,
             notch: knob::NotchShape::Line(knob::LineNotch {
                 color: colors::KNOB_ARC,
-                width: knob::StyleLength::Units(3.15),
+                width: knob::StyleLength::Fixed(3.15),
                 length: knob::StyleLength::Scaled(0.25),
                 cap: knob::LineCap::Round,
-                offset: knob::StyleLength::Units(2.5),
+                offset: knob::StyleLength::Fixed(2.5),
             }),
             cap: knob::LineCap::Round,
         })
@@ -195,10 +195,10 @@ pub struct CustomArcBipolar;
 impl CustomArcBipolar {
     const NOTCH_CENTER: knob::LineNotch = knob::LineNotch {
         color: colors::KNOB_ARC_EMPTY,
-        width: knob::StyleLength::Units(3.15),
+        width: knob::StyleLength::Fixed(3.15),
         length: knob::StyleLength::Scaled(0.39),
         cap: knob::LineCap::Butt,
-        offset: knob::StyleLength::Units(0.0),
+        offset: knob::StyleLength::Fixed(0.0),
     };
 }
 impl knob::StyleSheet for CustomArcBipolar {
@@ -206,7 +206,7 @@ impl knob::StyleSheet for CustomArcBipolar {
 
     fn active(&self, _style: &Self::Style) -> knob::Appearance {
         knob::Appearance::ArcBipolar(knob::ArcBipolarAppearance {
-            width: knob::StyleLength::Units(3.15),
+            width: knob::StyleLength::Fixed(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
             left_filled_color: colors::KNOB_ARC,
             right_filled_color: colors::KNOB_ARC_RIGHT,

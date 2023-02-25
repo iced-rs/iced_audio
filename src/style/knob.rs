@@ -54,7 +54,7 @@ pub enum StyleLength {
     /// The diameter of the knob scaled to this value
     Scaled(f32),
     /// Absolute length in pixels
-    Units(f32),
+    Fixed(f32),
 }
 
 impl StyleLength {
@@ -63,7 +63,7 @@ impl StyleLength {
     pub fn from_knob_diameter(&self, knob_diameter: f32) -> f32 {
         match self {
             StyleLength::Scaled(scale) => knob_diameter * *scale,
-            StyleLength::Units(units) => *units,
+            StyleLength::Fixed(units) => *units,
         }
     }
 }

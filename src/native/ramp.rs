@@ -15,8 +15,8 @@ use crate::core::{Normal, NormalParam};
 use crate::native::SliderStatus;
 use crate::style::ramp::StyleSheet;
 
-static DEFAULT_WIDTH: u16 = 40;
-static DEFAULT_HEIGHT: u16 = 20;
+static DEFAULT_WIDTH: f32 = 40.0;
+static DEFAULT_HEIGHT: f32 = 20.0;
 static DEFAULT_SCALAR: f32 = 0.00385;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -95,8 +95,8 @@ where
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
             modifier_keys: keyboard::Modifiers::CTRL,
-            width: Length::Units(DEFAULT_WIDTH),
-            height: Length::Units(DEFAULT_HEIGHT),
+            width: Length::Fixed(DEFAULT_WIDTH),
+            height: Length::Fixed(DEFAULT_HEIGHT),
             style: Default::default(),
             direction,
         }
@@ -131,7 +131,7 @@ where
     }
 
     /// Sets the width of the [`Ramp`].
-    /// The default width is `Length::from(Length::Units(30))`.
+    /// The default width is `Length::from(Length::Fixed(30))`.
     ///
     /// [`Ramp`]: struct.Ramp.html
     pub fn width(mut self, width: Length) -> Self {
@@ -140,7 +140,7 @@ where
     }
 
     /// Sets the height of the [`Ramp`].
-    /// The default height is `Length::from(Length::Units(20))`.
+    /// The default height is `Length::from(Length::Fixed(20))`.
     ///
     /// [`Ramp`]: struct.Ramp.html
     pub fn height(mut self, height: Length) -> Self {

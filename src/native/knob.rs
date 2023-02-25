@@ -14,7 +14,7 @@ use crate::core::{ModulationRange, Normal, NormalParam};
 use crate::native::{text_marks, tick_marks, SliderStatus};
 use crate::style::knob::StyleSheet;
 
-static DEFAULT_SIZE: u16 = 30;
+static DEFAULT_SIZE: f32 = 30.0;
 static DEFAULT_SCALAR: f32 = 0.00385;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -64,7 +64,7 @@ where
     {
         Knob {
             normal_param,
-            size: Length::Units(DEFAULT_SIZE),
+            size: Length::Fixed(DEFAULT_SIZE),
             on_change: Box::new(on_change),
             on_grab: None,
             on_release: None,
@@ -110,7 +110,7 @@ where
     }
 
     /// Sets the diameter of the [`Knob`]. The default size is
-    /// `Length::from(Length::Units(31))`.
+    /// `Length::from(Length::Fixed(31))`.
     ///
     /// [`Knob`]: struct.Knob.html
     pub fn size(mut self, size: Length) -> Self {
