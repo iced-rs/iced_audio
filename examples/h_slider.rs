@@ -7,8 +7,8 @@ use iced::{
     Element, Length, Rectangle, Result, Size,
 };
 use iced_audio::{
-    text_marks, tick_marks, widget::h_slider::HSlider, FloatRange, FreqRange, IntRange, LogDBRange,
-    Normal, NormalParam,
+    text_marks, tick_marks, FloatRange, FreqRange, HSlider, IntRange, LogDBRange, Normal,
+    NormalParam,
 };
 
 fn main() -> Result {
@@ -198,7 +198,7 @@ impl HSliderExample {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         // create each of the HSlider widgets, passing in the value of
         // the corresponding parameter
 

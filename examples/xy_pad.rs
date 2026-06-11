@@ -90,7 +90,7 @@ impl XYPadExample {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         // create each of the XYPad widgets, passing in the value of
         // the corresponding parameter
 

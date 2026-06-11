@@ -6,7 +6,7 @@ use iced::{
     widget::{column, row, text},
     Element, Length, Result, Size,
 };
-use iced_audio::{widget::ramp::RampDirection, FloatRange, Normal, NormalParam, Ramp};
+use iced_audio::{ramp::RampDirection, FloatRange, Normal, NormalParam, Ramp};
 
 fn main() -> Result {
     application("Ramp Example", RampExample::update, RampExample::view)
@@ -87,7 +87,7 @@ impl RampExample {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         // create each of the Ramp widgets, passing in the value of
         // the corresponding parameter
 

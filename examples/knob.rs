@@ -193,7 +193,7 @@ impl KnobExample {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 

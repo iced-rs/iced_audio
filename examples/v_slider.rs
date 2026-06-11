@@ -198,7 +198,7 @@ impl VSliderExample {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         // create each of the VSlider widgets, passing in the value of
         // the corresponding parameter
 
