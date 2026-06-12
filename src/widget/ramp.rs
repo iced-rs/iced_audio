@@ -337,6 +337,9 @@ where
                             .moved();
                     }
                 }
+
+                shell.capture_event();
+                shell.request_redraw();
             }
             Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
                 if self.wheel_scalar == 0.0 {
@@ -374,6 +377,9 @@ where
                                 self.maybe_fire_on_release(shell);
                             }
                         }
+
+                        shell.capture_event();
+                        shell.request_redraw();
                     }
                 }
             }
@@ -414,6 +420,9 @@ where
                     }
 
                     state.last_click = Some(click);
+
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
@@ -425,17 +434,26 @@ where
                         // so as to terminate the action, regardless of the actual user movement.
                         self.maybe_fire_on_release(shell);
                     }
+
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             },
             _ => {}

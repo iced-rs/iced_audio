@@ -288,6 +288,9 @@ where
                             .moved();
                     }
                 }
+
+                shell.capture_event();
+                shell.request_redraw();
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
@@ -355,6 +358,9 @@ where
                     }
 
                     state.last_click = Some(click);
+
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
@@ -369,17 +375,26 @@ where
 
                     state.continuous_normal_x = self.normal_param_x.value.as_f32();
                     state.continuous_normal_y = self.normal_param_y.value.as_f32();
+
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
                     state.pressed_modifiers = *modifiers;
+                    shell.capture_event();
+                    shell.request_redraw();
                 }
             },
             _ => {}
