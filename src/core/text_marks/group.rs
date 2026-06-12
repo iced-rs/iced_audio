@@ -31,7 +31,7 @@ impl Group {
     /// [`Group`]: struct.Group.html
     /// [`TextMark`]: struct.TextMark.html
     fn from_string(group: Vec<(Normal, String)>) -> Self {
-        use std::hash::{DefaultHasher, Hash, Hasher};
+        use std::hash::{DefaultHasher, Hash};
         let mut hasher = DefaultHasher::default();
         group.len().hash(&mut hasher);
 

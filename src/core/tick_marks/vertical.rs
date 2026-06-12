@@ -6,9 +6,9 @@ use crate::{
     style::tick_marks::{Appearance, Placement, Shape},
 };
 use iced::{
-    Background, Border, Color, Rectangle, Renderer, Shadow,
-    advanced::{Renderer as _, renderer::Quad},
+    advanced::{renderer::Quad, Renderer as _},
     border::Radius,
+    Background, Border, Color, Rectangle, Renderer, Shadow,
 };
 
 #[allow(clippy::too_many_arguments)]
@@ -42,6 +42,7 @@ fn draw_vertical_lines(
                         color: Color::TRANSPARENT,
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 back_color,
             );
@@ -62,6 +63,7 @@ fn draw_vertical_lines(
                         color: Color::TRANSPARENT,
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 back_color,
             );
@@ -100,6 +102,7 @@ fn draw_vertical_circles(
                         color: Color::TRANSPARENT,
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 back_color,
             );
@@ -120,6 +123,7 @@ fn draw_vertical_circles(
                         color: Color::TRANSPARENT,
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 back_color,
             );

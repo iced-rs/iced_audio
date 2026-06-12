@@ -13,7 +13,7 @@ use iced_audio::{
 
 fn main() -> Result {
     application(
-        "VSlider Example",
+        VSliderExample::default,
         VSliderExample::update,
         VSliderExample::view,
     )

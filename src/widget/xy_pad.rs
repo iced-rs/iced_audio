@@ -6,7 +6,7 @@
 use crate::core::{Normal, NormalParam, SliderStatus};
 use iced::{
     advanced::{
-        graphics::core::{event, keyboard, touch},
+        graphics::core::{keyboard, touch},
         layout, mouse,
         renderer::{Quad, Style},
         widget::{tree, Tree},
@@ -59,6 +59,7 @@ where
     pub fn new<F>(normal_param_x: NormalParam, normal_param_y: NormalParam, on_change: F) -> Self
     where
         F: 'a + Fn(Normal, Normal) -> Message,
+        <Theme as StyleSheet>::Style: Default,
     {
         XYPad {
             normal_param_x,
@@ -214,7 +215,7 @@ where
     }
 
     fn layout(
-        &self,
+        &mut self,
         _tree: &mut Tree,
         _renderer: &Renderer,
         limits: &layout::Limits,
@@ -230,18 +231,18 @@ where
         layout::Node::new(size)
     }
 
-    fn on_event(
+    fn update(
         &mut self,
-        state: &mut Tree,
-        event: Event,
+        tree: &mut Tree,
+        event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
-    ) -> event::Status {
-        let state = state.state.downcast_mut::<State>();
+    ) {
+        let state = tree.state.downcast_mut::<State>();
 
         let is_over = cursor.is_over(layout.bounds());
 
@@ -285,8 +286,6 @@ where
                             .as_mut()
                             .expect("dragging_status taken")
                             .moved();
-
-                        return event::Status::Captured;
                     }
                 }
             }
@@ -356,8 +355,6 @@ where
                     }
 
                     state.last_click = Some(click);
-
-                    return event::Status::Captured;
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
@@ -372,31 +369,21 @@ where
 
                     state.continuous_normal_x = self.normal_param_x.value.as_f32();
                     state.continuous_normal_y = self.normal_param_y.value.as_f32();
-
-                    return event::Status::Captured;
                 }
             }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
             },
             _ => {}
         }
-
-        event::Status::Ignored
     }
 
     fn draw(
@@ -446,6 +433,7 @@ where
                     radius: Radius::new(0.0),
                 },
                 shadow: Shadow::default(),
+                snap: false,
             },
             appearance.back_color,
         );
@@ -474,6 +462,7 @@ where
                         radius: Radius::new(0.0),
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 appearance.center_line_color,
             );
@@ -492,6 +481,7 @@ where
                         radius: Radius::new(0.0),
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 appearance.center_line_color,
             );
@@ -515,6 +505,7 @@ where
                         radius: Radius::new(0.0),
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 appearance.h_rail_color,
             );
@@ -533,6 +524,7 @@ where
                         radius: Radius::new(0.0),
                     },
                     shadow: Shadow::default(),
+                    snap: false,
                 },
                 appearance.v_rail_color,
             );
@@ -557,6 +549,7 @@ where
                             radius: Radius::new(radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     circle.color,
                 );
@@ -579,6 +572,7 @@ where
                             radius: Radius::new(square.border_radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     square.color,
                 );

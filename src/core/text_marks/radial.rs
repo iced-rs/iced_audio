@@ -1,7 +1,7 @@
 use iced::{
     advanced::{text::Renderer as _, Text},
-    alignment::{Horizontal, Vertical},
-    widget::text::{LineHeight, Shaping, Wrapping},
+    alignment::Vertical,
+    widget::text::{Alignment, LineHeight, Shaping, Wrapping},
     Pixels, Point, Rectangle, Renderer, Size,
 };
 
@@ -71,8 +71,8 @@ pub fn draw_radial_text_marks(
                     width: text_bounds_width,
                     height: text_bounds_height,
                 },
-                horizontal_alignment: Horizontal::Center,
-                vertical_alignment: Vertical::Center,
+                align_x: Alignment::Center,
+                align_y: Vertical::Center,
                 line_height: LineHeight::default(),
                 wrapping: Wrapping::default(),
                 shaping: Shaping::Basic,

@@ -4,8 +4,8 @@ use crate::{
 };
 use iced::{
     advanced::{text::Renderer as _, Text},
-    alignment::{Horizontal, Vertical},
-    widget::text::{LineHeight, Shaping, Wrapping},
+    alignment::Vertical,
+    widget::text::{Alignment, LineHeight, Shaping, Wrapping},
     Pixels, Point, Rectangle, Renderer, Size,
 };
 
@@ -36,8 +36,8 @@ fn draw_aligned(
                         width: text_bounds_width,
                         height: text_bounds_height,
                     },
-                    horizontal_alignment: Horizontal::Center,
-                    vertical_alignment: align,
+                    align_x: Alignment::Center,
+                    align_y: align,
                     line_height: LineHeight::default(),
                     wrapping: Wrapping::default(),
                     shaping: Shaping::Basic,
@@ -64,8 +64,8 @@ fn draw_aligned(
                         width: text_bounds_width,
                         height: text_bounds_height,
                     },
-                    horizontal_alignment: Horizontal::Center,
-                    vertical_alignment: align,
+                    align_x: Alignment::Center,
+                    align_y: align,
                     line_height: LineHeight::default(),
                     wrapping: Wrapping::default(),
                     shaping: Shaping::Basic,

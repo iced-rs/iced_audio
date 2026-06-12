@@ -9,7 +9,7 @@ use iced::{
 use iced_audio::{ramp::RampDirection, FloatRange, Normal, NormalParam, Ramp};
 
 fn main() -> Result {
-    application("Ramp Example", RampExample::update, RampExample::view)
+    application(RampExample::default, RampExample::update, RampExample::view)
         .window_size(Size::new(600.0, 400.0))
         .run()
 }

@@ -133,6 +133,7 @@ fn modulation(
                             radius: Radius::new(style.back_border_radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     back_color,
                 );
@@ -170,6 +171,7 @@ fn modulation(
                             radius: Radius::new(style.back_border_radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     color,
                 );
@@ -213,6 +215,7 @@ pub fn texture_style(
             width: style.image_bounds.width,
             height: style.image_bounds.height,
         },
+        Rectangle::default(),
     );
 }
 
@@ -262,6 +265,7 @@ pub fn classic_style(
                 radius: Radius::new(style.handle.border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.handle.color,
     );
@@ -282,6 +286,7 @@ pub fn classic_style(
                     radius: Radius::new(0.0),
                 },
                 shadow: Shadow::default(),
+                snap: false,
             },
             style.handle.notch_color,
         );
@@ -322,6 +327,7 @@ pub fn rect_style(
                 radius: Radius::new(style.back_border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.back_color,
     );
@@ -346,6 +352,7 @@ pub fn rect_style(
                 radius: Radius::new(style.back_border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.filled_color,
     );
@@ -364,6 +371,7 @@ pub fn rect_style(
                 radius: Radius::new(style.back_border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.handle_color,
     );
@@ -421,6 +429,7 @@ pub fn rect_bipolar_style(
                 radius: Radius::new(style.back_border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.back_color,
     );
@@ -445,6 +454,7 @@ pub fn rect_bipolar_style(
                     radius: Radius::new(style.back_border_radius),
                 },
                 shadow: Shadow::default(),
+                snap: false,
             },
             style.left_filled_color,
         );
@@ -465,6 +475,7 @@ pub fn rect_bipolar_style(
                     radius: Radius::new(style.back_border_radius),
                 },
                 shadow: Shadow::default(),
+                snap: false,
             },
             style.right_filled_color,
         );
@@ -492,6 +503,7 @@ pub fn rect_bipolar_style(
                 radius: Radius::new(style.back_border_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         handle_color,
     );
@@ -522,6 +534,7 @@ fn classic_rail(renderer: &mut Renderer, bounds: &Rectangle, style: &ClassicRail
                 radius: Radius::new(0.0),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         top_color,
     );
@@ -540,6 +553,7 @@ fn classic_rail(renderer: &mut Renderer, bounds: &Rectangle, style: &ClassicRail
                 radius: Radius::new(0.0),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         bottom_color,
     );

@@ -20,10 +20,10 @@ resolver = "2"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = { version = "0.13.1", default-features = false, features = ["advanced"] }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "x11", "thread-pool"] }
 
 [dev-dependencies]
-iced = { version = "0.13.1" }
+iced = { version = "0.14.0" }
 
 [features]
 knob = ["iced/canvas"]

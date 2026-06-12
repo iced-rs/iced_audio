@@ -111,7 +111,7 @@ pub struct HandleSquare {
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`XYPad`].
     ///

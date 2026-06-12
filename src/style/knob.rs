@@ -277,7 +277,7 @@ impl std::default::Default for TextMarksAppearance {
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`Knob`].
     ///

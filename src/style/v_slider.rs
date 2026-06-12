@@ -266,7 +266,7 @@ pub struct TextMarksAppearance {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`VSlider`].
     ///

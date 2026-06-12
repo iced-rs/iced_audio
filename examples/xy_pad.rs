@@ -9,9 +9,13 @@ use iced::{
 use iced_audio::{FloatRange, Normal, NormalParam, XYPad};
 
 fn main() -> Result {
-    application("XYPad Example", XYPadExample::update, XYPadExample::view)
-        .window_size(Size::new(600.0, 400.0))
-        .run()
+    application(
+        XYPadExample::default,
+        XYPadExample::update,
+        XYPadExample::view,
+    )
+    .window_size(Size::new(600.0, 400.0))
+    .run()
 }
 
 #[derive(Debug, Clone)]

@@ -5,7 +5,7 @@
 use crate::core::{Normal, NormalParam, SliderStatus};
 use iced::{
     advanced::{
-        graphics::core::{event, keyboard, touch},
+        graphics::core::{keyboard, touch},
         layout, mouse,
         renderer::{Quad, Style},
         widget::{tree, Tree},
@@ -59,6 +59,7 @@ where
     pub fn new<F>(normal_param: NormalParam, on_change: F) -> Self
     where
         F: 'a + Fn(Normal) -> Message,
+        <Theme as StyleSheet>::Style: Default,
     {
         ModRangeInput {
             normal_param,
@@ -252,7 +253,7 @@ where
     }
 
     fn layout(
-        &self,
+        &mut self,
         _tree: &mut Tree,
         _renderer: &Renderer,
         limits: &layout::Limits,
@@ -260,18 +261,18 @@ where
         layout::Node::new(limits.resolve(self.size, self.size, Size::ZERO))
     }
 
-    fn on_event(
+    fn update(
         &mut self,
-        state: &mut Tree,
-        event: Event,
+        tree: &mut Tree,
+        event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
-    ) -> event::Status {
-        let state = state.state.downcast_mut::<State>();
+    ) {
+        let state = tree.state.downcast_mut::<State>();
 
         let is_over = cursor.is_over(layout.bounds());
 
@@ -298,22 +299,20 @@ where
                             .expect("dragging_status taken")
                             .moved();
                     }
-
-                    return event::Status::Captured;
                 }
             }
             Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
                 if self.wheel_scalar == 0.0 {
-                    return event::Status::Ignored;
+                    return;
                 }
 
                 if is_over {
                     let lines = match delta {
-                        mouse::ScrollDelta::Lines { y, .. } => y,
+                        mouse::ScrollDelta::Lines { y, .. } => *y,
                         mouse::ScrollDelta::Pixels { y, .. } => {
-                            if y > 0.0 {
+                            if *y > 0.0 {
                                 1.0
-                            } else if y < 0.0 {
+                            } else if *y < 0.0 {
                                 -1.0
                             } else {
                                 0.0
@@ -338,8 +337,6 @@ where
                                 self.maybe_fire_on_release(shell);
                             }
                         }
-
-                        return event::Status::Captured;
                     }
                 }
             }
@@ -380,8 +377,6 @@ where
                     }
 
                     state.last_click = Some(click);
-
-                    return event::Status::Captured;
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
@@ -393,31 +388,21 @@ where
                         // so as to terminate the action, regardless of the actual user movement.
                         self.maybe_fire_on_release(shell);
                     }
-
-                    return event::Status::Captured;
                 }
             }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = modifiers;
-
-                    return event::Status::Captured;
+                    state.pressed_modifiers = *modifiers;
                 }
             },
             _ => {}
         }
-
-        event::Status::Ignored
     }
 
     fn draw(
@@ -464,6 +449,7 @@ where
                             radius: Radius::new(radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     style.color,
                 );
@@ -487,6 +473,7 @@ where
                             radius: Radius::new(style.border_radius),
                         },
                         shadow: Shadow::default(),
+                        snap: false,
                     },
                     style.color,
                 );

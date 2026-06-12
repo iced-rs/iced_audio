@@ -328,6 +328,7 @@ fn circle_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &CircleNot
                 radius: Radius::new(notch_radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.color,
     );
@@ -406,6 +407,7 @@ pub fn circle_style(
                 radius: Radius::new(knob_info.radius),
             },
             shadow: Shadow::default(),
+            snap: false,
         },
         style.color,
     );

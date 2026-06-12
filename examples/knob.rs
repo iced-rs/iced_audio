@@ -11,7 +11,7 @@ use iced_audio::{
 };
 
 fn main() -> Result {
-    application("Knob Example", KnobExample::update, KnobExample::view)
+    application(KnobExample::default, KnobExample::update, KnobExample::view)
         .window_size(Size::new(600.0, 400.0))
         .run()
 }

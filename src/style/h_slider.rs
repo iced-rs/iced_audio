@@ -266,7 +266,7 @@ pub struct TextMarksAppearance {
 /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`HSlider`].
     ///

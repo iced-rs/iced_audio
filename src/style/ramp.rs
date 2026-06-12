@@ -45,7 +45,7 @@ impl Default for Appearance {
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`Ramp`].
     ///

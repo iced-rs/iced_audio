@@ -67,7 +67,7 @@ pub struct SquareAppearance {
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`ModRangeInput`].
     ///

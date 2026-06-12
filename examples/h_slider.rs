@@ -13,7 +13,7 @@ use iced_audio::{
 
 fn main() -> Result {
     application(
-        "HSlider Example",
+        HSliderExample::default,
         HSliderExample::update,
         HSliderExample::view,
     )
