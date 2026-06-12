@@ -207,16 +207,14 @@ pub fn texture_style(
 
     classic_rail(renderer, bounds, &style.rail);
 
-    renderer.draw_image(
-        Image::from(&style.image_handle),
-        Rectangle {
-            x: (value_bounds.x + style.image_bounds.x + normal.scale(value_bounds.width)).round(),
-            y: (bounds.center_y() + style.image_bounds.y).round(),
-            width: style.image_bounds.width,
-            height: style.image_bounds.height,
-        },
-        Rectangle::default(),
-    );
+    let bounds = Rectangle {
+        x: (value_bounds.x + style.image_bounds.x + normal.scale(value_bounds.width)).round(),
+        y: (bounds.center_y() + style.image_bounds.y).round(),
+        width: style.image_bounds.width,
+        height: style.image_bounds.height,
+    };
+
+    renderer.draw_image(Image::from(&style.image_handle), bounds, bounds);
 }
 
 pub fn classic_style(
