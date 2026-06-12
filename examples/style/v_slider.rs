@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::widget::image;
 use iced::{Color, Rectangle};
 use iced_audio::{text_marks, tick_marks, v_slider, Offset};
@@ -8,17 +10,16 @@ use super::colors;
 
 pub struct RectStyle;
 impl RectStyle {
-    const ACTIVE_RECT_STYLE: v_slider::RectAppearance =
-        v_slider::RectAppearance {
-            back_color: colors::EMPTY,
-            back_border_width: 1.0,
-            back_border_radius: 2.0,
-            back_border_color: colors::BORDER,
-            filled_color: colors::FILLED,
-            handle_height: 4,
-            handle_color: colors::HANDLE,
-            handle_filled_gap: 1.0,
-        };
+    const ACTIVE_RECT_STYLE: v_slider::RectAppearance = v_slider::RectAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        filled_color: colors::FILLED,
+        handle_height: 4,
+        handle_color: colors::HANDLE,
+        handle_filled_gap: 1.0,
+    };
 }
 impl v_slider::StyleSheet for RectStyle {
     type Style = iced::Theme;
@@ -39,14 +40,9 @@ impl v_slider::StyleSheet for RectStyle {
         self.hovered(style)
     }
 
-    fn mod_range_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<v_slider::ModRangeAppearance> {
+    fn mod_range_appearance(&self, _style: &Self::Style) -> Option<v_slider::ModRangeAppearance> {
         Some(v_slider::ModRangeAppearance {
-            placement: v_slider::ModRangePlacement::CenterFilled {
-                edge_padding: 0.0,
-            },
+            placement: v_slider::ModRangePlacement::CenterFilled { edge_padding: 0.0 },
             back_border_width: 1.0,
             back_border_radius: 2.0,
             back_border_color: Color::TRANSPARENT,
@@ -71,20 +67,19 @@ impl v_slider::StyleSheet for RectStyle {
 
 pub struct RectBipolarStyle;
 impl RectBipolarStyle {
-    const ACTIVE_RECT_STYLE: v_slider::RectBipolarAppearance =
-        v_slider::RectBipolarAppearance {
-            back_color: colors::EMPTY,
-            back_border_width: 1.0,
-            back_border_radius: 2.0,
-            back_border_color: colors::BORDER,
-            top_filled_color: colors::FILLED,
-            bottom_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
-            handle_height: 4,
-            handle_top_color: colors::HANDLE,
-            handle_bottom_color: Color::from_rgb(0.0, 0.9, 0.0),
-            handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
-            handle_filled_gap: 1.0,
-        };
+    const ACTIVE_RECT_STYLE: v_slider::RectBipolarAppearance = v_slider::RectBipolarAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        top_filled_color: colors::FILLED,
+        bottom_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
+        handle_height: 4,
+        handle_top_color: colors::HANDLE,
+        handle_bottom_color: Color::from_rgb(0.0, 0.9, 0.0),
+        handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
+        handle_filled_gap: 1.0,
+    };
 }
 impl v_slider::StyleSheet for RectBipolarStyle {
     type Style = iced::Theme;
@@ -116,10 +111,7 @@ impl v_slider::StyleSheet for TextureStyle {
     fn active(&self, _style: &Self::Style) -> v_slider::Appearance {
         v_slider::Appearance::Texture(v_slider::TextureAppearance {
             rail: v_slider::ClassicRail {
-                rail_colors: (
-                    [0.0, 0.0, 0.0, 0.9].into(),
-                    [0.36, 0.36, 0.36, 0.75].into(),
-                ),
+                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(), [0.36, 0.36, 0.36, 0.75].into()),
                 rail_widths: (1.0, 2.0),
                 rail_padding: 14.0,
             },
@@ -137,10 +129,7 @@ impl v_slider::StyleSheet for TextureStyle {
         self.active(style)
     }
 
-    fn tick_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<v_slider::TickMarksAppearance> {
+    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<v_slider::TickMarksAppearance> {
         Some(v_slider::TickMarksAppearance {
             style: tick_marks::Appearance {
                 tier_1: tick_marks::Shape::Line {
@@ -167,10 +156,7 @@ impl v_slider::StyleSheet for TextureStyle {
         })
     }
 
-    fn text_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<v_slider::TextMarksAppearance> {
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<v_slider::TextMarksAppearance> {
         Some(v_slider::TextMarksAppearance {
             style: text_marks::Appearance {
                 color: [0.16, 0.16, 0.16, 0.9].into(),

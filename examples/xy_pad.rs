@@ -1,5 +1,5 @@
-mod info_text;
 mod style;
+mod util;
 
 use iced::{
     application,
@@ -7,6 +7,7 @@ use iced::{
     Element, Length, Result, Size,
 };
 use iced_audio::{FloatRange, Normal, NormalParam, XYPad};
+use util::info_text;
 
 fn main() -> Result {
     application(

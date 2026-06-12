@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub fn info_text_f32<ID: std::fmt::Debug>(id: ID, value: f32) -> String {
     format!("id: {id:?}  |  value: {value:.3}")
 }

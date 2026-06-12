@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::Color;
 use iced_audio::mod_range_input;
 
@@ -7,12 +9,11 @@ use super::colors;
 
 pub struct CustomStyle;
 impl CustomStyle {
-    const ACTIVE_STYLE: mod_range_input::CircleAppearance =
-        mod_range_input::CircleAppearance {
-            color: colors::KNOB_ARC_RIGHT,
-            border_width: 2.0,
-            border_color: Color::from_rgb(0.0, 0.6, 0.0),
-        };
+    const ACTIVE_STYLE: mod_range_input::CircleAppearance = mod_range_input::CircleAppearance {
+        color: colors::KNOB_ARC_RIGHT,
+        border_width: 2.0,
+        border_color: Color::from_rgb(0.0, 0.6, 0.0),
+    };
 }
 impl mod_range_input::StyleSheet for CustomStyle {
     type Style = iced::Theme;

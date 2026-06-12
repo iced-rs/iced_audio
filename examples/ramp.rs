@@ -1,5 +1,5 @@
-mod info_text;
 mod style;
+mod util;
 
 use iced::{
     application,
@@ -7,6 +7,7 @@ use iced::{
     Element, Length, Result, Size,
 };
 use iced_audio::{ramp::RampDirection, FloatRange, Normal, NormalParam, Ramp};
+use util::info_text;
 
 fn main() -> Result {
     application(RampExample::default, RampExample::update, RampExample::view)

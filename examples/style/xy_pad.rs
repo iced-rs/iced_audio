@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::Color;
 use iced_audio::xy_pad;
 

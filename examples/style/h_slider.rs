@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::widget::image;
 use iced::{Color, Rectangle};
 use iced_audio::{h_slider, text_marks, tick_marks, Offset};
@@ -8,17 +10,16 @@ use super::colors;
 
 pub struct RectStyle;
 impl RectStyle {
-    const ACTIVE_RECT_STYLE: h_slider::RectAppearance =
-        h_slider::RectAppearance {
-            back_color: colors::EMPTY,
-            back_border_width: 1.0,
-            back_border_radius: 2.0,
-            back_border_color: colors::BORDER,
-            filled_color: colors::FILLED,
-            handle_width: 4,
-            handle_color: colors::HANDLE,
-            handle_filled_gap: 1.0,
-        };
+    const ACTIVE_RECT_STYLE: h_slider::RectAppearance = h_slider::RectAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        filled_color: colors::FILLED,
+        handle_width: 4,
+        handle_color: colors::HANDLE,
+        handle_filled_gap: 1.0,
+    };
 }
 impl h_slider::StyleSheet for RectStyle {
     type Style = iced::Theme;
@@ -39,10 +40,7 @@ impl h_slider::StyleSheet for RectStyle {
         self.hovered(style)
     }
 
-    fn mod_range_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<h_slider::ModRangeAppearance> {
+    fn mod_range_appearance(&self, _style: &Self::Style) -> Option<h_slider::ModRangeAppearance> {
         Some(h_slider::ModRangeAppearance {
             placement: h_slider::ModRangePlacement::Bottom {
                 height: 3.0,
@@ -62,20 +60,19 @@ impl h_slider::StyleSheet for RectStyle {
 
 pub struct RectBipolarStyle;
 impl RectBipolarStyle {
-    const ACTIVE_RECT_STYLE: h_slider::RectBipolarAppearance =
-        h_slider::RectBipolarAppearance {
-            back_color: colors::EMPTY,
-            back_border_width: 1.0,
-            back_border_radius: 2.0,
-            back_border_color: colors::BORDER,
-            left_filled_color: colors::FILLED,
-            right_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
-            handle_width: 4,
-            handle_left_color: colors::HANDLE,
-            handle_right_color: Color::from_rgb(0.0, 0.9, 0.0),
-            handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
-            handle_filled_gap: 1.0,
-        };
+    const ACTIVE_RECT_STYLE: h_slider::RectBipolarAppearance = h_slider::RectBipolarAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        left_filled_color: colors::FILLED,
+        right_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
+        handle_width: 4,
+        handle_left_color: colors::HANDLE,
+        handle_right_color: Color::from_rgb(0.0, 0.9, 0.0),
+        handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
+        handle_filled_gap: 1.0,
+    };
 }
 impl h_slider::StyleSheet for RectBipolarStyle {
     type Style = iced::Theme;
@@ -107,10 +104,7 @@ impl h_slider::StyleSheet for TextureStyle {
     fn active(&self, _style: &Self::Style) -> h_slider::Appearance {
         h_slider::Appearance::Texture(h_slider::TextureAppearance {
             rail: h_slider::ClassicRail {
-                rail_colors: (
-                    [0.0, 0.0, 0.0, 0.9].into(),
-                    [0.36, 0.36, 0.36, 0.75].into(),
-                ),
+                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(), [0.36, 0.36, 0.36, 0.75].into()),
                 rail_widths: (1.0, 2.0),
                 rail_padding: 14.0,
             },
@@ -128,10 +122,7 @@ impl h_slider::StyleSheet for TextureStyle {
         self.active(style)
     }
 
-    fn tick_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<h_slider::TickMarksAppearance> {
+    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<h_slider::TickMarksAppearance> {
         Some(h_slider::TickMarksAppearance {
             style: tick_marks::Appearance {
                 tier_1: tick_marks::Shape::Line {
@@ -158,10 +149,7 @@ impl h_slider::StyleSheet for TextureStyle {
         })
     }
 
-    fn text_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<h_slider::TextMarksAppearance> {
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<h_slider::TextMarksAppearance> {
         Some(h_slider::TextMarksAppearance {
             style: text_marks::Appearance {
                 color: [0.16, 0.16, 0.16, 0.9].into(),

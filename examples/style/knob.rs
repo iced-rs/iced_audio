@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::Color;
 use iced_audio::{knob, text_marks};
 
@@ -14,13 +16,12 @@ impl CustomStyleCircle {
         diameter: knob::StyleLength::Scaled(0.21),
         offset: knob::StyleLength::Scaled(0.21),
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance =
-        knob::CircleAppearance {
-            color: colors::KNOB,
-            border_width: 3.0,
-            border_color: colors::KNOB_BORDER,
-            notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
-        };
+    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
+        color: colors::KNOB,
+        border_width: 3.0,
+        border_color: colors::KNOB_BORDER,
+        notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
+    };
 }
 impl knob::StyleSheet for CustomStyleCircle {
     type Style = iced::Theme;
@@ -44,10 +45,7 @@ impl knob::StyleSheet for CustomStyleCircle {
         self.hovered(style)
     }
 
-    fn value_arc_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<knob::ValueArcAppearance> {
+    fn value_arc_appearance(&self, _style: &Self::Style) -> Option<knob::ValueArcAppearance> {
         Some(knob::ValueArcAppearance {
             width: 3.0,
             offset: 1.5,
@@ -72,10 +70,7 @@ impl knob::StyleSheet for CustomStyleCircle {
         })
     }
 
-    fn text_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<knob::TextMarksAppearance> {
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<knob::TextMarksAppearance> {
         Some(knob::TextMarksAppearance {
             style: text_marks::Appearance {
                 color: [0.16, 0.16, 0.16, 0.9].into(),
@@ -102,13 +97,12 @@ impl CustomStyleLine {
         offset: knob::StyleLength::Fixed(5.0),
         cap: knob::LineCap::Round,
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance =
-        knob::CircleAppearance {
-            color: colors::KNOB,
-            border_width: 0.0,
-            border_color: Color::TRANSPARENT,
-            notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
-        };
+    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
+        color: colors::KNOB,
+        border_width: 0.0,
+        border_color: Color::TRANSPARENT,
+        notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
+    };
 }
 impl knob::StyleSheet for CustomStyleLine {
     type Style = iced::Theme;
@@ -125,10 +119,7 @@ impl knob::StyleSheet for CustomStyleLine {
         self.active(style)
     }
 
-    fn value_arc_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<knob::ValueArcAppearance> {
+    fn value_arc_appearance(&self, _style: &Self::Style) -> Option<knob::ValueArcAppearance> {
         Some(knob::ValueArcAppearance {
             width: 2.5,
             offset: 2.0,

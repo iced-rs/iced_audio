@@ -1,5 +1,5 @@
-mod info_text;
 mod style;
+mod util;
 
 use iced::{
     application,
@@ -9,6 +9,7 @@ use iced::{
 use iced_audio::{
     text_marks, tick_marks, FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam,
 };
+use util::info_text;
 
 fn main() -> Result {
     application(KnobExample::default, KnobExample::update, KnobExample::view)

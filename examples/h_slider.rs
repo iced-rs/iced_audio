@@ -1,5 +1,5 @@
-mod info_text;
 mod style;
+mod util;
 
 use iced::{
     application,
@@ -10,6 +10,7 @@ use iced_audio::{
     text_marks, tick_marks, FloatRange, FreqRange, HSlider, IntRange, LogDBRange, Normal,
     NormalParam,
 };
+use util::info_text;
 
 fn main() -> Result {
     application(

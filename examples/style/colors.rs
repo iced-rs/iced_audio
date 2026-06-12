@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use iced::Color;
 
 pub const EMPTY: Color = Color::from_rgb(
