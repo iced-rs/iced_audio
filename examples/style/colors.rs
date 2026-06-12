@@ -48,4 +48,4 @@ pub const KNOB_ARC: Color = Color::from_rgb(
     0xE9 as f32 / 255.0,
 );
 pub const KNOB_ARC_RIGHT: Color = Color::from_rgb(0.0, 0.77, 0.0);
-pub const KNOB_ARC_EMPTY: Color = Color::from_rgb(0.85, 0.85, 0.85);
+pub const KNOB_ARC_EMPTY: Color = KNOB_BORDER;
