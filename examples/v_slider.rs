@@ -36,6 +36,7 @@ enum Message {
 
 pub struct VSliderExample {
     float_range: FloatRange,
+    float_range_bp: FloatRange,
     int_range: IntRange,
     db_range: LogDBRange,
     freq_range: FreqRange,
@@ -79,19 +80,20 @@ impl Default for VSliderExample {
 
         Self {
             float_range,
+            float_range_bp,
             int_range,
             db_range,
             freq_range,
 
             // initialize the parameter of the VSlider widget
-            float_param: float_range.default_normal_param(),
+            float_param: float_range_bp.default_normal_param(),
             int_param: int_range.default_normal_param(),
             db_param: db_range.default_normal_param(),
             freq_param: freq_range.normal_param(1000.0, 1000.0),
             rect_param: float_range.default_normal_param(),
             rect_bp_param: float_range_bp.default_normal_param(),
             #[cfg(feature = "texture")]
-            texture_param: float_range.default_normal_param(),
+            texture_param: float_range_bp.default_normal_param(),
 
             #[cfg(feature = "texture")]
             v_slider_texture_handle: format!(
@@ -154,7 +156,7 @@ impl VSliderExample {
 
                 self.output_text = info_text::info_text_f32(
                     "VSliderFloat",
-                    self.float_range.unmap_to_value(normal),
+                    self.float_range_bp.unmap_to_value(normal),
                 );
             }
             Message::Int(normal) => {
@@ -191,7 +193,7 @@ impl VSliderExample {
 
                 self.output_text = info_text::info_text_f32(
                     "VSliderBipolar",
-                    self.float_range.unmap_to_value(normal),
+                    self.float_range_bp.unmap_to_value(normal),
                 );
             }
             #[cfg(feature = "texture")]
@@ -200,7 +202,7 @@ impl VSliderExample {
 
                 self.output_text = info_text::info_text_f32(
                     "VSliderTexture",
-                    self.float_range.unmap_to_value(normal),
+                    self.float_range_bp.unmap_to_value(normal),
                 );
             }
         }
