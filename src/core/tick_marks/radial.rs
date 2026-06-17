@@ -293,6 +293,8 @@ pub fn draw_radial_tick_marks(
     renderer.with_translation(
         Vector::new(center.x - frame_radius, center.y - frame_radius),
         |renderer| {
+            // clippy gets confused when default iced features are disabled
+            #[allow(clippy::unit_arg)]
             renderer.draw_geometry(frame.into_geometry());
         },
     );

@@ -249,7 +249,7 @@ where
         match event {
             Event::Mouse(mouse::Event::CursorMoved { position })
             | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
-                if state.dragging_status.is_some() {
+                if let Some(dragging_status) = &mut state.dragging_status {
                     let bounds_size = {
                         if layout.bounds().width <= layout.bounds().height {
                             layout.bounds().width
@@ -281,11 +281,7 @@ where
 
                         self.fire_on_change(shell);
 
-                        state
-                            .dragging_status
-                            .as_mut()
-                            .expect("dragging_status taken")
-                            .moved();
+                        dragging_status.moved();
                     }
                 }
 

@@ -542,6 +542,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
@@ -573,6 +575,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
@@ -596,6 +600,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
@@ -628,6 +634,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
@@ -658,6 +666,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
@@ -681,6 +691,8 @@ where
                     renderer.with_translation(
                         Vector::new(bounds_x + border_width, bounds_y + border_width),
                         |renderer| {
+                            // clippy gets confused when default iced features are disabled
+                            #[allow(clippy::unit_arg)]
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );

@@ -61,18 +61,18 @@ fn tick_marks(
     tick_marks_style: &Option<TickMarksAppearance>,
     //tick_marks_cache: &tick_marks::PrimitiveCache,
 ) {
-    if let Some(tick_marks) = tick_marks {
-        if let Some(style) = tick_marks_style {
-            tick_marks::draw_horizontal_tick_marks(
-                renderer,
-                bounds,
-                tick_marks,
-                &style.style,
-                &style.placement,
-                false,
-                //tick_marks_cache,
-            )
-        }
+    if let Some(tick_marks) = tick_marks
+        && let Some(style) = tick_marks_style
+    {
+        tick_marks::draw_horizontal_tick_marks(
+            renderer,
+            bounds,
+            tick_marks,
+            &style.style,
+            &style.placement,
+            false,
+            //tick_marks_cache,
+        )
     }
 }
 
@@ -83,18 +83,18 @@ fn text_marks(
     text_marks_style: &Option<TextMarksAppearance>,
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
-    if let Some(text_marks) = text_marks {
-        if let Some(style) = text_marks_style {
-            text_marks::draw_horizontal_text_marks(
-                renderer,
-                bounds,
-                text_marks,
-                &style.style,
-                &style.placement,
-                false,
-                //text_marks_cache,
-            )
-        }
+    if let Some(text_marks) = text_marks
+        && let Some(style) = text_marks_style
+    {
+        text_marks::draw_horizontal_text_marks(
+            renderer,
+            bounds,
+            text_marks,
+            &style.style,
+            &style.placement,
+            false,
+            //text_marks_cache,
+        )
     }
 }
 
@@ -104,80 +104,80 @@ fn modulation(
     mod_range: Option<&ModulationRange>,
     style: &Option<ModRangeAppearance>,
 ) {
-    if let Some(mod_range) = mod_range {
-        if let Some(style) = style {
-            let (y, height) = match style.placement {
-                ModRangePlacement::Center { height, offset } => {
-                    (bounds.y + offset + ((bounds.height - height) / 2.0), height)
-                }
-                ModRangePlacement::CenterFilled { edge_padding } => (
-                    bounds.y + edge_padding,
-                    bounds.height - (edge_padding * 2.0),
-                ),
-                ModRangePlacement::Top { height, offset } => (bounds.y + offset - height, height),
-                ModRangePlacement::Bottom { height, offset } => {
-                    (bounds.y + bounds.height + offset, height)
-                }
-            };
-
-            if let Some(back_color) = style.back_color {
-                renderer.fill_quad(
-                    Quad {
-                        bounds: Rectangle {
-                            x: bounds.x,
-                            y,
-                            width: bounds.width,
-                            height,
-                        },
-                        border: Border {
-                            color: style.back_border_color,
-                            width: style.back_border_width,
-                            radius: Radius::new(style.back_border_radius),
-                        },
-                        shadow: Shadow::default(),
-                        snap: false,
-                    },
-                    back_color,
-                );
-            };
-
-            if mod_range.filled_visible && (mod_range.start.as_f32() != mod_range.end.as_f32()) {
-                let (start, end, color) = if mod_range.start.as_f32() < mod_range.end.as_f32() {
-                    (
-                        mod_range.start.as_f32(),
-                        mod_range.end.as_f32(),
-                        style.filled_color,
-                    )
-                } else {
-                    (
-                        mod_range.end.as_f32(),
-                        mod_range.start.as_f32(),
-                        style.filled_inverse_color,
-                    )
-                };
-
-                let start_offset = bounds.width * start;
-                let filled_width = (bounds.width * end) - start_offset;
-
-                renderer.fill_quad(
-                    Quad {
-                        bounds: Rectangle {
-                            x: bounds.x + start_offset,
-                            y,
-                            width: filled_width,
-                            height,
-                        },
-                        border: Border {
-                            color: Color::TRANSPARENT,
-                            width: style.back_border_width,
-                            radius: Radius::new(style.back_border_radius),
-                        },
-                        shadow: Shadow::default(),
-                        snap: false,
-                    },
-                    color,
-                );
+    if let Some(mod_range) = mod_range
+        && let Some(style) = style
+    {
+        let (y, height) = match style.placement {
+            ModRangePlacement::Center { height, offset } => {
+                (bounds.y + offset + ((bounds.height - height) / 2.0), height)
             }
+            ModRangePlacement::CenterFilled { edge_padding } => (
+                bounds.y + edge_padding,
+                bounds.height - (edge_padding * 2.0),
+            ),
+            ModRangePlacement::Top { height, offset } => (bounds.y + offset - height, height),
+            ModRangePlacement::Bottom { height, offset } => {
+                (bounds.y + bounds.height + offset, height)
+            }
+        };
+
+        if let Some(back_color) = style.back_color {
+            renderer.fill_quad(
+                Quad {
+                    bounds: Rectangle {
+                        x: bounds.x,
+                        y,
+                        width: bounds.width,
+                        height,
+                    },
+                    border: Border {
+                        color: style.back_border_color,
+                        width: style.back_border_width,
+                        radius: Radius::new(style.back_border_radius),
+                    },
+                    shadow: Shadow::default(),
+                    snap: false,
+                },
+                back_color,
+            );
+        };
+
+        if mod_range.filled_visible && (mod_range.start.as_f32() != mod_range.end.as_f32()) {
+            let (start, end, color) = if mod_range.start.as_f32() < mod_range.end.as_f32() {
+                (
+                    mod_range.start.as_f32(),
+                    mod_range.end.as_f32(),
+                    style.filled_color,
+                )
+            } else {
+                (
+                    mod_range.end.as_f32(),
+                    mod_range.start.as_f32(),
+                    style.filled_inverse_color,
+                )
+            };
+
+            let start_offset = bounds.width * start;
+            let filled_width = (bounds.width * end) - start_offset;
+
+            renderer.fill_quad(
+                Quad {
+                    bounds: Rectangle {
+                        x: bounds.x + start_offset,
+                        y,
+                        width: filled_width,
+                        height,
+                    },
+                    border: Border {
+                        color: Color::TRANSPARENT,
+                        width: style.back_border_width,
+                        radius: Radius::new(style.back_border_radius),
+                    },
+                    shadow: Shadow::default(),
+                    snap: false,
+                },
+                color,
+            );
         }
     }
 }
