@@ -41,6 +41,15 @@ If you wish to use `iced_audio` for audio plugins, check out these other crates:
 * [clack-plugin](https://github.com/prokopyl/clack) - An easy way to create [CLAP] plugins in Rust.
 * [iced_baseview](https://codeberg.org/RustAudio/iced_baseview) - Run Iced on the [baseview](https://github.com/RustAudio/baseview) windowing backend (use in conjuction with a crate like `clack-plugin`).
 
+## Crate features
+
+* `knob` (default) - Enables the knob widget
+* `h_slider` (default) - Enables the horizontal slider widget
+* `v_slider` (default) - Enables the vertical slider widget
+* `ramp` (default) - Enables the ramp widget
+* `xy_pad` (default) - Enables the XY pad widget
+* `texture` - Enables the texture (image) style for the horizontal/vertical slider widgets
+
 ## Contributing / Feedback
 Contributions are greatly appreciated! Before contributing, please read the official Iced [contributing guidelines](https://github.com/iced-rs/iced/blob/master/CONTRIBUTING.md).
 
