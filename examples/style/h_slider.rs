@@ -48,7 +48,8 @@ impl h_slider::StyleSheet for RectStyle {
             back_border_color: Color::TRANSPARENT,
             back_border_width: 0.0,
             back_border_radius: 2.0,
-            back_color: Some(colors::KNOB_ARC_EMPTY),
+            back_color: None,
+            //back_color: Some(colors::KNOB_ARC_EMPTY),
             filled_color: colors::KNOB_ARC,
             filled_inverse_color: colors::KNOB_ARC_RIGHT,
         })

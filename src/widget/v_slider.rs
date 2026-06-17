@@ -226,8 +226,8 @@ where
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
-    pub fn mod_range(mut self, mod_range: &'a ModulationRange) -> Self {
-        self.mod_range_1 = Some(mod_range);
+    pub fn mod_range(mut self, mod_range: Option<&'a ModulationRange>) -> Self {
+        self.mod_range_1 = mod_range;
         self
     }
 
@@ -237,8 +237,8 @@ where
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`StyleSheet`]: ../../style/v_slider/trait.StyleSheet.html
-    pub fn mod_range_2(mut self, mod_range: &'a ModulationRange) -> Self {
-        self.mod_range_1 = Some(mod_range);
+    pub fn mod_range_2(mut self, mod_range: Option<&'a ModulationRange>) -> Self {
+        self.mod_range_2 = mod_range;
         self
     }
 

@@ -211,20 +211,21 @@ impl ModRangeExample {
         // the corresponding parameter
 
         let knob_start = Knob::new(self.knob_start_param, Message::RangeStart);
-
         let knob_end = Knob::new(self.knob_end_param, Message::RangeEnd);
 
+        let mod_range_1 = self.show_modulation.then_some(&self.mod_range_1);
+
         let knob1 = Knob::new(self.knob1_param, Message::Knob1)
-            .mod_range(&self.mod_range_1)
+            .mod_range(mod_range_1)
             .style(style::knob::CustomArc);
 
         let h_slider1 = HSlider::new(self.h_slider1_param, Message::HSlider1)
-            .mod_range(&self.mod_range_1)
+            .mod_range(mod_range_1)
             .style(style::h_slider::RectStyle);
 
         let v_slider1 = VSlider::new(self.v_slider1_param, Message::VSlider1)
             .width(Length::Fixed(30.0))
-            .mod_range(&self.mod_range_1)
+            .mod_range(mod_range_1)
             .style(style::v_slider::RectStyle);
 
         let auto_input1 = ModRangeInput::new(self.auto_input1_param, Message::ModRangeInput1)
@@ -233,7 +234,7 @@ impl ModRangeExample {
             .enabled(self.show_modulation);
 
         let knob_auto1 = Knob::new(self.knob_auto1_param, Message::ModKnob1)
-            .mod_range(&self.knob_auto1_mod_range)
+            .mod_range(self.show_modulation.then_some(&self.knob_auto1_mod_range))
             .style(style::knob::CustomStyleCircle);
 
         let auto_input2 = ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
@@ -242,7 +243,7 @@ impl ModRangeExample {
             .enabled(self.show_modulation);
 
         let knob_auto2 = Knob::new(self.knob_auto2_param, Message::ModKnob2)
-            .mod_range(&self.knob_auto2_mod_range)
+            .mod_range(self.show_modulation.then_some(&self.knob_auto2_mod_range))
             .style(style::knob::CustomStyleCircle);
 
         // push the widgets into rows

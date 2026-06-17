@@ -63,7 +63,8 @@ impl knob::StyleSheet for CustomStyleCircle {
         Some(knob::ModRangeArcAppearance {
             width: 3.0,
             offset: 6.0,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
+            empty_color: None,
+            //empty_color: Some(colors::KNOB_ARC_EMPTY),
             filled_color: colors::KNOB_ARC_RIGHT,
             filled_inverse_color: colors::KNOB_ARC_RIGHT,
             cap: knob::LineCap::Butt,
@@ -123,7 +124,8 @@ impl knob::StyleSheet for CustomStyleLine {
         Some(knob::ValueArcAppearance {
             width: 2.5,
             offset: 2.0,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
+            empty_color: None,
+            //empty_color: Some(colors::KNOB_ARC_EMPTY),
             left_filled_color: colors::KNOB_ARC,
             right_filled_color: Some(colors::KNOB_ARC_RIGHT),
             cap: knob::LineCap::Round,
@@ -172,7 +174,8 @@ impl knob::StyleSheet for CustomArc {
         Some(knob::ModRangeArcAppearance {
             width: 3.0,
             offset: 1.5,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
+            empty_color: None,
+            //empty_color: Some(colors::KNOB_ARC_EMPTY),
             filled_color: colors::KNOB_ARC,
             filled_inverse_color: colors::KNOB_ARC_RIGHT,
             cap: knob::LineCap::Round,
