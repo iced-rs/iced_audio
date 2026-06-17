@@ -26,8 +26,11 @@ use value_markers::ValueMarkers;
 pub use crate::style::h_slider::{
     Appearance, ClassicAppearance, ClassicHandle, ClassicRail, ModRangeAppearance,
     ModRangePlacement, RectAppearance, RectBipolarAppearance, StyleSheet, TextMarksAppearance,
-    TextureAppearance, TickMarksAppearance,
+    TickMarksAppearance,
 };
+
+#[cfg(feature = "texture")]
+pub use crate::style::h_slider::TextureAppearance;
 
 static DEFAULT_HEIGHT: f32 = 14.0;
 static DEFAULT_SCALAR: f32 = 0.9575;
@@ -517,6 +520,7 @@ where
         let normal = self.normal_param.value;
 
         match appearance {
+            #[cfg(feature = "texture")]
             Appearance::Texture(style) => draw::texture_style(
                 renderer,
                 normal,

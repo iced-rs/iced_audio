@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-use iced::widget::image;
 use iced::{Color, Rectangle};
 use iced_audio::{h_slider, text_marks, tick_marks, Offset};
 
@@ -97,7 +96,9 @@ impl h_slider::StyleSheet for RectBipolarStyle {
 
 // Custom style for the Texture HSlider
 
-pub struct TextureStyle(pub image::Handle, pub Rectangle);
+#[cfg(feature = "texture")]
+pub struct TextureStyle(pub iced::widget::image::Handle, pub Rectangle);
+#[cfg(feature = "texture")]
 impl h_slider::StyleSheet for TextureStyle {
     type Style = iced::Theme;
 

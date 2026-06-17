@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-use iced::widget::image;
 use iced::{Color, Rectangle};
 use iced_audio::{text_marks, tick_marks, v_slider, Offset};
 
@@ -104,7 +103,9 @@ impl v_slider::StyleSheet for RectBipolarStyle {
 
 // Custom style for the Texture VSlider
 
-pub struct TextureStyle(pub image::Handle, pub Rectangle);
+#[cfg(feature = "texture")]
+pub struct TextureStyle(pub iced::widget::image::Handle, pub Rectangle);
+#[cfg(feature = "texture")]
 impl v_slider::StyleSheet for TextureStyle {
     type Style = iced::Theme;
 

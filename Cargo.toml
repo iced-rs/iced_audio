@@ -20,24 +20,25 @@ resolver = "2"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = { version = "0.14.0", default-features = false, features = ["advanced", "x11", "thread-pool"] }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "canvas"] }
 
 [dev-dependencies]
-iced = { version = "0.14.0" }
+iced = { version = "0.14.0", default-features = true }
 
 [features]
-knob = ["iced/canvas"]
-h_slider = ["iced/canvas", "iced/image"]
-v_slider = ["iced/canvas", "iced/image"]
-ramp = ["iced/canvas"]
-xy_pad = ["iced/canvas"]
-mod_range_input = ["iced/canvas"]
-
 default = [
   "knob",
   "h_slider",
   "v_slider",
   "ramp",
   "xy_pad",
-  "mod_range_input"
+  "mod_range_input",
 ]
+knob = []
+h_slider = []
+v_slider = []
+ramp = []
+xy_pad = []
+mod_range_input = []
+# Enables the texture (image) style for sliders.
+texture = ["iced/image"]

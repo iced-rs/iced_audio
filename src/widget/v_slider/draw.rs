@@ -1,19 +1,20 @@
-use iced::{
-    advanced::{image::Renderer as _, renderer::Quad, Renderer as _},
-    border::Radius,
-    widget::canvas::Image,
-    Border, Color, Rectangle, Renderer, Shadow,
-};
-
 use crate::{
     core::{text_marks, tick_marks},
     style::v_slider::{
         ClassicAppearance, ClassicRail, ModRangeAppearance, ModRangePlacement, RectAppearance,
-        RectBipolarAppearance, TextMarksAppearance, TextureAppearance, TickMarksAppearance,
+        RectBipolarAppearance, TextMarksAppearance, TickMarksAppearance,
     },
     widget::v_slider::ValueMarkers,
     ModulationRange, Normal,
 };
+use iced::{
+    advanced::{renderer::Quad, Renderer as _},
+    border::Radius,
+    Border, Color, Rectangle, Renderer, Shadow,
+};
+
+#[cfg(feature = "texture")]
+use crate::style::v_slider::TextureAppearance;
 
 fn markers(
     renderer: &mut Renderer,
@@ -178,6 +179,7 @@ fn modulation(
     }
 }
 
+#[cfg(feature = "texture")]
 pub fn texture_style(
     renderer: &mut Renderer,
     normal: Normal,
@@ -187,6 +189,8 @@ pub fn texture_style(
     //tick_marks_cache: &tick_marks::PrimitiveCache,
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
+    use iced::advanced::image::Renderer;
+
     let value_bounds = Rectangle {
         x: bounds.x,
         y: (bounds.y + (f32::from(style.handle_height) / 2.0)).round(),
@@ -212,7 +216,11 @@ pub fn texture_style(
         height: style.image_bounds.height,
     };
 
-    renderer.draw_image(Image::from(&style.image_handle), bounds, bounds)
+    renderer.draw_image(
+        iced::advanced::image::Image::from(&style.image_handle),
+        bounds,
+        bounds,
+    )
 }
 
 pub fn classic_style(

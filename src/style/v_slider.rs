@@ -6,7 +6,7 @@ use crate::{
     style::{default_colors, text_marks, tick_marks},
     Offset,
 };
-use iced::{advanced::image, Color, Rectangle};
+use iced::Color;
 
 /// The appearance of a [`VSlider`].
 ///
@@ -14,6 +14,7 @@ use iced::{advanced::image, Color, Rectangle};
 #[derive(Debug, Clone)]
 pub enum Appearance {
     /// uses an image texture for the handle
+    #[cfg(feature = "texture")]
     Texture(TextureAppearance),
     /// modeled after hardware sliders
     Classic(ClassicAppearance),
@@ -40,6 +41,7 @@ pub struct ClassicRail {
 /// [`Appearance`]: enum.Appearance.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
+#[cfg(feature = "texture")]
 #[derive(Debug, Clone)]
 pub struct TextureAppearance {
     /// The rail style
@@ -47,12 +49,12 @@ pub struct TextureAppearance {
     /// The [`Handle`] to the image texture
     ///
     /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
-    pub image_handle: image::Handle,
+    pub image_handle: iced::widget::image::Handle,
     /// The effective height of the handle (not including any padding on the texture)
     pub handle_height: u16,
     /// The bounds of the image texture, where the origin is in the
     /// center of the handle.
-    pub image_bounds: Rectangle,
+    pub image_bounds: iced::Rectangle,
 }
 
 /// A classic [`Appearance`] for a [`VSlider`], modeled after hardware sliders

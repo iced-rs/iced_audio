@@ -3,8 +3,8 @@ mod util;
 
 use iced::{
     application,
-    widget::{column, image, row, text},
-    Element, Length, Rectangle, Result, Size,
+    widget::{column, row, text},
+    Element, Length, Result, Size,
 };
 use iced_audio::{
     text_marks, tick_marks, FloatRange, FreqRange, HSlider, IntRange, LogDBRange, Normal,
@@ -30,6 +30,7 @@ enum Message {
     Freq(Normal),
     RectStyle(Normal),
     BipolarRectStyle(Normal),
+    #[cfg(feature = "texture")]
     TextureStyle(Normal),
 }
 
@@ -45,9 +46,11 @@ pub struct HSliderExample {
     freq_param: NormalParam,
     rect_param: NormalParam,
     rect_bp_param: NormalParam,
+    #[cfg(feature = "texture")]
     texture_param: NormalParam,
 
-    h_slider_texture_handle: image::Handle,
+    #[cfg(feature = "texture")]
+    h_slider_texture_handle: iced::widget::image::Handle,
 
     float_tick_marks: tick_marks::Group,
     int_tick_marks: tick_marks::Group,
@@ -86,8 +89,10 @@ impl Default for HSliderExample {
             freq_param: freq_range.normal_param(1000.0, 1000.0),
             rect_param: float_range.default_normal_param(),
             rect_bp_param: float_range.default_normal_param(),
+            #[cfg(feature = "texture")]
             texture_param: float_range.default_normal_param(),
 
+            #[cfg(feature = "texture")]
             h_slider_texture_handle: format!(
                 "{}/examples/images/iced_h_slider.png",
                 env!("CARGO_MANIFEST_DIR")
@@ -188,6 +193,7 @@ impl HSliderExample {
                     self.float_range.unmap_to_value(normal),
                 );
             }
+            #[cfg(feature = "texture")]
             Message::TextureStyle(normal) => {
                 self.texture_param.update(normal);
 
@@ -227,6 +233,7 @@ impl HSliderExample {
             .height(Length::Fixed(24.0))
             .style(style::h_slider::RectBipolarStyle);
 
+        #[cfg(feature = "texture")]
         let h_slider_texture = HSlider::new(self.texture_param, Message::TextureStyle)
             .tick_marks(&self.float_tick_marks)
             .text_marks(&self.float_text_marks)
@@ -237,13 +244,16 @@ impl HSliderExample {
                 self.h_slider_texture_handle.clone(),
                 // bounds of the texture, where the origin is in the center
                 // of the image
-                Rectangle {
+                iced::Rectangle {
                     x: -38.0 / 2.0,
                     y: -20.0 / 2.0,
                     width: 38.0,
                     height: 20.0,
                 },
             ));
+
+        #[cfg(not(feature = "texture"))]
+        let h_slider_texture = text("(enable the \"texture\" feature)");
 
         // push the widgets into rows
         let h_slider_row = row![
