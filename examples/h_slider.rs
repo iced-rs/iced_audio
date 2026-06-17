@@ -69,7 +69,8 @@ impl Default for HSliderExample {
     fn default() -> Self {
         // initalize parameters
 
-        let float_range = FloatRange::default_bipolar();
+        let float_range = FloatRange::default();
+        let float_range_bp = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
         let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
@@ -88,7 +89,7 @@ impl Default for HSliderExample {
             db_param: db_range.default_normal_param(),
             freq_param: freq_range.normal_param(1000.0, 1000.0),
             rect_param: float_range.default_normal_param(),
-            rect_bp_param: float_range.default_normal_param(),
+            rect_bp_param: float_range_bp.default_normal_param(),
             #[cfg(feature = "texture")]
             texture_param: float_range.default_normal_param(),
 

@@ -32,6 +32,7 @@ enum Message {
 
 pub struct KnobExample {
     float_range: FloatRange,
+    float_range_bp: FloatRange,
     int_range: IntRange,
     db_range: LogDBRange,
     freq_range: FreqRange,
@@ -63,7 +64,8 @@ impl Default for KnobExample {
     fn default() -> Self {
         // initalize parameters
 
-        let float_range = FloatRange::default_bipolar();
+        let float_range = FloatRange::default();
+        let float_range_bp = FloatRange::default_bipolar();
         let int_range = IntRange::new(0, 5);
         let db_range = LogDBRange::default();
         let freq_range = FreqRange::default();
@@ -72,19 +74,20 @@ impl Default for KnobExample {
 
         Self {
             float_range,
+            float_range_bp,
             int_range,
             db_range,
             freq_range,
 
             // initialize the state of the Knob widget
-            knob_float_param: float_range.default_normal_param(),
+            knob_float_param: float_range_bp.default_normal_param(),
             knob_int_param: int_range.default_normal_param(),
             knob_db_param: db_range.default_normal_param(),
             knob_freq_param: freq_range.normal_param(1000.0, 1000.0),
             knob_style1_param: float_range.default_normal_param(),
-            knob_style2_param: float_range.default_normal_param(),
+            knob_style2_param: float_range_bp.default_normal_param(),
             knob_style3_param: float_range.default_normal_param(),
-            knob_style4_param: float_range.default_normal_param(),
+            knob_style4_param: float_range_bp.default_normal_param(),
             knob_style5_param: float_range.normal_param(-0.6, -0.6),
 
             float_tick_marks: tick_marks::Group::subdivided(1, 1, 1, Some(tick_marks::Tier::Two)),
@@ -139,8 +142,10 @@ impl KnobExample {
             Message::Float(normal) => {
                 self.knob_float_param.update(normal);
 
-                self.output_text =
-                    info_text::info_text_f32("KnobFloat", self.float_range.unmap_to_value(normal));
+                self.output_text = info_text::info_text_f32(
+                    "KnobFloat",
+                    self.float_range_bp.unmap_to_value(normal),
+                );
             }
             Message::Int(normal) => {
                 // Integer parameters must be snapped to make the widget "step" when moved.
@@ -170,8 +175,10 @@ impl KnobExample {
             Message::Style2(normal) => {
                 self.knob_style2_param.update(normal);
 
-                self.output_text =
-                    info_text::info_text_f32("KnobStyle2", self.float_range.unmap_to_value(normal));
+                self.output_text = info_text::info_text_f32(
+                    "KnobStyle2",
+                    self.float_range_bp.unmap_to_value(normal),
+                );
             }
             Message::Style3(normal) => {
                 self.knob_style3_param.update(normal);
@@ -182,8 +189,10 @@ impl KnobExample {
             Message::Style4(normal) => {
                 self.knob_style4_param.update(normal);
 
-                self.output_text =
-                    info_text::info_text_f32("KnobStyle4", self.float_range.unmap_to_value(normal));
+                self.output_text = info_text::info_text_f32(
+                    "KnobStyle4",
+                    self.float_range_bp.unmap_to_value(normal),
+                );
             }
             Message::Style5(normal) => {
                 self.knob_style5_param.update(normal);

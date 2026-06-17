@@ -348,9 +348,9 @@ pub fn rect_style(
     renderer.fill_quad(
         Quad {
             bounds: Rectangle {
-                x: bounds.x + filled_offset,
+                x: bounds.x,
                 y: bounds.y,
-                width: bounds.width - filled_offset,
+                width: filled_offset,
                 height: bounds.height,
             },
             border: Border {
