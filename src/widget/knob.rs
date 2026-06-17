@@ -13,14 +13,14 @@ use crate::{
     text_marks, tick_marks,
 };
 use iced::{
+    Element, Event, Length, Rectangle, Renderer, Size,
     advanced::{
+        Clipboard, Layout, Shell, Widget,
         graphics::core::{keyboard, touch},
         layout, mouse,
         renderer::Style,
-        widget::{tree, Tree},
-        Clipboard, Layout, Shell, Widget,
+        widget::{Tree, tree},
     },
-    Element, Event, Length, Rectangle, Renderer, Size,
 };
 use knob_info::KnobInfo;
 use state::State;

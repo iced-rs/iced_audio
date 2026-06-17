@@ -6,9 +6,9 @@ use crate::{
     style::tick_marks::{Appearance, Placement, Shape},
 };
 use iced::{
+    Background, Border, Color, Rectangle, Renderer, Shadow,
     advanced::renderer::{Quad, Renderer as _},
     border::Radius,
-    Background, Border, Color, Rectangle, Renderer, Shadow,
 };
 
 #[allow(clippy::too_many_arguments)]

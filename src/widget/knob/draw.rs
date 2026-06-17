@@ -1,18 +1,18 @@
 use crate::{
+    ModulationRange, Normal,
     style::knob::{
         ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
         ModRangeArcAppearance, NotchShape, TextMarksAppearance, TickMarksAppearance,
         ValueArcAppearance,
     },
     text_marks, tick_marks,
-    widget::knob::{bipolar_state::BipolarState, KnobInfo, ValueMarkers},
-    ModulationRange, Normal,
+    widget::knob::{KnobInfo, ValueMarkers, bipolar_state::BipolarState},
 };
 use iced::{
-    advanced::{graphics::geometry::Renderer as _, renderer::Quad, Renderer as _},
-    border::Radius,
-    widget::canvas::{self, path::Arc, Frame, Path, Stroke},
     Border, Point, Radians, Rectangle, Renderer, Shadow, Size, Vector,
+    advanced::{Renderer as _, graphics::geometry::Renderer as _, renderer::Quad},
+    border::Radius,
+    widget::canvas::{self, Frame, Path, Stroke, path::Arc},
 };
 
 pub fn markers(

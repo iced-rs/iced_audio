@@ -4,9 +4,9 @@ use crate::{
     style::tick_marks::{Appearance, Shape},
 };
 use iced::{
-    advanced::{graphics::geometry::Renderer as _, Renderer as _},
-    widget::canvas::{self, Fill, Frame, LineCap, Path, Stroke},
     Color, Point, Renderer, Size, Vector,
+    advanced::{Renderer as _, graphics::geometry::Renderer as _},
+    widget::canvas::{self, Fill, Frame, LineCap, Path, Stroke},
 };
 
 #[allow(clippy::too_many_arguments)]

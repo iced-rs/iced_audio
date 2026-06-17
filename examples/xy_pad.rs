@@ -2,9 +2,8 @@ mod style;
 mod util;
 
 use iced::{
-    application,
+    Element, Length, Result, Size, application,
     widget::{column, row, text},
-    Element, Length, Result, Size,
 };
 use iced_audio::{FloatRange, Normal, NormalParam, XYPad};
 use util::info_text;

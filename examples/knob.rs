@@ -2,12 +2,11 @@ mod style;
 mod util;
 
 use iced::{
-    application,
+    Element, Length, Result, Size, application,
     widget::{column, row, text},
-    Element, Length, Result, Size,
 };
 use iced_audio::{
-    text_marks, tick_marks, FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam,
+    FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam, text_marks, tick_marks,
 };
 use util::info_text;
 

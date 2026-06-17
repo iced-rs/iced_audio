@@ -2,7 +2,7 @@ mod style;
 mod util;
 
 use iced::widget::{checkbox, column, container, row, text};
-use iced::{application, Alignment, Element, Length, Result, Size};
+use iced::{Alignment, Element, Length, Result, Size, application};
 
 use iced_audio::{
     FloatRange, HSlider, Knob, ModRangeInput, ModulationRange, Normal, NormalParam, VSlider,

@@ -2,11 +2,10 @@ mod style;
 mod util;
 
 use iced::{
-    application,
+    Element, Length, Result, Size, application,
     widget::{column, row, text},
-    Element, Length, Result, Size,
 };
-use iced_audio::{ramp::RampDirection, FloatRange, Normal, NormalParam, Ramp};
+use iced_audio::{FloatRange, Normal, NormalParam, Ramp, ramp::RampDirection};
 use util::info_text;
 
 fn main() -> Result {

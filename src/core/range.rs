@@ -1,8 +1,8 @@
 //! Ranges of parameter values that map to a [`Normal`]
-use crate::core::normal_param::NormalParam;
 ///
 /// [`Normal`]: ../struct.Normal.html
 use crate::core::Normal;
+use crate::core::normal_param::NormalParam;
 
 use std::fmt::Debug;
 

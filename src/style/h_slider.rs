@@ -3,8 +3,8 @@
 //! [`HSlider`]: ../native/h_slider/struct.HSlider.html
 
 use crate::{
-    style::{default_colors, text_marks, tick_marks},
     Offset,
+    style::{default_colors, text_marks, tick_marks},
 };
 use iced::Color;
 

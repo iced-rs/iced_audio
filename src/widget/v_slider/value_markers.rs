@@ -1,7 +1,7 @@
 use crate::{
+    ModulationRange,
     core::{text_marks, tick_marks},
     style::v_slider::{ModRangeAppearance, TextMarksAppearance, TickMarksAppearance},
-    ModulationRange,
 };
 
 pub struct ValueMarkers<'a> {

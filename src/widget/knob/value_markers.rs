@@ -1,8 +1,9 @@
 use crate::{
+    ModulationRange,
     style::knob::{
         ModRangeArcAppearance, TextMarksAppearance, TickMarksAppearance, ValueArcAppearance,
     },
-    text_marks, tick_marks, ModulationRange,
+    text_marks, tick_marks,
 };
 
 pub struct ValueMarkers<'a> {

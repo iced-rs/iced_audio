@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use iced::{Color, Rectangle};
-use iced_audio::{text_marks, tick_marks, v_slider, Offset};
+use iced_audio::{Offset, text_marks, tick_marks, v_slider};
 
 use super::colors;
 

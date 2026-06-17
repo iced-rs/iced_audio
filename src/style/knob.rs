@@ -3,8 +3,8 @@
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
 use crate::{
-    style::{default_colors, text_marks, tick_marks},
     KnobAngleRange,
+    style::{default_colors, text_marks, tick_marks},
 };
 use iced::Color;
 

@@ -1,8 +1,8 @@
 use iced::{
-    advanced::{text::Renderer as _, Text},
+    Pixels, Point, Rectangle, Renderer, Size,
+    advanced::{Text, text::Renderer as _},
     alignment::Vertical,
     widget::text::{Alignment, LineHeight, Shaping, Wrapping},
-    Pixels, Point, Rectangle, Renderer, Size,
 };
 
 use super::Group;

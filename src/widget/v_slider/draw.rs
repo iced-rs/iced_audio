@@ -1,16 +1,16 @@
 use crate::{
+    ModulationRange, Normal,
     core::{text_marks, tick_marks},
     style::v_slider::{
         ClassicAppearance, ClassicRail, ModRangeAppearance, ModRangePlacement, RectAppearance,
         RectBipolarAppearance, TextMarksAppearance, TickMarksAppearance,
     },
     widget::v_slider::ValueMarkers,
-    ModulationRange, Normal,
 };
 use iced::{
-    advanced::{renderer::Quad, Renderer as _},
-    border::Radius,
     Border, Color, Rectangle, Renderer, Shadow,
+    advanced::{Renderer as _, renderer::Quad},
+    border::Radius,
 };
 
 #[cfg(feature = "texture")]
