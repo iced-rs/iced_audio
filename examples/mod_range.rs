@@ -237,7 +237,7 @@ impl ModRangeExample {
 
         let auto_input2 = ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
             .size(Length::from(15))
-            .style(style::mod_range_input::CustomStyle);
+            .style(iced_audio::mod_range_input::InvisibleStyle);
 
         let knob_auto2 = Knob::new(self.knob_auto2_param, Message::ModKnob2)
             .mod_range(&self.knob_auto2_mod_range)
@@ -246,16 +246,14 @@ impl ModRangeExample {
         // push the widgets into rows
         let knob_row = row![
             column![
-                text("Range Start"),
-                knob_start,
-                text("Range End"),
-                knob_end,
+                column![text("Range Start"), knob_start].spacing(8),
+                column![text("Range End"), knob_end].spacing(8),
                 checkbox(self.mod_range_toggle_value)
                     .label("Show Modulation")
                     .on_toggle(Message::ToggleModRange),
             ]
             .max_width(130)
-            .spacing(10),
+            .spacing(16),
             container(
                 column![knob1, h_slider1, v_slider1]
                     .max_width(130)
@@ -266,25 +264,27 @@ impl ModRangeExample {
             column![
                 column![
                     text("Custom Style with ModRangeInput"),
-                    auto_input1,
-                    knob_auto1,
+                    column![auto_input1, knob_auto1]
+                        .spacing(12)
+                        .align_x(Alignment::Center)
                 ]
                 .width(Length::Fill)
-                .spacing(14)
+                .spacing(8)
                 .align_x(Alignment::Center),
                 column![
-                    text("Custom Style with invisible ModRangeInput",),
-                    auto_input2,
-                    knob_auto2,
+                    text("Custom Style with invisible ModRangeInput"),
+                    column![auto_input2, knob_auto2]
+                        .spacing(0)
+                        .align_x(Alignment::Center)
                 ]
                 .width(Length::Fill)
-                .spacing(0)
+                .spacing(8)
                 .align_x(Alignment::Center)
             ]
             .width(Length::Fill)
-            .spacing(10),
+            .spacing(16),
         ]
-        .spacing(20);
+        .spacing(16);
 
         column![knob_row, text(&self.output_text).size(16)]
             .spacing(20)

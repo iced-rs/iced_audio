@@ -261,33 +261,26 @@ impl HSliderExample {
         // push the widgets into rows
         let h_slider_row = row![
             column![
-                text("Float Range"),
-                h_slider_float,
-                text("Log DB Range"),
-                h_slider_db,
-                text("Custom Style"),
-                h_slider_rect,
-                text("Custom Texture Style"),
-                h_slider_texture,
+                column![text("Float Range"), h_slider_float].spacing(14),
+                column![text("Log DB Range"), h_slider_db].spacing(14),
+                column![text("Custom Style"), h_slider_rect].spacing(14),
+                column![text("Custom Texture Style"), h_slider_texture].spacing(14),
             ]
             .width(Length::Fill)
-            .spacing(20),
+            .spacing(31),
             column![
-                text("Int Range"),
-                h_slider_int,
-                text("Freq Range"),
-                h_slider_freq,
-                text("Custom Bipolar Style"),
-                h_slider_rect_bp,
+                column![text("Int Range"), h_slider_int].spacing(14),
+                column![text("Freq Range"), h_slider_freq].spacing(14),
+                column![text("Custom Bipolar Style"), h_slider_rect_bp].spacing(14),
             ]
             .width(Length::Fill)
-            .spacing(20),
+            .spacing(31),
         ]
         .spacing(16);
 
         column![h_slider_row, text(&self.output_text).size(16),]
             .spacing(20)
-            .padding(20)
+            .padding(31)
             .into()
     }
 }

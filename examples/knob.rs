@@ -243,41 +243,32 @@ impl KnobExample {
         // push the widgets into rows
         let knob_row = row![
             column![
-                text("Float Range"),
-                knob_float,
-                text("Log DB Range"),
-                knob_db,
-                text("Custom Style 1"),
-                knob_style1,
+                column![text("Float Range"), knob_float].spacing(28),
+                column![text("Log DB Range"), knob_db].spacing(28),
+                column![text("Custom Style 1"), knob_style1].spacing(28),
             ]
             .width(Length::Fill)
-            .spacing(20),
+            .spacing(32),
             column![
-                text("Int Range"),
-                knob_int,
-                text("Freq Range"),
-                knob_freq,
-                text("Custom Style 2"),
-                knob_style2,
+                column![text("Int Range"), knob_int].spacing(28),
+                column![text("Freq Range"), knob_freq].spacing(28),
+                column![text("Custom Style 2"), knob_style2].spacing(28),
             ]
             .width(Length::Fill)
-            .spacing(20),
+            .spacing(32),
             column![
-                text("Custom Style 3"),
-                knob_style3,
-                text("Custom Bipolar Style 4"),
-                knob_style4,
-                text("Custom Bipolar Style 5 (Off-Center)"),
-                knob_style5,
+                column![text("Custom Style 3"), knob_style3].spacing(28),
+                column![text("Custom BP Style 4"), knob_style4].spacing(28),
+                column![text("Custom BP Style 5"), knob_style5].spacing(28),
             ]
             .width(Length::Fill)
-            .spacing(20)
+            .spacing(32)
         ]
         .spacing(20);
 
         column![knob_row, text(&self.output_text).size(16)]
             .spacing(20)
-            .padding(20)
+            .padding(31)
             .into()
     }
 }

@@ -85,6 +85,29 @@ pub trait StyleSheet {
     fn dragging(&self, style: &Self::Style) -> Appearance;
 }
 
+/// A style for a [`ModRangeInput`] that makes it invisible but still interactable.
+/// Useful if placed right on top of a [`Knob`] with an [`ModRangeRingStyle`].
+///
+/// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
+/// [`Knob`]: ../../native/knob/struct.Knob.html
+/// [`ModRangeRingStyle`]: ../knob/struct.ModRangeRingStyle.html
+pub struct InvisibleStyle;
+impl StyleSheet for InvisibleStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Invisible
+    }
+
+    fn hovered(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Invisible
+    }
+
+    fn dragging(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Invisible
+    }
+}
+
 /// The style of a [`ModRangeInput`].
 #[derive(Default)]
 pub enum ModRangeInput {

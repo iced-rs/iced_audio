@@ -16,7 +16,7 @@ use iced::{
 };
 
 pub use crate::style::mod_range_input::{
-    Appearance, CircleAppearance, SquareAppearance, StyleSheet,
+    Appearance, CircleAppearance, InvisibleStyle, SquareAppearance, StyleSheet,
 };
 
 static DEFAULT_SIZE: f32 = 10.0;
