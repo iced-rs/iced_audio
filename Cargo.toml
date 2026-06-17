@@ -16,6 +16,10 @@ documentation = "https://docs.rs/iced_audio"
 repository = "https://github.com/iced-rs/iced_audio"
 readme = "README.md"
 
+# Show documentation with all features enabled on docs.rs
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
 default = [
   "knob",
@@ -33,6 +37,8 @@ xy_pad = []
 mod_range_input = []
 # Enables the texture (image) style for sliders.
 texture = ["iced/image"]
+# only used for building docs
+docs = ["iced/x11", "iced/thread-pool"]
 
 [dependencies]
 iced = { version = "0.14.0", default-features = false, features = ["advanced", "canvas"] }
