@@ -34,6 +34,7 @@ where
 {
     normal_param: NormalParam,
     size: Length,
+    enabled: bool,
     on_change: Box<dyn 'a + Fn(Normal) -> Message>,
     on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
     on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
@@ -64,6 +65,7 @@ where
         ModRangeInput {
             normal_param,
             size: Length::Fixed(DEFAULT_SIZE),
+            enabled: true,
             on_change: Box::new(on_change),
             on_grab: None,
             on_release: None,
@@ -163,6 +165,14 @@ where
     /// [`ModRangeInput`]: struct.ModRangeInput.html
     pub fn modifier_scalar(mut self, scalar: f32) -> Self {
         self.modifier_scalar = scalar;
+        self
+    }
+
+    /// Enable/disable this widget.
+    ///
+    /// The default is `true`.
+    pub const fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
         self
     }
 
@@ -272,6 +282,10 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
+        if !self.enabled {
+            return;
+        }
+
         let state = tree.state.downcast_mut::<State>();
 
         let is_over = cursor.is_over(layout.bounds());
@@ -437,7 +451,9 @@ where
         let bounds = layout.bounds();
         let is_over = cursor.is_over(layout.bounds());
 
-        let appearance = if state.dragging_status.is_some() {
+        let appearance = if !self.enabled {
+            theme.disabled(&self.style)
+        } else if state.dragging_status.is_some() {
             theme.dragging(&self.style)
         } else if is_over {
             theme.hovered(&self.style)

@@ -32,4 +32,8 @@ impl mod_range_input::StyleSheet for CustomStyle {
     fn dragging(&self, style: &Self::Style) -> mod_range_input::Appearance {
         self.hovered(style)
     }
+
+    fn disabled(&self, style: &Self::Style) -> mod_range_input::Appearance {
+        mod_range_input::Appearance::Invisible
+    }
 }

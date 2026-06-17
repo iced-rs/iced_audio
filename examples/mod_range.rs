@@ -58,7 +58,7 @@ pub struct ModRangeExample {
     knob_auto2_param: NormalParam,
     knob_auto2_mod_range: ModulationRange,
 
-    mod_range_toggle_value: bool,
+    show_modulation: bool,
 
     output_text: String,
 }
@@ -98,7 +98,7 @@ impl Default for ModRangeExample {
             output_text: String::from("Move a widget"),
             knob_auto2_mod_range: ModulationRange::default(),
 
-            mod_range_toggle_value: true,
+            show_modulation: true,
         }
     }
 }
@@ -197,7 +197,7 @@ impl ModRangeExample {
                     .set_clipped(self.knob_auto2_param.value.as_f32() + value);
             }
             Message::ToggleModRange(toggle) => {
-                self.mod_range_toggle_value = toggle;
+                self.show_modulation = toggle;
 
                 self.mod_range_1.filled_visible = toggle;
                 self.knob_auto1_mod_range.filled_visible = toggle;
@@ -229,7 +229,8 @@ impl ModRangeExample {
 
         let auto_input1 = ModRangeInput::new(self.auto_input1_param, Message::ModRangeInput1)
             .size(Length::from(10))
-            .style(style::mod_range_input::CustomStyle);
+            .style(style::mod_range_input::CustomStyle)
+            .enabled(self.show_modulation);
 
         let knob_auto1 = Knob::new(self.knob_auto1_param, Message::ModKnob1)
             .mod_range(&self.knob_auto1_mod_range)
@@ -237,7 +238,8 @@ impl ModRangeExample {
 
         let auto_input2 = ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
             .size(Length::from(15))
-            .style(iced_audio::mod_range_input::InvisibleStyle);
+            .style(iced_audio::mod_range_input::InvisibleStyle)
+            .enabled(self.show_modulation);
 
         let knob_auto2 = Knob::new(self.knob_auto2_param, Message::ModKnob2)
             .mod_range(&self.knob_auto2_mod_range)
@@ -248,7 +250,7 @@ impl ModRangeExample {
             column![
                 column![text("Range Start"), knob_start].spacing(8),
                 column![text("Range End"), knob_end].spacing(8),
-                checkbox(self.mod_range_toggle_value)
+                checkbox(self.show_modulation)
                     .label("Show Modulation")
                     .on_toggle(Message::ToggleModRange),
             ]

@@ -83,6 +83,11 @@ pub trait StyleSheet {
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
     fn dragging(&self, style: &Self::Style) -> Appearance;
+
+    /// Produces the style of a [`ModRangeInput`] that is currently disabled.
+    ///
+    /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
+    fn disabled(&self, style: &Self::Style) -> Appearance;
 }
 
 /// A style for a [`ModRangeInput`] that makes it invisible but still interactable.
@@ -104,6 +109,10 @@ impl StyleSheet for InvisibleStyle {
     }
 
     fn dragging(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Invisible
+    }
+
+    fn disabled(&self, _style: &Self::Style) -> Appearance {
         Appearance::Invisible
     }
 }
@@ -156,6 +165,14 @@ impl StyleSheet for Theme {
             ModRangeInput::Default => self.hovered(style),
             ModRangeInput::Invisible => self.active(style),
             ModRangeInput::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        match style {
+            ModRangeInput::Default => Appearance::Circle(Default::default()),
+            ModRangeInput::Invisible => Appearance::Invisible,
+            ModRangeInput::Custom(custom) => custom.disabled(self),
         }
     }
 }
