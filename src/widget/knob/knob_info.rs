@@ -1,5 +1,5 @@
 use crate::Normal;
-use iced::Rectangle;
+use iced_core::Rectangle;
 
 pub struct KnobInfo {
     pub bounds: Rectangle,

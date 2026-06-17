@@ -1,6 +1,5 @@
-use iced::{
-    Pixels, Point, Rectangle, Renderer, Size,
-    advanced::{Text, text::Renderer as _},
+use iced_core::{
+    Pixels, Point, Rectangle, Size, Text,
     alignment::Vertical,
     widget::text::{Alignment, LineHeight, Shaping, Wrapping},
 };
@@ -21,8 +20,8 @@ use crate::style::text_marks::Appearance;
 /// * `inverse` - Whether to inverse the positions of the text marks (true) or
 ///   not (false).
 #[allow(clippy::too_many_arguments)]
-pub fn draw_radial_text_marks(
-    renderer: &mut Renderer,
+pub fn draw_radial_text_marks<R: iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     center: Point,
     radius: f32,
     start_angle: f32,

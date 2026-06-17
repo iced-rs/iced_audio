@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.13.0"
+version = "0.13.1"
 authors = [
   "Billy Messenger <https://github.com/BillyDM>",
   "Michał Kalbarczyk <https://github.com/fazibear>",
@@ -21,7 +21,8 @@ readme = "README.md"
 all-features = true
 
 [features]
-default = [
+default = ["all"]
+all = [
   "knob",
   "h_slider",
   "v_slider",
@@ -35,13 +36,10 @@ v_slider = []
 ramp = []
 xy_pad = []
 mod_range_input = []
-# Enables the texture (image) style for sliders.
-texture = ["iced/image"]
-# only used for building docs
-docs = ["iced/x11", "iced/thread-pool"]
 
 [dependencies]
-iced = { version = "0.14.0", default-features = false, features = ["advanced", "canvas"] }
+iced_core = { version = "0.14.0", default-features = false, features = [] }
+iced_graphics = { version = "0.14.0", default-features = false, features = ["geometry"] }
 
 [dev-dependencies]
-iced = { version = "0.14.0", default-features = true }
+iced = { version = "0.14.0", features = ["advanced", "canvas", "image"] }

@@ -1,5 +1,5 @@
 use crate::{Normal, SliderStatus};
-use iced::{advanced::mouse, keyboard};
+use iced_core::{keyboard, mouse};
 
 /// The local state of a [`VSlider`].
 ///

@@ -1412,9 +1412,11 @@ dependencies = [
 
 [[package]]
 name = "iced_audio"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "iced",
+ "iced_core",
+ "iced_graphics",
 ]
 
 [[package]]

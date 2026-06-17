@@ -4,16 +4,14 @@
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use crate::core::{Normal, NormalParam, SliderStatus};
-use iced::{
-    Border, Color, Element, Event, Length, Rectangle, Renderer, Shadow, Size,
-    advanced::{
-        Clipboard, Layout, Renderer as _, Shell, Widget,
-        graphics::core::{keyboard, touch},
-        layout, mouse,
-        renderer::{Quad, Style},
-        widget::{Tree, tree},
-    },
+use iced_core::{
+    Border, Clipboard, Color, Element, Event, Layout, Length, Rectangle, Shadow, Shell, Size,
+    Widget,
     border::Radius,
+    keyboard, layout, mouse,
+    renderer::{Quad, Style},
+    touch,
+    widget::{Tree, tree},
 };
 
 pub use crate::style::xy_pad::{Appearance, HandleCircle, HandleShape, HandleSquare, StyleSheet};
@@ -191,10 +189,11 @@ impl State {
     }
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for XYPad<'a, Message, Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for XYPad<'a, Message, Theme>
 where
     Message: 'a + Clone,
     Theme: StyleSheet,
+    Renderer: iced_core::Renderer,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -592,10 +591,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<XYPad<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<XYPad<'a, Message, Theme>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a + StyleSheet,
+    Renderer: iced_core::Renderer,
 {
     fn from(xy_pad: XYPad<'a, Message, Theme>) -> Self {
         Self::new(xy_pad)

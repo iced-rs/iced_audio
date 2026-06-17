@@ -3,15 +3,12 @@ use crate::{
     core::Normal,
     style::tick_marks::{Appearance, Shape},
 };
-use iced::{
-    Color, Point, Renderer, Size, Vector,
-    advanced::{Renderer as _, graphics::geometry::Renderer as _},
-    widget::canvas::{self, Fill, Frame, LineCap, Path, Stroke},
-};
+use iced_core::{Color, Point, Size, Vector};
+use iced_graphics::geometry::{self, Fill, Frame, LineCap, Path, Renderer, Stroke};
 
 #[allow(clippy::too_many_arguments)]
-fn draw_radial_circles(
-    frame: &mut Frame,
+fn draw_radial_circles<R: Renderer>(
+    frame: &mut Frame<R>,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -34,7 +31,7 @@ fn draw_radial_circles(
                 frame.fill(
                     &path,
                     Fill {
-                        style: canvas::Style::Solid(color),
+                        style: geometry::Style::Solid(color),
                         ..Fill::default()
                     },
                 );
@@ -52,7 +49,7 @@ fn draw_radial_circles(
                 frame.fill(
                     &path,
                     Fill {
-                        style: canvas::Style::Solid(color),
+                        style: geometry::Style::Solid(color),
                         ..Fill::default()
                     },
                 );
@@ -62,8 +59,8 @@ fn draw_radial_circles(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_radial_lines(
-    frame: &mut Frame,
+fn draw_radial_lines<R: Renderer>(
+    frame: &mut Frame<R>,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -91,7 +88,7 @@ fn draw_radial_lines(
                     &path,
                     Stroke {
                         width,
-                        style: canvas::Style::Solid(color),
+                        style: geometry::Style::Solid(color),
                         line_cap: LineCap::Butt,
                         ..Stroke::default()
                     },
@@ -111,7 +108,7 @@ fn draw_radial_lines(
                     &path,
                     Stroke {
                         width,
-                        style: canvas::Style::Solid(color),
+                        style: geometry::Style::Solid(color),
                         line_cap: LineCap::Butt,
                         ..Stroke::default()
                     },
@@ -123,8 +120,8 @@ fn draw_radial_lines(
 
 #[inline]
 #[allow(clippy::too_many_arguments)]
-fn draw_tier(
-    frame: &mut Frame,
+fn draw_tier<R: Renderer>(
+    frame: &mut Frame<R>,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -236,8 +233,8 @@ fn max_length(style: &Appearance) -> f32 {
 /// * `inverse` - Whether to inverse the positions of the tick marks (true) or
 ///   not (false).
 #[allow(clippy::too_many_arguments)]
-pub fn draw_radial_tick_marks(
-    renderer: &mut Renderer,
+pub fn draw_radial_tick_marks<R: Renderer>(
+    renderer: &mut R,
     center: Point,
     radius: f32,
     start_angle: f32,

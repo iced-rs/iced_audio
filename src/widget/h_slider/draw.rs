@@ -1,24 +1,17 @@
-use iced::{
-    Border, Color, Rectangle, Renderer, Shadow,
-    advanced::{Renderer as _, renderer::Quad},
-    border::Radius,
-};
+use iced_core::{Border, Color, Rectangle, Shadow, border::Radius, renderer::Quad};
 
 use crate::{
     ModulationRange, Normal,
     core::{text_marks, tick_marks},
     style::h_slider::{
         ClassicAppearance, ClassicRail, ModRangeAppearance, ModRangePlacement, RectAppearance,
-        RectBipolarAppearance, TextMarksAppearance, TickMarksAppearance,
+        RectBipolarAppearance, TextMarksAppearance, TextureAppearance, TickMarksAppearance,
     },
     widget::h_slider::ValueMarkers,
 };
 
-#[cfg(feature = "texture")]
-use crate::style::h_slider::TextureAppearance;
-
-fn markers(
-    renderer: &mut Renderer,
+fn markers<R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     mark_bounds: &Rectangle,
     mod_bounds: &Rectangle,
     value_markers: &ValueMarkers<'_>,
@@ -54,8 +47,8 @@ fn markers(
     );
 }
 
-fn tick_marks(
-    renderer: &mut Renderer,
+fn tick_marks<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     tick_marks: Option<&tick_marks::Group>,
     tick_marks_style: &Option<TickMarksAppearance>,
@@ -76,8 +69,8 @@ fn tick_marks(
     }
 }
 
-fn text_marks(
-    renderer: &mut Renderer,
+fn text_marks<R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     bounds: &Rectangle,
     text_marks: Option<&text_marks::Group>,
     text_marks_style: &Option<TextMarksAppearance>,
@@ -98,8 +91,8 @@ fn text_marks(
     }
 }
 
-fn modulation(
-    renderer: &mut Renderer,
+fn modulation<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     mod_range: Option<&ModulationRange>,
     style: &Option<ModRangeAppearance>,
@@ -182,9 +175,12 @@ fn modulation(
     }
 }
 
-#[cfg(feature = "texture")]
-pub fn texture_style(
-    renderer: &mut Renderer,
+pub fn texture_style<
+    R: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_core::image::Renderer<Handle = iced_core::image::Handle>,
+>(
+    renderer: &mut R,
     normal: Normal,
     bounds: &Rectangle,
     style: TextureAppearance,
@@ -192,8 +188,6 @@ pub fn texture_style(
     //tick_marks_cache: &tick_marks::PrimitiveCache,
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
-    use iced::advanced::image::Renderer;
-
     let value_bounds = Rectangle {
         x: (bounds.x + (f32::from(style.handle_width) / 2.0)).round(),
         y: bounds.y,
@@ -220,14 +214,14 @@ pub fn texture_style(
     };
 
     renderer.draw_image(
-        iced::advanced::image::Image::from(&style.image_handle),
+        iced_core::image::Image::from(&style.image_handle),
         bounds,
         bounds,
     );
 }
 
-pub fn classic_style(
-    renderer: &mut Renderer,
+pub fn classic_style<R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     normal: Normal,
     bounds: &Rectangle,
     style: &ClassicAppearance,
@@ -300,8 +294,8 @@ pub fn classic_style(
     }
 }
 
-pub fn rect_style(
-    renderer: &mut Renderer,
+pub fn rect_style<R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     normal: Normal,
     bounds: &Rectangle,
     style: &RectAppearance,
@@ -393,8 +387,10 @@ pub fn rect_style(
     );
 }
 
-pub fn rect_bipolar_style(
-    renderer: &mut Renderer,
+pub fn rect_bipolar_style<
+    R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>,
+>(
+    renderer: &mut R,
     normal: Normal,
     bounds: &Rectangle,
     style: &RectBipolarAppearance,
@@ -516,7 +512,7 @@ pub fn rect_bipolar_style(
     );
 }
 
-fn classic_rail(renderer: &mut Renderer, bounds: &Rectangle, style: &ClassicRail) {
+fn classic_rail<R: iced_core::Renderer>(renderer: &mut R, bounds: &Rectangle, style: &ClassicRail) {
     let (top_width, bottom_width) = style.rail_widths;
     let (top_color, bottom_color) = style.rail_colors;
 

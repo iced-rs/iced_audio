@@ -10,15 +10,13 @@ use crate::{
     core::{ModulationRange, Normal, NormalParam, SliderStatus},
     text_marks, tick_marks,
 };
-use iced::{
-    Element, Event, Length, Rectangle, Renderer, Size,
-    advanced::{
-        Clipboard, Layout, Shell, Widget,
-        graphics::core::{keyboard, touch},
-        layout, mouse,
-        renderer::Style,
-        widget::{Tree, tree},
-    },
+use iced_core::{
+    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget, keyboard,
+    layout::{self, Limits},
+    mouse,
+    renderer::Style,
+    touch,
+    widget::{Tree, tree},
 };
 use state::State;
 use value_markers::ValueMarkers;
@@ -26,11 +24,8 @@ use value_markers::ValueMarkers;
 pub use crate::style::h_slider::{
     Appearance, ClassicAppearance, ClassicHandle, ClassicRail, ModRangeAppearance,
     ModRangePlacement, RectAppearance, RectBipolarAppearance, StyleSheet, TextMarksAppearance,
-    TickMarksAppearance,
+    TextureAppearance, TickMarksAppearance,
 };
-
-#[cfg(feature = "texture")]
-pub use crate::style::h_slider::TextureAppearance;
 
 static DEFAULT_HEIGHT: f32 = 14.0;
 static DEFAULT_SCALAR: f32 = 0.9575;
@@ -278,9 +273,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for HSlider<'a, Message, Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for HSlider<'a, Message, Theme>
 where
     Theme: StyleSheet,
+    Renderer: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_core::image::Renderer<Handle = iced_core::image::Handle>,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -297,12 +295,7 @@ where
         }
     }
 
-    fn layout(
-        &mut self,
-        _tree: &mut Tree,
-        _renderer: &Renderer,
-        limits: &layout::Limits,
-    ) -> layout::Node {
+    fn layout(&mut self, _tree: &mut Tree, _renderer: &Renderer, limits: &Limits) -> layout::Node {
         layout::Node::new(limits.resolve(self.width, self.height, Size::ZERO))
     }
 
@@ -520,7 +513,6 @@ where
         let normal = self.normal_param.value;
 
         match appearance {
-            #[cfg(feature = "texture")]
             Appearance::Texture(style) => draw::texture_style(
                 renderer,
                 normal,
@@ -561,10 +553,14 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<HSlider<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<HSlider<'a, Message, Theme>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a + StyleSheet,
+    Renderer: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_core::image::Renderer<Handle = iced_core::image::Handle>,
 {
     fn from(h_slider: HSlider<'a, Message, Theme>) -> Self {
         Self::new(h_slider)

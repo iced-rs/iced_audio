@@ -5,15 +5,11 @@ use crate::{
     core::Normal,
     style::tick_marks::{Appearance, Placement, Shape},
 };
-use iced::{
-    Background, Border, Color, Rectangle, Renderer, Shadow,
-    advanced::{Renderer as _, renderer::Quad},
-    border::Radius,
-};
+use iced_core::{Background, Border, Color, Rectangle, Shadow, border::Radius, renderer::Quad};
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_lines(
-    renderer: &mut Renderer,
+fn draw_vertical_lines<R: iced_core::Renderer>(
+    renderer: &mut R,
     tick_marks: &[Normal],
     bounds_y: f32,
     bounds_height: f32,
@@ -72,8 +68,8 @@ fn draw_vertical_lines(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_circles(
-    renderer: &mut Renderer,
+fn draw_vertical_circles<R: iced_core::Renderer>(
+    renderer: &mut R,
     tick_marks: &[Normal],
     bounds_y: f32,
     bounds_height: f32,
@@ -132,8 +128,8 @@ fn draw_vertical_circles(
 }
 
 #[inline]
-fn draw_vertical_left_aligned_tier(
-    renderer: &mut Renderer,
+fn draw_vertical_left_aligned_tier<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
@@ -176,8 +172,8 @@ fn draw_vertical_left_aligned_tier(
     }
 }
 
-fn draw_vertical_left_aligned(
-    renderer: &mut Renderer,
+fn draw_vertical_left_aligned<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
@@ -211,8 +207,8 @@ fn draw_vertical_left_aligned(
 }
 
 #[inline]
-fn draw_vertical_right_aligned_tier(
-    renderer: &mut Renderer,
+fn draw_vertical_right_aligned_tier<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
@@ -255,8 +251,8 @@ fn draw_vertical_right_aligned_tier(
     }
 }
 
-fn draw_vertical_right_aligned(
-    renderer: &mut Renderer,
+fn draw_vertical_right_aligned<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
@@ -290,8 +286,8 @@ fn draw_vertical_right_aligned(
 }
 
 #[inline]
-fn draw_vertical_center_aligned_tier(
-    renderer: &mut Renderer,
+fn draw_vertical_center_aligned_tier<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
@@ -347,8 +343,8 @@ fn draw_vertical_center_aligned_tier(
     }
 }
 
-fn draw_vertical_center_aligned(
-    renderer: &mut Renderer,
+fn draw_vertical_center_aligned<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
@@ -387,8 +383,8 @@ fn draw_vertical_center_aligned(
 
 #[inline]
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_center_aligned_split_tier(
-    renderer: &mut Renderer,
+fn draw_vertical_center_aligned_split_tier<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
@@ -475,8 +471,8 @@ fn draw_vertical_center_aligned_split_tier(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_center_aligned_split(
-    renderer: &mut Renderer,
+fn draw_vertical_center_aligned_split<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
@@ -525,8 +521,8 @@ fn draw_vertical_center_aligned_split(
 /// * placement - The placement of the tick marks relative to the bounds.
 /// * inverse - Whether to inverse the positions of the tick marks (true) or
 ///   not (false).
-pub fn draw_vertical_tick_marks(
-    renderer: &mut Renderer,
+pub fn draw_vertical_tick_marks<R: iced_core::Renderer>(
+    renderer: &mut R,
     bounds: &Rectangle,
     tick_marks: &Group,
     style: &Appearance,

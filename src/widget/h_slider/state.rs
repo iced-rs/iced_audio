@@ -1,4 +1,4 @@
-use iced::{advanced::mouse, keyboard};
+use iced_core::{keyboard, mouse};
 
 use crate::Normal;
 

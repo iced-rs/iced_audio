@@ -1,6 +1,6 @@
 //! Colors for the default styles
 
-use iced::Color;
+use iced_core::Color;
 
 pub const BORDER: Color = Color::from_rgb(0.315, 0.315, 0.315);
 pub const LIGHT_BACK: Color = Color::from_rgb(0.97, 0.97, 0.97);

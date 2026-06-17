@@ -12,23 +12,20 @@ use crate::{
     core::{ModulationRange, Normal, NormalParam, SliderStatus},
     text_marks, tick_marks,
 };
-use iced::{
-    Element, Event, Length, Rectangle, Renderer, Size,
-    advanced::{
-        Clipboard, Layout, Shell, Widget,
-        graphics::core::{keyboard, touch},
-        layout, mouse,
-        renderer::Style,
-        widget::{Tree, tree},
-    },
+use iced_core::{
+    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget, keyboard, layout,
+    mouse,
+    renderer::Style,
+    touch,
+    widget::{Tree, tree},
 };
 use knob_info::KnobInfo;
 use state::State;
 use value_markers::ValueMarkers;
 
 pub use crate::style::knob::{
-    Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineCap,
-    LineNotch, ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
+    Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
+    ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
     TickMarksAppearance, ValueArcAppearance,
 };
 
@@ -275,10 +272,13 @@ where
     }
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
 where
     Message: 'a + Clone,
     Theme: StyleSheet,
+    Renderer: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -581,10 +581,14 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<Knob<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a + StyleSheet,
+    Renderer: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
 {
     fn from(knob: Knob<'a, Message, Theme>) -> Self {
         Self::new(knob)

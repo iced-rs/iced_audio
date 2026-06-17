@@ -3,7 +3,7 @@
 //! [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 
 use crate::style::default_colors;
-use iced::{Color, Theme};
+use iced_core::{Color, Theme};
 
 /// The appearance of an [`ModRangeInput`]
 ///
@@ -98,7 +98,7 @@ pub trait StyleSheet {
 /// [`ModRangeRingStyle`]: ../knob/struct.ModRangeRingStyle.html
 pub struct InvisibleStyle;
 impl StyleSheet for InvisibleStyle {
-    type Style = iced::Theme;
+    type Style = iced_core::Theme;
 
     fn active(&self, _style: &Self::Style) -> Appearance {
         Appearance::Invisible

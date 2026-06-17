@@ -43,12 +43,14 @@ If you wish to use `iced_audio` for audio plugins, check out these other crates:
 
 ## Crate features
 
+Note, you need to enable the `canvas` feature in iced for things to render properly. You also need to enable the `image` feature if you want to use the texture styles.
+
+* `all` (default) - Enables all widgets
 * `knob` (default) - Enables the knob widget
 * `h_slider` (default) - Enables the horizontal slider widget
 * `v_slider` (default) - Enables the vertical slider widget
 * `ramp` (default) - Enables the ramp widget
 * `xy_pad` (default) - Enables the XY pad widget
-* `texture` - Enables the texture (image) style for the horizontal/vertical slider widgets
 
 ## Contributing / Feedback
 Contributions are greatly appreciated! Before contributing, please read the official Iced [contributing guidelines](https://github.com/iced-rs/iced/blob/master/CONTRIBUTING.md).

@@ -3,7 +3,7 @@
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
 use crate::style::default_colors;
-use iced::Color;
+use iced_core::Color;
 
 /// The appearance of an [`XYPad`].
 ///
@@ -136,19 +136,19 @@ pub enum XYPad {
     #[default]
     Default,
     /// A custom style.
-    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+    Custom(Box<dyn StyleSheet<Style = iced_core::Theme>>),
 }
 
 impl<S> From<S> for XYPad
 where
-    S: 'static + StyleSheet<Style = iced::Theme>,
+    S: 'static + StyleSheet<Style = iced_core::Theme>,
 {
     fn from(val: S) -> Self {
         XYPad::Custom(Box::new(val))
     }
 }
 
-impl StyleSheet for iced::Theme {
+impl StyleSheet for iced_core::Theme {
     type Style = XYPad;
 
     fn active(&self, style: &Self::Style) -> Appearance {

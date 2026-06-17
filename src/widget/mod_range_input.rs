@@ -3,16 +3,13 @@
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use crate::core::{Normal, NormalParam, SliderStatus};
-use iced::{
-    Border, Element, Event, Length, Rectangle, Renderer, Shadow, Size,
-    advanced::{
-        Clipboard, Layout, Renderer as _, Shell, Widget,
-        graphics::core::{keyboard, touch},
-        layout, mouse,
-        renderer::{Quad, Style},
-        widget::{Tree, tree},
-    },
+use iced_core::{
+    Border, Clipboard, Element, Event, Layout, Length, Rectangle, Shadow, Shell, Size, Widget,
     border::Radius,
+    keyboard, layout, mouse,
+    renderer::{Quad, Style},
+    touch,
+    widget::{Tree, tree},
 };
 
 pub use crate::style::mod_range_input::{
@@ -243,9 +240,11 @@ impl State {
     }
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for ModRangeInput<'a, Message, Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer>
+    for ModRangeInput<'a, Message, Theme>
 where
     Theme: StyleSheet,
+    Renderer: iced_core::Renderer,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -517,11 +516,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<ModRangeInput<'a, Message, Theme>>
+impl<'a, Message, Theme, Renderer> From<ModRangeInput<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a + StyleSheet,
+    Renderer: iced_core::Renderer,
 {
     fn from(mod_range_input: ModRangeInput<'a, Message, Theme>) -> Self {
         Self::new(mod_range_input)

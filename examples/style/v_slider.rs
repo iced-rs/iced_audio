@@ -102,10 +102,8 @@ impl v_slider::StyleSheet for RectBipolarStyle {
 }
 
 // Custom style for the Texture VSlider
-
-#[cfg(feature = "texture")]
+//
 pub struct TextureStyle(pub iced::widget::image::Handle, pub Rectangle);
-#[cfg(feature = "texture")]
 impl v_slider::StyleSheet for TextureStyle {
     type Style = iced::Theme;
 

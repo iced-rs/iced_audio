@@ -3,7 +3,7 @@
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
 use crate::style::default_colors;
-use iced::Color;
+use iced_core::Color;
 
 /// The appearance of a [`Ramp`],
 ///
@@ -70,19 +70,19 @@ pub enum Ramp {
     #[default]
     Default,
     /// A custom style.
-    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+    Custom(Box<dyn StyleSheet<Style = iced_core::Theme>>),
 }
 
 impl<S> From<S> for Ramp
 where
-    S: 'static + StyleSheet<Style = iced::Theme>,
+    S: 'static + StyleSheet<Style = iced_core::Theme>,
 {
     fn from(val: S) -> Self {
         Ramp::Custom(Box::new(val))
     }
 }
 
-impl StyleSheet for iced::Theme {
+impl StyleSheet for iced_core::Theme {
     type Style = Ramp;
 
     fn active(&self, style: &Self::Style) -> Appearance {

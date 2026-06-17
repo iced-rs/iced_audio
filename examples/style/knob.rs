@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use iced::Color;
+use iced::{Color, widget::canvas::LineCap};
 use iced_audio::{knob, text_marks};
 
 use super::colors;
@@ -52,7 +52,7 @@ impl knob::StyleSheet for CustomStyleCircle {
             empty_color: Some(colors::KNOB_ARC_EMPTY),
             left_filled_color: colors::KNOB_ARC,
             right_filled_color: None,
-            cap: knob::LineCap::Butt,
+            cap: LineCap::Butt,
         })
     }
 
@@ -67,7 +67,7 @@ impl knob::StyleSheet for CustomStyleCircle {
             //empty_color: Some(colors::KNOB_ARC_EMPTY),
             filled_color: colors::KNOB_ARC_RIGHT,
             filled_inverse_color: colors::KNOB_ARC_RIGHT,
-            cap: knob::LineCap::Butt,
+            cap: LineCap::Butt,
         })
     }
 
@@ -96,7 +96,7 @@ impl CustomStyleLine {
         width: knob::StyleLength::Fixed(3.5),
         length: knob::StyleLength::Scaled(0.12),
         offset: knob::StyleLength::Fixed(5.0),
-        cap: knob::LineCap::Round,
+        cap: LineCap::Round,
     };
     const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
         color: colors::KNOB,
@@ -124,11 +124,10 @@ impl knob::StyleSheet for CustomStyleLine {
         Some(knob::ValueArcAppearance {
             width: 2.5,
             offset: 2.0,
-            empty_color: None,
-            //empty_color: Some(colors::KNOB_ARC_EMPTY),
+            empty_color: Some(colors::KNOB_ARC_EMPTY),
             left_filled_color: colors::KNOB_ARC,
             right_filled_color: Some(colors::KNOB_ARC_RIGHT),
-            cap: knob::LineCap::Round,
+            cap: LineCap::Round,
         })
     }
 }
@@ -148,10 +147,10 @@ impl knob::StyleSheet for CustomArc {
                 color: colors::KNOB_ARC,
                 width: knob::StyleLength::Fixed(3.15),
                 length: knob::StyleLength::Scaled(0.25),
-                cap: knob::LineCap::Round,
+                cap: LineCap::Round,
                 offset: knob::StyleLength::Fixed(2.5),
             }),
-            cap: knob::LineCap::Round,
+            cap: LineCap::Round,
         })
     }
 
@@ -178,7 +177,7 @@ impl knob::StyleSheet for CustomArc {
             //empty_color: Some(colors::KNOB_ARC_EMPTY),
             filled_color: colors::KNOB_ARC,
             filled_inverse_color: colors::KNOB_ARC_RIGHT,
-            cap: knob::LineCap::Round,
+            cap: LineCap::Round,
         })
     }
 }
@@ -191,7 +190,7 @@ impl CustomArcBipolar {
         color: colors::KNOB_ARC_EMPTY,
         width: knob::StyleLength::Fixed(3.15),
         length: knob::StyleLength::Scaled(0.39),
-        cap: knob::LineCap::Butt,
+        cap: LineCap::Butt,
         offset: knob::StyleLength::Fixed(0.0),
     };
 }
@@ -215,7 +214,7 @@ impl knob::StyleSheet for CustomArcBipolar {
                     ..Self::NOTCH_CENTER
                 }),
             )),
-            cap: knob::LineCap::Butt,
+            cap: LineCap::Butt,
         })
     }
 

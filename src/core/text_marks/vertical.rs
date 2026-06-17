@@ -2,15 +2,14 @@ use crate::{
     style::text_marks::{Align, Appearance, Placement},
     text_marks::Group,
 };
-use iced::{
-    Pixels, Point, Rectangle, Renderer, Size,
-    advanced::{Text, text::Renderer as _},
+use iced_core::{
+    Pixels, Point, Rectangle, Size, Text,
     alignment::Vertical,
     widget::text::{Alignment, LineHeight, Shaping, Wrapping},
 };
 
-fn draw_aligned(
-    renderer: &mut Renderer,
+fn draw_aligned<R: iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     bounds: &Rectangle,
     x: f32,
     text_marks: &Group,
@@ -95,8 +94,8 @@ fn draw_aligned(
 /// * placement - The placement of the text marks relative to the bounds.
 /// * inverse - Whether to inverse the positions of the text marks (true) or
 ///   not (false).
-pub fn draw_vertical_text_marks(
-    renderer: &mut Renderer,
+pub fn draw_vertical_text_marks<R: iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     bounds: &Rectangle,
     text_marks: &Group,
     style: &Appearance,

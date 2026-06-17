@@ -29,7 +29,6 @@ enum Message {
     Freq(Normal),
     RectStyle(Normal),
     RectBipolarStyle(Normal),
-    #[cfg(feature = "texture")]
     TextureStyle(Normal),
 }
 
@@ -46,10 +45,8 @@ pub struct VSliderExample {
     freq_param: NormalParam,
     rect_param: NormalParam,
     rect_bp_param: NormalParam,
-    #[cfg(feature = "texture")]
     texture_param: NormalParam,
 
-    #[cfg(feature = "texture")]
     v_slider_texture_handle: iced::widget::image::Handle,
 
     float_tick_marks: tick_marks::Group,
@@ -91,10 +88,8 @@ impl Default for VSliderExample {
             freq_param: freq_range.normal_param(1000.0, 1000.0),
             rect_param: float_range.default_normal_param(),
             rect_bp_param: float_range_bp.default_normal_param(),
-            #[cfg(feature = "texture")]
             texture_param: float_range_bp.default_normal_param(),
 
-            #[cfg(feature = "texture")]
             v_slider_texture_handle: format!(
                 "{}/examples/images/iced_v_slider.png",
                 env!("CARGO_MANIFEST_DIR")
@@ -195,7 +190,6 @@ impl VSliderExample {
                     self.float_range_bp.unmap_to_value(normal),
                 );
             }
-            #[cfg(feature = "texture")]
             Message::TextureStyle(normal) => {
                 self.texture_param.update(normal);
 
@@ -235,7 +229,6 @@ impl VSliderExample {
             .width(Length::Fixed(24.0))
             .style(style::v_slider::RectBipolarStyle);
 
-        #[cfg(feature = "texture")]
         let v_slider_texture = VSlider::new(self.texture_param, Message::TextureStyle)
             .tick_marks(&self.float_tick_marks)
             .text_marks(&self.float_text_marks)
@@ -253,9 +246,6 @@ impl VSliderExample {
                     height: 38.0,
                 },
             ));
-
-        #[cfg(not(feature = "texture"))]
-        let v_slider_texture = text("(enable the \"texture\" feature)");
 
         // push the widgets into rows
         let v_slider_row = container(

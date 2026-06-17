@@ -8,15 +8,17 @@ use crate::{
     text_marks, tick_marks,
     widget::knob::{KnobInfo, ValueMarkers, bipolar_state::BipolarState},
 };
-use iced::{
-    Border, Point, Radians, Rectangle, Renderer, Shadow, Size, Vector,
-    advanced::{Renderer as _, graphics::geometry::Renderer as _, renderer::Quad},
-    border::Radius,
-    widget::canvas::{self, Frame, Path, Stroke, path::Arc},
+use iced_core::{
+    Border, Point, Radians, Rectangle, Shadow, Size, Vector, border::Radius, renderer::Quad,
 };
+use iced_graphics::geometry::{self, Frame, Path, Stroke, path::Arc};
 
-pub fn markers(
-    renderer: &mut Renderer,
+pub fn markers<
+    R: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
+>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     value_markers: &ValueMarkers<'_>,
     //tick_marks_cache: &tick_marks::PrimitiveCache,
@@ -54,8 +56,8 @@ pub fn markers(
     );
 }
 
-fn tick_marks(
-    renderer: &mut Renderer,
+fn tick_marks<R: iced_core::Renderer + iced_graphics::geometry::Renderer>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     tick_marks: Option<&tick_marks::Group>,
     style: &Option<TickMarksAppearance>,
@@ -79,8 +81,8 @@ fn tick_marks(
     }
 }
 
-fn text_marks(
-    renderer: &mut Renderer,
+fn text_marks<R: iced_core::Renderer + iced_core::text::Renderer<Font = iced_core::Font>>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     text_marks: Option<&text_marks::Group>,
     style: &Option<TextMarksAppearance>,
@@ -107,7 +109,11 @@ fn text_marks(
     }
 }
 
-fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<ValueArcAppearance>) {
+fn value_arc<R: iced_core::Renderer + iced_graphics::geometry::Renderer>(
+    renderer: &mut R,
+    knob_info: &KnobInfo,
+    style: &Option<ValueArcAppearance>,
+) {
     if let Some(style) = style {
         let half_width = style.width / 2.0;
 
@@ -124,7 +130,7 @@ fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<Value
         if let Some(empty_color) = style.empty_color {
             let empty_stroke = Stroke {
                 width: style.width,
-                style: canvas::Style::Solid(empty_color),
+                style: geometry::Style::Solid(empty_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -148,7 +154,7 @@ fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<Value
                 if knob_info.value < Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
-                        style: canvas::Style::Solid(style.left_filled_color),
+                        style: geometry::Style::Solid(style.left_filled_color),
                         line_cap: style.cap,
                         ..Stroke::default()
                     };
@@ -166,7 +172,7 @@ fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<Value
                 } else if knob_info.value > Normal::CENTER {
                     let filled_stroke = Stroke {
                         width: style.width,
-                        style: canvas::Style::Solid(right_filled_color),
+                        style: geometry::Style::Solid(right_filled_color),
                         line_cap: style.cap,
                         ..Stroke::default()
                     };
@@ -186,7 +192,7 @@ fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<Value
         } else if knob_info.value != Normal::MIN {
             let filled_stroke = Stroke {
                 width: style.width,
-                style: canvas::Style::Solid(style.left_filled_color),
+                style: geometry::Style::Solid(style.left_filled_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -217,8 +223,8 @@ fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<Value
     }
 }
 
-fn mod_range_arc(
-    renderer: &mut Renderer,
+fn mod_range_arc<R: iced_core::Renderer + iced_graphics::geometry::Renderer>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     style: &Option<ModRangeArcAppearance>,
     mod_range: Option<&ModulationRange>,
@@ -239,7 +245,7 @@ fn mod_range_arc(
         if let Some(empty_color) = style.empty_color {
             let empty_stroke = Stroke {
                 width: style.width,
-                style: canvas::Style::Solid(empty_color),
+                style: geometry::Style::Solid(empty_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -273,7 +279,7 @@ fn mod_range_arc(
 
             let filled_stroke = Stroke {
                 width: style.width,
-                style: canvas::Style::Solid(color),
+                style: geometry::Style::Solid(color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -304,7 +310,11 @@ fn mod_range_arc(
     }
 }
 
-fn circle_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &CircleNotch) {
+fn circle_notch<R: iced_core::Renderer>(
+    renderer: &mut R,
+    knob_info: &KnobInfo,
+    style: &CircleNotch,
+) {
     let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
     let (dx, dy) = if !(-0.001..=0.001).contains(&value_angle) {
@@ -338,12 +348,16 @@ fn circle_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &CircleNot
     );
 }
 
-fn line_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &LineNotch) {
+fn line_notch<R: iced_core::Renderer + iced_graphics::geometry::Renderer>(
+    renderer: &mut R,
+    knob_info: &KnobInfo,
+    style: &LineNotch,
+) {
     let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
     let stroke = Stroke {
         width: style.width.from_knob_diameter(knob_info.bounds.width),
-        style: canvas::Style::Solid(style.color),
+        style: geometry::Style::Solid(style.color),
         line_cap: style.cap,
         ..Stroke::default()
     };
@@ -380,7 +394,11 @@ fn line_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &LineNotch) 
     );
 }
 
-fn notch(renderer: &mut Renderer, knob_info: &KnobInfo, notch: &NotchShape) {
+fn notch<R: iced_core::Renderer + iced_graphics::geometry::Renderer>(
+    renderer: &mut R,
+    knob_info: &KnobInfo,
+    notch: &NotchShape,
+) {
     match notch {
         NotchShape::Circle(style) => circle_notch(renderer, knob_info, style),
         NotchShape::Line(style) => line_notch(renderer, knob_info, style),
@@ -388,8 +406,12 @@ fn notch(renderer: &mut Renderer, knob_info: &KnobInfo, notch: &NotchShape) {
     }
 }
 
-pub fn circle_style(
-    renderer: &mut Renderer,
+pub fn circle_style<
+    R: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
+>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     style: CircleAppearance,
     value_markers: &ValueMarkers<'_>,
@@ -421,8 +443,12 @@ pub fn circle_style(
     notch(renderer, knob_info, &style.notch);
 }
 
-pub fn arc_style(
-    renderer: &mut Renderer,
+pub fn arc_style<
+    R: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
+>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     style: ArcAppearance,
     value_markers: &ValueMarkers<'_>,
@@ -449,7 +475,7 @@ pub fn arc_style(
 
     let empty_stroke = Stroke {
         width,
-        style: canvas::Style::Solid(style.empty_color),
+        style: geometry::Style::Solid(style.empty_color),
         line_cap: style.cap,
         ..Stroke::default()
     };
@@ -467,7 +493,7 @@ pub fn arc_style(
 
     let filled_stroke = Stroke {
         width,
-        style: canvas::Style::Solid(style.filled_color),
+        style: geometry::Style::Solid(style.filled_color),
         line_cap: style.cap,
         ..Stroke::default()
     };
@@ -495,8 +521,12 @@ pub fn arc_style(
     notch(renderer, knob_info, &style.notch);
 }
 
-pub fn arc_bipolar_style(
-    renderer: &mut Renderer,
+pub fn arc_bipolar_style<
+    R: iced_core::Renderer
+        + iced_core::text::Renderer<Font = iced_core::Font>
+        + iced_graphics::geometry::Renderer,
+>(
+    renderer: &mut R,
     knob_info: &KnobInfo,
     style: ArcBipolarAppearance,
     value_markers: &ValueMarkers<'_>,
@@ -525,7 +555,7 @@ pub fn arc_bipolar_style(
 
     let empty_stroke = Stroke {
         width,
-        style: canvas::Style::Solid(style.empty_color),
+        style: geometry::Style::Solid(style.empty_color),
         line_cap: style.cap,
         ..Stroke::default()
     };
@@ -551,7 +581,7 @@ pub fn arc_bipolar_style(
         BipolarState::Left => {
             let filled_stroke = Stroke {
                 width,
-                style: canvas::Style::Solid(style.left_filled_color),
+                style: geometry::Style::Solid(style.left_filled_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };
@@ -570,7 +600,7 @@ pub fn arc_bipolar_style(
         BipolarState::Right => {
             let filled_stroke = Stroke {
                 width,
-                style: canvas::Style::Solid(style.right_filled_color),
+                style: geometry::Style::Solid(style.right_filled_color),
                 line_cap: style.cap,
                 ..Stroke::default()
             };

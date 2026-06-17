@@ -6,15 +6,16 @@ use crate::{
     Offset,
     style::{default_colors, text_marks, tick_marks},
 };
-use iced::Color;
+use iced_core::{Color, Rectangle, image::Handle};
 
 /// The appearance of a [`VSlider`].
 ///
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 #[derive(Debug, Clone)]
 pub enum Appearance {
-    /// uses an image texture for the handle
-    #[cfg(feature = "texture")]
+    /// Uses an image texture for the handle
+    ///
+    /// The `image` feature in Iced must be enabled for this to show up
     Texture(TextureAppearance),
     /// modeled after hardware sliders
     Classic(ClassicAppearance),
@@ -41,7 +42,6 @@ pub struct ClassicRail {
 /// [`Appearance`]: enum.Appearance.html
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
-#[cfg(feature = "texture")]
 #[derive(Debug, Clone)]
 pub struct TextureAppearance {
     /// The rail style
@@ -49,12 +49,12 @@ pub struct TextureAppearance {
     /// The [`Handle`] to the image texture
     ///
     /// [`Handle`]: https://docs.rs/iced/latest/iced/pure/widget/image/struct.Handle.html
-    pub image_handle: iced::widget::image::Handle,
+    pub image_handle: Handle,
     /// The effective height of the handle (not including any padding on the texture)
     pub handle_height: u16,
     /// The bounds of the image texture, where the origin is in the
     /// center of the handle.
-    pub image_bounds: iced::Rectangle,
+    pub image_bounds: Rectangle,
 }
 
 /// A classic [`Appearance`] for a [`VSlider`], modeled after hardware sliders
@@ -331,19 +331,19 @@ pub enum VSlider {
     #[default]
     Default,
     /// A custom style.
-    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+    Custom(Box<dyn StyleSheet<Style = iced_core::Theme>>),
 }
 
 impl<S> From<S> for VSlider
 where
-    S: 'static + StyleSheet<Style = iced::Theme>,
+    S: 'static + StyleSheet<Style = iced_core::Theme>,
 {
     fn from(val: S) -> Self {
         VSlider::Custom(Box::new(val))
     }
 }
 
-impl StyleSheet for iced::Theme {
+impl StyleSheet for iced_core::Theme {
     type Style = VSlider;
 
     fn active(&self, style: &Self::Style) -> Appearance {

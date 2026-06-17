@@ -6,9 +6,8 @@ use crate::{
     KnobAngleRange,
     style::{default_colors, text_marks, tick_marks},
 };
-use iced::Color;
-
-pub use iced::widget::canvas::{Canvas, LineCap};
+use iced_core::Color;
+use iced_graphics::geometry::LineCap;
 
 /// The appearance of a [`Knob`],
 ///
@@ -359,19 +358,19 @@ pub enum Knob {
     #[default]
     Default,
     /// A custom style.
-    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+    Custom(Box<dyn StyleSheet<Style = iced_core::Theme>>),
 }
 
 impl<S> From<S> for Knob
 where
-    S: 'static + StyleSheet<Style = iced::Theme>,
+    S: 'static + StyleSheet<Style = iced_core::Theme>,
 {
     fn from(val: S) -> Self {
         Knob::Custom(Box::new(val))
     }
 }
 
-impl StyleSheet for iced::Theme {
+impl StyleSheet for iced_core::Theme {
     type Style = Knob;
 
     fn active(&self, style: &Self::Style) -> Appearance {

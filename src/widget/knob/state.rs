@@ -1,4 +1,4 @@
-use iced::advanced::{graphics::core::keyboard, mouse};
+use iced_core::{keyboard, mouse};
 
 use crate::{Normal, SliderStatus};
 

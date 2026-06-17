@@ -4,21 +4,16 @@
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 use crate::core::{Normal, NormalParam, SliderStatus};
-use iced::{
-    Border, Element, Event, Length, Point, Rectangle, Renderer, Shadow, Size, Vector,
-    advanced::{
-        Clipboard, Layout, Renderer as _, Shell, Widget,
-        graphics::{
-            core::{keyboard, touch},
-            geometry::Renderer as _,
-        },
-        layout, mouse,
-        renderer::{Quad, Style},
-        widget::{Tree, tree},
-    },
+use iced_core::{
+    Border, Clipboard, Element, Event, Layout, Length, Point, Rectangle, Shadow, Shell, Size,
+    Vector, Widget,
     border::Radius,
-    widget::canvas::{self, Frame, LineCap, Path, Stroke},
+    keyboard, layout, mouse,
+    renderer::{Quad, Style},
+    touch,
+    widget::{Tree, tree},
 };
+use iced_graphics::geometry::{self, Frame, LineCap, Path, Stroke};
 
 pub use crate::style::ramp::{Appearance, StyleSheet};
 
@@ -269,10 +264,11 @@ impl State {
     }
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for Ramp<'a, Message, Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Ramp<'a, Message, Theme>
 where
     Message: 'a + Clone,
     Theme: StyleSheet,
+    Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -520,7 +516,7 @@ where
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_down_color),
+                        style: geometry::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -550,7 +546,7 @@ where
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_up_color),
+                        style: geometry::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -583,7 +579,7 @@ where
                 } else {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_center_color),
+                        style: geometry::Style::Solid(appearance.line_center_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -611,7 +607,7 @@ where
                 if normal.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_down_color),
+                        style: geometry::Style::Solid(appearance.line_down_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -642,7 +638,7 @@ where
                 } else if normal.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_up_color),
+                        style: geometry::Style::Solid(appearance.line_up_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -674,7 +670,7 @@ where
                 } else {
                     let stroke = Stroke {
                         width: appearance.line_width,
-                        style: canvas::Style::Solid(appearance.line_center_color),
+                        style: geometry::Style::Solid(appearance.line_center_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -702,10 +698,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<Ramp<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<Ramp<'a, Message, Theme>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a + StyleSheet,
+    Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {
     fn from(ramp: Ramp<'a, Message, Theme>) -> Self {
         Self::new(ramp)
