@@ -2,13 +2,13 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use iced_native::Color;
-//use iced_native::image;
+use crate::{
+    style::{default_colors, text_marks, tick_marks},
+    KnobAngleRange,
+};
+use iced::Color;
 
-pub use iced_graphics::widget::canvas::{Canvas, LineCap};
-
-use crate::style::{default_colors, text_marks, tick_marks};
-use crate::KnobAngleRange;
+pub use iced::widget::canvas::{Canvas, LineCap};
 
 /// The appearance of a [`Knob`],
 ///
@@ -277,7 +277,7 @@ impl std::default::Default for TextMarksAppearance {
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`Knob`].
     ///
@@ -308,10 +308,7 @@ pub trait StyleSheet {
     ///
     /// [`TickMarkGroup`]: ../../core/tick_marks/struct.TickMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn tick_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<TickMarksAppearance> {
+    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<TickMarksAppearance> {
         None
     }
 
@@ -320,10 +317,7 @@ pub trait StyleSheet {
     /// For no value arc, don't override this or set this to return `None`.
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn value_arc_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<ValueArcAppearance> {
+    fn value_arc_appearance(&self, _style: &Self::Style) -> Option<ValueArcAppearance> {
         None
     }
 
@@ -333,10 +327,7 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<ModRangeArcAppearance> {
+    fn mod_range_arc_appearance(&self, _style: &Self::Style) -> Option<ModRangeArcAppearance> {
         None
     }
 
@@ -346,10 +337,7 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn mod_range_arc_appearance_2(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<ModRangeArcAppearance> {
+    fn mod_range_arc_appearance_2(&self, _style: &Self::Style) -> Option<ModRangeArcAppearance> {
         None
     }
 
@@ -359,10 +347,117 @@ pub trait StyleSheet {
     ///
     /// [`TextMarkGroup`]: ../../core/text_marks/struct.TextMarkGroup.html
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn text_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<TextMarksAppearance> {
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
         None
+    }
+}
+
+/// The style of a Knob.
+#[derive(Default)]
+pub enum Knob {
+    /// The default style.
+    #[default]
+    Default,
+    /// A custom style.
+    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+}
+
+impl<S> From<S> for Knob
+where
+    S: 'static + StyleSheet<Style = iced::Theme>,
+{
+    fn from(val: S) -> Self {
+        Knob::Custom(Box::new(val))
+    }
+}
+
+impl StyleSheet for iced::Theme {
+    type Style = Knob;
+
+    fn active(&self, style: &Self::Style) -> Appearance {
+        match style {
+            Knob::Default => Appearance::Circle(Default::default()),
+            Knob::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        match style {
+            Knob::Default => Appearance::Circle(CircleAppearance {
+                color: default_colors::KNOB_BACK_HOVER,
+                ..Default::default()
+            }),
+            Knob::Custom(custom) => custom.hovered(self),
+        }
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        match style {
+            Knob::Default => self.hovered(style),
+            Knob::Custom(custom) => custom.dragging(self),
+        }
+    }
+
+    fn angle_range(&self, style: &Self::Style) -> KnobAngleRange {
+        match style {
+            Knob::Default => KnobAngleRange::default(),
+            Knob::Custom(custom) => custom.angle_range(self),
+        }
+    }
+
+    fn tick_marks_appearance(&self, style: &Self::Style) -> Option<TickMarksAppearance> {
+        match style {
+            Knob::Default => Some(TickMarksAppearance {
+                style: tick_marks::Appearance {
+                    tier_1: tick_marks::Shape::Circle {
+                        diameter: 4.0,
+                        color: default_colors::TICK_TIER_1,
+                    },
+                    tier_2: tick_marks::Shape::Circle {
+                        diameter: 2.0,
+                        color: default_colors::TICK_TIER_2,
+                    },
+                    tier_3: tick_marks::Shape::Circle {
+                        diameter: 2.0,
+                        color: default_colors::TICK_TIER_3,
+                    },
+                },
+                offset: 3.5,
+            }),
+            Knob::Custom(custom) => custom.tick_marks_appearance(self),
+        }
+    }
+
+    fn value_arc_appearance(&self, style: &Self::Style) -> Option<ValueArcAppearance> {
+        match style {
+            Knob::Default => None,
+            Knob::Custom(custom) => custom.value_arc_appearance(self),
+        }
+    }
+
+    fn mod_range_arc_appearance(&self, style: &Self::Style) -> Option<ModRangeArcAppearance> {
+        match style {
+            Knob::Default => None,
+            Knob::Custom(custom) => custom.mod_range_arc_appearance(self),
+        }
+    }
+
+    fn mod_range_arc_appearance_2(&self, style: &Self::Style) -> Option<ModRangeArcAppearance> {
+        match style {
+            Knob::Default => None,
+            Knob::Custom(custom) => custom.mod_range_arc_appearance_2(self),
+        }
+    }
+
+    fn text_marks_appearance(&self, style: &Self::Style) -> Option<TextMarksAppearance> {
+        match style {
+            Knob::Default => Some(TextMarksAppearance {
+                style: Default::default(),
+                offset: 14.0,
+                h_char_offset: 3.0,
+                v_offset: -0.75,
+            }),
+            Knob::Custom(custom) => custom.text_marks_appearance(self),
+        }
     }
 }

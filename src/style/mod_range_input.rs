@@ -2,9 +2,8 @@
 //!
 //! [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 
-use iced_native::Color;
-
 use crate::style::default_colors;
+use iced::{Color, Theme};
 
 /// The appearance of an [`ModRangeInput`]
 ///
@@ -68,7 +67,7 @@ pub struct SquareAppearance {
 /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`ModRangeInput`].
     ///
@@ -84,4 +83,56 @@ pub trait StyleSheet {
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
     fn dragging(&self, style: &Self::Style) -> Appearance;
+}
+
+/// The style of a [`ModRangeInput`].
+#[derive(Default)]
+pub enum ModRangeInput {
+    /// The default style.
+    #[default]
+    Default,
+    /// The invisible style.
+    Invisible,
+    /// A custom style.
+    Custom(Box<dyn StyleSheet<Style = Theme>>),
+}
+
+impl<S> From<S> for ModRangeInput
+where
+    S: 'static + StyleSheet<Style = Theme>,
+{
+    fn from(val: S) -> Self {
+        ModRangeInput::Custom(Box::new(val))
+    }
+}
+
+impl StyleSheet for Theme {
+    type Style = ModRangeInput;
+
+    fn active(&self, style: &Self::Style) -> Appearance {
+        match style {
+            ModRangeInput::Default => Appearance::Circle(Default::default()),
+            ModRangeInput::Invisible => Appearance::Invisible,
+            ModRangeInput::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        match style {
+            ModRangeInput::Default => Appearance::Circle(CircleAppearance {
+                color: default_colors::KNOB_BACK_HOVER,
+                ..Default::default()
+            }),
+            ModRangeInput::Invisible => self.active(style),
+            ModRangeInput::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        match style {
+            ModRangeInput::Default => self.hovered(style),
+            ModRangeInput::Invisible => self.active(style),
+            ModRangeInput::Custom(custom) => custom.active(self),
+        }
+    }
 }

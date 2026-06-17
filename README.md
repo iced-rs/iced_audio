@@ -34,15 +34,19 @@ Take a look at the [roadmap] for a list of planned widgets.
 ## Run examples with
 
 ```
-cargo run --package inputs_tour --release
-cargo run --package simple --release
+cargo run --example knob --release
+cargo run --example h_slider --release
+cargo run --example v_slider --release
+cargo run --example ramp --release
+cargo run --example xy_pad --release
+cargo run --example mod_range_input --release
 ```
 
 ## Installation
 
 Add `iced_audio` as a dependency in your `Cargo.toml`:
 ```toml
-iced_audio = "0.8"
+iced_audio = "0.13"
 ```
 Or if you want to use the GitHub version of `iced`:
 ```toml

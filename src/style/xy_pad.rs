@@ -2,9 +2,8 @@
 //!
 //! [`XYPad`]: ../native/xy_pad/struct.XYPad.html
 
-use iced_native::Color;
-
 use crate::style::default_colors;
+use iced::Color;
 
 /// The appearance of an [`XYPad`].
 ///
@@ -112,7 +111,7 @@ pub struct HandleSquare {
 /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`XYPad`].
     ///
@@ -128,4 +127,61 @@ pub trait StyleSheet {
     ///
     /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
     fn dragging(&self, style: &Self::Style) -> Appearance;
+}
+
+/// The style of a XYPad.
+#[derive(Default)]
+pub enum XYPad {
+    /// The default style.
+    #[default]
+    Default,
+    /// A custom style.
+    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+}
+
+impl<S> From<S> for XYPad
+where
+    S: 'static + StyleSheet<Style = iced::Theme>,
+{
+    fn from(val: S) -> Self {
+        XYPad::Custom(Box::new(val))
+    }
+}
+
+impl StyleSheet for iced::Theme {
+    type Style = XYPad;
+
+    fn active(&self, style: &Self::Style) -> Appearance {
+        match style {
+            XYPad::Default => Default::default(),
+            XYPad::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        match style {
+            XYPad::Default => Appearance {
+                handle: HandleShape::Circle(HandleCircle {
+                    color: default_colors::LIGHT_BACK_HOVER,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            XYPad::Custom(custom) => custom.hovered(self),
+        }
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        match style {
+            XYPad::Default => Appearance {
+                handle: HandleShape::Circle(HandleCircle {
+                    color: default_colors::LIGHT_BACK_DRAG,
+                    diameter: 9.0,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            XYPad::Custom(custom) => custom.dragging(self),
+        }
+    }
 }

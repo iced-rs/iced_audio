@@ -2,9 +2,11 @@
 //!
 //! [`VSlider`]: ../native/v_slider/struct.VSlider.html
 
-use iced_native::{image, Color, Rectangle};
-
-use crate::style::{default_colors, text_marks, tick_marks};
+use crate::{
+    style::{default_colors, text_marks, tick_marks},
+    Offset,
+};
+use iced::{advanced::image, Color, Rectangle};
 
 /// The appearance of a [`VSlider`].
 ///
@@ -264,7 +266,7 @@ pub struct TextMarksAppearance {
 /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`VSlider`].
     ///
@@ -286,10 +288,7 @@ pub trait StyleSheet {
     /// For no tick marks, don't override this or set this to return `None`.
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn tick_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<TickMarksAppearance> {
+    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<TickMarksAppearance> {
         None
     }
 
@@ -299,10 +298,7 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn mod_range_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<ModRangeAppearance> {
+    fn mod_range_appearance(&self, _style: &Self::Style) -> Option<ModRangeAppearance> {
         None
     }
 
@@ -312,10 +308,7 @@ pub trait StyleSheet {
     ///
     /// [`ModulationRange`]: ../../core/struct.ModulationRange.html
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn mod_range_appearance_2(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<ModRangeAppearance> {
+    fn mod_range_appearance_2(&self, _style: &Self::Style) -> Option<ModRangeAppearance> {
         None
     }
 
@@ -324,10 +317,119 @@ pub trait StyleSheet {
     /// For no text marks, don't override this or set this to return `None`.
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn text_marks_appearance(
-        &self,
-        _style: &Self::Style,
-    ) -> Option<TextMarksAppearance> {
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
         None
+    }
+}
+
+/// The style of a VSlider.
+#[derive(Default)]
+pub enum VSlider {
+    /// The default style.
+    #[default]
+    Default,
+    /// A custom style.
+    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+}
+
+impl<S> From<S> for VSlider
+where
+    S: 'static + StyleSheet<Style = iced::Theme>,
+{
+    fn from(val: S) -> Self {
+        VSlider::Custom(Box::new(val))
+    }
+}
+
+impl StyleSheet for iced::Theme {
+    type Style = VSlider;
+
+    fn active(&self, style: &Self::Style) -> Appearance {
+        match style {
+            VSlider::Default => Appearance::Classic(Default::default()),
+            VSlider::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        match style {
+            VSlider::Default => Appearance::Classic(ClassicAppearance {
+                handle: ClassicHandle {
+                    color: default_colors::LIGHT_BACK_HOVER,
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            VSlider::Custom(custom) => custom.hovered(self),
+        }
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        match style {
+            VSlider::Default => Appearance::Classic(ClassicAppearance {
+                handle: ClassicHandle {
+                    color: default_colors::LIGHT_BACK_DRAG,
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            VSlider::Custom(custom) => custom.dragging(self),
+        }
+    }
+
+    fn tick_marks_appearance(&self, style: &Self::Style) -> Option<TickMarksAppearance> {
+        match style {
+            VSlider::Default => Some(TickMarksAppearance {
+                style: tick_marks::Appearance {
+                    tier_1: tick_marks::Shape::Line {
+                        length: 24.0,
+                        width: 2.0,
+                        color: default_colors::TICK_TIER_1,
+                    },
+                    tier_2: tick_marks::Shape::Line {
+                        length: 22.0,
+                        width: 1.0,
+                        color: default_colors::TICK_TIER_2,
+                    },
+                    tier_3: tick_marks::Shape::Line {
+                        length: 18.0,
+                        width: 1.0,
+                        color: default_colors::TICK_TIER_3,
+                    },
+                },
+                placement: tick_marks::Placement::Center {
+                    offset: Offset::ZERO,
+                    fill_length: false,
+                },
+            }),
+            VSlider::Custom(custom) => custom.tick_marks_appearance(self),
+        }
+    }
+
+    fn mod_range_appearance(&self, style: &Self::Style) -> Option<ModRangeAppearance> {
+        match style {
+            VSlider::Default => None,
+            VSlider::Custom(custom) => custom.mod_range_appearance(self),
+        }
+    }
+
+    fn mod_range_appearance_2(&self, style: &Self::Style) -> Option<ModRangeAppearance> {
+        match style {
+            VSlider::Default => None,
+            VSlider::Custom(custom) => custom.mod_range_appearance_2(self),
+        }
+    }
+
+    fn text_marks_appearance(&self, style: &Self::Style) -> Option<TextMarksAppearance> {
+        match style {
+            VSlider::Default => Some(TextMarksAppearance {
+                style: Default::default(),
+                placement: text_marks::Placement::LeftOrTop {
+                    inside: false,
+                    offset: Offset { x: -7.0, y: 0.0 },
+                },
+            }),
+            VSlider::Custom(custom) => custom.text_marks_appearance(self),
+        }
     }
 }

@@ -1,7 +1,7 @@
 //! Various styles for a [`tick_marks::Group`] in a bar meter widget
 //!
 //! [`tick_marks::Group`]: ../../native/tick_marks/struct.Group.html
-use iced_native::Color;
+use iced::Color;
 
 use crate::core::Offset;
 use crate::style::default_colors;

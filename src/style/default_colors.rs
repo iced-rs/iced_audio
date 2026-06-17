@@ -1,6 +1,6 @@
 //! Colors for the default styles
 
-use iced_native::Color;
+use iced::Color;
 
 pub const BORDER: Color = Color::from_rgb(0.315, 0.315, 0.315);
 pub const LIGHT_BACK: Color = Color::from_rgb(0.97, 0.97, 0.97);
@@ -42,10 +42,10 @@ pub const TICK_TIER_3: Color = Color {
 };
 
 pub const TEXT_MARK: Color = Color {
-    r: 0.26,
-    g: 0.26,
-    b: 0.26,
-    a: 0.93,
+    r: 0.56,
+    g: 0.56,
+    b: 0.56,
+    a: 0.65,
 };
 
 pub const KNOB_BACK_HOVER: Color = Color::from_rgb(0.96, 0.96, 0.96);

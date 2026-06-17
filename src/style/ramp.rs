@@ -2,9 +2,8 @@
 //!
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
-use iced_native::Color;
-
 use crate::style::default_colors;
+use iced::Color;
 
 /// The appearance of a [`Ramp`],
 ///
@@ -46,7 +45,7 @@ impl Default for Appearance {
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style;
 
     /// Produces the style of an active [`Ramp`].
     ///
@@ -62,4 +61,48 @@ pub trait StyleSheet {
     ///
     /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
     fn dragging(&self, style: &Self::Style) -> Appearance;
+}
+
+/// The style of a Ramp.
+#[derive(Default)]
+pub enum Ramp {
+    /// The default style.
+    #[default]
+    Default,
+    /// A custom style.
+    Custom(Box<dyn StyleSheet<Style = iced::Theme>>),
+}
+
+impl<S> From<S> for Ramp
+where
+    S: 'static + StyleSheet<Style = iced::Theme>,
+{
+    fn from(val: S) -> Self {
+        Ramp::Custom(Box::new(val))
+    }
+}
+
+impl StyleSheet for iced::Theme {
+    type Style = Ramp;
+
+    fn active(&self, style: &Self::Style) -> Appearance {
+        match style {
+            Ramp::Default => Default::default(),
+            Ramp::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        match style {
+            Ramp::Default => Appearance {
+                back_color: default_colors::RAMP_BACK_HOVER,
+                ..Default::default()
+            },
+            Ramp::Custom(custom) => custom.active(self),
+        }
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
 }

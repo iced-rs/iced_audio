@@ -67,15 +67,7 @@ impl Normal {
     #[inline]
     pub fn from_clipped(value: f32) -> Self {
         Self {
-            value: {
-                if value < 0.0 {
-                    0.0
-                } else if value > 1.0 {
-                    1.0
-                } else {
-                    value
-                }
-            },
+            value: value.clamp(0.0, 1.0),
         }
     }
 

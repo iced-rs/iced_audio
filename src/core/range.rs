@@ -232,9 +232,9 @@ impl LogDBRange {
     /// * `min` - the minimum of the range in dB (inclusive), must be <= 0.0
     /// * `max` - the maximum of the range in dB (inclusive), must be >= 0.0
     /// * `zero_position` - a normal that defines where on the slider 0 decibels
-    /// should be. For example, `Normal::CENTER` will have 0 dB at the center
-    /// of the slider. Normals of `1.0` and `0.0` can be used for only negative
-    /// or only positive decibels respectively
+    ///   should be. For example, `Normal::CENTER` will have 0 dB at the center
+    ///   of the slider. Normals of `1.0` and `0.0` can be used for only negative
+    ///   or only positive decibels respectively
     ///
     /// # Panics
     ///
@@ -335,8 +335,7 @@ impl LogDBRange {
             let log_normal = pos_normal.sqrt();
 
             Normal::from_clipped(
-                (log_normal * (1.0 - self.zero_position.as_f32()))
-                    + self.zero_position.as_f32(),
+                (log_normal * (1.0 - self.zero_position.as_f32())) + self.zero_position.as_f32(),
             )
         }
     }
@@ -360,8 +359,8 @@ impl LogDBRange {
             if self.zero_position.as_f32() == 1.0 || self.max <= 0.0 {
                 return self.max;
             }
-            let pos_normal = (normal.as_f32() - self.zero_position.as_f32())
-                * self.one_min_zero_pos_recip;
+            let pos_normal =
+                (normal.as_f32() - self.zero_position.as_f32()) * self.one_min_zero_pos_recip;
 
             let log_normal = pos_normal * pos_normal;
 
@@ -396,9 +395,9 @@ impl FreqRange {
     /// # Arguments
     ///
     /// * `min` - the minimum of the range in Hz (inclusive), will be
-    /// constrained to `20.0 Hz <= min <= 20480.0 Hz`
+    ///   constrained to `20.0 Hz <= min <= 20480.0 Hz`
     /// * `max` - the maximum of the range in Hz (inclusive), will be
-    /// constrained to `20.0 Hz <= max <= 20480.0 Hz`
+    ///   constrained to `20.0 Hz <= max <= 20480.0 Hz`
     ///
     /// # Panics
     ///
@@ -421,8 +420,7 @@ impl FreqRange {
         let min_spectrum_normal = octave_spectrum_map_to_normal(min);
         let max_spectrum_normal = octave_spectrum_map_to_normal(max);
 
-        let spectrum_normal_span =
-            max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
+        let spectrum_normal_span = max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
 
         let spectrum_normal_span_recip = 1.0 / spectrum_normal_span;
 
@@ -487,8 +485,7 @@ impl FreqRange {
     /// [`Normal`]: ../struct.Normal.html
     pub fn unmap_to_value(&self, normal: Normal) -> f32 {
         let spectrum_normal = Normal::from_clipped(
-            normal.as_f32() * self.spectrum_normal_span
-                + self.min_spectrum_normal.as_f32(),
+            normal.as_f32() * self.spectrum_normal_span + self.min_spectrum_normal.as_f32(),
         );
 
         octave_normal_to_spectrum(spectrum_normal)

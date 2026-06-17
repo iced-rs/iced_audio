@@ -1,7 +1,10 @@
 [package]
 name = "iced_audio"
-version = "0.12.0"
-authors = ["Billy Messenger <https://github.com/BillyDM>"]
+version = "0.13.0"
+authors = [
+  "Billy Messenger <https://github.com/BillyDM>",
+  "Michał Kalbarczyk <https://github.com/fazibear>"
+]
 license = "MIT"
 edition = "2021"
 keywords = ["iced", "gui", "audio", "vst", "lv2"]
@@ -13,26 +16,28 @@ repository = "https://github.com/iced-rs/iced_audio"
 readme = "README.md"
 resolver = "2"
 
-[badges]
-maintenance = { status = "actively-developed" }
-
-[workspace]
-members = [
-    "examples/simple",
-    "examples/inputs_tour",
-]
-
-[features]
-default = ["wgpu"]
-glow = ["iced_glow"]
-wgpu = ["iced_wgpu"]
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced_core = "0.9"
-iced_glow = { version = "0.8", optional = true }
-iced_graphics = { version = "0.8", features = ["canvas"] }
-iced_native = "0.10"
-iced_wgpu = { version = "0.10", optional = true }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "x11", "thread-pool"] }
 
 [dev-dependencies]
-iced = "0.9"
+iced = { version = "0.14.0" }
+
+[features]
+knob = ["iced/canvas"]
+h_slider = ["iced/canvas", "iced/image"]
+v_slider = ["iced/canvas", "iced/image"]
+ramp = ["iced/canvas"]
+xy_pad = ["iced/canvas"]
+mod_range_input = ["iced/canvas"]
+
+default = [
+  "knob",
+  "h_slider",
+  "v_slider",
+  "ramp",
+  "xy_pad",
+  "mod_range_input"
+]

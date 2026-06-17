@@ -1,7 +1,7 @@
 //! Various styles for a [`text_marks::Group`] in a bar meter widget
 //!
 //! [`text_marks::Group`]: ../../native/text_marks/struct.Group.html
-use iced_core::{Color, Font};
+use iced::{Color, Font};
 
 use crate::core::Offset;
 use crate::style::default_colors;
@@ -85,16 +85,7 @@ impl std::cmp::PartialEq for Appearance {
             && self.text_size == rhs.text_size
             && self.bounds_width == rhs.bounds_width
             && self.bounds_height == rhs.bounds_width
-            && match self.font {
-                Font::Default => matches!(rhs.font, Font::Default),
-                Font::External { name, .. } => {
-                    let self_name = name;
-                    match rhs.font {
-                        Font::Default => false,
-                        Font::External { name, .. } => self_name == name,
-                    }
-                }
-            }
+            && self.font == rhs.font
     }
 }
 
