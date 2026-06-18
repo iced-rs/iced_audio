@@ -329,10 +329,11 @@ where
                         let normal_delta =
                             (position.x - state.prev_drag_x) / bounds.width * -self.scalar;
 
-                        state.prev_drag_x = if position.x <= bounds.x {
-                            bounds.x
+                        state.prev_drag_x = if state.pressed_modifiers.contains(self.modifier_keys)
+                        {
+                            position.x
                         } else {
-                            position.x.min(bounds.x + bounds.width)
+                            position.x.clamp(bounds.x, bounds.x + bounds.width)
                         };
 
                         if self.move_virtual_slider(state, normal_delta).was_moved() {
