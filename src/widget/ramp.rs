@@ -3,25 +3,24 @@
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
-use crate::core::{Normal, NormalParam, SliderStatus};
+use crate::core::{
+    NormalParam,
+    virtual_slider::{self, Gesture, VirtualSlider},
+};
 use iced_core::{
     Border, Clipboard, Element, Event, Layout, Length, Point, Rectangle, Shadow, Shell, Size,
     Vector, Widget,
     border::Radius,
-    keyboard, layout, mouse,
+    layout, mouse,
     renderer::{Quad, Style},
-    touch,
     widget::{Tree, tree},
 };
 use iced_graphics::geometry::{self, Frame, LineCap, Path, Stroke};
 
 pub use crate::style::ramp::{Appearance, StyleSheet};
 
-static DEFAULT_WIDTH: f32 = 40.0;
-static DEFAULT_HEIGHT: f32 = 20.0;
-static DEFAULT_SCALAR: f32 = 0.00385;
-static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
-static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
+const DEFAULT_WIDTH: f32 = 40.0;
+const DEFAULT_HEIGHT: f32 = 20.0;
 
 /// The direction of a [`Ramp`] widget.
 #[derive(Debug, Copy, Clone, Default)]
@@ -39,33 +38,20 @@ pub enum RampDirection {
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`Ramp`]: struct.Ramp.html
 #[allow(missing_debug_implementations)]
-pub struct Ramp<'a, Message, Theme>
-where
-    Theme: StyleSheet,
-{
-    normal_param: NormalParam,
-    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
-    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    scalar: f32,
-    wheel_scalar: f32,
-    modifier_scalar: f32,
-    modifier_keys: keyboard::Modifiers,
+pub struct Ramp<'a, Message, Theme: StyleSheet> {
+    virtual_slider: VirtualSlider<'a, Message>,
+    enabled: bool,
     width: Length,
     height: Length,
     style: <Theme as StyleSheet>::Style,
     direction: RampDirection,
 }
 
-impl<'a, Message, Theme> Ramp<'a, Message, Theme>
-where
-    Theme: StyleSheet,
-{
+impl<'a, Message, Theme: StyleSheet> Ramp<'a, Message, Theme> {
     /// Creates a new [`Ramp`].
     ///
     /// It expects:
-    ///   * the [`NormalParam`] of the [`Ramp`]
-    ///   * a function that will be called when the [`Ramp`] is dragged.
+    ///   * `normal_param` - The normalized value of the parameter.
     ///   * the [`RampDirection`] of the [`Ramp`], which tells if the ramp line
     ///     should point `Up` (from `bottom-left` to `top-right`), or `Down` (from
     ///     `top-left` to `bottom-right`)
@@ -73,20 +59,13 @@ where
     /// [`RampDirection`]: enum.RampDirection.html
     /// [`NormalParam`]: struct.NormalParam.html
     /// [`Ramp`]: struct.Ramp.html
-    pub fn new<F>(normal_param: NormalParam, on_change: F, direction: RampDirection) -> Self
+    pub fn new(normal_param: impl Into<NormalParam>, direction: RampDirection) -> Self
     where
-        F: 'static + Fn(Normal) -> Message,
         <Theme as StyleSheet>::Style: Default,
     {
         Ramp {
-            normal_param,
-            on_change: Box::new(on_change),
-            on_grab: None,
-            on_release: None,
-            scalar: DEFAULT_SCALAR,
-            wheel_scalar: DEFAULT_WHEEL_SCALAR,
-            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers::CTRL,
+            virtual_slider: VirtualSlider::new(normal_param.into()),
+            enabled: true,
             width: Length::Fixed(DEFAULT_WIDTH),
             height: Length::Fixed(DEFAULT_HEIGHT),
             style: Default::default(),
@@ -94,25 +73,23 @@ where
         }
     }
 
-    /// Sets the grab message of the [`Ramp`].
-    /// This is called when the mouse grabs from the ramp.
-    ///
-    /// Typically, the user's interaction with the ramp starts when this message is produced.
-    /// This is useful for some environments so that external changes, such as automation,
-    /// don't interfer with user's changes.
-    pub fn on_grab(mut self, on_grab: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_grab = Some(Box::new(on_grab));
+    /// Sets the message to emit when the user gestures this widget.
+    pub fn on_gesture(mut self, on_gesture: impl 'a + FnMut(Gesture) -> Message) -> Self {
+        self.virtual_slider.set_on_gesture(on_gesture);
         self
     }
 
-    /// Sets the release message of the [`Ramp`].
-    /// This is called when the mouse is released from the ramp.
+    /// Set a custom configuration to use for this virtual slider.
+    pub fn config(mut self, config: &virtual_slider::Config) -> Self {
+        self.virtual_slider.config = *config;
+        self
+    }
+
+    /// Enable/disable this widget.
     ///
-    /// Typically, the user's interaction with the ramp is finished when this message is produced.
-    /// This is useful if you need to spawn a long-running task from the ramp's result, where
-    /// the default on_change message could create too many events.
-    pub fn on_release(mut self, on_release: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_release = Some(Box::new(on_release));
+    /// The default is `true`.
+    pub const fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
         self
     }
 
@@ -141,141 +118,21 @@ where
         self.style = style.into();
         self
     }
-
-    /// Sets how much the [`Normal`] value will change for the [`Ramp`] per `y`
-    /// pixel movement of the mouse.
-    ///
-    /// The default value is `0.00385`
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn scalar(mut self, scalar: f32) -> Self {
-        self.scalar = scalar;
-        self
-    }
-
-    /// Sets how much the [`Normal`] value will change for the [`Ramp`] per line scrolled
-    /// by the mouse wheel.
-    ///
-    /// This can be set to `0.0` to disable the scroll wheel from moving the parameter.
-    ///
-    /// The default value is `0.01`
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn wheel_scalar(mut self, wheel_scalar: f32) -> Self {
-        self.wheel_scalar = wheel_scalar;
-        self
-    }
-
-    /// Sets the modifier keys of the [`Ramp`].
-    ///
-    /// The default modifier key is `Ctrl`.
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
-        self.modifier_keys = modifier_keys;
-        self
-    }
-
-    /// Sets the scalar to use when the user drags the Ramps while holding down
-    /// the modifier key. This is multiplied to the value set by
-    /// `Ramp::scalar()` (which the default is `0.00385`).
-    ///
-    /// For example, a `modifier_scalar` of `0.5` will cause the ramp to move
-    /// half as fast when the modifier key is down.
-    ///
-    /// The default `modifier_scalar` is `0.02`, and the default modifier key
-    /// is `Ctrl`.
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
-        self.modifier_scalar = scalar;
-        self
-    }
-
-    fn move_virtual_slider(&mut self, state: &mut State, mut normal_delta: f32) -> SliderStatus {
-        if normal_delta.abs() < f32::EPSILON {
-            return SliderStatus::Unchanged;
-        }
-
-        if state.pressed_modifiers.contains(self.modifier_keys) {
-            normal_delta *= self.modifier_scalar;
-        }
-
-        self.normal_param
-            .value
-            .set_clipped(state.continuous_normal - normal_delta);
-        state.continuous_normal = self.normal_param.value.as_f32();
-
-        SliderStatus::Moved
-    }
-
-    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
-            shell.publish(message);
-        }
-    }
-
-    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
-        shell.publish((self.on_change)(self.normal_param.value));
-    }
-
-    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
-            shell.publish(message);
-        }
-    }
-}
-
-/// The local state of a [`Ramp`].
-///
-/// [`Ramp`]: struct.Ramp.html
-#[derive(Debug, Copy, Clone)]
-struct State {
-    dragging_status: Option<SliderStatus>,
-    prev_drag_y: f32,
-    prev_normal: Normal,
-    continuous_normal: f32,
-    pressed_modifiers: keyboard::Modifiers,
-    last_click: Option<mouse::Click>,
-}
-
-impl State {
-    /// Creates a new [`Ramp`] state.
-    ///
-    /// It expects:
-    /// * current [`Normal`] value for the [`Ramp`].
-    ///   A [`Normal`] value of `0.5` represents a straight line,
-    ///   `0.0` is curved downward all the way,
-    ///   and `1.0` is curved upward all the way.
-    ///
-    /// [`Normal`]: ../../core/struct.Normal.html
-    /// [`Ramp`]: struct.Ramp.html
-    fn new(normal: Normal) -> Self {
-        Self {
-            dragging_status: None,
-            prev_drag_y: 0.0,
-            prev_normal: normal,
-            continuous_normal: normal.as_f32(),
-            pressed_modifiers: Default::default(),
-            last_click: None,
-        }
-    }
 }
 
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Ramp<'a, Message, Theme>
 where
-    Message: 'a + Clone,
     Theme: StyleSheet,
     Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {
     fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
+        tree::Tag::of::<virtual_slider::State>()
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(State::new(self.normal_param.value))
+        tree::State::new(virtual_slider::State::new(
+            self.virtual_slider.param().normal,
+        ))
     }
 
     fn size(&self) -> Size<Length> {
@@ -305,154 +162,19 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        let state = tree.state.downcast_mut::<State>();
-
-        let is_over = cursor.is_over(layout.bounds());
-
-        // Update state after a discontinuity
-        if state.dragging_status.is_none() && state.prev_normal != self.normal_param.value {
-            state.prev_normal = self.normal_param.value;
-            state.continuous_normal = self.normal_param.value.as_f32();
+        if !self.enabled {
+            return;
         }
 
-        match event {
-            Event::Mouse(mouse::Event::CursorMoved { position })
-            | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
-                if state.dragging_status.is_some() {
-                    let normal_delta = (position.y - state.prev_drag_y) * self.scalar;
+        let state = tree.state.downcast_mut::<virtual_slider::State>();
+        let cursor_is_over = cursor.is_over(layout.bounds());
 
-                    state.prev_drag_y = position.y;
-
-                    if self.move_virtual_slider(state, normal_delta).was_moved() {
-                        self.fire_on_change(shell);
-
-                        state
-                            .dragging_status
-                            .as_mut()
-                            .expect("dragging_status taken")
-                            .moved();
-                    }
-                }
-
-                shell.capture_event();
-                shell.request_redraw();
-            }
-            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
-                if self.wheel_scalar == 0.0 {
-                    return;
-                }
-
-                if is_over {
-                    let lines = match delta {
-                        mouse::ScrollDelta::Lines { y, .. } => *y,
-                        mouse::ScrollDelta::Pixels { y, .. } => {
-                            if *y > 0.0 {
-                                1.0
-                            } else if *y < 0.0 {
-                                -1.0
-                            } else {
-                                0.0
-                            }
-                        }
-                    };
-
-                    if lines != 0.0 {
-                        let normal_delta = -lines * self.wheel_scalar;
-
-                        if self.move_virtual_slider(state, normal_delta).was_moved() {
-                            if state.dragging_status.is_none() {
-                                self.maybe_fire_on_grab(shell);
-                            }
-
-                            self.fire_on_change(shell);
-
-                            if let Some(slider_status) = state.dragging_status.as_mut() {
-                                // Widget was grabbed => keep it grabbed
-                                slider_status.moved();
-                            } else {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-
-                        shell.capture_event();
-                        shell.request_redraw();
-                    }
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if is_over {
-                    let cursor_position = cursor.position().unwrap();
-
-                    let click =
-                        mouse::Click::new(cursor_position, mouse::Button::Left, state.last_click);
-
-                    match click.kind() {
-                        mouse::click::Kind::Single => {
-                            self.maybe_fire_on_grab(shell);
-
-                            state.dragging_status = Some(Default::default());
-                            state.prev_drag_y = cursor_position.y;
-                        }
-                        _ => {
-                            // Reset to default
-
-                            let prev_dragging_status = state.dragging_status.take();
-
-                            if self.normal_param.value != self.normal_param.default {
-                                if prev_dragging_status.is_none() {
-                                    self.maybe_fire_on_grab(shell);
-                                }
-
-                                self.normal_param.value = self.normal_param.default;
-
-                                self.fire_on_change(shell);
-
-                                self.maybe_fire_on_release(shell);
-                            } else if prev_dragging_status.is_some() {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-                    }
-
-                    state.last_click = Some(click);
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerLifted { .. })
-            | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if let Some(slider_status) = state.dragging_status.take() {
-                    if self.on_grab.is_some() || slider_status.was_moved() {
-                        // maybe fire on release if `on_grab` is defined
-                        // so as to terminate the action, regardless of the actual user movement.
-                        self.maybe_fire_on_release(shell);
-                    }
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Keyboard(keyboard_event) => match keyboard_event {
-                keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            },
-            _ => {}
+        if self
+            .virtual_slider
+            .update(state, cursor_is_over, false, false, event, cursor, shell)
+            .should_redraw()
+        {
+            shell.request_redraw();
         }
     }
 
@@ -466,16 +188,18 @@ where
         cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
-        let state = state.state.downcast_ref::<State>();
-        let bounds = layout.bounds();
-        let is_over = cursor.is_over(layout.bounds());
+        let state = state.state.downcast_ref::<virtual_slider::State>();
 
-        let appearance = if state.dragging_status.is_some() {
-            theme.dragging(&self.style)
-        } else if is_over {
+        let bounds = layout.bounds();
+        let cursor_is_over = cursor.is_over(layout.bounds());
+        let normal_val = self.virtual_slider.param().normal;
+
+        let appearance = if state.is_gesturing() {
+            theme.gesturing(&self.style)
+        } else if cursor_is_over {
             theme.hovered(&self.style)
         } else {
-            theme.active(&self.style)
+            theme.idle(&self.style)
         };
 
         let bounds_x = bounds.x.floor();
@@ -509,11 +233,9 @@ where
         let range_width = bounds_width - twice_border_width;
         let range_height = bounds_height - twice_border_width;
 
-        let normal = self.normal_param.value;
-
         match self.direction {
             RampDirection::Up => {
-                if normal.as_f32() < 0.449 {
+                if normal_val.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width,
                         style: geometry::Style::Solid(appearance.line_down_color),
@@ -521,7 +243,8 @@ where
                         ..Stroke::default()
                     };
 
-                    let control = Point::new(range_width * (1.0 - (normal.as_f32() * 2.0)), 0.0);
+                    let control =
+                        Point::new(range_width * (1.0 - (normal_val.as_f32() * 2.0)), 0.0);
                     let to = Point::new(range_width, -range_height);
 
                     let path = Path::new(|p| {
@@ -543,7 +266,7 @@ where
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
-                } else if normal.as_f32() > 0.501 {
+                } else if normal_val.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width,
                         style: geometry::Style::Solid(appearance.line_up_color),
@@ -552,7 +275,7 @@ where
                     };
 
                     let control = Point::new(
-                        range_width * (1.0 - ((normal.as_f32() - 0.5) * 2.0)),
+                        range_width * (1.0 - ((normal_val.as_f32() - 0.5) * 2.0)),
                         -range_height,
                     );
                     let to = Point::new(range_width, -range_height);
@@ -604,7 +327,7 @@ where
                 }
             }
             RampDirection::Down => {
-                if normal.as_f32() < 0.449 {
+                if normal_val.as_f32() < 0.449 {
                     let stroke = Stroke {
                         width: appearance.line_width,
                         style: geometry::Style::Solid(appearance.line_down_color),
@@ -612,7 +335,7 @@ where
                         ..Stroke::default()
                     };
 
-                    let control = Point::new(range_width * (normal.as_f32() * 2.0), 0.0);
+                    let control = Point::new(range_width * (normal_val.as_f32() * 2.0), 0.0);
                     let from = Point::new(0.0, -range_height);
                     let to = Point::new(range_width, 0.0);
 
@@ -635,7 +358,7 @@ where
                             renderer.draw_geometry(frame.into_geometry());
                         },
                     );
-                } else if normal.as_f32() > 0.501 {
+                } else if normal_val.as_f32() > 0.501 {
                     let stroke = Stroke {
                         width: appearance.line_width,
                         style: geometry::Style::Solid(appearance.line_up_color),
@@ -643,8 +366,10 @@ where
                         ..Stroke::default()
                     };
 
-                    let control =
-                        Point::new(range_width * ((normal.as_f32() - 0.5) * 2.0), -range_height);
+                    let control = Point::new(
+                        range_width * ((normal_val.as_f32() - 0.5) * 2.0),
+                        -range_height,
+                    );
                     let from = Point::new(0.0, -range_height);
                     let to = Point::new(range_width, 0.0);
 
@@ -701,7 +426,7 @@ where
 impl<'a, Message, Theme, Renderer> From<Ramp<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Message: 'a + Clone,
+    Message: 'a,
     Theme: 'a + StyleSheet,
     Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {

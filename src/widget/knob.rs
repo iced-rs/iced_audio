@@ -5,22 +5,19 @@
 mod bipolar_state;
 mod draw;
 mod knob_info;
-mod state;
 mod value_markers;
 
 use crate::{
-    core::{ModulationRange, Normal, NormalParam, SliderStatus},
+    core::{ModulationRange, Normal, NormalParam},
     text_marks, tick_marks,
+    virtual_slider::{self, Gesture, VirtualSlider},
 };
 use iced_core::{
-    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget, keyboard, layout,
-    mouse,
+    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget, layout, mouse,
     renderer::Style,
-    touch,
     widget::{Tree, tree},
 };
 use knob_info::KnobInfo;
-use state::State;
 use value_markers::ValueMarkers;
 
 pub use crate::style::knob::{
@@ -29,28 +26,16 @@ pub use crate::style::knob::{
     TickMarksAppearance, ValueArcAppearance,
 };
 
-static DEFAULT_SIZE: f32 = 30.0;
-static DEFAULT_SCALAR: f32 = 0.00385;
-static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
-static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
+const DEFAULT_SIZE: f32 = 30.0;
 
 /// A rotating knob GUI widget that controls a [`NormalParam`]
 ///
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 #[allow(missing_debug_implementations)]
-pub struct Knob<'a, Message, Theme>
-where
-    Theme: StyleSheet,
-{
-    normal_param: NormalParam,
+pub struct Knob<'a, Message, Theme: StyleSheet> {
+    virtual_slider: VirtualSlider<'a, Message>,
+    enabled: bool,
     size: Length,
-    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
-    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    scalar: f32,
-    wheel_scalar: f32,
-    modifier_scalar: f32,
-    modifier_keys: keyboard::Modifiers,
     bipolar_center: Option<Normal>,
     style: <Theme as StyleSheet>::Style,
     tick_marks: Option<&'a tick_marks::Group>,
@@ -59,33 +44,18 @@ where
     mod_range_2: Option<&'a ModulationRange>,
 }
 
-impl<'a, Message, Theme> Knob<'a, Message, Theme>
-where
-    Theme: StyleSheet,
-{
+impl<'a, Message, Theme: StyleSheet> Knob<'a, Message, Theme> {
     /// Creates a new [`Knob`].
     ///
-    /// It expects:
-    ///   * the [`NormalParam`] of the [`Knob`]
-    ///   * a function that will be called when the [`Knob`] is turned.
-    ///
-    /// [`NormalParam`]: struct.NormalParam.html
-    /// [`Knob`]: struct.Knob.html
-    pub fn new<F>(normal_param: NormalParam, on_change: F) -> Self
+    /// * `normal_param` - The normalized value of the parameter.
+    pub fn new(normal_param: impl Into<NormalParam>) -> Self
     where
-        F: 'a + Fn(Normal) -> Message,
         <Theme as StyleSheet>::Style: Default,
     {
         Knob {
-            normal_param,
+            virtual_slider: VirtualSlider::new(normal_param.into()),
+            enabled: true,
             size: Length::Fixed(DEFAULT_SIZE),
-            on_change: Box::new(on_change),
-            on_grab: None,
-            on_release: None,
-            scalar: DEFAULT_SCALAR,
-            wheel_scalar: DEFAULT_WHEEL_SCALAR,
-            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers::CTRL,
             bipolar_center: None,
             style: Default::default(),
             tick_marks: None,
@@ -95,25 +65,23 @@ where
         }
     }
 
-    /// Sets the grab message of the [`Knob`].
-    /// This is called when the mouse grabs from the knob.
-    ///
-    /// Typically, the user's interaction with the knob starts when this message is produced.
-    /// This is useful for some environments so that external changes, such as automation,
-    /// don't interfer with user's changes.
-    pub fn on_grab(mut self, on_grab: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_grab = Some(Box::new(on_grab));
+    /// Sets the message to emit when the user gestures this widget.
+    pub fn on_gesture(mut self, on_gesture: impl 'a + FnMut(Gesture) -> Message) -> Self {
+        self.virtual_slider.set_on_gesture(on_gesture);
         self
     }
 
-    /// Sets the release message of the [`Knob`].
-    /// This is called when the mouse is released from the knob.
+    /// Set a custom configuration to use for this virtual slider.
+    pub fn config(mut self, config: &virtual_slider::Config) -> Self {
+        self.virtual_slider.config = *config;
+        self
+    }
+
+    /// Enable/disable this widget.
     ///
-    /// Typically, the user's interaction with the knob is finished when this message is produced.
-    /// This is useful if you need to spawn a long-running task from the knob's result, where
-    /// the default on_change message could create too many events.
-    pub fn on_release(mut self, on_release: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_release = Some(Box::new(on_release));
+    /// The default is `true`.
+    pub const fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
         self
     }
 
@@ -131,58 +99,6 @@ where
     /// [`Knob`]: struct.Knob.html
     pub fn style(mut self, style: impl Into<<Theme as StyleSheet>::Style>) -> Self {
         self.style = style.into();
-        self
-    }
-
-    /// Sets how much the [`Normal`] value will change for the [`Knob`] per `y`
-    /// pixel movement of the mouse.
-    ///
-    /// The default value is `0.00385`
-    ///
-    /// [`Knob`]: struct.Knob.html
-    /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn scalar(mut self, scalar: f32) -> Self {
-        self.scalar = scalar;
-        self
-    }
-
-    /// Sets how much the [`Normal`] value will change for the [`Knob`] per line scrolled
-    /// by the mouse wheel.
-    ///
-    /// This can be set to `0.0` to disable the scroll wheel from moving the parameter.
-    ///
-    /// The default value is `0.01`
-    ///
-    /// [`Knob`]: struct.Knob.html
-    /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn wheel_scalar(mut self, wheel_scalar: f32) -> Self {
-        self.wheel_scalar = wheel_scalar;
-        self
-    }
-
-    /// Sets the modifier keys of the [`Knob`].
-    ///
-    /// The default modifier key is `Ctrl`.
-    ///
-    /// [`Knob`]: struct.Knob.html
-    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
-        self.modifier_keys = modifier_keys;
-        self
-    }
-
-    /// Sets the scalar to use when the user drags the knobs while holding down
-    /// the modifier key. This is multiplied to the value set by
-    /// `Knob::scalar()` (which the default is `0.00385`).
-    ///
-    /// For example, a `modifier_scalar` of `0.5` will cause the knob to turn
-    /// half as fast when the modifier key is down.
-    ///
-    /// The default `modifier_scalar` is `0.02`, and the default modifier key
-    /// is `Ctrl`.
-    ///
-    /// [`Knob`]: struct.Knob.html
-    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
-        self.modifier_scalar = scalar;
         self
     }
 
@@ -237,55 +153,23 @@ where
         self.bipolar_center = Some(bipolar_center);
         self
     }
-
-    fn move_virtual_slider(&mut self, state: &mut State, mut normal_delta: f32) -> SliderStatus {
-        if normal_delta.abs() < f32::EPSILON {
-            return SliderStatus::Unchanged;
-        }
-
-        if state.pressed_modifiers.contains(self.modifier_keys) {
-            normal_delta *= self.modifier_scalar;
-        }
-
-        self.normal_param
-            .value
-            .set_clipped(state.continuous_normal - normal_delta);
-        state.continuous_normal = self.normal_param.value.as_f32();
-
-        SliderStatus::Moved
-    }
-
-    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
-            shell.publish(message);
-        }
-    }
-
-    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
-        shell.publish((self.on_change)(self.normal_param.value));
-    }
-
-    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
-            shell.publish(message);
-        }
-    }
 }
 
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
 where
-    Message: 'a + Clone,
     Theme: StyleSheet,
     Renderer: iced_core::Renderer
         + iced_core::text::Renderer<Font = iced_core::Font>
         + iced_graphics::geometry::Renderer,
 {
     fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
+        tree::Tag::of::<virtual_slider::State>()
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(State::new(self.normal_param.value))
+        tree::State::new(virtual_slider::State::new(
+            self.virtual_slider.param().normal,
+        ))
     }
 
     fn size(&self) -> Size<Length> {
@@ -315,154 +199,19 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        let state = tree.state.downcast_mut::<State>();
-
-        let is_over = cursor.is_over(layout.bounds());
-
-        // Update state after a discontinuity
-        if state.dragging_status.is_none() && state.prev_normal != self.normal_param.value {
-            state.prev_normal = self.normal_param.value;
-            state.continuous_normal = self.normal_param.value.as_f32();
+        if !self.enabled {
+            return;
         }
 
-        match event {
-            Event::Mouse(mouse::Event::CursorMoved { position })
-            | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
-                if state.dragging_status.is_some() {
-                    let normal_delta = (position.y - state.prev_drag_y) * self.scalar;
+        let state = tree.state.downcast_mut::<virtual_slider::State>();
+        let cursor_is_over = cursor.is_over(layout.bounds());
 
-                    state.prev_drag_y = position.y;
-
-                    if self.move_virtual_slider(state, normal_delta).was_moved() {
-                        self.fire_on_change(shell);
-
-                        state
-                            .dragging_status
-                            .as_mut()
-                            .expect("dragging_status taken")
-                            .moved();
-                    }
-                }
-
-                shell.capture_event();
-                shell.request_redraw();
-            }
-            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
-                if self.wheel_scalar == 0.0 {
-                    return;
-                }
-
-                if is_over {
-                    let lines = match delta {
-                        mouse::ScrollDelta::Lines { y, .. } => *y,
-                        mouse::ScrollDelta::Pixels { y, .. } => {
-                            if *y > 0.0 {
-                                1.0
-                            } else if *y < 0.0 {
-                                -1.0
-                            } else {
-                                0.0
-                            }
-                        }
-                    };
-
-                    if lines != 0.0 {
-                        let normal_delta = -lines * self.wheel_scalar;
-
-                        if self.move_virtual_slider(state, normal_delta).was_moved() {
-                            if state.dragging_status.is_none() {
-                                self.maybe_fire_on_grab(shell);
-                            }
-
-                            self.fire_on_change(shell);
-
-                            if let Some(slider_status) = state.dragging_status.as_mut() {
-                                // Widget was grabbed => keep it grabbed
-                                slider_status.moved();
-                            } else {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-
-                        shell.capture_event();
-                        shell.request_redraw();
-                    }
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if is_over {
-                    let click = mouse::Click::new(
-                        cursor.position().unwrap(),
-                        mouse::Button::Left,
-                        state.last_click,
-                    );
-
-                    match click.kind() {
-                        mouse::click::Kind::Single => {
-                            self.maybe_fire_on_grab(shell);
-
-                            state.dragging_status = Some(Default::default());
-                            state.prev_drag_y = cursor.position().unwrap().y;
-                        }
-                        _ => {
-                            // Reset to default
-
-                            let prev_dragging_status = state.dragging_status.take();
-
-                            if self.normal_param.value != self.normal_param.default {
-                                if prev_dragging_status.is_none() {
-                                    self.maybe_fire_on_grab(shell);
-                                }
-
-                                self.normal_param.value = self.normal_param.default;
-
-                                self.fire_on_change(shell);
-
-                                self.maybe_fire_on_release(shell);
-                            } else if prev_dragging_status.is_some() {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-                    }
-
-                    state.last_click = Some(click);
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerLifted { .. })
-            | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if let Some(slider_status) = state.dragging_status.take() {
-                    if self.on_grab.is_some() || slider_status.was_moved() {
-                        // maybe fire on release if `on_grab` is defined
-                        // so as to terminate the action, regardless of the actual user movement.
-                        self.maybe_fire_on_release(shell);
-                    }
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Keyboard(keyboard_event) => match keyboard_event {
-                keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            },
-            _ => {}
+        if self
+            .virtual_slider
+            .update(state, cursor_is_over, false, false, event, cursor, shell)
+            .should_redraw()
+        {
+            shell.request_redraw();
         }
     }
 
@@ -476,20 +225,19 @@ where
         cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
-        let state = state.state.downcast_ref::<State>();
+        let state = state.state.downcast_ref::<virtual_slider::State>();
 
         let bounds = layout.bounds();
-
-        let is_over = cursor.is_over(bounds);
-
+        let cursor_is_over = cursor.is_over(bounds);
         let angle_range = theme.angle_range(&self.style);
+        let normal_val = self.virtual_slider.param().normal;
 
-        let appearance = if state.dragging_status.is_some() {
-            theme.dragging(&self.style)
-        } else if is_over {
+        let appearance = if state.is_gesturing() {
+            theme.gesturing(&self.style)
+        } else if cursor_is_over {
             theme.hovered(&self.style)
         } else {
-            theme.active(&self.style)
+            theme.idle(&self.style)
         };
 
         let value_markers = ValueMarkers {
@@ -539,44 +287,27 @@ where
             angle_range.min() + std::f32::consts::FRAC_PI_2
         };
         let angle_span = angle_range.max() - angle_range.min();
-        let value_angle = start_angle + (self.normal_param.value.scale(angle_span));
+        let value_angle = start_angle + (normal_val.scale(angle_span));
 
         let knob_info = KnobInfo {
             bounds,
             start_angle,
             angle_span,
             radius,
-            value: self.normal_param.value,
+            value: normal_val,
             bipolar_center: self.bipolar_center,
             value_angle,
         };
 
         match appearance {
-            Appearance::Circle(style) => draw::circle_style(
-                renderer,
-                &knob_info,
-                style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
-            Appearance::Arc(style) => draw::arc_style(
-                renderer,
-                &knob_info,
-                style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
+            Appearance::Circle(style) => {
+                draw::circle_style(renderer, &knob_info, style, &value_markers)
+            }
+            Appearance::Arc(style) => draw::arc_style(renderer, &knob_info, style, &value_markers),
 
-            Appearance::ArcBipolar(style) => draw::arc_bipolar_style(
-                renderer,
-                &knob_info,
-                style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
+            Appearance::ArcBipolar(style) => {
+                draw::arc_bipolar_style(renderer, &knob_info, style, &value_markers)
+            }
         }
     }
 }
@@ -584,7 +315,7 @@ where
 impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Message: 'a + Clone,
+    Message: 'a,
     Theme: 'a + StyleSheet,
     Renderer: iced_core::Renderer
         + iced_core::text::Renderer<Font = iced_core::Font>

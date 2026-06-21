@@ -69,25 +69,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`ModRangeInput`].
+    /// Produces the style of an enabled, idle [`ModRangeInput`].
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`ModRangeInput`].
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of a [`ModRangeInput`] that is being dragged.
+    /// Produces the style of a [`ModRangeInput`] that is being gestured (dragged).
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
 
     /// Produces the style of a [`ModRangeInput`] that is currently disabled.
     ///
     /// [`ModRangeInput`]: ../../native/mod_range_input/struct.ModRangeInput.html
-    fn disabled(&self, style: &Self::Style) -> Appearance;
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 }
 
 /// A style for a [`ModRangeInput`] that makes it invisible but still interactable.
@@ -100,7 +106,7 @@ pub struct InvisibleStyle;
 impl StyleSheet for InvisibleStyle {
     type Style = iced_core::Theme;
 
-    fn active(&self, _style: &Self::Style) -> Appearance {
+    fn idle(&self, _style: &Self::Style) -> Appearance {
         Appearance::Invisible
     }
 
@@ -108,7 +114,7 @@ impl StyleSheet for InvisibleStyle {
         Appearance::Invisible
     }
 
-    fn dragging(&self, _style: &Self::Style) -> Appearance {
+    fn gesturing(&self, _style: &Self::Style) -> Appearance {
         Appearance::Invisible
     }
 
@@ -141,11 +147,11 @@ where
 impl StyleSheet for Theme {
     type Style = ModRangeInput;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             ModRangeInput::Default => Appearance::Circle(Default::default()),
             ModRangeInput::Invisible => Appearance::Invisible,
-            ModRangeInput::Custom(custom) => custom.active(self),
+            ModRangeInput::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -155,16 +161,16 @@ impl StyleSheet for Theme {
                 color: default_colors::KNOB_BACK_HOVER,
                 ..Default::default()
             }),
-            ModRangeInput::Invisible => self.active(style),
-            ModRangeInput::Custom(custom) => custom.active(self),
+            ModRangeInput::Invisible => self.idle(style),
+            ModRangeInput::Custom(custom) => custom.idle(self),
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         match style {
             ModRangeInput::Default => self.hovered(style),
-            ModRangeInput::Invisible => self.active(style),
-            ModRangeInput::Custom(custom) => custom.active(self),
+            ModRangeInput::Invisible => self.idle(style),
+            ModRangeInput::Custom(custom) => custom.idle(self),
         }
     }
 

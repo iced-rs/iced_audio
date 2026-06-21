@@ -47,20 +47,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`Ramp`].
+    /// Produces the style of an enabled, idle [`Ramp`].
     ///
     /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`Ramp`].
     ///
     /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of a [`Ramp`] that is being dragged.
+    /// Produces the style of a [`Ramp`] that is being gestured (dragged).
     ///
     /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    /// Produces the style of a [`Ramp`] that is currently disabled.
+    ///
+    /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 }
 
 /// The style of a Ramp.
@@ -85,10 +96,10 @@ where
 impl StyleSheet for iced_core::Theme {
     type Style = Ramp;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             Ramp::Default => Default::default(),
-            Ramp::Custom(custom) => custom.active(self),
+            Ramp::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -98,11 +109,16 @@ impl StyleSheet for iced_core::Theme {
                 back_color: default_colors::RAMP_BACK_HOVER,
                 ..Default::default()
             },
-            Ramp::Custom(custom) => custom.active(self),
+            Ramp::Custom(custom) => custom.idle(self),
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         self.hovered(style)
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        // TODO
+        self.idle(style)
     }
 }

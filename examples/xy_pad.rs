@@ -5,8 +5,11 @@ use iced::{
     Element, Length, Result, Size, application,
     widget::{column, row, text},
 };
-use iced_audio::{FloatRange, Normal, NormalParam, XYPad};
-use util::info_text;
+use iced_audio::{FloatRange, Gesture, Normal, NormalParam, XYPad};
+
+use util::info_text::info_text_f32;
+
+use crate::style::xy_pad::CustomStyle;
 
 fn main() -> Result {
     application(
@@ -20,14 +23,14 @@ fn main() -> Result {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Default(Normal, Normal),
-    Custom(Normal, Normal),
+    DefaultX(Gesture),
+    DefaultY(Gesture),
+    CustomX(Gesture),
+    CustomY(Gesture),
     Knob(Normal),
 }
 
 pub struct XYPadExample {
-    float_range: FloatRange,
-
     xy_pad_default_x_param: NormalParam,
     xy_pad_default_y_param: NormalParam,
     xy_pad_custom_x_param: NormalParam,
@@ -39,21 +42,13 @@ pub struct XYPadExample {
 
 impl Default for XYPadExample {
     fn default() -> Self {
-        // initalize parameters
-
-        let float_range = FloatRange::default_bipolar();
-
-        // create application
-
         Self {
-            float_range,
-
             // initialize the state of the xy_pad widget
-            xy_pad_default_x_param: float_range.default_normal_param(),
-            xy_pad_default_y_param: float_range.default_normal_param(),
+            xy_pad_default_x_param: FloatRange::NORMAL_BIPOLAR.default_param(),
+            xy_pad_default_y_param: FloatRange::NORMAL_BIPOLAR.default_param(),
 
-            xy_pad_custom_x_param: float_range.default_normal_param(),
-            xy_pad_custom_y_param: float_range.default_normal_param(),
+            xy_pad_custom_x_param: FloatRange::NORMAL_BIPOLAR.default_param(),
+            xy_pad_custom_y_param: FloatRange::NORMAL_BIPOLAR.default_param(),
 
             output_text_x: String::new(),
             output_text_y: String::new(),
@@ -63,32 +58,28 @@ impl Default for XYPadExample {
 
 impl XYPadExample {
     fn update(&mut self, message: Message) {
+        dbg!(&message);
+
         match message {
-            Message::Default(normal_x, normal_y) => {
-                self.xy_pad_default_x_param.update(normal_x);
-                self.xy_pad_default_y_param.update(normal_y);
-
-                self.output_text_x = info_text::info_text_f32(
-                    "XYPadDefaultX",
-                    self.float_range.unmap_to_value(normal_x),
-                );
-                self.output_text_y = info_text::info_text_f32(
-                    "XYPadDefaultY",
-                    self.float_range.unmap_to_value(normal_y),
-                );
+            Message::DefaultX(Gesture::Gesturing(normal)) => {
+                self.xy_pad_default_x_param.set(normal);
+                self.output_text_x =
+                    info_text_f32("XYPadDefaultX", normal, &FloatRange::NORMAL_BIPOLAR);
             }
-            Message::Custom(normal_x, normal_y) => {
-                self.xy_pad_custom_x_param.update(normal_x);
-                self.xy_pad_custom_y_param.update(normal_y);
-
-                self.output_text_x = info_text::info_text_f32(
-                    "XYPadCustomX",
-                    self.float_range.unmap_to_value(normal_x),
-                );
-                self.output_text_y = info_text::info_text_f32(
-                    "XYPadCustomY",
-                    self.float_range.unmap_to_value(normal_y),
-                );
+            Message::DefaultY(Gesture::Gesturing(normal)) => {
+                self.xy_pad_default_y_param.set(normal);
+                self.output_text_y =
+                    info_text_f32("XYPadDefaultY", normal, &FloatRange::NORMAL_BIPOLAR);
+            }
+            Message::CustomX(Gesture::Gesturing(normal)) => {
+                self.xy_pad_custom_x_param.set(normal);
+                self.output_text_x =
+                    info_text_f32("XYPadCustomX", normal, &FloatRange::NORMAL_BIPOLAR);
+            }
+            Message::CustomY(Gesture::Gesturing(normal)) => {
+                self.xy_pad_custom_y_param.set(normal);
+                self.output_text_y =
+                    info_text_f32("XYPadCustomY", normal, &FloatRange::NORMAL_BIPOLAR);
             }
             _ => {}
         }
@@ -99,17 +90,19 @@ impl XYPadExample {
         // the corresponding parameter
 
         let xy_pad_default = XYPad::new(
-            self.xy_pad_default_x_param,
-            self.xy_pad_default_y_param,
-            Message::Default,
-        );
+            Some(self.xy_pad_default_x_param),
+            Some(self.xy_pad_default_y_param),
+        )
+        .on_gesture_x(Some(Message::DefaultX))
+        .on_gesture_y(Some(Message::DefaultY));
 
         let xy_pad_custom = XYPad::new(
-            self.xy_pad_custom_x_param,
-            self.xy_pad_custom_y_param,
-            Message::Custom,
+            Some(self.xy_pad_custom_x_param),
+            Some(self.xy_pad_custom_y_param),
         )
-        .style(style::xy_pad::CustomStyle);
+        .on_gesture_x(Some(Message::CustomX))
+        .on_gesture_y(Some(Message::CustomY))
+        .style(CustomStyle);
 
         // push the widgets into rows
         let xy_pad_row = row![

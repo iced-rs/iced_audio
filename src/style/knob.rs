@@ -278,20 +278,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`Knob`].
+    /// Produces the style of an enabled, idle [`Knob`].
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`Knob`].
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of a [`Knob`] that is being dragged.
+    /// Produces the style of a [`Knob`] that is being gestured (dragged).
     ///
     /// [`Knob`]: ../../native/knob/struct.Knob.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    /// Produces the style of a [`Knob`] that is currently disabled.
+    ///
+    /// [`Knob`]: ../../native/knob/struct.Knob.html
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
     /// a [`KnobAngleRange`] that defines the minimum and maximum angle that the
     /// knob rotates
@@ -373,10 +384,10 @@ where
 impl StyleSheet for iced_core::Theme {
     type Style = Knob;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             Knob::Default => Appearance::Circle(Default::default()),
-            Knob::Custom(custom) => custom.active(self),
+            Knob::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -390,11 +401,16 @@ impl StyleSheet for iced_core::Theme {
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         match style {
             Knob::Default => self.hovered(style),
-            Knob::Custom(custom) => custom.dragging(self),
+            Knob::Custom(custom) => custom.gesturing(self),
         }
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        // TODO
+        self.idle(style)
     }
 
     fn angle_range(&self, style: &Self::Style) -> KnobAngleRange {

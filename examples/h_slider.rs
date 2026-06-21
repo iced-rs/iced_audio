@@ -6,10 +6,12 @@ use iced::{
     widget::{column, row, text},
 };
 use iced_audio::{
-    FloatRange, FreqRange, HSlider, IntRange, LogDBRange, Normal, NormalParam, text_marks,
-    tick_marks,
+    DBRange, FloatRange, FreqRange, Gesture, HSlider, IntRange, NormalParam, text_marks, tick_marks,
 };
-use util::info_text;
+
+use crate::util::info_text::{info_text_db, info_text_f32, info_text_freq, info_text_i32};
+
+const INT_RANGE: IntRange = IntRange::new(0, 5);
 
 fn main() -> Result {
     application(
@@ -23,22 +25,16 @@ fn main() -> Result {
 
 #[derive(Debug, Clone)]
 enum Message {
-    Float(Normal),
-    Int(Normal),
-    DB(Normal),
-    Freq(Normal),
-    RectStyle(Normal),
-    BipolarRectStyle(Normal),
-    TextureStyle(Normal),
+    Float(Gesture),
+    Int(Gesture),
+    DB(Gesture),
+    Freq(Gesture),
+    RectStyle(Gesture),
+    BipolarRectStyle(Gesture),
+    TextureStyle(Gesture),
 }
 
 pub struct HSliderExample {
-    float_range: FloatRange,
-    float_range_bp: FloatRange,
-    int_range: IntRange,
-    db_range: LogDBRange,
-    freq_range: FreqRange,
-
     float_param: NormalParam,
     int_param: NormalParam,
     db_param: NormalParam,
@@ -64,31 +60,15 @@ pub struct HSliderExample {
 
 impl Default for HSliderExample {
     fn default() -> Self {
-        // initalize parameters
-
-        let float_range = FloatRange::default();
-        let float_range_bp = FloatRange::default_bipolar();
-        let int_range = IntRange::new(0, 5);
-        let db_range = LogDBRange::default();
-        let freq_range = FreqRange::default();
-
-        // create application
-
         Self {
-            float_range,
-            float_range_bp,
-            int_range,
-            db_range,
-            freq_range,
-
             // initialize the parameter of the HSlider widget
-            float_param: float_range_bp.default_normal_param(),
-            int_param: int_range.default_normal_param(),
-            db_param: db_range.default_normal_param(),
-            freq_param: freq_range.normal_param(1000.0, 1000.0),
-            rect_param: float_range.default_normal_param(),
-            rect_bp_param: float_range_bp.default_normal_param(),
-            texture_param: float_range_bp.default_normal_param(),
+            float_param: FloatRange::NORMAL_BIPOLAR.default_param(),
+            int_param: INT_RANGE.default_param(),
+            db_param: DBRange::NEG_12_TO_12.default_param(),
+            freq_param: FreqRange::HZ_20_TO_20K.param(1000.0, 1000.0),
+            rect_param: FloatRange::NORMAL.default_param(),
+            rect_bp_param: FloatRange::NORMAL_BIPOLAR.default_param(),
+            texture_param: FloatRange::NORMAL_BIPOLAR.default_param(),
 
             h_slider_texture_handle: format!(
                 "{}/examples/images/iced_h_slider.png",
@@ -97,33 +77,62 @@ impl Default for HSliderExample {
             .into(),
 
             float_tick_marks: tick_marks::Group::subdivided(1, 1, 1, Some(tick_marks::Tier::Two)),
-
             int_tick_marks: tick_marks::Group::evenly_spaced(6, tick_marks::Tier::Two),
-
             db_tick_marks: vec![
-                (db_range.map_to_normal(0.0), tick_marks::Tier::One),
-                (db_range.map_to_normal(1.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(3.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(6.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(12.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(-1.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(-3.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(-6.0), tick_marks::Tier::Two),
-                (db_range.map_to_normal(-12.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(0.0), tick_marks::Tier::One),
+                (DBRange::NEG_12_TO_12.map_db(1.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(3.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(6.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(9.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(12.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(-1.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(-3.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(-6.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(-9.0), tick_marks::Tier::Two),
+                (DBRange::NEG_12_TO_12.map_db(-12.0), tick_marks::Tier::Two),
             ]
             .into(),
-
             freq_tick_marks: vec![
-                (freq_range.map_to_normal(20.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(50.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(100.0), tick_marks::Tier::One),
-                (freq_range.map_to_normal(200.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(400.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(1000.0), tick_marks::Tier::One),
-                (freq_range.map_to_normal(2000.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(5000.0), tick_marks::Tier::Two),
-                (freq_range.map_to_normal(10000.0), tick_marks::Tier::One),
-                (freq_range.map_to_normal(20000.0), tick_marks::Tier::Two),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(20.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(50.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(100.0),
+                    tick_marks::Tier::One,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(200.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(400.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(1000.0),
+                    tick_marks::Tier::One,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(2000.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(5000.0),
+                    tick_marks::Tier::Two,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(10000.0),
+                    tick_marks::Tier::One,
+                ),
+                (
+                    FreqRange::HZ_20_TO_20K.map_freq(20000.0),
+                    tick_marks::Tier::Two,
+                ),
             ]
             .into(),
 
@@ -131,9 +140,9 @@ impl Default for HSliderExample {
             int_text_marks: text_marks::Group::evenly_spaced(&["A", "B", "C", "D", "E", "F"]),
             db_text_marks: text_marks::Group::min_max_and_center("-12", "+12", "0"),
             freq_text_marks: vec![
-                (freq_range.map_to_normal(100.0), "100"),
-                (freq_range.map_to_normal(1000.0), "1k"),
-                (freq_range.map_to_normal(10000.0), "10k"),
+                (FreqRange::HZ_20_TO_20K.map_freq(100.0), "100"),
+                (FreqRange::HZ_20_TO_20K.map_freq(1000.0), "1k"),
+                (FreqRange::HZ_20_TO_20K.map_freq(10000.0), "10k"),
             ]
             .into(),
 
@@ -144,60 +153,42 @@ impl Default for HSliderExample {
 
 impl HSliderExample {
     fn update(&mut self, message: Message) {
+        dbg!(&message);
+
         match message {
-            Message::Float(normal) => {
-                self.float_param.update(normal);
-
-                self.output_text = info_text::info_text_f32(
-                    "HSliderFloat",
-                    self.float_range_bp.unmap_to_value(normal),
-                );
+            Message::Float(Gesture::Gesturing(normal)) => {
+                self.float_param.set(normal);
+                self.output_text =
+                    info_text_f32("HSliderFloat", normal, &FloatRange::NORMAL_BIPOLAR);
             }
-            Message::Int(normal) => {
+            Message::Int(Gesture::Gesturing(normal)) => {
                 // Integer parameters must be snapped to make the widget "step" when moved.
-                self.int_param.update(self.int_range.snapped(normal));
-
+                self.int_param.set(INT_RANGE.snap(normal));
+                self.output_text = info_text_i32("HSliderInt", normal, &INT_RANGE);
+            }
+            Message::DB(Gesture::Gesturing(normal)) => {
+                self.db_param.set(normal);
+                self.output_text = info_text_db("HSliderDB", normal, &DBRange::NEG_12_TO_12);
+            }
+            Message::Freq(Gesture::Gesturing(normal)) => {
+                self.freq_param.set(normal);
+                self.output_text = info_text_freq("HSliderFreq", normal, &FreqRange::HZ_20_TO_20K);
+            }
+            Message::RectStyle(Gesture::Gesturing(normal)) => {
+                self.rect_param.set(normal);
+                self.output_text = info_text_f32("HSliderRect", normal, &FloatRange::NORMAL);
+            }
+            Message::BipolarRectStyle(Gesture::Gesturing(normal)) => {
+                self.rect_bp_param.set(normal);
                 self.output_text =
-                    info_text::info_text_i32("HSliderInt", self.int_range.unmap_to_value(normal));
+                    info_text_f32("HSliderBipolar", normal, &FloatRange::NORMAL_BIPOLAR);
             }
-            Message::DB(normal) => {
-                self.db_param.update(normal);
-
+            Message::TextureStyle(Gesture::Gesturing(normal)) => {
+                self.texture_param.set(normal);
                 self.output_text =
-                    info_text::info_text_db("HSliderDB", self.db_range.unmap_to_value(normal));
+                    info_text_f32("HSliderTexture", normal, &FloatRange::NORMAL_BIPOLAR);
             }
-            Message::Freq(normal) => {
-                self.freq_param.update(normal);
-
-                self.output_text = info_text::info_text_freq(
-                    "HSliderFreq",
-                    self.freq_range.unmap_to_value(normal),
-                );
-            }
-            Message::RectStyle(normal) => {
-                self.rect_param.update(normal);
-
-                self.output_text = info_text::info_text_f32(
-                    "HSliderRect",
-                    self.float_range.unmap_to_value(normal),
-                );
-            }
-            Message::BipolarRectStyle(normal) => {
-                self.rect_bp_param.update(normal);
-
-                self.output_text = info_text::info_text_f32(
-                    "HSliderBipolar",
-                    self.float_range_bp.unmap_to_value(normal),
-                );
-            }
-            Message::TextureStyle(normal) => {
-                self.texture_param.update(normal);
-
-                self.output_text = info_text::info_text_f32(
-                    "HSliderTexture",
-                    self.float_range_bp.unmap_to_value(normal),
-                );
-            }
+            _ => {}
         }
     }
 
@@ -205,31 +196,38 @@ impl HSliderExample {
         // create each of the HSlider widgets, passing in the value of
         // the corresponding parameter
 
-        let h_slider_float = HSlider::new(self.float_param, Message::Float)
+        let h_slider_float = HSlider::new(self.float_param)
+            .on_gesture(Message::Float)
             .tick_marks(&self.float_tick_marks)
             .text_marks(&self.float_text_marks);
 
-        let h_slider_int = HSlider::new(self.int_param, Message::Int)
+        let h_slider_int = HSlider::new(self.int_param)
+            .on_gesture(Message::Int)
             .tick_marks(&self.int_tick_marks)
             .text_marks(&self.int_text_marks);
 
-        let h_slider_db = HSlider::new(self.db_param, Message::DB)
+        let h_slider_db = HSlider::new(self.db_param)
+            .on_gesture(Message::DB)
             .tick_marks(&self.db_tick_marks)
             .text_marks(&self.db_text_marks);
 
-        let h_slider_freq = HSlider::new(self.freq_param, Message::Freq)
+        let h_slider_freq = HSlider::new(self.freq_param)
+            .on_gesture(Message::Freq)
             .tick_marks(&self.freq_tick_marks)
             .text_marks(&self.freq_text_marks);
 
-        let h_slider_rect = HSlider::new(self.rect_param, Message::RectStyle)
+        let h_slider_rect = HSlider::new(self.rect_param)
+            .on_gesture(Message::RectStyle)
             .height(Length::Fixed(24.0))
             .style(style::h_slider::RectStyle);
 
-        let h_slider_rect_bp = HSlider::new(self.rect_bp_param, Message::BipolarRectStyle)
+        let h_slider_rect_bp = HSlider::new(self.rect_bp_param)
+            .on_gesture(Message::BipolarRectStyle)
             .height(Length::Fixed(24.0))
             .style(style::h_slider::RectBipolarStyle);
 
-        let h_slider_texture = HSlider::new(self.texture_param, Message::TextureStyle)
+        let h_slider_texture = HSlider::new(self.texture_param)
+            .on_gesture(Message::TextureStyle)
             .tick_marks(&self.float_tick_marks)
             .text_marks(&self.float_text_marks)
             // the height of the texture

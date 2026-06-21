@@ -113,20 +113,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`XYPad`].
+    /// Produces the style of an enabled, idle [`XYPad`].
     ///
     /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`XYPad`].
     ///
     /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of an [`XYPad`] that is being dragged.
+    /// Produces the style of an [`XYPad`] that is being gestured (dragged).
     ///
     /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    /// Produces the style of an [`XYPad`] that is currently disabled.
+    ///
+    /// [`XYPad`]: ../../native/xy_pad/struct.XYPad.html
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 }
 
 /// The style of a XYPad.
@@ -151,10 +162,10 @@ where
 impl StyleSheet for iced_core::Theme {
     type Style = XYPad;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             XYPad::Default => Default::default(),
-            XYPad::Custom(custom) => custom.active(self),
+            XYPad::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -171,7 +182,7 @@ impl StyleSheet for iced_core::Theme {
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         match style {
             XYPad::Default => Appearance {
                 handle: HandleShape::Circle(HandleCircle {
@@ -181,7 +192,12 @@ impl StyleSheet for iced_core::Theme {
                 }),
                 ..Default::default()
             },
-            XYPad::Custom(custom) => custom.dragging(self),
+            XYPad::Custom(custom) => custom.gesturing(self),
         }
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        // TODO
+        self.idle(style)
     }
 }

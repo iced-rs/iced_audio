@@ -270,20 +270,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`VSlider`].
+    /// Produces the style of an enabled, idle [`VSlider`].
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`VSlider`].
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of a [`VSlider`] that is being dragged.
+    /// Produces the style of a [`VSlider`] that is being gestured (dragged).
     ///
     /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    /// Produces the style of a [`VSlider`] that is currently disabled.
+    ///
+    /// [`VSlider`]: ../../native/v_slider/struct.VSlider.html
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
     /// The style of tick marks for a [`VSlider`]
     ///
@@ -346,10 +357,10 @@ where
 impl StyleSheet for iced_core::Theme {
     type Style = VSlider;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             VSlider::Default => Appearance::Classic(Default::default()),
-            VSlider::Custom(custom) => custom.active(self),
+            VSlider::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -366,7 +377,7 @@ impl StyleSheet for iced_core::Theme {
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         match style {
             VSlider::Default => Appearance::Classic(ClassicAppearance {
                 handle: ClassicHandle {
@@ -375,8 +386,13 @@ impl StyleSheet for iced_core::Theme {
                 },
                 ..Default::default()
             }),
-            VSlider::Custom(custom) => custom.dragging(self),
+            VSlider::Custom(custom) => custom.gesturing(self),
         }
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        // TODO
+        self.idle(style)
     }
 
     fn tick_marks_appearance(&self, style: &Self::Style) -> Option<TickMarksAppearance> {

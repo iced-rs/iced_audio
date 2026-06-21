@@ -105,7 +105,7 @@ impl Group {
         for (i, text) in text.iter().enumerate() {
             let pos = (i as f32 * span) + span;
 
-            vec.push((Normal::from_clipped(pos), String::from(*text)));
+            vec.push((Normal::new(pos), String::from(*text)));
         }
 
         if let Some(min_text) = min {
@@ -134,7 +134,7 @@ impl Group {
             for (i, item) in text.iter().take(len_min_1).enumerate() {
                 let pos = i as f32 * span;
 
-                vec.push((Normal::from_clipped(pos), String::from(*item)));
+                vec.push((Normal::new(pos), String::from(*item)));
             }
 
             vec.push((Normal::MAX, String::from(text[len_min_1])));

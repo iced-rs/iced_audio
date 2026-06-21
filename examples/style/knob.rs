@@ -9,25 +9,25 @@ use super::colors;
 
 pub struct CustomStyleCircle;
 impl CustomStyleCircle {
-    const ACTIVE_CIRCLE_NOTCH: knob::CircleNotch = knob::CircleNotch {
+    const IDLE_CIRCLE_NOTCH: knob::CircleNotch = knob::CircleNotch {
         color: colors::HANDLE,
         border_width: 1.0,
         border_color: colors::FILLED,
         diameter: knob::StyleLength::Scaled(0.21),
         offset: knob::StyleLength::Scaled(0.21),
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
+    const IDLE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
         color: colors::KNOB,
         border_width: 3.0,
         border_color: colors::KNOB_BORDER,
-        notch: knob::NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
+        notch: knob::NotchShape::Circle(Self::IDLE_CIRCLE_NOTCH),
     };
 }
 impl knob::StyleSheet for CustomStyleCircle {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> knob::Appearance {
-        knob::Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
+    fn idle(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Circle(Self::IDLE_CIRCLE_STYLE)
     }
 
     fn hovered(&self, _style: &Self::Style) -> knob::Appearance {
@@ -35,13 +35,13 @@ impl knob::StyleSheet for CustomStyleCircle {
             notch: knob::NotchShape::Circle(knob::CircleNotch {
                 color: colors::HANDLE_HOVER,
                 border_color: colors::FILLED_HOVER,
-                ..Self::ACTIVE_CIRCLE_NOTCH
+                ..Self::IDLE_CIRCLE_NOTCH
             }),
-            ..Self::ACTIVE_CIRCLE_STYLE
+            ..Self::IDLE_CIRCLE_STYLE
         })
     }
 
-    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
+    fn gesturing(&self, style: &Self::Style) -> knob::Appearance {
         self.hovered(style)
     }
 
@@ -91,33 +91,33 @@ impl knob::StyleSheet for CustomStyleCircle {
 
 pub struct CustomStyleLine;
 impl CustomStyleLine {
-    const ACTIVE_CIRCLE_NOTCH: knob::LineNotch = knob::LineNotch {
+    const IDLE_CIRCLE_NOTCH: knob::LineNotch = knob::LineNotch {
         color: Color::from_rgb(0.0, 0.82, 0.0),
         width: knob::StyleLength::Fixed(3.5),
         length: knob::StyleLength::Scaled(0.12),
         offset: knob::StyleLength::Fixed(5.0),
         cap: LineCap::Round,
     };
-    const ACTIVE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
+    const IDLE_CIRCLE_STYLE: knob::CircleAppearance = knob::CircleAppearance {
         color: colors::KNOB,
         border_width: 0.0,
         border_color: Color::TRANSPARENT,
-        notch: knob::NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
+        notch: knob::NotchShape::Line(Self::IDLE_CIRCLE_NOTCH),
     };
 }
 impl knob::StyleSheet for CustomStyleLine {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> knob::Appearance {
-        knob::Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
+    fn idle(&self, _style: &Self::Style) -> knob::Appearance {
+        knob::Appearance::Circle(Self::IDLE_CIRCLE_STYLE)
     }
 
     fn hovered(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+        self.idle(style)
     }
 
-    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+    fn gesturing(&self, style: &Self::Style) -> knob::Appearance {
+        self.idle(style)
     }
 
     fn value_arc_appearance(&self, _style: &Self::Style) -> Option<knob::ValueArcAppearance> {
@@ -138,7 +138,7 @@ pub struct CustomArc;
 impl knob::StyleSheet for CustomArc {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+    fn idle(&self, _style: &Self::Style) -> knob::Appearance {
         knob::Appearance::Arc(knob::ArcAppearance {
             width: knob::StyleLength::Fixed(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
@@ -155,11 +155,11 @@ impl knob::StyleSheet for CustomArc {
     }
 
     fn hovered(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+        self.idle(style)
     }
 
-    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+    fn gesturing(&self, style: &Self::Style) -> knob::Appearance {
+        self.idle(style)
     }
 
     fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {
@@ -197,7 +197,7 @@ impl CustomArcBipolar {
 impl knob::StyleSheet for CustomArcBipolar {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> knob::Appearance {
+    fn idle(&self, _style: &Self::Style) -> knob::Appearance {
         knob::Appearance::ArcBipolar(knob::ArcBipolarAppearance {
             width: knob::StyleLength::Fixed(3.15),
             empty_color: colors::KNOB_ARC_EMPTY,
@@ -219,11 +219,11 @@ impl knob::StyleSheet for CustomArcBipolar {
     }
 
     fn hovered(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+        self.idle(style)
     }
 
-    fn dragging(&self, style: &Self::Style) -> knob::Appearance {
-        self.active(style)
+    fn gesturing(&self, style: &Self::Style) -> knob::Appearance {
+        self.idle(style)
     }
 
     fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {

@@ -5,9 +5,10 @@ use iced::widget::{checkbox, column, container, row, text};
 use iced::{Alignment, Element, Length, Result, Size, application};
 
 use iced_audio::{
-    FloatRange, HSlider, Knob, ModRangeInput, ModulationRange, Normal, NormalParam, VSlider,
+    FloatRange, Gesture, HSlider, Knob, ModRangeInput, ModulationRange, NormalParam, VSlider,
 };
-use util::info_text;
+
+use crate::util::info_text::info_text_f32;
 
 fn main() -> Result {
     application(
@@ -26,22 +27,19 @@ pub enum ModRangesID {}
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    RangeStart(Normal),
-    RangeEnd(Normal),
-    Knob1(Normal),
-    HSlider1(Normal),
-    VSlider1(Normal),
-    ModKnob1(Normal),
-    ModKnob2(Normal),
-    ModRangeInput1(Normal),
-    ModRangeInput2(Normal),
+    RangeStart(Gesture),
+    RangeEnd(Gesture),
+    Knob1(Gesture),
+    HSlider1(Gesture),
+    VSlider1(Gesture),
+    ModKnob1(Gesture),
+    ModKnob2(Gesture),
+    ModRangeInput1(Gesture),
+    ModRangeInput2(Gesture),
     ToggleModRange(bool),
 }
 
 pub struct ModRangeExample {
-    float_range: FloatRange,
-    float_range_bipolar: FloatRange,
-
     knob_start_param: NormalParam,
     knob_end_param: NormalParam,
 
@@ -65,36 +63,26 @@ pub struct ModRangeExample {
 
 impl Default for ModRangeExample {
     fn default() -> Self {
-        // initalize parameters
-
-        let float_range = FloatRange::default();
-        let float_range_bipolar = FloatRange::default_bipolar();
-
-        // create application
-
         Self {
-            float_range,
-            float_range_bipolar,
-
             // initialize the state of the Knob widget
-            knob_start_param: float_range.default_normal_param(),
-            knob_end_param: float_range.default_normal_param(),
+            knob_start_param: FloatRange::NORMAL.default_param(),
+            knob_end_param: FloatRange::NORMAL.default_param(),
 
             mod_range_1: ModulationRange::default(),
 
-            knob1_param: float_range.default_normal_param(),
+            knob1_param: FloatRange::NORMAL.default_param(),
 
-            h_slider1_param: float_range.default_normal_param(),
+            h_slider1_param: FloatRange::NORMAL.default_param(),
 
-            v_slider1_param: float_range.default_normal_param(),
+            v_slider1_param: FloatRange::NORMAL.default_param(),
 
-            auto_input1_param: float_range_bipolar.default_normal_param(),
+            auto_input1_param: FloatRange::NORMAL_BIPOLAR.default_param(),
 
-            knob_auto1_param: float_range.default_normal_param(),
-            auto_input2_param: float_range_bipolar.default_normal_param(),
+            knob_auto1_param: FloatRange::NORMAL.default_param(),
+            auto_input2_param: FloatRange::NORMAL_BIPOLAR.default_param(),
             knob_auto1_mod_range: ModulationRange::default(),
 
-            knob_auto2_param: float_range.default_normal_param(),
+            knob_auto2_param: FloatRange::NORMAL.default_param(),
             output_text: String::from("Move a widget"),
             knob_auto2_mod_range: ModulationRange::default(),
 
@@ -110,91 +98,73 @@ impl ModRangeExample {
 
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::RangeStart(normal) => {
-                self.knob_start_param.update(normal);
-
-                self.output_text =
-                    info_text::info_text_f32("RangeStart", self.float_range.unmap_to_value(normal));
+            Message::RangeStart(Gesture::Gesturing(normal)) => {
+                self.knob_start_param.set(normal);
+                self.output_text = info_text_f32("RangeStart", normal, &FloatRange::NORMAL);
 
                 self.mod_range_1.start = normal;
             }
-            Message::RangeEnd(normal) => {
-                self.knob_end_param.update(normal);
-
-                self.output_text =
-                    info_text::info_text_f32("RangeEnd", self.float_range.unmap_to_value(normal));
+            Message::RangeEnd(Gesture::Gesturing(normal)) => {
+                self.knob_end_param.set(normal);
+                self.output_text = info_text_f32("RangeEnd", normal, &FloatRange::NORMAL);
 
                 self.mod_range_1.end = normal;
             }
-            Message::Knob1(normal) => {
-                self.knob1_param.update(normal);
-
-                self.output_text =
-                    info_text::info_text_f32("Knob1", self.float_range.unmap_to_value(normal));
+            Message::Knob1(Gesture::Gesturing(normal)) => {
+                self.knob1_param.set(normal);
+                self.output_text = info_text_f32("Knob1", normal, &FloatRange::NORMAL);
             }
-            Message::HSlider1(normal) => {
-                self.h_slider1_param.update(normal);
-
-                self.output_text =
-                    info_text::info_text_f32("HSlider1", self.float_range.unmap_to_value(normal));
+            Message::HSlider1(Gesture::Gesturing(normal)) => {
+                self.h_slider1_param.set(normal);
+                self.output_text = info_text_f32("HSlider1", normal, &FloatRange::NORMAL);
             }
-            Message::VSlider1(normal) => {
-                self.v_slider1_param.value = normal;
-
-                self.output_text =
-                    info_text::info_text_f32("VSlider1", self.float_range.unmap_to_value(normal));
+            Message::VSlider1(Gesture::Gesturing(normal)) => {
+                self.v_slider1_param.normal = normal;
+                self.output_text = info_text_f32("VSlider1", normal, &FloatRange::NORMAL);
             }
-            Message::ModKnob1(normal) => {
-                self.knob_auto1_param.update(normal);
+            Message::ModKnob1(Gesture::Gesturing(normal)) => {
+                self.knob_auto1_param.set(normal);
+                self.output_text = info_text_f32("ModKnob1", normal, &FloatRange::NORMAL);
 
-                self.output_text =
-                    info_text::info_text_f32("ModKnob1", self.float_range.unmap_to_value(normal));
-
-                let mod_value = self
-                    .float_range_bipolar
-                    .unmap_to_value(self.auto_input1_param.value);
+                let mod_value =
+                    FloatRange::NORMAL_BIPOLAR.unmap_to_value(self.auto_input1_param.normal);
 
                 self.knob_auto1_mod_range.start = normal;
                 self.knob_auto1_mod_range
                     .end
-                    .set_clipped(self.knob_auto1_mod_range.start.as_f32() + mod_value);
+                    .set(self.knob_auto1_mod_range.start.as_f32() + mod_value);
             }
-            Message::ModRangeInput1(normal) => {
-                self.auto_input1_param.update(normal);
+            Message::ModRangeInput1(Gesture::Gesturing(normal)) => {
+                self.auto_input1_param.set(normal);
+                self.output_text =
+                    info_text_f32("ModRangeInput1", normal, &FloatRange::NORMAL_BIPOLAR);
 
-                let value = self.float_range_bipolar.unmap_to_value(normal);
-
-                self.output_text = info_text::info_text_f32("ModRangeInput1", value);
-
+                let value = FloatRange::NORMAL_BIPOLAR.unmap_to_value(normal);
                 self.knob_auto1_mod_range
                     .end
-                    .set_clipped(self.knob_auto1_param.value.as_f32() + value);
+                    .set(self.knob_auto1_param.normal.as_f32() + value);
             }
-            Message::ModKnob2(normal) => {
-                self.knob_auto2_param.update(normal);
-
+            Message::ModRangeInput2(Gesture::Gesturing(normal)) => {
+                self.auto_input2_param.set(normal);
                 self.output_text =
-                    info_text::info_text_f32("ModKnob2", self.float_range.unmap_to_value(normal));
+                    info_text_f32("ModRangeInput2", normal, &FloatRange::NORMAL_BIPOLAR);
 
-                let mod_value = self
-                    .float_range_bipolar
-                    .unmap_to_value(self.auto_input2_param.value);
+                let value = FloatRange::NORMAL_BIPOLAR.unmap_to_value(normal);
+                self.knob_auto2_mod_range
+                    .end
+                    .set(self.knob_auto2_param.normal.as_f32() + value);
+            }
+            Message::ModKnob2(Gesture::Gesturing(normal)) => {
+                self.knob_auto2_param.set(normal);
+                self.output_text = info_text_f32("ModKnob2", normal, &FloatRange::NORMAL_BIPOLAR);
+
+                let mod_value =
+                    FloatRange::NORMAL_BIPOLAR.unmap_to_value(self.auto_input2_param.normal);
 
                 self.knob_auto2_mod_range.start = normal;
                 self.knob_auto2_mod_range
                     .end
-                    .set_clipped(self.knob_auto2_mod_range.start.as_f32() + mod_value);
-            }
-            Message::ModRangeInput2(normal) => {
-                self.auto_input2_param.update(normal);
-
-                let value = self.float_range_bipolar.unmap_to_value(normal);
-
-                self.output_text = info_text::info_text_f32("ModRangeInput1", value);
-
-                self.knob_auto2_mod_range
-                    .end
-                    .set_clipped(self.knob_auto2_param.value.as_f32() + value);
+                    .set(self.knob_auto2_mod_range.start.as_f32() + mod_value);
             }
             Message::ToggleModRange(toggle) => {
                 self.show_modulation = toggle;
@@ -203,6 +173,7 @@ impl ModRangeExample {
                 self.knob_auto1_mod_range.filled_visible = toggle;
                 self.knob_auto2_mod_range.filled_visible = toggle;
             }
+            _ => {}
         }
     }
 
@@ -210,39 +181,46 @@ impl ModRangeExample {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_start = Knob::new(self.knob_start_param, Message::RangeStart);
-        let knob_end = Knob::new(self.knob_end_param, Message::RangeEnd);
+        let knob_start = Knob::new(self.knob_start_param).on_gesture(Message::RangeStart);
+        let knob_end = Knob::new(self.knob_end_param).on_gesture(Message::RangeEnd);
 
         let mod_range_1 = self.show_modulation.then_some(&self.mod_range_1);
 
-        let knob1 = Knob::new(self.knob1_param, Message::Knob1)
+        let knob1 = Knob::new(self.knob1_param)
+            .on_gesture(Message::Knob1)
             .mod_range(mod_range_1)
             .style(style::knob::CustomArc);
 
-        let h_slider1 = HSlider::new(self.h_slider1_param, Message::HSlider1)
+        let h_slider1 = HSlider::new(self.h_slider1_param)
+            .on_gesture(Message::HSlider1)
             .mod_range(mod_range_1)
             .style(style::h_slider::RectStyle);
 
-        let v_slider1 = VSlider::new(self.v_slider1_param, Message::VSlider1)
+        let v_slider1 = VSlider::new(self.v_slider1_param)
+            .on_gesture(Message::VSlider1)
             .width(Length::Fixed(30.0))
             .mod_range(mod_range_1)
             .style(style::v_slider::RectStyle);
 
-        let auto_input1 = ModRangeInput::new(self.auto_input1_param, Message::ModRangeInput1)
+        let auto_input1 = ModRangeInput::new(self.auto_input1_param)
+            .on_gesture(Message::ModRangeInput1)
             .size(Length::from(10))
             .style(style::mod_range_input::CustomStyle)
             .enabled(self.show_modulation);
 
-        let knob_auto1 = Knob::new(self.knob_auto1_param, Message::ModKnob1)
+        let knob_auto1 = Knob::new(self.knob_auto1_param)
+            .on_gesture(Message::ModKnob1)
             .mod_range(self.show_modulation.then_some(&self.knob_auto1_mod_range))
             .style(style::knob::CustomStyleCircle);
 
-        let auto_input2 = ModRangeInput::new(self.auto_input2_param, Message::ModRangeInput2)
+        let auto_input2 = ModRangeInput::new(self.auto_input2_param)
+            .on_gesture(Message::ModRangeInput2)
             .size(Length::from(15))
             .style(iced_audio::mod_range_input::InvisibleStyle)
             .enabled(self.show_modulation);
 
-        let knob_auto2 = Knob::new(self.knob_auto2_param, Message::ModKnob2)
+        let knob_auto2 = Knob::new(self.knob_auto2_param)
+            .on_gesture(Message::ModKnob2)
             .mod_range(self.show_modulation.then_some(&self.knob_auto2_mod_range))
             .style(style::knob::CustomStyleCircle);
 

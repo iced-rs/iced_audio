@@ -9,7 +9,7 @@ use super::colors;
 
 pub struct RectStyle;
 impl RectStyle {
-    const ACTIVE_RECT_STYLE: h_slider::RectAppearance = h_slider::RectAppearance {
+    const IDLE_RECT_STYLE: h_slider::RectAppearance = h_slider::RectAppearance {
         back_color: colors::EMPTY,
         back_border_width: 1.0,
         back_border_radius: 2.0,
@@ -23,19 +23,19 @@ impl RectStyle {
 impl h_slider::StyleSheet for RectStyle {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> h_slider::Appearance {
-        h_slider::Appearance::Rect(Self::ACTIVE_RECT_STYLE)
+    fn idle(&self, _style: &Self::Style) -> h_slider::Appearance {
+        h_slider::Appearance::Rect(Self::IDLE_RECT_STYLE)
     }
 
     fn hovered(&self, _style: &Self::Style) -> h_slider::Appearance {
         h_slider::Appearance::Rect(h_slider::RectAppearance {
             filled_color: colors::FILLED_HOVER,
             handle_width: 5,
-            ..Self::ACTIVE_RECT_STYLE
+            ..Self::IDLE_RECT_STYLE
         })
     }
 
-    fn dragging(&self, style: &Self::Style) -> h_slider::Appearance {
+    fn gesturing(&self, style: &Self::Style) -> h_slider::Appearance {
         self.hovered(style)
     }
 
@@ -60,7 +60,7 @@ impl h_slider::StyleSheet for RectStyle {
 
 pub struct RectBipolarStyle;
 impl RectBipolarStyle {
-    const ACTIVE_RECT_STYLE: h_slider::RectBipolarAppearance = h_slider::RectBipolarAppearance {
+    const IDLE_RECT_STYLE: h_slider::RectBipolarAppearance = h_slider::RectBipolarAppearance {
         back_color: colors::EMPTY,
         back_border_width: 1.0,
         back_border_radius: 2.0,
@@ -77,8 +77,8 @@ impl RectBipolarStyle {
 impl h_slider::StyleSheet for RectBipolarStyle {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> h_slider::Appearance {
-        h_slider::Appearance::RectBipolar(Self::ACTIVE_RECT_STYLE)
+    fn idle(&self, _style: &Self::Style) -> h_slider::Appearance {
+        h_slider::Appearance::RectBipolar(Self::IDLE_RECT_STYLE)
     }
 
     fn hovered(&self, _style: &Self::Style) -> h_slider::Appearance {
@@ -86,11 +86,11 @@ impl h_slider::StyleSheet for RectBipolarStyle {
             left_filled_color: colors::FILLED_HOVER,
             right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
             handle_width: 5,
-            ..Self::ACTIVE_RECT_STYLE
+            ..Self::IDLE_RECT_STYLE
         })
     }
 
-    fn dragging(&self, style: &Self::Style) -> h_slider::Appearance {
+    fn gesturing(&self, style: &Self::Style) -> h_slider::Appearance {
         self.hovered(style)
     }
 }
@@ -101,7 +101,7 @@ pub struct TextureStyle(pub iced::widget::image::Handle, pub Rectangle);
 impl h_slider::StyleSheet for TextureStyle {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> h_slider::Appearance {
+    fn idle(&self, _style: &Self::Style) -> h_slider::Appearance {
         h_slider::Appearance::Texture(h_slider::TextureAppearance {
             rail: h_slider::ClassicRail {
                 rail_colors: ([0.0, 0.0, 0.0, 0.9].into(), [0.36, 0.36, 0.36, 0.75].into()),
@@ -115,11 +115,11 @@ impl h_slider::StyleSheet for TextureStyle {
     }
 
     fn hovered(&self, style: &Self::Style) -> h_slider::Appearance {
-        self.active(style)
+        self.idle(style)
     }
 
-    fn dragging(&self, style: &Self::Style) -> h_slider::Appearance {
-        self.active(style)
+    fn gesturing(&self, style: &Self::Style) -> h_slider::Appearance {
+        self.idle(style)
     }
 
     fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<h_slider::TickMarksAppearance> {

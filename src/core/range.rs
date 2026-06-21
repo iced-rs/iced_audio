@@ -2,7 +2,7 @@
 ///
 /// [`Normal`]: ../struct.Normal.html
 use crate::core::Normal;
-use crate::core::normal_param::NormalParam;
+use crate::core::param::NormalParam;
 
 use std::fmt::Debug;
 
@@ -10,15 +10,21 @@ use std::fmt::Debug;
 /// to a [`Normal`]
 ///
 /// [`Normal`]: ../struct.Normal.html
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct FloatRange {
     min: f32,
     max: f32,
-    span: f32,
-    span_recip: f32,
 }
 
 impl FloatRange {
+    /// A float range of `[0.0..=1.0]`
+    pub const NORMAL: Self = Self { min: 0.0, max: 1.0 };
+    /// A float range of `[-1.0..=1.0]`
+    pub const NORMAL_BIPOLAR: Self = Self {
+        min: -1.0,
+        max: 1.0,
+    };
+
     /// Creates a new `FloatRange`
     ///
     /// # Arguments
@@ -28,30 +34,26 @@ impl FloatRange {
     ///
     /// # Panics
     ///
-    /// This will panic if `max` <= `min`
-    pub fn new(min: f32, max: f32) -> Self {
-        assert!(max > min);
+    /// This will panic if `max` < `min`
+    pub const fn new(min: f32, max: f32) -> Self {
+        assert!(max >= min);
 
-        let span = max - min;
-        let span_recip = span.recip();
-
-        Self {
-            min,
-            max,
-            span,
-            span_recip,
-        }
+        Self { min, max }
     }
 
-    /// A `FloatRange` with the range
-    ///
-    /// * `min` = -1.0
-    /// * `max` = 1.0
-    pub fn default_bipolar() -> Self {
-        FloatRange::new(-1.0, 1.0)
+    pub const fn min(&self) -> f32 {
+        self.min
     }
 
-    fn constrain(&self, value: f32) -> f32 {
+    pub const fn max(&self) -> f32 {
+        self.max
+    }
+
+    pub fn span(&self) -> f32 {
+        self.max - self.min
+    }
+
+    pub fn clamp(&self, value: f32) -> f32 {
         if value <= self.min {
             self.min
         } else if value >= self.max {
@@ -68,10 +70,11 @@ impl FloatRange {
     ///
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+    pub fn param(&self, value: f32, default: f32) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(value),
-            default: self.map_to_normal(default),
+            normal: self.map(value),
+            default: self.map(default),
+            ..Default::default()
         }
     }
 
@@ -79,26 +82,32 @@ impl FloatRange {
     /// from this range where `value` and `default_value` is `0.0`.
     ///
     /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
-    pub fn default_normal_param(&self) -> NormalParam {
+    pub fn default_param(&self) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(0.0),
-            default: self.map_to_normal(0.0),
+            normal: self.map(0.0),
+            default: self.map(0.0),
+            ..Default::default()
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn map_to_normal(&self, value: f32) -> Normal {
-        let value = self.constrain(value);
-        Normal::from_clipped((value - self.min) * self.span_recip)
+    pub fn map(&self, value: f32) -> Normal {
+        let span = self.span();
+        if span == 0.0 {
+            Normal::MIN
+        } else {
+            let value = self.clamp(value);
+            Normal::new((value - self.min) / self.span())
+        }
     }
 
     /// Returns the corresponding value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn unmap_to_value(&self, normal: Normal) -> f32 {
-        (normal.as_f32() * self.span) + self.min
+        (normal.as_f32() * self.span()) + self.min
     }
 }
 
@@ -109,12 +118,10 @@ impl Default for FloatRange {
 }
 
 /// A range that defines a discrete linear range of i32 values
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct IntRange {
     min: i32,
     max: i32,
-    span: f32,
-    span_recip: f32,
 }
 
 impl IntRange {
@@ -127,22 +134,30 @@ impl IntRange {
     ///
     /// # Panics
     ///
-    /// This will panic if `max` <= `min`
-    pub fn new(min: i32, max: i32) -> Self {
-        assert!(max > min);
+    /// This will panic if `max` < `min`
+    pub const fn new(min: i32, max: i32) -> Self {
+        assert!(max >= min);
 
-        let span = (max - min) as f32;
-        let span_recip = span.recip();
-
-        Self {
-            min,
-            max,
-            span,
-            span_recip,
-        }
+        Self { min, max }
     }
 
-    fn constrain(&self, value: i32) -> i32 {
+    pub const fn min(&self) -> i32 {
+        self.min
+    }
+
+    pub const fn max(&self) -> i32 {
+        self.max
+    }
+
+    pub const fn span(&self) -> i32 {
+        self.max - self.min
+    }
+
+    pub const fn span_f32(&self) -> f32 {
+        (self.max - self.min) as f32
+    }
+
+    pub fn clamp(&self, value: i32) -> i32 {
         if value <= self.min {
             self.min
         } else if value >= self.max {
@@ -159,10 +174,11 @@ impl IntRange {
     ///
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn normal_param(&self, value: i32, default: i32) -> NormalParam {
+    pub fn param(&self, value: i32, default: i32) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(value),
-            default: self.map_to_normal(default),
+            normal: self.map(value),
+            default: self.map(default),
+            ..Default::default()
         }
     }
 
@@ -170,10 +186,11 @@ impl IntRange {
     /// from this range where `value` and `default_value` is `0`.
     ///
     /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
-    pub fn default_normal_param(&self) -> NormalParam {
+    pub fn default_param(&self) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(0),
-            default: self.map_to_normal(0),
+            normal: self.map(0),
+            default: self.map(0),
+            ..Default::default()
         }
     }
 
@@ -181,24 +198,29 @@ impl IntRange {
     /// value in this range.
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn snapped(&self, normal: Normal) -> Normal {
+    pub fn snap(&self, normal: Normal) -> Normal {
         let value_int = self.unmap_to_value(normal);
-        self.map_to_normal(value_int)
+        self.map(value_int)
     }
 
     /// Returns the corresponding [`Normal`] from the supplied value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn map_to_normal(&self, value: i32) -> Normal {
-        let value = self.constrain(value);
-        Normal::from_clipped((value - self.min) as f32 * self.span_recip)
+    pub fn map(&self, value: i32) -> Normal {
+        let span = self.span_f32();
+        if span == 0.0 {
+            Normal::MIN
+        } else {
+            let value = self.clamp(value);
+            Normal::new((value - self.min) as f32 / self.span_f32())
+        }
     }
 
     /// Returns the corresponding value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
     pub fn unmap_to_value(&self, normal: Normal) -> i32 {
-        (normal.as_f32() * self.span).round() as i32 + self.min
+        (normal.as_f32() * self.span_f32()).round() as i32 + self.min
     }
 }
 
@@ -213,18 +235,24 @@ impl Default for IntRange {
 ///
 /// Values around 0 dB (positive and negative) will increment slower per
 /// slider movement than values farther away from 0 dB.
-#[derive(Debug, Copy, Clone)]
-pub struct LogDBRange {
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct DBRange {
     min: f32,
     max: f32,
+    skew_factor: f32,
     zero_position: Normal,
-    min_recip: f32,
-    max_recip: f32,
-    zero_pos_recip: f32,
-    one_min_zero_pos_recip: f32,
 }
 
-impl LogDBRange {
+impl DBRange {
+    pub const DEFAULT_SKEW_FACTOR: f32 = 1.38;
+
+    pub const NEG_3_TO_3: Self = Self::new(-6.0, 6.0, Normal::CENTER, Self::DEFAULT_SKEW_FACTOR);
+    pub const NEG_6_TO_6: Self = Self::new(-6.0, 6.0, Normal::CENTER, Self::DEFAULT_SKEW_FACTOR);
+    pub const NEG_12_TO_12: Self =
+        Self::new(-12.0, 12.0, Normal::CENTER, Self::DEFAULT_SKEW_FACTOR);
+    pub const NEG_24_TO_24: Self =
+        Self::new(-24.0, 24.0, Normal::CENTER, Self::DEFAULT_SKEW_FACTOR);
+
     /// Creates a new `LogDBRange`
     ///
     /// # Arguments
@@ -235,47 +263,33 @@ impl LogDBRange {
     ///   should be. For example, `Normal::CENTER` will have 0 dB at the center
     ///   of the slider. Normals of `1.0` and `0.0` can be used for only negative
     ///   or only positive decibels respectively
+    /// * `skew_factor` - The exponent of the parameter curve. Larger values are
+    ///   more skewed towards the zero position. Must be greater than or equal to `1.0`
+    ///   A good default value is [`DBRange::DEFAULT_SKEW_FACTOR`] (1.38).
     ///
     /// # Panics
     ///
     /// This will panic if
-    /// * `max` <= `min`
-    /// * `min` > `0.0`
-    /// * `max` < `0.0`
+    /// * `max < min`
+    /// * `min > 0.0`
+    /// * `max < 0.0`
+    /// * `skew_factor < 1.0`
     ///
-    pub fn new(min: f32, max: f32, zero_position: Normal) -> Self {
-        assert!(max > min, "max must be greater than min");
-        assert!(max >= 0.0, "max must be 0.0 or positive");
-        assert!(min <= 0.0, "min must be 0.0 or negative");
-
-        let min_recip = if min == 0.0 { 0.0 } else { 1.0 / min };
-
-        let max_recip = if max == 0.0 { 0.0 } else { 1.0 / max };
-
-        let zero_pos_recip = if zero_position.as_f32() == 0.0 {
-            0.0
-        } else {
-            1.0 / zero_position.as_f32()
-        };
-
-        let one_min_zero_pos_recip = if zero_position.as_f32() == 0.0 {
-            0.0
-        } else {
-            1.0 / (1.0 - zero_position.as_f32())
-        };
+    pub const fn new(min: f32, max: f32, zero_position: Normal, skew_factor: f32) -> Self {
+        assert!(max >= min, "max must be >= min");
+        assert!(max >= 0.0, "max must be >= 0.0");
+        assert!(min <= 0.0, "min must be <= 0.0");
+        assert!(skew_factor >= 1.0, "skew_factor must be >= 1.0");
 
         Self {
             min,
             max,
+            skew_factor,
             zero_position,
-            min_recip,
-            max_recip,
-            zero_pos_recip,
-            one_min_zero_pos_recip,
         }
     }
 
-    fn constrain(&self, value: f32) -> f32 {
+    pub fn clamp(&self, value: f32) -> f32 {
         if value <= self.min {
             self.min
         } else if value >= self.max {
@@ -292,10 +306,11 @@ impl LogDBRange {
     ///
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+    pub fn param(&self, value: f32, default: f32) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(value),
-            default: self.map_to_normal(default),
+            normal: self.map_db(value),
+            default: self.map_db(default),
+            ..Default::default()
         }
     }
 
@@ -303,38 +318,53 @@ impl LogDBRange {
     /// from this range where `value` and `default_value` is `0.0`.
     ///
     /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
-    pub fn default_normal_param(&self) -> NormalParam {
+    pub fn default_param(&self) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(0.0),
-            default: self.map_to_normal(0.0),
+            normal: self.map_db(0.0),
+            default: self.map_db(0.0),
+            ..Default::default()
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied `value`
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn map_to_normal(&self, value: f32) -> Normal {
-        let value = self.constrain(value);
-        if value == 0.0 {
+    pub fn map_db(&self, value: f32) -> Normal {
+        let value = self.clamp(value);
+        if value == 0.0 || self.min == self.max {
             self.zero_position
         } else if value < 0.0 {
             if self.min >= 0.0 {
                 return Normal::MIN;
             }
-            let neg_normal = value * self.min_recip;
 
-            let log_normal = 1.0 - neg_normal.sqrt();
+            let min_recip = if self.min == 0.0 {
+                0.0
+            } else {
+                self.min.recip()
+            };
 
-            Normal::from_clipped(log_normal * self.zero_position.as_f32())
+            let neg_normal = value * min_recip;
+
+            let log_normal = 1.0 - neg_normal.abs().powf(self.skew_factor.recip());
+
+            Normal::new(log_normal * self.zero_position.as_f32())
         } else {
             if self.max <= 0.0 {
                 return Normal::MAX;
             }
-            let pos_normal = value * self.max_recip;
 
-            let log_normal = pos_normal.sqrt();
+            let max_recip = if self.max == 0.0 {
+                0.0
+            } else {
+                self.max.recip()
+            };
 
-            Normal::from_clipped(
+            let pos_normal = value * max_recip;
+
+            let log_normal = pos_normal.abs().powf(self.skew_factor.recip());
+
+            Normal::new(
                 (log_normal * (1.0 - self.zero_position.as_f32())) + self.zero_position.as_f32(),
             )
         }
@@ -343,35 +373,49 @@ impl LogDBRange {
     /// Returns the corresponding dB value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn unmap_to_value(&self, normal: Normal) -> f32 {
-        if normal == self.zero_position {
+    pub fn unmap_to_db(&self, normal: Normal) -> f32 {
+        if normal == self.zero_position || self.min == self.max {
             0.0
         } else if normal < self.zero_position {
             if self.min >= 0.0 {
                 return self.min;
             }
-            let neg_normal = 1.0 - (normal.as_f32() * self.zero_pos_recip);
 
-            let log_normal = 1.0 - (neg_normal * neg_normal);
+            let zero_pos_recip = if self.zero_position.as_f32() == 0.0 {
+                0.0
+            } else {
+                1.0 / self.zero_position.as_f32()
+            };
+
+            let neg_normal = 1.0 - (normal.as_f32() * zero_pos_recip);
+
+            let log_normal = 1.0 - neg_normal.abs().powf(self.skew_factor);
 
             (1.0 - log_normal) * self.min
         } else {
             if self.zero_position.as_f32() == 1.0 || self.max <= 0.0 {
                 return self.max;
             }
-            let pos_normal =
-                (normal.as_f32() - self.zero_position.as_f32()) * self.one_min_zero_pos_recip;
 
-            let log_normal = pos_normal * pos_normal;
+            let one_min_zero_pos_recip = if self.zero_position.as_f32() == 0.0 {
+                0.0
+            } else {
+                1.0 / (1.0 - self.zero_position.as_f32())
+            };
+
+            let pos_normal =
+                (normal.as_f32() - self.zero_position.as_f32()) * one_min_zero_pos_recip;
+
+            let log_normal = pos_normal.abs().powf(self.skew_factor);
 
             log_normal * self.max
         }
     }
 }
 
-impl Default for LogDBRange {
+impl Default for DBRange {
     fn default() -> Self {
-        LogDBRange::new(-12.0, 12.0, Normal::CENTER)
+        DBRange::NEG_12_TO_12
     }
 }
 
@@ -380,60 +424,38 @@ impl Default for LogDBRange {
 ///
 /// Smaller frequencies will increment slower per slider movement than larger
 /// ones.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct FreqRange {
     min: f32,
     max: f32,
-    spectrum_normal_span: f32,
-    spectrum_normal_span_recip: f32,
-    min_spectrum_normal: Normal,
 }
 
 impl FreqRange {
+    pub const HZ_20_TO_20K: Self = Self::new(20.0, 20_000.0);
+
     /// Creates a new `OctaveNormalParam`
     ///
     /// # Arguments
     ///
-    /// * `min` - the minimum of the range in Hz (inclusive), will be
-    ///   constrained to `20.0 Hz <= min <= 20480.0 Hz`
-    /// * `max` - the maximum of the range in Hz (inclusive), will be
-    ///   constrained to `20.0 Hz <= max <= 20480.0 Hz`
-    ///
+    /// * `min` - the minimum of the range in Hz (inclusive). Must be greater
+    ///   than 0.0.
+    /// * `max` - the maximum of the range in Hz (inclusive). Must be greater
+    ///   than 0.0.
     /// # Panics
     ///
     /// This will panic if
-    /// * `max` <= `min`
-    ///
-    pub fn new(min: f32, max: f32) -> Self {
-        assert!(max > min);
+    /// * `max < min`
+    /// * `min <= 0.0`
+    /// * `max <= 0.0`
+    pub const fn new(min: f32, max: f32) -> Self {
+        assert!(max >= min);
+        assert!(min > 0.0);
+        assert!(max > 0.0);
 
-        let mut min = min;
-        if min < 20.0 {
-            min = 20.0;
-        }
-
-        let mut max = max;
-        if max > 20480.0 {
-            max = 20480.0;
-        }
-
-        let min_spectrum_normal = octave_spectrum_map_to_normal(min);
-        let max_spectrum_normal = octave_spectrum_map_to_normal(max);
-
-        let spectrum_normal_span = max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
-
-        let spectrum_normal_span_recip = 1.0 / spectrum_normal_span;
-
-        Self {
-            min,
-            max,
-            spectrum_normal_span,
-            min_spectrum_normal,
-            spectrum_normal_span_recip,
-        }
+        Self { min, max }
     }
 
-    fn constrain(&self, value: f32) -> f32 {
+    pub fn clamp(&self, value: f32) -> f32 {
         if value <= self.min {
             self.min
         } else if value >= self.max {
@@ -450,10 +472,11 @@ impl FreqRange {
     ///
     /// * `value` - The inital value of the parameter.
     /// * `default_value` - The default value of the parameter.
-    pub fn normal_param(&self, value: f32, default: f32) -> NormalParam {
+    pub fn param(&self, value: f32, default: f32) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(value),
-            default: self.map_to_normal(default),
+            normal: self.map_freq(value),
+            default: self.map_freq(default),
+            ..Default::default()
         }
     }
 
@@ -461,40 +484,58 @@ impl FreqRange {
     /// from this range where `value` and `default_value` is `20480.0`.
     ///
     /// [`NormalParam`]: ../normal_param/struct.NormalParam.html
-    pub fn default_normal_param(&self) -> NormalParam {
+    pub fn default_param(&self) -> NormalParam {
         NormalParam {
-            value: self.map_to_normal(20_480.0),
-            default: self.map_to_normal(20_480.0),
+            normal: self.map_freq(20_480.0),
+            default: self.map_freq(20_480.0),
+            ..Default::default()
         }
     }
 
     /// Returns the corresponding [`Normal`] from the supplied frequency value
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn map_to_normal(&self, value: f32) -> Normal {
-        let value = self.constrain(value);
-        let spectrum_normal = octave_spectrum_map_to_normal(value);
-        Normal::from_clipped(
-            (spectrum_normal.as_f32() - self.min_spectrum_normal.as_f32())
-                * self.spectrum_normal_span_recip,
-        )
+    pub fn map_freq(&self, value: f32) -> Normal {
+        if self.min == self.max {
+            Normal::MIN
+        } else {
+            let value = self.clamp(value);
+
+            let spectrum_normal = octave_spectrum_map_to_normal(value);
+            let min_spectrum_normal = octave_spectrum_map_to_normal(self.min);
+            let max_spectrum_normal = octave_spectrum_map_to_normal(self.max);
+
+            let spectrum_normal_span = max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
+
+            Normal::new(
+                (spectrum_normal.as_f32() - min_spectrum_normal.as_f32()) / spectrum_normal_span,
+            )
+        }
     }
 
     /// Returns the corresponding frequency value from the supplied [`Normal`]
     ///
     /// [`Normal`]: ../struct.Normal.html
-    pub fn unmap_to_value(&self, normal: Normal) -> f32 {
-        let spectrum_normal = Normal::from_clipped(
-            normal.as_f32() * self.spectrum_normal_span + self.min_spectrum_normal.as_f32(),
-        );
+    pub fn unmap_to_freq(&self, normal: Normal) -> f32 {
+        if self.min == self.max {
+            self.min
+        } else {
+            let min_spectrum_normal = octave_spectrum_map_to_normal(self.min);
+            let max_spectrum_normal = octave_spectrum_map_to_normal(self.max);
 
-        octave_normal_to_spectrum(spectrum_normal)
+            let spectrum_normal_span = max_spectrum_normal.as_f32() - min_spectrum_normal.as_f32();
+
+            let spectrum_normal =
+                Normal::new(normal.as_f32() * spectrum_normal_span + min_spectrum_normal.as_f32());
+
+            octave_normal_to_spectrum(spectrum_normal)
+        }
     }
 }
 
 impl Default for FreqRange {
     fn default() -> Self {
-        FreqRange::new(20.0, 20_000.0)
+        FreqRange::HZ_20_TO_20K
     }
 }
 
@@ -511,5 +552,5 @@ fn octave_normal_to_spectrum(value: Normal) -> f32 {
 /// [`Normal`]: ../struct.Normal.html
 #[inline]
 fn octave_spectrum_map_to_normal(freq: f32) -> Normal {
-    Normal::from_clipped(((freq / 40.0).log2() + 1.0) * 0.1)
+    Normal::new(((freq / 40.0).log2() + 1.0) * 0.1)
 }

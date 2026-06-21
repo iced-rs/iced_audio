@@ -9,7 +9,7 @@ use super::colors;
 
 pub struct CustomStyle;
 impl CustomStyle {
-    const ACTIVE_STYLE: ramp::Appearance = ramp::Appearance {
+    const IDLE_STYLE: ramp::Appearance = ramp::Appearance {
         back_color: colors::KNOB,
         back_border_width: 2.0,
         back_border_color: colors::KNOB_BORDER,
@@ -22,8 +22,8 @@ impl CustomStyle {
 impl ramp::StyleSheet for CustomStyle {
     type Style = iced::Theme;
 
-    fn active(&self, _style: &Self::Style) -> ramp::Appearance {
-        Self::ACTIVE_STYLE
+    fn idle(&self, _style: &Self::Style) -> ramp::Appearance {
+        Self::IDLE_STYLE
     }
 
     fn hovered(&self, _style: &Self::Style) -> ramp::Appearance {
@@ -35,11 +35,11 @@ impl ramp::StyleSheet for CustomStyle {
                 0xD7 as f32 / 255.0,
                 0xFF as f32 / 255.0,
             ),
-            ..Self::ACTIVE_STYLE
+            ..Self::IDLE_STYLE
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> ramp::Appearance {
+    fn gesturing(&self, style: &Self::Style) -> ramp::Appearance {
         self.hovered(style)
     }
 }

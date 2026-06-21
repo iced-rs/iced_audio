@@ -3,20 +3,22 @@
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
-use crate::core::{Normal, NormalParam, SliderStatus};
+use crate::{
+    core::{Normal, NormalParam},
+    virtual_slider::Gesture,
+};
 use iced_core::{
-    Border, Clipboard, Color, Element, Event, Layout, Length, Rectangle, Shadow, Shell, Size,
-    Widget,
+    Border, Clipboard, Color, Element, Event, Layout, Length, Point, Rectangle, Shadow, Shell,
+    Size, Widget,
     border::Radius,
-    keyboard, layout, mouse,
+    layout, mouse,
     renderer::{Quad, Style},
     touch,
     widget::{Tree, tree},
+    window,
 };
 
 pub use crate::style::xy_pad::{Appearance, HandleCircle, HandleShape, HandleSquare, StyleSheet};
-
-static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 
 /// A 2D XY pad GUI widget that controls two [`NormalParam`] parameters at
 /// once. One in the `x` coordinate and one in the `y` coordinate.
@@ -31,13 +33,11 @@ pub struct XYPad<'a, Message, Theme>
 where
     Theme: StyleSheet,
 {
-    normal_param_x: NormalParam,
-    normal_param_y: NormalParam,
-    on_change: Box<dyn 'a + Fn(Normal, Normal) -> Message>,
-    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    modifier_scalar: f32,
-    modifier_keys: keyboard::Modifiers,
+    on_gesture_x: Option<Box<dyn 'a + FnMut(Gesture) -> Message>>,
+    on_gesture_y: Option<Box<dyn 'a + FnMut(Gesture) -> Message>>,
+    enabled: bool,
+    param_x: Option<NormalParam>,
+    param_y: Option<NormalParam>,
     size: Length,
     style: <Theme as StyleSheet>::Style,
 }
@@ -50,47 +50,54 @@ where
     ///
     /// It expects:
     ///   * the [`NormalParam`]s for the x & y axis of the [`XYPad`]
-    ///   * a function that will be called when the [`XYPad`] is dragged.
     ///
     /// [`NormalParam`]: struct.NormalParam.html
     /// [`XYPad`]: struct.XYPad.html
-    pub fn new<F>(normal_param_x: NormalParam, normal_param_y: NormalParam, on_change: F) -> Self
+    pub fn new(
+        param_x: Option<impl Into<NormalParam>>,
+        param_y: Option<impl Into<NormalParam>>,
+    ) -> Self
     where
-        F: 'a + Fn(Normal, Normal) -> Message,
         <Theme as StyleSheet>::Style: Default,
     {
         XYPad {
-            normal_param_x,
-            normal_param_y,
-            on_change: Box::new(on_change),
-            on_grab: None,
-            on_release: None,
-            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers::CTRL,
+            param_x: param_x.map(|p| p.into()),
+            param_y: param_y.map(|p| p.into()),
+            enabled: true,
+            on_gesture_x: None,
+            on_gesture_y: None,
             size: Length::Fill,
             style: Default::default(),
         }
     }
 
-    /// Sets the grab message of the [`XYPad`].
-    /// This is called when the mouse grabs from the xy pad.
-    ///
-    /// Typically, the user's interaction with the xy pad starts when this message is produced.
-    /// This is useful for some environments so that external changes, such as automation,
-    /// don't interfer with user's changes.
-    pub fn on_grab(mut self, on_grab: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_grab = Some(Box::new(on_grab));
+    /// Sets the message to emit when the user gestures the X axis of this widget.
+    pub fn on_gesture_x(
+        mut self,
+        on_gesture_x: Option<impl 'a + FnMut(Gesture) -> Message>,
+    ) -> Self {
+        if let Some(f) = on_gesture_x {
+            self.on_gesture_x = Some(Box::new(f));
+        }
         self
     }
 
-    /// Sets the release message of the [`XYPad`].
-    /// This is called when the mouse is released from the xy pad.
+    /// Sets the message to emit when the user gestures the Y axis of this widget.
+    pub fn on_gesture_y(
+        mut self,
+        on_gesture_y: Option<impl 'a + FnMut(Gesture) -> Message>,
+    ) -> Self {
+        if let Some(f) = on_gesture_y {
+            self.on_gesture_y = Some(Box::new(f));
+        }
+        self
+    }
+
+    /// Enable/disable this widget.
     ///
-    /// Typically, the user's interaction with the xy pad is finished when this message is produced.
-    /// This is useful if you need to spawn a long-running task from the xy pad's result, where
-    /// the default on_change message could create too many events.
-    pub fn on_release(mut self, on_release: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_release = Some(Box::new(on_release));
+    /// The default is `true`.
+    pub const fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
         self
     }
 
@@ -110,80 +117,107 @@ where
         self
     }
 
-    /// Sets the modifier keys of the [`XYPad`].
-    ///
-    /// The default modifier key is `Ctrl`.
-    ///
-    /// [`XYPad`]: struct.XYPad.html
-    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
-        self.modifier_keys = modifier_keys;
-        self
-    }
+    /// Returns `true` if any param value has changed.
+    fn set_param_values(
+        &mut self,
+        value_x: f32,
+        value_y: f32,
+        state: &mut State,
+        shell: &mut Shell<'_, Message>,
+    ) -> bool {
+        let prev_value_x = self
+            .param_x
+            .map(|p| p.normal.as_f32())
+            .unwrap_or(state.continuous_normal_x);
+        let prev_value_y = self
+            .param_y
+            .map(|p| p.normal.as_f32())
+            .unwrap_or(state.continuous_normal_y);
 
-    /// Sets the scalar to use when the user drags the slider while holding down
-    /// the modifier key.
-    ///
-    /// For example, a scalar of `0.5` will cause the slider to move half a
-    /// pixel for every pixel the mouse moves.
-    ///
-    /// The default scalar is `0.02`, and the default modifier key is `Ctrl`.
-    ///
-    /// [`XYPad`]: struct.XYPad.html
-    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
-        self.modifier_scalar = scalar;
-        self
-    }
+        let new_value_x = Normal::new(value_x);
+        let new_value_y = Normal::new(value_y);
 
-    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
-            shell.publish(message);
+        let x_changed = (new_value_x.as_f32() - prev_value_x).abs() > f32::EPSILON;
+        let y_changed = (new_value_y.as_f32() - prev_value_y).abs() > f32::EPSILON;
+
+        if !(x_changed || y_changed) {
+            return false;
         }
+
+        if x_changed && let Some(param_x) = &mut self.param_x {
+            param_x.normal = new_value_x;
+
+            if let Gesture::GestureEnd = &state.last_sent_gesture_x {
+                // Send a GestureStart message first.
+                if let Some(on_gesture_x) = &mut self.on_gesture_x {
+                    shell.publish((on_gesture_x)(Gesture::GestureStart));
+                }
+                state.last_sent_gesture_x = Gesture::GestureStart;
+            }
+
+            if let Some(on_gesture_x) = &mut self.on_gesture_x {
+                shell.publish((on_gesture_x)(Gesture::Gesturing(new_value_x)));
+            }
+            state.last_sent_gesture_x = Gesture::Gesturing(new_value_x);
+        }
+
+        if y_changed && let Some(param_y) = &mut self.param_y {
+            param_y.normal = new_value_y;
+
+            if let Gesture::GestureEnd = &state.last_sent_gesture_y {
+                // Send a GestureStart message first.
+                if let Some(on_gesture_y) = &mut self.on_gesture_y {
+                    shell.publish((on_gesture_y)(Gesture::GestureStart));
+                }
+                state.last_sent_gesture_y = Gesture::GestureStart;
+            }
+
+            if let Some(on_gesture_y) = &mut self.on_gesture_y {
+                shell.publish((on_gesture_y)(Gesture::Gesturing(new_value_y)));
+            }
+            state.last_sent_gesture_y = Gesture::Gesturing(new_value_y);
+        }
+
+        true
     }
 
-    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
-        shell.publish((self.on_change)(
-            self.normal_param_x.value,
-            self.normal_param_y.value,
-        ));
-    }
+    fn end_gesture(&mut self, state: &mut State, shell: &mut Shell<'_, Message>) {
+        state.is_dragging = false;
 
-    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
-            shell.publish(message);
+        if state.last_sent_gesture_x != Gesture::GestureEnd && self.param_x.is_some() {
+            if let Some(on_gesture_x) = &mut self.on_gesture_x {
+                shell.publish((on_gesture_x)(Gesture::GestureEnd));
+            }
+            state.last_sent_gesture_x = Gesture::GestureEnd;
+        }
+
+        if state.last_sent_gesture_y != Gesture::GestureEnd && self.param_y.is_some() {
+            if let Some(on_gesture_y) = &mut self.on_gesture_y {
+                shell.publish((on_gesture_y)(Gesture::GestureEnd));
+            }
+            state.last_sent_gesture_y = Gesture::GestureEnd;
         }
     }
 }
 
-/// The local state of a [`XYPad`].
-///
-/// [`XYPad`]: struct.XYPad.html
 #[derive(Debug, Copy, Clone)]
 struct State {
-    dragging_status: Option<SliderStatus>,
-    prev_drag_x: f32,
-    prev_drag_y: f32,
+    is_dragging: bool,
     continuous_normal_x: f32,
     continuous_normal_y: f32,
-    pressed_modifiers: keyboard::Modifiers,
+    last_sent_gesture_x: Gesture,
+    last_sent_gesture_y: Gesture,
     last_click: Option<mouse::Click>,
 }
 
 impl State {
-    /// Creates a new [`XYPad`] state.
-    ///
-    /// It expects:
-    /// * current [`Normal`] value of the x & y axis for the [`XYPad`]
-    ///
-    /// [`Normal`]: ../../core/normal/struct.Normal.html
-    /// [`XYPad`]: struct.XYPad.html
-    fn new(normal_x: Normal, normal_y: Normal) -> Self {
+    fn new(param_x: Option<NormalParam>, param_y: Option<NormalParam>) -> Self {
         Self {
-            dragging_status: None,
-            prev_drag_x: 0.0,
-            prev_drag_y: 0.0,
-            continuous_normal_x: normal_x.as_f32(),
-            continuous_normal_y: normal_y.as_f32(),
-            pressed_modifiers: Default::default(),
+            is_dragging: false,
+            continuous_normal_x: param_x.map(|p| p.normal.as_f32()).unwrap_or(0.5),
+            continuous_normal_y: param_y.map(|p| p.normal.as_f32()).unwrap_or(0.5),
+            last_sent_gesture_x: Gesture::GestureEnd,
+            last_sent_gesture_y: Gesture::GestureEnd,
             last_click: None,
         }
     }
@@ -191,7 +225,6 @@ impl State {
 
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for XYPad<'a, Message, Theme>
 where
-    Message: 'a + Clone,
     Theme: StyleSheet,
     Renderer: iced_core::Renderer,
 {
@@ -200,10 +233,7 @@ where
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(State::new(
-            self.normal_param_x.value,
-            self.normal_param_y.value,
-        ))
+        tree::State::new(State::new(self.param_x, self.param_y))
     }
 
     fn size(&self) -> Size<Length> {
@@ -241,158 +271,111 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        let state = tree.state.downcast_mut::<State>();
+        if !self.enabled {
+            return;
+        }
 
-        let is_over = cursor.is_over(layout.bounds());
+        let state = tree.state.downcast_mut::<State>();
+        let cursor_is_over = cursor.is_over(layout.bounds());
+
+        // Update state if the value was modified outside of the widget.
+        if !state.is_dragging
+            && let Some(param_x) = &self.param_x
+            && state.continuous_normal_x != param_x.normal.as_f32()
+        {
+            state.continuous_normal_x = param_x.normal.as_f32();
+        }
+        if !state.is_dragging
+            && let Some(param_y) = &self.param_y
+            && state.continuous_normal_y != param_y.normal.as_f32()
+        {
+            state.continuous_normal_y = param_y.normal.as_f32();
+        }
+
+        let mut capture_event = false;
+        let mut param_changed = false;
+        let mut hover_state_changed = false;
+
+        let values_from_cursor_pos = |position: Point| -> (f32, f32) {
+            (
+                if layout.bounds().width > 0.0 {
+                    (position.x - layout.bounds().x) / layout.bounds().width
+                } else {
+                    0.0
+                },
+                if layout.bounds().height > 0.0 {
+                    1.0 - ((position.y - layout.bounds().y) / layout.bounds().height)
+                } else {
+                    0.0
+                },
+            )
+        };
 
         match event {
             Event::Mouse(mouse::Event::CursorMoved { position })
             | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
-                if let Some(dragging_status) = &mut state.dragging_status {
-                    let bounds_size = {
-                        if layout.bounds().width <= layout.bounds().height {
-                            layout.bounds().width
-                        } else {
-                            layout.bounds().height
-                        }
-                    };
-                    if bounds_size != 0.0 {
-                        let mut movement_x = (position.x - state.prev_drag_x) / bounds_size;
+                if state.is_dragging {
+                    let (value_x, value_y) = values_from_cursor_pos(*position);
 
-                        let mut movement_y = (position.y - state.prev_drag_y) / bounds_size;
+                    param_changed = self.set_param_values(value_x, value_y, state, shell);
 
-                        if state.pressed_modifiers.contains(self.modifier_keys) {
-                            movement_x *= self.modifier_scalar;
-                            movement_y *= self.modifier_scalar;
-                        }
-
-                        let normal_x = state.continuous_normal_x + movement_x;
-                        let normal_y = state.continuous_normal_y - movement_y;
-
-                        state.prev_drag_x = position.x;
-                        state.prev_drag_y = position.y;
-
-                        state.continuous_normal_x = normal_x;
-                        self.normal_param_x.value.set_clipped(normal_x);
-
-                        state.continuous_normal_y = normal_y;
-                        self.normal_param_y.value.set_clipped(normal_y);
-
-                        self.fire_on_change(shell);
-
-                        dragging_status.moved();
-                    }
+                    capture_event = true;
+                } else if cursor_is_over {
+                    capture_event = true;
                 }
-
-                shell.capture_event();
-                shell.request_redraw();
+            }
+            Event::Mouse(mouse::Event::CursorEntered) | Event::Mouse(mouse::Event::CursorLeft) => {
+                capture_event = true;
+                hover_state_changed = true;
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if is_over {
-                    let cursor_position = cursor.position().unwrap();
-
+                if cursor_is_over && let Some(cursor_position) = cursor.position() {
                     let click =
                         mouse::Click::new(cursor_position, mouse::Button::Left, state.last_click);
 
                     match click.kind() {
                         mouse::click::Kind::Single => {
-                            self.maybe_fire_on_grab(shell);
+                            state.is_dragging = true;
 
-                            state.dragging_status = Some(Default::default());
-                            state.prev_drag_x = cursor_position.x;
-                            state.prev_drag_y = cursor_position.y;
-                            state.continuous_normal_x = self.normal_param_x.value.as_f32();
-                            state.continuous_normal_y = self.normal_param_y.value.as_f32();
+                            let (value_x, value_y) = values_from_cursor_pos(cursor_position);
 
-                            let bounds_size = {
-                                if layout.bounds().width <= layout.bounds().height {
-                                    layout.bounds().width
-                                } else {
-                                    layout.bounds().height
-                                }
-                            };
-
-                            let normal_x = (cursor_position.x - layout.bounds().x) / bounds_size;
-
-                            let normal_y =
-                                1.0 - ((cursor_position.y - layout.bounds().y) / bounds_size);
-
-                            state.continuous_normal_x = normal_x;
-                            self.normal_param_x.value.set_clipped(normal_x);
-
-                            state.continuous_normal_y = normal_y;
-                            self.normal_param_y.value.set_clipped(normal_y);
-
-                            shell.publish((self.on_change)(
-                                self.normal_param_x.value,
-                                self.normal_param_y.value,
-                            ));
+                            param_changed = self.set_param_values(value_x, value_y, state, shell);
                         }
                         _ => {
                             // Reset to default
 
-                            let prev_dragging_status = state.dragging_status.take();
+                            let value_x = self.param_x.map(|p| p.default.as_f32()).unwrap_or(0.5);
+                            let value_y = self.param_y.map(|p| p.default.as_f32()).unwrap_or(0.5);
 
-                            if (self.normal_param_x.value != self.normal_param_x.default)
-                                && (self.normal_param_y.value != self.normal_param_y.default)
-                            {
-                                self.normal_param_x.value = self.normal_param_x.default;
-                                state.continuous_normal_x = self.normal_param_x.default.as_f32();
-
-                                self.normal_param_y.value = self.normal_param_y.default;
-                                state.continuous_normal_y = self.normal_param_y.default.as_f32();
-
-                                self.fire_on_change(shell);
-
-                                self.maybe_fire_on_release(shell);
-                            } else if prev_dragging_status.is_some() {
-                                self.maybe_fire_on_release(shell);
-                            }
+                            param_changed = self.set_param_values(value_x, value_y, state, shell);
+                            self.end_gesture(state, shell);
                         }
                     }
 
                     state.last_click = Some(click);
 
-                    shell.capture_event();
-                    shell.request_redraw();
+                    capture_event = true;
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if let Some(slider_status) = state.dragging_status.take() {
-                    if self.on_grab.is_some() || slider_status.was_moved() {
-                        // maybe fire on release if `on_grab` is defined
-                        // so as to terminate the action, regardless of the actual user movement.
-                        self.maybe_fire_on_release(shell);
-                    }
-
-                    state.continuous_normal_x = self.normal_param_x.value.as_f32();
-                    state.continuous_normal_y = self.normal_param_y.value.as_f32();
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
+                self.end_gesture(state, shell);
+                capture_event = true;
             }
-            Event::Keyboard(keyboard_event) => match keyboard_event {
-                keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            },
+            Event::Window(window::Event::Unfocused) => {
+                self.end_gesture(state, shell);
+            }
             _ => {}
+        }
+
+        if capture_event {
+            shell.capture_event();
+        }
+
+        if param_changed || hover_state_changed {
+            shell.request_redraw();
         }
     }
 
@@ -408,14 +391,14 @@ where
     ) {
         let state = state.state.downcast_ref::<State>();
         let bounds = layout.bounds();
-        let is_over = cursor.is_over(layout.bounds());
+        let cursor_is_over = cursor.is_over(layout.bounds());
 
-        let appearance = if state.dragging_status.is_some() {
-            theme.dragging(&self.style)
-        } else if is_over {
+        let appearance = if state.is_dragging {
+            theme.gesturing(&self.style)
+        } else if cursor_is_over {
             theme.hovered(&self.style)
         } else {
-            theme.active(&self.style)
+            theme.idle(&self.style)
         };
 
         let bounds_x = bounds.x.floor();
@@ -448,9 +431,19 @@ where
             appearance.back_color,
         );
 
-        let handle_x = (bounds_x + (bounds_size * self.normal_param_x.value.as_f32())).floor();
-        let handle_y =
-            (bounds_y + (bounds_size * (1.0 - self.normal_param_y.value.as_f32()))).floor();
+        let normal_x = self
+            .param_x
+            .as_ref()
+            .map(|p| p.normal.as_f32())
+            .unwrap_or(state.continuous_normal_x);
+        let normal_y = self
+            .param_y
+            .as_ref()
+            .map(|p| p.normal.as_f32())
+            .unwrap_or(state.continuous_normal_y);
+
+        let handle_x = (bounds_x + (bounds_size * normal_x)).floor();
+        let handle_y = (bounds_y + (bounds_size * (1.0 - normal_y))).floor();
 
         let bounds_center = (bounds_size / 2.0).floor();
 
@@ -594,7 +587,7 @@ where
 impl<'a, Message, Theme, Renderer> From<XYPad<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Message: 'a + Clone,
+    Message: 'a,
     Theme: 'a + StyleSheet,
     Renderer: iced_core::Renderer,
 {

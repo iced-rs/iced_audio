@@ -3,22 +3,20 @@
 //! [`NormalParam`]: ../core/normal_param/struct.Param.html
 
 mod draw;
-mod state;
 mod value_markers;
 
 use crate::{
-    core::{ModulationRange, Normal, NormalParam, SliderStatus},
+    core::{ModulationRange, NormalParam},
     text_marks, tick_marks,
+    virtual_slider::{self, Gesture, VirtualSlider},
 };
 use iced_core::{
-    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget, keyboard,
+    Clipboard, Element, Event, Layout, Length, Rectangle, Shell, Size, Widget,
     layout::{self, Limits},
     mouse,
     renderer::Style,
-    touch,
     widget::{Tree, tree},
 };
-use state::State;
 use value_markers::ValueMarkers;
 
 pub use crate::style::h_slider::{
@@ -27,10 +25,7 @@ pub use crate::style::h_slider::{
     TextureAppearance, TickMarksAppearance,
 };
 
-static DEFAULT_HEIGHT: f32 = 14.0;
-static DEFAULT_SCALAR: f32 = 0.9575;
-static DEFAULT_WHEEL_SCALAR: f32 = 0.01;
-static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
+const DEFAULT_HEIGHT: f32 = 14.0;
 
 /// A horizontal slider GUI widget that controls a [`NormalParam`]
 ///
@@ -39,18 +34,10 @@ static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 /// [`NormalParam`]: ../../core/normal_param/struct.Param.html
 /// [`HSlider`]: struct.HSlider.html
 #[allow(missing_debug_implementations)]
-pub struct HSlider<'a, Message, Theme>
-where
-    Theme: StyleSheet,
-{
-    normal_param: NormalParam,
-    on_change: Box<dyn 'a + Fn(Normal) -> Message>,
-    on_grab: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    on_release: Option<Box<dyn 'a + FnMut() -> Option<Message>>>,
-    scalar: f32,
-    wheel_scalar: f32,
-    modifier_scalar: f32,
-    modifier_keys: keyboard::Modifiers,
+pub struct HSlider<'a, Message, Theme: StyleSheet> {
+    virtual_slider: VirtualSlider<'a, Message>,
+    drag_horizontally: bool,
+    enabled: bool,
     width: Length,
     height: Length,
     style: <Theme as StyleSheet>::Style,
@@ -66,26 +53,15 @@ where
 {
     /// Creates a new [`HSlider`].
     ///
-    /// It expects:
-    ///   * the [`NormalParam`] of the [`HSlider`]
-    ///   * a function that will be called when the [`HSlider`] is dragged.
-    ///
-    /// [`NormalParam`]: struct.NormalParam.html
-    /// [`HSlider`]: struct.HSlider.html
-    pub fn new<F>(normal_param: NormalParam, on_change: F) -> Self
+    /// * `normal_param` - The normalized value of the parameter.
+    pub fn new(normal_param: impl Into<NormalParam>) -> Self
     where
-        F: 'a + Fn(Normal) -> Message,
         <Theme as StyleSheet>::Style: Default,
     {
         HSlider {
-            normal_param,
-            on_change: Box::new(on_change),
-            on_grab: None,
-            on_release: None,
-            scalar: DEFAULT_SCALAR,
-            wheel_scalar: DEFAULT_WHEEL_SCALAR,
-            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-            modifier_keys: keyboard::Modifiers::CTRL,
+            virtual_slider: VirtualSlider::new(normal_param.into()),
+            drag_horizontally: true,
+            enabled: true,
             width: Length::Fill,
             height: Length::Fixed(DEFAULT_HEIGHT),
             style: Default::default(),
@@ -96,25 +72,31 @@ where
         }
     }
 
-    /// Sets the grab message of the [`HSlider`].
-    /// This is called when the mouse grabs from the slider.
-    ///
-    /// Typically, the user's interaction with the slider starts when this message is produced.
-    /// This is useful for some environments so that external changes, such as automation,
-    /// don't interfer with user's changes.
-    pub fn on_grab(mut self, on_grab: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_grab = Some(Box::new(on_grab));
+    /// Sets the message to emit when the user gestures this widget.
+    pub fn on_gesture(mut self, on_gesture: impl 'a + FnMut(Gesture) -> Message) -> Self {
+        self.virtual_slider.set_on_gesture(on_gesture);
         self
     }
 
-    /// Sets the release message of the [`HSlider`].
-    /// This is called when the mouse is released from the slider.
+    /// Set a custom configuration to use for this virtual slider.
+    pub fn config(mut self, config: &virtual_slider::Config) -> Self {
+        self.virtual_slider.config = *config;
+        self
+    }
+
+    /// Set whether this slider is dragged horizontally (true) or vertically (false).
     ///
-    /// Typically, the user's interaction with the slider is finished when this message is produced.
-    /// This is useful if you need to spawn a long-running task from the slider's result, where
-    /// the default on_change message could create too many events.
-    pub fn on_release(mut self, on_release: impl 'a + FnMut() -> Option<Message>) -> Self {
-        self.on_release = Some(Box::new(on_release));
+    /// The default value is `true`.
+    pub fn drag_horizontally(mut self, drag_horizontally: bool) -> Self {
+        self.drag_horizontally = drag_horizontally;
+        self
+    }
+
+    /// Enable/disable this widget.
+    ///
+    /// The default is `true`.
+    pub const fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
         self
     }
 
@@ -143,57 +125,6 @@ where
     /// [`HSlider`]: struct.HSlider.html
     pub fn style(mut self, style: impl Into<<Theme as StyleSheet>::Style>) -> Self {
         self.style = style.into();
-        self
-    }
-
-    /// Sets the modifier keys of the [`HSlider`].
-    ///
-    /// The default modifier key is `Ctrl`.
-    ///
-    /// [`HSlider`]: struct.HSlider.html
-    pub fn modifier_keys(mut self, modifier_keys: keyboard::Modifiers) -> Self {
-        self.modifier_keys = modifier_keys;
-        self
-    }
-
-    /// Sets the scalar to use when the user drags the slider per pixel.
-    ///
-    /// For example, a scalar of `0.5` will cause the slider to move half a
-    /// pixel for every pixel the mouse moves.
-    ///
-    /// The default scalar is `0.9575`.
-    ///
-    /// [`HSlider`]: struct.HSlider.html
-    pub fn scalar(mut self, scalar: f32) -> Self {
-        self.scalar = scalar;
-        self
-    }
-
-    /// Sets how much the [`Normal`] value will change for the [`HSlider`] per line scrolled
-    /// by the mouse wheel.
-    ///
-    /// This can be set to `0.0` to disable the scroll wheel from moving the parameter.
-    ///
-    /// The default value is `0.01`
-    ///
-    /// [`HSlider`]: struct.HSlider.html
-    /// [`Normal`]: ../../core/struct.Normal.html
-    pub fn wheel_scalar(mut self, wheel_scalar: f32) -> Self {
-        self.wheel_scalar = wheel_scalar;
-        self
-    }
-
-    /// Sets the scalar to use when the user drags the slider while holding down
-    /// the modifier key.
-    ///
-    /// For example, a scalar of `0.5` will cause the slider to move half a
-    /// pixel for every pixel the mouse moves.
-    ///
-    /// The default scalar is `0.02`, and the default modifier key is `Ctrl`.
-    ///
-    /// [`HSlider`]: struct.HSlider.html
-    pub fn modifier_scalar(mut self, scalar: f32) -> Self {
-        self.modifier_scalar = scalar;
         self
     }
 
@@ -238,42 +169,10 @@ where
         self.mod_range_2 = mod_range;
         self
     }
-
-    fn move_virtual_slider(&mut self, state: &mut State, mut normal_delta: f32) -> SliderStatus {
-        if normal_delta.abs() < f32::EPSILON {
-            return SliderStatus::Unchanged;
-        }
-
-        if state.pressed_modifiers.contains(self.modifier_keys) {
-            normal_delta *= self.modifier_scalar;
-        }
-
-        self.normal_param
-            .value
-            .set_clipped(state.continuous_normal - normal_delta);
-        state.continuous_normal = self.normal_param.value.as_f32();
-
-        SliderStatus::Moved
-    }
-
-    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
-            shell.publish(message);
-        }
-    }
-
-    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
-        shell.publish((self.on_change)(self.normal_param.value));
-    }
-
-    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
-        if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
-            shell.publish(message);
-        }
-    }
 }
 
-impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for HSlider<'a, Message, Theme>
+impl<'a, Message, Theme: StyleSheet, Renderer> Widget<Message, Theme, Renderer>
+    for HSlider<'a, Message, Theme>
 where
     Theme: StyleSheet,
     Renderer: iced_core::Renderer
@@ -281,11 +180,13 @@ where
         + iced_core::image::Renderer<Handle = iced_core::image::Handle>,
 {
     fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
+        tree::Tag::of::<virtual_slider::State>()
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(State::new(self.normal_param.value))
+        tree::State::new(virtual_slider::State::new(
+            self.virtual_slider.param().normal,
+        ))
     }
 
     fn size(&self) -> Size<Length> {
@@ -310,164 +211,27 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        let state = tree.state.downcast_mut::<State>();
-
-        let is_over = cursor.is_over(layout.bounds());
-
-        // Update state after a discontinuity
-        if state.dragging_status.is_none() && state.prev_normal != self.normal_param.value {
-            state.prev_normal = self.normal_param.value;
-            state.continuous_normal = self.normal_param.value.as_f32();
+        if !self.enabled {
+            return;
         }
 
-        match event {
-            Event::Mouse(mouse::Event::CursorMoved { position })
-            | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
-                if state.dragging_status.is_some() {
-                    let bounds = layout.bounds();
-                    if bounds.width > 0.0 {
-                        let normal_delta =
-                            (position.x - state.prev_drag_x) / bounds.width * -self.scalar;
+        let state = tree.state.downcast_mut::<virtual_slider::State>();
+        let cursor_is_over = cursor.is_over(layout.bounds());
 
-                        state.prev_drag_x = if state.pressed_modifiers.contains(self.modifier_keys)
-                        {
-                            position.x
-                        } else {
-                            position.x.clamp(bounds.x, bounds.x + bounds.width)
-                        };
-
-                        if self.move_virtual_slider(state, normal_delta).was_moved() {
-                            self.fire_on_change(shell);
-
-                            state
-                                .dragging_status
-                                .as_mut()
-                                .expect("dragging_status taken")
-                                .moved();
-                        }
-                    }
-                }
-
-                shell.capture_event();
-                shell.request_redraw();
-            }
-            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
-                if self.wheel_scalar == 0.0 {
-                    return;
-                }
-
-                if is_over {
-                    let lines = match delta {
-                        mouse::ScrollDelta::Lines { y, .. } => *y,
-                        mouse::ScrollDelta::Pixels { y, .. } => {
-                            if *y > 0.0 {
-                                1.0
-                            } else if *y < 0.0 {
-                                -1.0
-                            } else {
-                                0.0
-                            }
-                        }
-                    };
-
-                    if lines != 0.0 {
-                        let normal_delta = -lines * self.wheel_scalar;
-
-                        if self.move_virtual_slider(state, normal_delta).was_moved() {
-                            if state.dragging_status.is_none() {
-                                self.maybe_fire_on_grab(shell);
-                            }
-
-                            self.fire_on_change(shell);
-
-                            if let Some(slider_status) = state.dragging_status.as_mut() {
-                                // Widget was grabbed => keep it grabbed
-                                slider_status.moved();
-                            } else {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-
-                        shell.capture_event();
-                        shell.request_redraw();
-                    }
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if is_over {
-                    let click = mouse::Click::new(
-                        cursor.position().unwrap(),
-                        mouse::Button::Left,
-                        state.last_click,
-                    );
-
-                    match click.kind() {
-                        mouse::click::Kind::Single => {
-                            self.maybe_fire_on_grab(shell);
-
-                            state.dragging_status = Some(Default::default());
-                            state.prev_drag_x = cursor.position().unwrap().x;
-                        }
-                        _ => {
-                            // Reset to default
-
-                            let prev_dragging_status = state.dragging_status.take();
-
-                            if self.normal_param.value != self.normal_param.default {
-                                if prev_dragging_status.is_none() {
-                                    self.maybe_fire_on_grab(shell);
-                                }
-
-                                self.normal_param.value = self.normal_param.default;
-
-                                self.fire_on_change(shell);
-
-                                self.maybe_fire_on_release(shell);
-                            } else if prev_dragging_status.is_some() {
-                                self.maybe_fire_on_release(shell);
-                            }
-                        }
-                    }
-
-                    state.last_click = Some(click);
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerLifted { .. })
-            | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if let Some(slider_status) = state.dragging_status.take() {
-                    if self.on_grab.is_some() || slider_status.was_moved() {
-                        // maybe fire on release if `on_grab` is defined
-                        // so as to terminate the action, regardless of the actual user movement.
-                        self.maybe_fire_on_release(shell);
-                    }
-
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            }
-            Event::Keyboard(keyboard_event) => match keyboard_event {
-                keyboard::Event::KeyPressed { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::KeyReleased { modifiers, .. } => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-                keyboard::Event::ModifiersChanged(modifiers) => {
-                    state.pressed_modifiers = *modifiers;
-                    shell.capture_event();
-                    shell.request_redraw();
-                }
-            },
-            _ => {}
+        if self
+            .virtual_slider
+            .update(
+                state,
+                cursor_is_over,
+                self.drag_horizontally,
+                false,
+                event,
+                cursor,
+                shell,
+            )
+            .should_redraw()
+        {
+            shell.request_redraw();
         }
     }
 
@@ -481,16 +245,17 @@ where
         cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
-        let state = state.state.downcast_ref::<State>();
+        let state = state.state.downcast_ref::<virtual_slider::State>();
         let bounds = layout.bounds();
-        let is_over = cursor.is_over(bounds);
+        let cursor_is_over = cursor.is_over(bounds);
+        let normal_val = self.virtual_slider.param().normal;
 
-        let appearance = if state.dragging_status.is_some() {
-            theme.dragging(&self.style)
-        } else if is_over {
+        let appearance = if state.is_gesturing() {
+            theme.gesturing(&self.style)
+        } else if cursor_is_over {
             theme.hovered(&self.style)
         } else {
-            theme.active(&self.style)
+            theme.idle(&self.style)
         };
 
         let bounds = Rectangle {
@@ -511,45 +276,19 @@ where
             mod_range_style_2: theme.mod_range_appearance_2(&self.style),
         };
 
-        let normal = self.normal_param.value;
-
         match appearance {
-            Appearance::Texture(style) => draw::texture_style(
-                renderer,
-                normal,
-                &bounds,
-                style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
-            Appearance::Classic(style) => draw::classic_style(
-                renderer,
-                normal,
-                &bounds,
-                &style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
-            Appearance::Rect(style) => draw::rect_style(
-                renderer,
-                normal,
-                &bounds,
-                &style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
-            Appearance::RectBipolar(style) => draw::rect_bipolar_style(
-                renderer,
-                normal,
-                &bounds,
-                &style,
-                &value_markers,
-                //tick_marks_cache,
-                //text_marks_cache,
-            ),
+            Appearance::Texture(style) => {
+                draw::texture_style(renderer, normal_val, &bounds, style, &value_markers)
+            }
+            Appearance::Classic(style) => {
+                draw::classic_style(renderer, normal_val, &bounds, &style, &value_markers)
+            }
+            Appearance::Rect(style) => {
+                draw::rect_style(renderer, normal_val, &bounds, &style, &value_markers)
+            }
+            Appearance::RectBipolar(style) => {
+                draw::rect_bipolar_style(renderer, normal_val, &bounds, &style, &value_markers)
+            }
         };
     }
 }
@@ -557,7 +296,7 @@ where
 impl<'a, Message, Theme, Renderer> From<HSlider<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Message: 'a + Clone,
+    Message: 'a,
     Theme: 'a + StyleSheet,
     Renderer: iced_core::Renderer
         + iced_core::text::Renderer<Font = iced_core::Font>

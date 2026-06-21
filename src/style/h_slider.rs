@@ -268,20 +268,31 @@ pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
     type Style;
 
-    /// Produces the style of an active [`HSlider`].
+    /// Produces the style of an enabled, idle [`HSlider`].
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn active(&self, style: &Self::Style) -> Appearance;
+    fn idle(&self, style: &Self::Style) -> Appearance;
 
     /// Produces the style of a hovered [`HSlider`].
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn hovered(&self, style: &Self::Style) -> Appearance;
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
-    /// Produces the style of an [`HSlider`] that is being dragged.
+    /// Produces the style of an [`HSlider`] that is being gestured (dragged).
     ///
     /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
-    fn dragging(&self, style: &Self::Style) -> Appearance;
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    /// Produces the style of an [`HSlider`] that is currently disabled.
+    ///
+    /// [`HSlider`]: ../../native/h_slider/struct.HSlider.html
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        self.idle(style)
+    }
 
     /// The style of tick marks for an [`HSlider`]
     ///
@@ -344,10 +355,10 @@ where
 impl StyleSheet for iced_core::Theme {
     type Style = HSlider;
 
-    fn active(&self, style: &Self::Style) -> Appearance {
+    fn idle(&self, style: &Self::Style) -> Appearance {
         match style {
             HSlider::Default => Appearance::Classic(Default::default()),
-            HSlider::Custom(custom) => custom.active(self),
+            HSlider::Custom(custom) => custom.idle(self),
         }
     }
 
@@ -364,7 +375,7 @@ impl StyleSheet for iced_core::Theme {
         }
     }
 
-    fn dragging(&self, style: &Self::Style) -> Appearance {
+    fn gesturing(&self, style: &Self::Style) -> Appearance {
         match style {
             HSlider::Default => Appearance::Classic(ClassicAppearance {
                 handle: ClassicHandle {
@@ -373,8 +384,13 @@ impl StyleSheet for iced_core::Theme {
                 },
                 ..Default::default()
             }),
-            HSlider::Custom(custom) => custom.dragging(self),
+            HSlider::Custom(custom) => custom.gesturing(self),
         }
+    }
+
+    fn disabled(&self, style: &Self::Style) -> Appearance {
+        // TODO
+        self.idle(style)
     }
 
     fn tick_marks_appearance(&self, style: &Self::Style) -> Option<TickMarksAppearance> {
