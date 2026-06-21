@@ -2,7 +2,10 @@
 //!
 //! [`NormalParam`]: struct.NormalParam.html
 
-use crate::{Gesture, core::Normal};
+use crate::core::Normal;
+
+#[cfg(feature = "nice-plug")]
+use crate::Gesture;
 
 use std::fmt::Debug;
 

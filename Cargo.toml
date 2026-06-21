@@ -28,8 +28,7 @@ all = [
   "v_slider",
   "ramp",
   "xy_pad",
-  "mod_range_input",
-  "nice-plug"
+  "mod_range_input"
 ]
 knob = []
 h_slider = []
