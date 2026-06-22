@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.14.0"
+version = "0.14.1"
 authors = [
   "Billy Messenger <https://github.com/BillyDM>",
   "Michał Kalbarczyk <https://github.com/fazibear>",
@@ -28,7 +28,8 @@ all = [
   "v_slider",
   "ramp",
   "xy_pad",
-  "mod_range_input"
+  "mod_range_input",
+  "nice-plug"
 ]
 knob = []
 h_slider = []

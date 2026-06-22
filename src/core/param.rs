@@ -80,10 +80,10 @@ pub fn nice_to_iced(param: &impl nice_plug_core::params::Param) -> NormalParam {
 
 /// A convenience method to set the nice-plug parameter from a [`Gesture`].
 #[cfg(feature = "nice-plug")]
-pub fn set_nice_param(
-    param: &impl nice_plug_core::params::Param,
+pub fn set_nice_param<P: nice_plug_core::params::Param>(
+    param: &P,
     gesture: Gesture,
-    setter: nice_plug_core::context::gui::ParamSetter,
+    setter: &nice_plug_core::context::gui::ParamSetter,
 ) {
     match gesture {
         Gesture::GestureStart => {
