@@ -236,8 +236,6 @@ impl<'a, Message> VirtualSlider<'a, Message> {
                     self.move_virtual_slider(state, delta * drag_scalar, shell, &mut status);
 
                     capture_event = true;
-                } else if cursor_is_over {
-                    capture_event = true;
                 }
             }
             Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
@@ -342,7 +340,6 @@ impl<'a, Message> VirtualSlider<'a, Message> {
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
                 self.end_gesture(state, shell, &mut status);
-                capture_event = true;
             }
             Event::Window(window::Event::Unfocused) => {
                 self.end_gesture(state, shell, &mut status);
@@ -350,15 +347,12 @@ impl<'a, Message> VirtualSlider<'a, Message> {
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
-                    capture_event = true;
                 }
                 keyboard::Event::KeyReleased { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
-                    capture_event = true;
                 }
                 keyboard::Event::ModifiersChanged(modifiers) => {
                     state.pressed_modifiers = *modifiers;
-                    capture_event = true;
                 }
             },
             _ => {}
