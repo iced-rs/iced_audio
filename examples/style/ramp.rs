@@ -1,45 +1,32 @@
 #![allow(unused)]
 
-use iced::Color;
-use iced_audio::ramp;
+use iced::{Background, Border, Color, Theme};
+use iced_audio::{ramp, virtual_slider::Status};
 
 use super::colors;
 
 // Custom style for the Ramp widget
-
-pub struct CustomStyle;
-impl CustomStyle {
-    const IDLE_STYLE: ramp::Appearance = ramp::Appearance {
-        back_color: colors::KNOB,
-        back_border_width: 2.0,
-        back_border_color: colors::KNOB_BORDER,
+pub fn custom_style(theme: &Theme, status: Status) -> ramp::Style {
+    let base = ramp::Style {
+        background: Some(Background::Color(colors::KNOB)),
+        border: Border::default().color(colors::KNOB_BORDER).width(2.0),
         line_width: 2.0,
-        line_center_color: Color::from_rgb(0.7, 0.7, 0.7),
-        line_up_color: Color::from_rgb(0.0, 0.9, 0.0),
-        line_down_color: colors::HANDLE,
+        line_color: Color::from_rgb(0.7, 0.7, 0.7),
+        line_up_color: Some(Color::from_rgb(0.0, 0.9, 0.0)),
+        line_down_color: Some(colors::HANDLE),
     };
-}
-impl ramp::StyleSheet for CustomStyle {
-    type Style = iced::Theme;
 
-    fn idle(&self, _style: &Self::Style) -> ramp::Appearance {
-        Self::IDLE_STYLE
-    }
-
-    fn hovered(&self, _style: &Self::Style) -> ramp::Appearance {
-        ramp::Appearance {
-            line_center_color: Color::from_rgb(0.8, 0.8, 0.8),
-            line_up_color: Color::from_rgb(0.0, 1.0, 0.0),
-            line_down_color: Color::from_rgb(
+    match status {
+        Status::Hovered => ramp::Style {
+            line_color: Color::from_rgb(0.8, 0.8, 0.8),
+            line_up_color: Some(Color::from_rgb(0.0, 1.0, 0.0)),
+            line_down_color: Some(Color::from_rgb(
                 0x8A as f32 / 255.0,
                 0xD7 as f32 / 255.0,
                 0xFF as f32 / 255.0,
-            ),
-            ..Self::IDLE_STYLE
-        }
-    }
-
-    fn gesturing(&self, style: &Self::Style) -> ramp::Appearance {
-        self.hovered(style)
+            )),
+            ..base
+        },
+        _ => base,
     }
 }

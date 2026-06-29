@@ -103,10 +103,11 @@ pub struct State {
     last_sent_gesture: Gesture,
     last_scroll_wheel_gesture_instant: Option<Instant>,
     hovered: bool,
+    enabled: bool,
 }
 
 impl State {
-    pub fn new(param_normal: Normal) -> Self {
+    pub fn new(param_normal: Normal, enabled: bool) -> Self {
         Self {
             is_dragging: false,
             prev_drag_pos: 0.0,
@@ -117,6 +118,7 @@ impl State {
             last_sent_gesture: Gesture::GestureEnd,
             last_scroll_wheel_gesture_instant: None,
             hovered: false,
+            enabled,
         }
     }
 
@@ -127,6 +129,23 @@ impl State {
     pub fn is_dragging(&self) -> bool {
         self.is_dragging
     }
+
+    /// The possible status of a [`VirtualSlider`] widget, used for styling.
+    pub fn status(&self) -> Status {
+        if !self.enabled {
+            Status::Disabled
+        } else if self.is_gesturing() {
+            Status::Gesturing
+        } else if self.hovered {
+            Status::Hovered
+        } else {
+            Status::Idle
+        }
+    }
+
+    pub fn continuous_normal(&self) -> Normal {
+        Normal::new(self.continuous_normal)
+    }
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -134,12 +153,29 @@ pub struct UpdateStatus {
     pub param_changed: bool,
     pub hover_state_changed: bool,
     pub gesturing_state_changed: bool,
+    pub disabled_state_changed: bool,
 }
 
 impl UpdateStatus {
     pub fn should_redraw(&self) -> bool {
-        self.param_changed || self.hover_state_changed || self.gesturing_state_changed
+        self.param_changed
+            || self.hover_state_changed
+            || self.gesturing_state_changed
+            || self.disabled_state_changed
     }
+}
+
+/// The possible status of a [`VirtualSlider`] widget, used for styling.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Status {
+    /// The widget is enabled an idle.
+    Idle,
+    /// The widget is enabled and is being hovered.
+    Hovered,
+    /// The widget is enabled and is currently being gestured (dragged).
+    Gesturing,
+    /// The widget is disabled.
+    Disabled,
 }
 
 /// The shared input logic for a "virtual slider" widget.
@@ -150,6 +186,7 @@ pub struct VirtualSlider<'a, Message> {
     /// The configuration of this virtual slider.
     pub config: Config,
     on_gesture: Option<Box<dyn 'a + FnMut(Gesture) -> Message>>,
+
     param: NormalParam,
 }
 
@@ -176,6 +213,7 @@ impl<'a, Message> VirtualSlider<'a, Message> {
     ///
     /// * `state` - The state of this virtual slider. (Store this in your widget's
     ///   tree state).
+    /// * `cursor_is_over` - Whether or not this widget is currently enabled.
     /// * `cursor_is_over` - Whether or not the cursor is currently over the input
     ///   region of this widget. Typically this will be `cursor.is_over(layout.bounds())`,
     ///   but this can be customized to only be a portion of the widget's bounds.
@@ -191,6 +229,7 @@ impl<'a, Message> VirtualSlider<'a, Message> {
     pub fn update(
         &mut self,
         state: &mut State,
+        enabled: bool,
         cursor_is_over: bool,
         drag_horizontally: bool,
         halve_speed: bool,
@@ -198,22 +237,27 @@ impl<'a, Message> VirtualSlider<'a, Message> {
         cursor: mouse::Cursor,
         shell: &mut Shell<'_, Message>,
     ) -> UpdateStatus {
+        let mut status = UpdateStatus {
+            disabled_state_changed: enabled != state.enabled,
+            ..Default::default()
+        };
+
         // Update state if the value was modified outside of the widget.
         if !state.is_dragging && state.prev_normal != self.param.normal {
+            status.param_changed = true;
             state.prev_normal = self.param.normal;
             state.continuous_normal = self.param.normal.as_f32();
         }
 
-        let mut capture_event = false;
-        let mut status = UpdateStatus::default();
-
-        if cursor_is_over && !state.hovered {
-            state.hovered = true;
-            status.hover_state_changed = true;
-        } else if !cursor_is_over && state.hovered {
-            state.hovered = false;
-            status.hover_state_changed = true;
+        state.enabled = enabled;
+        if !enabled {
+            return status;
         }
+
+        status.hover_state_changed = cursor_is_over != state.hovered;
+        state.hovered = cursor_is_over;
+
+        let mut capture_event = false;
 
         match event {
             Event::Mouse(mouse::Event::CursorMoved { position })

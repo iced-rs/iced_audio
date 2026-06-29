@@ -84,11 +84,11 @@ impl RampExample {
 
         let ramp_custom_up = Ramp::new(self.ramp_custom_up_param, RampDirection::Up)
             .on_gesture(Message::CustomUp)
-            .style(style::ramp::CustomStyle);
+            .style(style::ramp::custom_style);
 
         let ramp_custom_down = Ramp::new(self.ramp_custom_down_param, RampDirection::Down)
             .on_gesture(Message::CustomDown)
-            .style(style::ramp::CustomStyle);
+            .style(style::ramp::custom_style);
 
         // push the widgets into rows
         let ramp_row = row![
