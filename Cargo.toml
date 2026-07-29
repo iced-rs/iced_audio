@@ -1,6 +1,6 @@
 [package]
 name = "iced_audio"
-version = "0.14.2"
+version = "0.15.0"
 authors = [
   "Billy Messenger <https://github.com/BillyDM>",
   "Michał Kalbarczyk <https://github.com/fazibear>",
@@ -28,8 +28,7 @@ all = [
   "v_slider",
   "ramp",
   "xy_pad",
-  "mod_range_input",
-  "nice-plug"
+  "mod_range_input"
 ]
 knob = []
 h_slider = []
@@ -42,7 +41,7 @@ nice-plug = ["dep:nice-plug-core"]
 [dependencies]
 iced_core = { version = "0.14.0", default-features = false, features = [] }
 iced_graphics = { version = "0.14.0", default-features = false, features = ["geometry"] }
-nice-plug-core = { version = "0.1.4", default-features = false, optional = true }
+nice-plug-core = { version = "0.2", default-features = false, optional = true }
 
 [dev-dependencies]
 iced = { version = "0.14.0", features = ["advanced", "canvas", "image"] }
