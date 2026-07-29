@@ -51,6 +51,7 @@ Note, you need to enable the `canvas` feature in iced for things to render prope
 * `v_slider` (default) - Enables the vertical slider widget
 * `ramp` (default) - Enables the ramp widget
 * `xy_pad` (default) - Enables the XY pad widget
+* `nice-plug` - Better integration with [nice-plug](https://github.com/iced-rs/iced_audio)
 
 ## Contributing / Feedback
 Contributions are greatly appreciated! Before contributing, please read the official Iced [contributing guidelines](https://github.com/iced-rs/iced/blob/master/CONTRIBUTING.md).
