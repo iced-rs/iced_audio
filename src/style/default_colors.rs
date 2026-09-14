@@ -50,8 +50,6 @@ pub const TEXT_MARK: Color = Color {
 
 pub const KNOB_BACK_HOVER: Color = Color::from_rgb(0.96, 0.96, 0.96);
 
-pub const RAMP_BACK_HOVER: Color = Color::from_rgb(0.95, 0.95, 0.95);
-
 pub const XY_PAD_RAIL: Color = Color {
     r: 0.56,
     g: 0.56,
