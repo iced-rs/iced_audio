@@ -341,9 +341,6 @@ impl<'a, Message> VirtualSlider<'a, Message> {
             | Event::Touch(touch::Event::FingerLost { .. }) => {
                 self.end_gesture(state, shell, &mut status);
             }
-            Event::Window(window::Event::Unfocused) => {
-                self.end_gesture(state, shell, &mut status);
-            }
             Event::Keyboard(keyboard_event) => match keyboard_event {
                 keyboard::Event::KeyPressed { modifiers, .. } => {
                     state.pressed_modifiers = *modifiers;
