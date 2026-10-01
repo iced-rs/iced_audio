@@ -2,123 +2,122 @@
 //!
 //! [`Ramp`]: ../native/ramp/struct.Ramp.html
 
-use crate::style::default_colors;
-use iced_core::Color;
+use crate::virtual_slider::Status;
+use iced_core::{Background, Border, Color, theme::palette};
 
-/// The appearance of a [`Ramp`],
+/// The appearance of a [`Ramp`].
 ///
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
 #[derive(Debug, Clone)]
-pub struct Appearance {
-    /// The color of the background rectangle
-    pub back_color: Color,
-    /// The width of the border of the background rectangle
-    pub back_border_width: f32,
-    /// The color of the border of the background rectangle
-    pub back_border_color: Color,
-    /// The width of the ramp line,
+pub struct Style {
+    /// The [`Background`] of the ramp.
+    ///
+    /// Default is `None`.
+    pub background: Option<Background>,
+    /// The [`Border`] of the ramp's background.
+    ///
+    /// Default is `Border::default()`.
+    pub border: Border,
+    /// The width of the ramp line.
+    ///
+    /// Default is `2.0`.
     pub line_width: f32,
-    /// The color of the ramp line when it is in the center (straight) position
-    pub line_center_color: Color,
-    /// The color of the ramp line when it is in the up position
-    pub line_up_color: Color,
-    /// The color of the ramp line when it is in the down position
-    pub line_down_color: Color,
+    /// The color of the ramp line.
+    ///
+    /// Default is [`Color::BLACK`].
+    pub line_color: Color,
+    /// The color of the ramp line when it is in the up position. If `None`,
+    /// then `line_color` is used.
+    ///
+    /// Default is `None`.
+    pub line_up_color: Option<Color>,
+    /// The color of the ramp line when it is in the down position. If `None`,
+    /// then `line_color` is used.
+    ///
+    /// Default is `None`.
+    pub line_down_color: Option<Color>,
 }
 
-impl Default for Appearance {
-    fn default() -> Self {
-        Appearance {
-            back_color: default_colors::LIGHT_BACK,
-            back_border_width: 1.0,
-            back_border_color: default_colors::BORDER,
-            line_width: 2.0,
-            line_center_color: default_colors::BORDER,
-            line_up_color: default_colors::BORDER,
-            line_down_color: default_colors::BORDER,
+impl Style {
+    /// Updates the [`Style`] with the given [`Background`].
+    pub fn with_background(self, background: impl Into<Background>) -> Self {
+        Self {
+            background: Some(background.into()),
+            ..self
         }
     }
 }
 
-/// A set of rules that dictate the style of a [`Ramp`].
+impl Default for Style {
+    fn default() -> Self {
+        Style {
+            background: None,
+            border: Border::default(),
+            line_width: 2.0,
+            line_color: Color::BLACK,
+            line_up_color: None,
+            line_down_color: None,
+        }
+    }
+}
+
+/// The theme catalog of a [`Ramp`].
 ///
 /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-pub trait StyleSheet {
-    /// The supported style of the [`StyleSheet`].
-    type Style;
+pub trait Catalog: Sized {
+    /// The item class of the [`Catalog`].
+    type Class<'a>;
 
-    /// Produces the style of an enabled, idle [`Ramp`].
-    ///
-    /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn idle(&self, style: &Self::Style) -> Appearance;
+    /// The default class produced by the [`Catalog`].
+    fn default<'a>() -> Self::Class<'a>;
 
-    /// Produces the style of a hovered [`Ramp`].
-    ///
-    /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        self.idle(style)
+    /// The [`Style`] of a class with the given status.
+    fn style(&self, class: &Self::Class<'_>, status: Status) -> Style;
+}
+
+/// A styling function for a [`Ramp`].
+pub type StyleFn<'a, Theme> = Box<dyn Fn(&Theme, Status) -> Style + 'a>;
+
+impl Catalog for iced_core::Theme {
+    type Class<'a> = StyleFn<'a, Self>;
+
+    fn default<'a>() -> Self::Class<'a> {
+        Box::new(default)
     }
 
-    /// Produces the style of a [`Ramp`] that is being gestured (dragged).
-    ///
-    /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn gesturing(&self, style: &Self::Style) -> Appearance {
-        self.hovered(style)
-    }
-
-    /// Produces the style of a [`Ramp`] that is currently disabled.
-    ///
-    /// [`Ramp`]: ../../native/ramp/struct.Ramp.html
-    fn disabled(&self, style: &Self::Style) -> Appearance {
-        self.idle(style)
+    fn style(&self, class: &Self::Class<'_>, status: Status) -> Style {
+        class(self, status)
     }
 }
 
-/// The style of a Ramp.
-#[derive(Default)]
-pub enum Ramp {
-    /// The default style.
-    #[default]
-    Default,
-    /// A custom style.
-    Custom(Box<dyn StyleSheet<Style = iced_core::Theme>>),
-}
-
-impl<S> From<S> for Ramp
-where
-    S: 'static + StyleSheet<Style = iced_core::Theme>,
-{
-    fn from(val: S) -> Self {
-        Ramp::Custom(Box::new(val))
+/// The default style of a [`Ramp`].
+pub fn default(theme: &iced_core::Theme, status: Status) -> Style {
+    let palette = theme.extended_palette();
+    match status {
+        Status::Idle => styled(palette.background.neutral),
+        Status::Hovered | Status::Gesturing => styled(palette.background.stronger),
+        Status::Disabled => disabled(styled(palette.background.neutral)),
     }
 }
 
-impl StyleSheet for iced_core::Theme {
-    type Style = Ramp;
-
-    fn idle(&self, style: &Self::Style) -> Appearance {
-        match style {
-            Ramp::Default => Default::default(),
-            Ramp::Custom(custom) => custom.idle(self),
-        }
+fn styled(pair: palette::Pair) -> Style {
+    Style {
+        background: Some(Background::Color(pair.color)),
+        line_color: pair.text,
+        ..Style::default()
     }
+}
 
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        match style {
-            Ramp::Default => Appearance {
-                back_color: default_colors::RAMP_BACK_HOVER,
-                ..Default::default()
-            },
-            Ramp::Custom(custom) => custom.idle(self),
-        }
-    }
-
-    fn gesturing(&self, style: &Self::Style) -> Appearance {
-        self.hovered(style)
-    }
-
-    fn disabled(&self, style: &Self::Style) -> Appearance {
-        // TODO
-        self.idle(style)
+fn disabled(style: Style) -> Style {
+    Style {
+        background: style.background.map(|b| b.scale_alpha(0.5)),
+        border: Border {
+            color: style.border.color.scale_alpha(0.5),
+            ..style.border
+        },
+        line_color: style.line_color.scale_alpha(0.5),
+        line_up_color: style.line_up_color.map(|c| c.scale_alpha(0.5)),
+        line_down_color: style.line_down_color.map(|c| c.scale_alpha(0.5)),
+        ..style
     }
 }

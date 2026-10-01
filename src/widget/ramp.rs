@@ -3,21 +3,22 @@
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
-use crate::core::{
-    NormalParam,
-    virtual_slider::{self, Gesture, VirtualSlider},
+use crate::{
+    core::{
+        NormalParam,
+        virtual_slider::{self, Gesture, VirtualSlider},
+    },
+    virtual_slider::Status,
 };
 use iced_core::{
-    Border, Clipboard, Element, Event, Layout, Length, Point, Rectangle, Shadow, Shell, Size,
-    Vector, Widget,
-    border::Radius,
-    layout, mouse,
-    renderer::{Quad, Style},
+    Clipboard, Element, Event, Layout, Length, Point, Rectangle, Shadow, Shell, Size, Vector,
+    Widget, layout, mouse,
+    renderer::{self, Quad},
     widget::{Tree, tree},
 };
 use iced_graphics::geometry::{self, Frame, LineCap, Path, Stroke};
 
-pub use crate::style::ramp::{Appearance, StyleSheet};
+pub use crate::style::ramp::{Catalog, Style, StyleFn};
 
 const DEFAULT_WIDTH: f32 = 40.0;
 const DEFAULT_HEIGHT: f32 = 20.0;
@@ -38,16 +39,19 @@ pub enum RampDirection {
 /// [`NormalParam`]: ../../core/normal_param/struct.NormalParam.html
 /// [`Ramp`]: struct.Ramp.html
 #[allow(missing_debug_implementations)]
-pub struct Ramp<'a, Message, Theme: StyleSheet> {
+pub struct Ramp<'a, Message, Theme = iced_core::Theme>
+where
+    Theme: Catalog,
+{
     virtual_slider: VirtualSlider<'a, Message>,
     enabled: bool,
     width: Length,
     height: Length,
-    style: <Theme as StyleSheet>::Style,
+    class: Theme::Class<'a>,
     direction: RampDirection,
 }
 
-impl<'a, Message, Theme: StyleSheet> Ramp<'a, Message, Theme> {
+impl<'a, Message, Theme: Catalog> Ramp<'a, Message, Theme> {
     /// Creates a new [`Ramp`].
     ///
     /// It expects:
@@ -59,16 +63,13 @@ impl<'a, Message, Theme: StyleSheet> Ramp<'a, Message, Theme> {
     /// [`RampDirection`]: enum.RampDirection.html
     /// [`NormalParam`]: struct.NormalParam.html
     /// [`Ramp`]: struct.Ramp.html
-    pub fn new(normal_param: impl Into<NormalParam>, direction: RampDirection) -> Self
-    where
-        <Theme as StyleSheet>::Style: Default,
-    {
+    pub fn new(normal_param: impl Into<NormalParam>, direction: RampDirection) -> Self {
         Ramp {
             virtual_slider: VirtualSlider::new(normal_param.into()),
             enabled: true,
             width: Length::Fixed(DEFAULT_WIDTH),
             height: Length::Fixed(DEFAULT_HEIGHT),
-            style: Default::default(),
+            class: Theme::default(),
             direction,
         }
     }
@@ -112,17 +113,26 @@ impl<'a, Message, Theme: StyleSheet> Ramp<'a, Message, Theme> {
     }
 
     /// Sets the style of the [`Ramp`].
-    ///
-    /// [`Ramp`]: struct.Ramp.html
-    pub fn style(mut self, style: impl Into<<Theme as StyleSheet>::Style>) -> Self {
-        self.style = style.into();
+    #[must_use]
+    pub fn style(mut self, style: impl Fn(&Theme, Status) -> Style + 'a) -> Self
+    where
+        Theme::Class<'a>: From<StyleFn<'a, Theme>>,
+    {
+        self.class = (Box::new(style) as StyleFn<'a, Theme>).into();
+        self
+    }
+
+    /// Sets the style class of the [`Ramp`].
+    #[must_use]
+    pub fn class(mut self, class: impl Into<Theme::Class<'a>>) -> Self {
+        self.class = class.into();
         self
     }
 }
 
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Ramp<'a, Message, Theme>
 where
-    Theme: StyleSheet,
+    Theme: Catalog,
     Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {
     fn tag(&self) -> tree::Tag {
@@ -132,6 +142,7 @@ where
     fn state(&self) -> tree::State {
         tree::State::new(virtual_slider::State::new(
             self.virtual_slider.param().normal,
+            self.enabled,
         ))
     }
 
@@ -162,16 +173,21 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        if !self.enabled {
-            return;
-        }
-
         let state = tree.state.downcast_mut::<virtual_slider::State>();
         let cursor_is_over = cursor.is_over(layout.bounds());
 
         if self
             .virtual_slider
-            .update(state, cursor_is_over, false, false, event, cursor, shell)
+            .update(
+                state,
+                self.enabled,
+                cursor_is_over,
+                false,
+                false,
+                event,
+                cursor,
+                shell,
+            )
             .should_redraw()
         {
             shell.request_redraw();
@@ -183,24 +199,17 @@ where
         state: &Tree,
         renderer: &mut Renderer,
         theme: &Theme,
-        _style: &Style,
+        _style: &renderer::Style,
         layout: Layout<'_>,
-        cursor: mouse::Cursor,
+        _cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
         let state = state.state.downcast_ref::<virtual_slider::State>();
 
         let bounds = layout.bounds();
-        let cursor_is_over = cursor.is_over(layout.bounds());
         let normal_val = self.virtual_slider.param().normal;
 
-        let appearance = if state.is_gesturing() {
-            theme.gesturing(&self.style)
-        } else if cursor_is_over {
-            theme.hovered(&self.style)
-        } else {
-            theme.idle(&self.style)
-        };
+        let style = theme.style(&self.class, state.status());
 
         let bounds_x = bounds.x.floor();
         let bounds_y = bounds.y.floor();
@@ -208,26 +217,24 @@ where
         let bounds_width = bounds.width.floor();
         let bounds_height = bounds.height.floor();
 
-        renderer.fill_quad(
-            Quad {
-                bounds: Rectangle {
-                    x: bounds_x,
-                    y: bounds_y,
-                    width: bounds_width,
-                    height: bounds_height,
+        if let Some(bg) = style.background {
+            renderer.fill_quad(
+                Quad {
+                    bounds: Rectangle {
+                        x: bounds_x,
+                        y: bounds_y,
+                        width: bounds_width,
+                        height: bounds_height,
+                    },
+                    border: style.border,
+                    shadow: Shadow::default(),
+                    snap: false,
                 },
-                border: Border {
-                    color: appearance.back_border_color,
-                    width: appearance.back_border_width,
-                    radius: Radius::new(0.0),
-                },
-                shadow: Shadow::default(),
-                snap: false,
-            },
-            appearance.back_color,
-        );
+                bg,
+            );
+        }
 
-        let border_width = appearance.back_border_width;
+        let border_width = style.border.width;
         let twice_border_width = border_width * 2.0;
 
         let range_width = bounds_width - twice_border_width;
@@ -237,8 +244,10 @@ where
             RampDirection::Up => {
                 if normal_val.as_f32() < 0.449 {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_down_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(
+                            style.line_down_color.unwrap_or(style.line_color),
+                        ),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -268,8 +277,10 @@ where
                     );
                 } else if normal_val.as_f32() > 0.501 {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_up_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(
+                            style.line_up_color.unwrap_or(style.line_color),
+                        ),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -301,8 +312,8 @@ where
                     );
                 } else {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_center_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(style.line_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -329,8 +340,10 @@ where
             RampDirection::Down => {
                 if normal_val.as_f32() < 0.449 {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_down_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(
+                            style.line_down_color.unwrap_or(style.line_color),
+                        ),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -360,8 +373,10 @@ where
                     );
                 } else if normal_val.as_f32() > 0.501 {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_up_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(
+                            style.line_up_color.unwrap_or(style.line_color),
+                        ),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -394,8 +409,8 @@ where
                     );
                 } else {
                     let stroke = Stroke {
-                        width: appearance.line_width,
-                        style: geometry::Style::Solid(appearance.line_center_color),
+                        width: style.line_width,
+                        style: geometry::Style::Solid(style.line_color),
                         line_cap: LineCap::Square,
                         ..Stroke::default()
                     };
@@ -427,7 +442,7 @@ impl<'a, Message, Theme, Renderer> From<Ramp<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a,
-    Theme: 'a + StyleSheet,
+    Theme: 'a + Catalog,
     Renderer: iced_core::Renderer + iced_graphics::geometry::Renderer,
 {
     fn from(ramp: Ramp<'a, Message, Theme>) -> Self {

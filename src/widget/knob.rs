@@ -169,6 +169,7 @@ where
     fn state(&self) -> tree::State {
         tree::State::new(virtual_slider::State::new(
             self.virtual_slider.param().normal,
+            self.enabled,
         ))
     }
 
@@ -199,16 +200,21 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        if !self.enabled {
-            return;
-        }
-
         let state = tree.state.downcast_mut::<virtual_slider::State>();
         let cursor_is_over = cursor.is_over(layout.bounds());
 
         if self
             .virtual_slider
-            .update(state, cursor_is_over, false, false, event, cursor, shell)
+            .update(
+                state,
+                self.enabled,
+                cursor_is_over,
+                false,
+                false,
+                event,
+                cursor,
+                shell,
+            )
             .should_redraw()
         {
             shell.request_redraw();
