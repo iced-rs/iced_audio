@@ -44,12 +44,7 @@ fn draw_aligned<R: iced_core::text::Renderer<Font = iced_core::Font>>(
                 },
                 Point { x, y },
                 color,
-                Rectangle {
-                    x,
-                    y,
-                    width: text_bounds_width,
-                    height: text_bounds_height,
-                },
+                Rectangle::INFINITE,
             );
         }
     } else {
@@ -72,13 +67,7 @@ fn draw_aligned<R: iced_core::text::Renderer<Font = iced_core::Font>>(
                 },
                 Point { x, y },
                 color,
-                // TODO: What is this?
-                Rectangle {
-                    x: 0.0,
-                    y: 0.0,
-                    width: 1000.0,
-                    height: 1000.0,
-                },
+                Rectangle::INFINITE,
             );
         }
     }

@@ -82,13 +82,7 @@ pub fn draw_radial_text_marks<R: iced_core::text::Renderer<Font = iced_core::Fon
                 y: (center.y - (dy * radius)).round(),
             },
             color,
-            // TODO: What is this?
-            Rectangle {
-                x: 0.0,
-                y: 0.0,
-                width: 1000.0,
-                height: 1000.0,
-            },
+            Rectangle::INFINITE,
         );
     }
 }
